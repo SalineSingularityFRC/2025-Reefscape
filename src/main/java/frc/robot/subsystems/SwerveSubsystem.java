@@ -4,7 +4,6 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.pathplanner.lib.auto.*;
-import com.pathplanner.lib.*;
 import com.pathplanner.lib.config.*;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
@@ -263,14 +262,14 @@ public class SwerveSubsystem extends SubsystemBase {
    * from the pidgeon 2.0
    */
   public double getRobotAngle() {
-    return -(((gyro.getAngle() - gyroZero)) * Math.PI)
+    return -(((gyro.getYaw().getValueAsDouble() - gyroZero)) * Math.PI)
         / 180; // returns in counterclockwise hence why 360 minus
     // it is gyro.getAngle() - 180 because the pigeon for this robot is facing
     // backwards
   }
 
   public double getAngularChassisSpeed() {
-    return gyro.getRate();
+    return gyro.getAngularVelocityZWorld().getValueAsDouble();
   }
 
   public Command resetGyroCommand() {
@@ -479,7 +478,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
           if (lime.isTagFound()) {
             drive(
-                rotationFeedForward.calculate(gyro.getAngle() - 270) - rotationController.calculate(gyro.getAngle() - 270),
+                rotationFeedForward.calculate(gyro.getYaw().getValueAsDouble() - 270) - rotationController.calculate(gyro.getYaw().getValueAsDouble() - 270),
                 -driveFeedForward.calculate(distance) + driveSpeed,
                 0,
                 false);
@@ -535,7 +534,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
   public void resetGyro() {
     // gyro.reset();
-    gyroZero = gyro.getAngle();
+    gyroZero = gyro.getYaw().getValueAsDouble();
     odometry.resetPosition();
   }
 
