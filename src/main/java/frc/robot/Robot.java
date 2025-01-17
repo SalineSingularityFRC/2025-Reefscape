@@ -11,28 +11,36 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
-import edu.wpi.first.wpilibj.PowerDistribution;
-import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
-import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.SwerveClasses.SwerveOdometry;
 
 public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
   private RobotContainer m_robotContainer;
 
-  public Robot() {
+  @Override
+  public void robotInit() {
     Logger.recordMetadata("ProjectName", "2025-Reefscape");
 
-    if (isReal()) {
-      Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs")
-      Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
-      new PowerDistribution(1, ModuleType.kRev); // Enables power distribution logging
-    } else {
-      setUseTiming(false); // Run as fast as possible
-      String logPath = LogFileUtil.findReplayLog(); // Pull the replay log from AdvantageScope (or prompt the user)
-      Logger.setReplaySource(new WPILOGReader(logPath)); // Read replay log
-      Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim"))); // Save outputs to a new log
+    switch (Constants.Modes.currentMode) {
+      case REAL: // on a real robot
+        System.out.println("REAL!");
+        Logger.addDataReceiver(new WPILOGWriter()); // logs to /U/logs on USB stick
+        Logger.addDataReceiver(new NT4Publisher());
+        break;
+      case SIM: // on "Simulate Robot Code"
+        System.out.println("SIM!");
+        Logger.addDataReceiver(new WPILOGWriter()); // logs to logs folder in project
+        Logger.addDataReceiver(new NT4Publisher());
+        break;
+      case REPLAY:
+        System.out.println("REPLAY!");
+        setUseTiming(false);
+        String logPath = LogFileUtil.findReplayLog();
+        Logger.setReplaySource(new WPILOGReader(logPath));
+        Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim")));
+        break;
     }
 
     Logger.start();

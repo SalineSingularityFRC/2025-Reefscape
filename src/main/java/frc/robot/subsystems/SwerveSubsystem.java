@@ -34,6 +34,8 @@ import frc.robot.Robot;
 import frc.robot.SwerveClasses.SwerveModule;
 import frc.robot.SwerveClasses.SwerveOdometry;
 
+import org.littletonrobotics.junction.Logger;
+
 /*
  * This class provides functions to drive at a given angle and direction,
  * and performs the calculations required to achieve that
@@ -229,6 +231,7 @@ public class SwerveSubsystem extends SubsystemBase {
   public void periodic() {
     odometry.update();
     publisher.set(odometry.getEstimatedPosition());
+    Logger.recordOutput("MyPose", odometry.getEstimatedPosition());
   }
 
   public void disabledPeriodic() {

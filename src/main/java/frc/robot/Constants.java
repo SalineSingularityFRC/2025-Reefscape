@@ -1,5 +1,6 @@
 package frc.robot;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.RobotBase;
 
 /*
  * This class should hold any static configuration data about the robot
@@ -218,4 +219,15 @@ public final class Constants {
       Constants.Position.MainArm.Speaker.FEET7_4
     };
   }
+
+  public static final class Modes {
+    /*
+     * Mode.REAL - if on a real robot
+     * Mode.SIM - if on "Simulate Robot Code"
+     * Mode.REPLAY - finds path to log file and puts in AdvantageScope (if open)
+    */
+    public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : Mode.REPLAY;
+  }
+
+  public static enum Mode{REAL, SIM, REPLAY}
 }
