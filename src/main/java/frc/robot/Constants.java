@@ -226,7 +226,7 @@ public final class Constants {
      * Mode.SIM - if on "Simulate Robot Code"
      * Mode.REPLAY - finds path to log file and puts in AdvantageScope (if open)
     */
-    public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : Mode.REPLAY;
+    public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : Mode.SIM; // Mode.REAL : Mode.REPLAY;
   }
 
   public static enum Mode{REAL, SIM, REPLAY}

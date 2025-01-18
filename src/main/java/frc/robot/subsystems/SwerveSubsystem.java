@@ -231,7 +231,9 @@ public class SwerveSubsystem extends SubsystemBase {
   public void periodic() {
     odometry.update();
     publisher.set(odometry.getEstimatedPosition());
-    Logger.recordOutput("MyPose", odometry.getEstimatedPosition());
+
+    Logger.recordOutput("Swerve/EstimatedPosition", odometry.getEstimatedPosition()); // logs estimated position as Swerve/EstimatedPosition
+    Logger.recordOutput("Swerve/ModuleStates", getModuleStates()); // logs module states as Swerve/ModuleStates
   }
 
   public void disabledPeriodic() {

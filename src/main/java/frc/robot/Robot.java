@@ -13,7 +13,6 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.SwerveClasses.SwerveOdometry;
 
 public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
@@ -26,7 +25,7 @@ public class Robot extends LoggedRobot {
     switch (Constants.Modes.currentMode) {
       case REAL: // on a real robot
         System.out.println("REAL!");
-        Logger.addDataReceiver(new WPILOGWriter()); // logs to /U/logs on USB stick
+        Logger.addDataReceiver(new WPILOGWriter()); // logs to /logs/ on USB stick
         Logger.addDataReceiver(new NT4Publisher());
         break;
       case SIM: // on "Simulate Robot Code"
