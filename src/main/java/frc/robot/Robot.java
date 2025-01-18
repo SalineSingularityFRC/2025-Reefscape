@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import java.util.HashMap;
+
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -11,12 +13,16 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
+import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.commands.Nothing;
 
 public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
   private RobotContainer m_robotContainer;
+
+  private HashMap<String, Alert> alerts;
 
   @Override
   public void robotInit() {
@@ -43,6 +49,26 @@ public class Robot extends LoggedRobot {
     }
 
     Logger.start();
+
+    alerts = new HashMap<String, Alert>();
+
+    CommandScheduler.getInstance().onCommandExecute((Command command) -> {
+      Alert alert = new Alert(command.getName(), Alert.AlertType.kInfo);
+      alert.set(true);
+      alerts.put(command.getName(), alert);
+    });
+
+    CommandScheduler.getInstance().onCommandFinish((Command command) -> {
+      Alert alert = alerts.get(command.getName());
+      alert.set(false);
+      alerts.remove(command.getName());
+    });
+
+    CommandScheduler.getInstance().onCommandInterrupt((Command command) -> {
+      Alert alert = alerts.get(command.getName());
+      alert.set(false);
+      alerts.remove(command.getName());
+    });
 
     m_robotContainer = new RobotContainer();
   }
@@ -86,6 +112,8 @@ public class Robot extends LoggedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
+
+    new Nothing().schedule();
   }
 
   @Override
