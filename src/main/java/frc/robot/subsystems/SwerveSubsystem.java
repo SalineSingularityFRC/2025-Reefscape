@@ -2,14 +2,15 @@ package frc.robot.subsystems;
 
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+
 import com.ctre.phoenix6.hardware.Pigeon2;
-import com.pathplanner.lib.auto.*;
-import com.pathplanner.lib.config.*;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
-import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -17,11 +18,9 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
-import edu.wpi.first.util.sendable.Sendable;
-import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -29,10 +28,10 @@ import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Limelight;
-import frc.robot.LimelightHelpers;
-import frc.robot.Robot;
 import frc.robot.SwerveClasses.SwerveModule;
 import frc.robot.SwerveClasses.SwerveOdometry;
+import edu.wpi.first.wpilibj.Timer;
+
 
 /*
  * This class provides functions to drive at a given angle and direction,
@@ -59,6 +58,14 @@ public class SwerveSubsystem extends SubsystemBase {
   private final SwerveDriveKinematics swerveDriveKinematics;
   private ChassisSpeeds chassisSpeeds;
   private double gyroZero = 0;
+
+  private PIDController rotationController;
+  private SimpleMotorFeedforward feedforwardRotation;
+
+  private double pastTimeStep;
+  private double currentTimeStep;
+  private double pastRotationSpeed;
+  private double currentRotationSpeed;
 
   private SwerveOdometry odometry;
 
@@ -181,14 +188,29 @@ public class SwerveSubsystem extends SubsystemBase {
     );
 
     publisher = table.getStructTopic("Final Odometry Position", Pose2d.struct).publish();
+    rotationController = new PIDController(Constants.PidGains.rotationCorrection.rotation.P, 
+      Constants.PidGains.rotationCorrection.rotation.I, 
+      Constants.PidGains.rotationCorrection.rotation.D);
+    rotationController.setTolerance(0.5);
+    feedforwardRotation = new SimpleMotorFeedforward(0.035, 0);
+
+    currentTimeStep = 0;
+    pastTimeStep = 0;
+    currentRotationSpeed = 0;
+    pastTimeStep = 0;
   }
 
   public void drive(
           double rotation,
           double x,
           double y,
-          boolean fieldCentric) { // takes in the inputs from the controller
+          boolean fieldCentric) { 
     double currentRobotAngle = getRobotAngle();
+    double currentRotationSpeed = rotation;
+
+    currentTimeStep = Timer.getFPGATimestamp();
+
+    SmartDashboard.putNumber("current robot angle", currentRobotAngle);
 
     // this is to make sure if both the joysticks are at neutral position, the robot
     // and wheels
@@ -216,10 +238,38 @@ public class SwerveSubsystem extends SubsystemBase {
           + x * Math.sin(difference);
     }
 
+    double timeDifference = currentTimeStep - pastTimeStep;
+    double rotationSpeedDerivative = (Math.abs(currentRotationSpeed) - Math.abs(pastRotationSpeed)) / timeDifference;
+    SmartDashboard.putNumber("rotationSpeedDerivative", rotationSpeedDerivative);
+
+    SmartDashboard.putNumber("current time", currentTimeStep);
+    SmartDashboard.putNumber("past time", pastTimeStep);
+
+    // For correcting angular position when not rotating manually
+    if (Math.abs(rotation) > 0.05 && rotationSpeedDerivative > -20) {
+      rotationController.setSetpoint(gyro.getYaw().getValueAsDouble());
+    }
+    else {
+      rotation = rotationController.calculate(gyro.getYaw().getValueAsDouble());
+      rotation += feedforwardRotation.calculate(rotation);
+    }
+
+    SmartDashboard.putNumber("Setpoint: Robot Angle", rotationController.getSetpoint());
+    SmartDashboard.putNumber("Plant state: Robot Angle", gyro.getYaw().getValueAsDouble());
+    SmartDashboard.putNumber("Control Effort: Calculated Rotation Speed", rotation);
+
+
     this.chassisSpeeds = new ChassisSpeeds(robotX, robotY, rotation);
 
     SwerveModuleState[] modules = swerveDriveKinematics.toSwerveModuleStates(chassisSpeeds);
     setModuleStates(modules);
+    
+    pastTimeStep = currentTimeStep;
+    pastRotationSpeed = currentRotationSpeed;
+  }
+
+  public void updateRotationPIDSetpoint() {
+    rotationController.setSetpoint(gyro.getYaw().getValueAsDouble());
   }
 
   public ChassisSpeeds getChassisSpeed() {
@@ -262,7 +312,7 @@ public class SwerveSubsystem extends SubsystemBase {
    * from the pidgeon 2.0
    */
   public double getRobotAngle() {
-    return -(((gyro.getYaw().getValueAsDouble() - gyroZero)) * Math.PI)
+    return (((gyro.getYaw().getValueAsDouble() - gyroZero)) * Math.PI)
         / 180; // returns in counterclockwise hence why 360 minus
     // it is gyro.getAngle() - 180 because the pigeon for this robot is facing
     // backwards

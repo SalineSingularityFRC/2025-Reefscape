@@ -38,17 +38,36 @@ public class RobotContainer {
 
         this.pathAutonChooser = new SendableChooser<String>();
 
-        this.pathAutonChooser.setDefaultOption("Noah's Auto", "New Auto");
-        this.pathAutonChooser.setDefaultOption("posEstimator Test", "Short Auto");
+        this.pathAutonChooser.setDefaultOption("1 Meter", "1 Meter Auto");
         SmartDashboard.putData("Auton Choices", pathAutonChooser);
     }
 
     private void configureBindings() {
         driveController.x().whileTrue(drive.resetGyroCommand());
 
+        // driveController.b().whileTrue(
+        //         new toSpeaker(drive, lime)
+        // );
+
+        driveController.a().whileTrue(
+            new DriveController(drive, () -> {
+                return 0;
+            }, () -> {
+                return 1;
+            }, () -> {
+                return 0;
+            },
+                4));
+
         driveController.b().whileTrue(
-                new toSpeaker(drive, lime)
-        );
+            new DriveController(drive, () -> {
+                return 0;
+            }, () -> {
+                return -1;
+            }, () -> {
+                return 0;
+            },
+                4));
 
         driveController.povRight().onTrue(drive.xMode());
 
@@ -72,7 +91,7 @@ public class RobotContainer {
 
                         return driveController.getLeftX() * driveController.getLeftX();
                 },
-                        1.0));
+                        4.0));
     }
 
     protected Command getAutonomousCommand() {
@@ -81,6 +100,10 @@ public class RobotContainer {
 
     protected void updateOdometry() {
         this.drive.updateOdometry();
+    }
+
+    protected void updateRotationPIDSetpoint() {
+        this.drive.updateRotationPIDSetpoint();
     }
 
 }

@@ -120,6 +120,7 @@ public class SwerveModule {
 
   public void setDesiredState(SwerveModuleState desiredState) {
     SwerveModuleState state = SwerveModuleState.optimize(desiredState, new Rotation2d(getEncoderPosition()));
+    state.cosineScale(new Rotation2d(getEncoderPosition()));
     double driveOutput = m_drivePIDController.calculate(driveMotor.get(), state.speedMetersPerSecond);
 
     switch(angleMotor.setAngle(state.angle.getRadians())){
