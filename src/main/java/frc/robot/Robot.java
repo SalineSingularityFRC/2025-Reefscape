@@ -4,18 +4,72 @@
 
 package frc.robot;
 
-import edu.wpi.first.wpilibj.TimedRobot;
+import java.util.HashMap;
+
+import org.littletonrobotics.junction.LogFileUtil;
+import org.littletonrobotics.junction.LoggedRobot;
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.NT4Publisher;
+import org.littletonrobotics.junction.wpilog.WPILOGReader;
+import org.littletonrobotics.junction.wpilog.WPILOGWriter;
+
+import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
-public class Robot extends TimedRobot {
+public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
   private RobotContainer m_robotContainer;
 
+  private HashMap<String, Alert> alerts;
+
   @Override
   public void robotInit() {
-    m_robotContainer =
-        new RobotContainer();
+    Logger.recordMetadata("ProjectName", "2025-Reefscape");
+
+    switch (Constants.Modes.currentMode) {
+      case REAL: // on a real robot
+        System.out.println("REAL!");
+        Logger.addDataReceiver(new WPILOGWriter()); // logs to /logs/ on USB stick
+        Logger.addDataReceiver(new NT4Publisher());
+        break;
+      case SIM: // on "Simulate Robot Code"
+        System.out.println("SIM!");
+        Logger.addDataReceiver(new WPILOGWriter()); // logs to logs folder in project
+        Logger.addDataReceiver(new NT4Publisher());
+        break;
+      case REPLAY:
+        System.out.println("REPLAY!");
+        setUseTiming(false);
+        String logPath = LogFileUtil.findReplayLog();
+        Logger.setReplaySource(new WPILOGReader(logPath));
+        Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim")));
+        break;
+    }
+
+    Logger.start();
+
+    alerts = new HashMap<String, Alert>();
+
+    CommandScheduler.getInstance().onCommandExecute((Command command) -> {
+      Alert alert = new Alert(command.getName(), Alert.AlertType.kInfo);
+      alert.set(true);
+      alerts.put(command.getName(), alert);
+    });
+
+    CommandScheduler.getInstance().onCommandFinish((Command command) -> {
+      Alert alert = alerts.get(command.getName());
+      alert.set(false);
+      alerts.remove(command.getName());
+    });
+
+    CommandScheduler.getInstance().onCommandInterrupt((Command command) -> {
+      Alert alert = alerts.get(command.getName());
+      alert.set(false);
+      alerts.remove(command.getName());
+    });
+
+    m_robotContainer = new RobotContainer();
   }
 
   @Override

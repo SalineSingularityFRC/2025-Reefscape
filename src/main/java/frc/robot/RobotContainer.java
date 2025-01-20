@@ -17,14 +17,12 @@ import frc.robot.commands.RumbleCommandStop;
 import frc.robot.commands.toSpeaker;
 
 public class RobotContainer {
-
     private SwerveSubsystem drive;
     private Limelight lime;
     private CommandXboxController driveController;
     private SendableChooser<String> pathAutonChooser;
 
     protected RobotContainer() {
-
         lime = new Limelight();
         drive = new SwerveSubsystem();
 
