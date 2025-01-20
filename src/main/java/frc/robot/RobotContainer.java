@@ -12,7 +12,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.commands.DriveController;
-import frc.robot.commands.Nothing;
 import frc.robot.commands.RumbleCommandStart;
 import frc.robot.commands.RumbleCommandStop;
 import frc.robot.commands.toSpeaker;
@@ -23,11 +22,7 @@ public class RobotContainer {
     private CommandXboxController driveController;
     private SendableChooser<String> pathAutonChooser;
 
-    private Nothing nothing;
-
     protected RobotContainer() {
-        nothing = new Nothing();
-
         lime = new Limelight();
         drive = new SwerveSubsystem();
 
@@ -47,8 +42,6 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
-        driveController.a().whileTrue(new Nothing());
-
         driveController.x().whileTrue(drive.resetGyroCommand());
 
         driveController.b().whileTrue(
