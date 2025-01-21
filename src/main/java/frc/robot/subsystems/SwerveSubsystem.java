@@ -30,7 +30,6 @@ import frc.robot.Constants;
 import frc.robot.Limelight;
 import frc.robot.SwerveClasses.SwerveModule;
 import frc.robot.SwerveClasses.SwerveOdometry;
-import edu.wpi.first.wpilibj.Timer;
 
 
 /*
@@ -62,10 +61,11 @@ public class SwerveSubsystem extends SubsystemBase {
   private PIDController rotationController;
   private SimpleMotorFeedforward feedforwardRotation;
 
-  private double pastTimeStep;
-  private double currentTimeStep;
-  private double pastRotationSpeed;
-  private double currentRotationSpeed;
+  private double pastRobotAngle;
+  private double currentRobotAngle;
+  private double pastRobotAngleDerivative;
+  private double currentRobotAngleDerivative;
+  private boolean isRotating;
 
   private SwerveOdometry odometry;
 
@@ -192,12 +192,13 @@ public class SwerveSubsystem extends SubsystemBase {
       Constants.PidGains.rotationCorrection.rotation.I, 
       Constants.PidGains.rotationCorrection.rotation.D);
     rotationController.setTolerance(0.5);
-    feedforwardRotation = new SimpleMotorFeedforward(0.035, 0);
+    feedforwardRotation = new SimpleMotorFeedforward(0.05, 0);
 
-    currentTimeStep = 0;
-    pastTimeStep = 0;
-    currentRotationSpeed = 0;
-    pastTimeStep = 0;
+    pastRobotAngle = 0;
+    currentRobotAngle = 0;
+    pastRobotAngleDerivative = 0;
+    currentRobotAngleDerivative = 0;
+    isRotating = false;
   }
 
   public void drive(
@@ -205,21 +206,18 @@ public class SwerveSubsystem extends SubsystemBase {
           double x,
           double y,
           boolean fieldCentric) { 
-    double currentRobotAngle = getRobotAngle();
-    double currentRotationSpeed = rotation;
+    
+    double currentRobotAngle = gyro.getYaw().getValueAsDouble();
+    double currentRobotAngleRadians = getRobotAngle();
 
-    currentTimeStep = Timer.getFPGATimestamp();
-
-    SmartDashboard.putNumber("current robot angle", currentRobotAngle);
+    SmartDashboard.putNumber("Angular Z Speed", gyro.getAngularVelocityZWorld().getValueAsDouble());
+    SmartDashboard.putNumber("current robot angle", gyro.getYaw().getValueAsDouble());
 
     // this is to make sure if both the joysticks are at neutral position, the robot
     // and wheels
     // don't move or turn at all
     // 0.05 value can be increased if the joystick is increasingly inaccurate at
     // neutral position
-    SmartDashboard.putNumber("Swerve X: ", x);
-    SmartDashboard.putNumber("Swerve Y: ", y);
-    SmartDashboard.putNumber("Swerve R: ", rotation);
     if (Math.abs(x) < 0.07
         && Math.abs(y) < 0.07
         && Math.abs(rotation) < 0.05) {
@@ -231,41 +229,50 @@ public class SwerveSubsystem extends SubsystemBase {
     double robotX = x; 
     double robotY = y;
     if (fieldCentric) {
-      double difference = -(currentRobotAngle % (2 * Math.PI));
+      double difference = -(currentRobotAngleRadians % (2 * Math.PI));
       robotX = -y * Math.sin(difference)
           + x * Math.cos(difference);
       robotY = y * Math.cos(difference)
           + x * Math.sin(difference);
     }
 
-    double timeDifference = currentTimeStep - pastTimeStep;
-    double rotationSpeedDerivative = (Math.abs(currentRotationSpeed) - Math.abs(pastRotationSpeed)) / timeDifference;
-    SmartDashboard.putNumber("rotationSpeedDerivative", rotationSpeedDerivative);
+    currentRobotAngleDerivative = currentRobotAngle - pastRobotAngle;
+    if(currentRobotAngleDerivative == 0) {
+      currentRobotAngleDerivative = pastRobotAngleDerivative;
+    }
 
-    SmartDashboard.putNumber("current time", currentTimeStep);
-    SmartDashboard.putNumber("past time", pastTimeStep);
+    SmartDashboard.putNumber("Angle Derivative", currentRobotAngleDerivative);
+
+    if((pastRobotAngleDerivative > 0 && currentRobotAngleDerivative < 0) ||
+       (pastRobotAngleDerivative < 0 && currentRobotAngleDerivative > 0)) {
+      isRotating = false;
+    }
 
     // For correcting angular position when not rotating manually
-    if (Math.abs(rotation) > 0.05 && rotationSpeedDerivative > -20) {
+    if (Math.abs(rotation) > 0.05 || isRotating) {
+      isRotating = true;
       rotationController.setSetpoint(gyro.getYaw().getValueAsDouble());
+      rotationController.reset();
+      // rotationController.calculate(gyro.getYaw().getValueAsDouble());
+      // feedforwardRotation.calculate(rotation);
     }
     else {
       rotation = rotationController.calculate(gyro.getYaw().getValueAsDouble());
-      rotation += feedforwardRotation.calculate(rotation);
+      // rotation += feedforwardRotation.calculate(rotation);
     }
 
     SmartDashboard.putNumber("Setpoint: Robot Angle", rotationController.getSetpoint());
     SmartDashboard.putNumber("Plant state: Robot Angle", gyro.getYaw().getValueAsDouble());
     SmartDashboard.putNumber("Control Effort: Calculated Rotation Speed", rotation);
-
+    SmartDashboard.putBoolean("Is bot turning", isRotating);
 
     this.chassisSpeeds = new ChassisSpeeds(robotX, robotY, rotation);
 
     SwerveModuleState[] modules = swerveDriveKinematics.toSwerveModuleStates(chassisSpeeds);
     setModuleStates(modules);
     
-    pastTimeStep = currentTimeStep;
-    pastRotationSpeed = currentRotationSpeed;
+    pastRobotAngle = currentRobotAngle;
+    pastRobotAngleDerivative = currentRobotAngleDerivative;
   }
 
   public void updateRotationPIDSetpoint() {

@@ -150,12 +150,11 @@ public final class Constants {
     // wheelBase - distance between pairs of wheels on the same side of the robot
     // driveBaseRadius - distance from robot center to furthest module.
     // radiusFactor - to account for real world factors of the wheel radius
-    // THIS IS IMPORTANT FOR A RECTANGULAR ROBOT
-    // In meters
-    public static final double TRACK_WIDTH = 18.75 * 0.0254; // Inches to meters
-    public static final double WHEEL_BASE = 22.75 * 0.0254; // Inches to meters
-    public static final double WHEELRADIUS = 2.003 * 0.0254; // 2024 robot radius from inches to meters
-    public static final double DRIVEBASERADIUS = 14.942 * 0.0254; // Inches to meters
+
+    public static final double TRACK_WIDTH = Units.inchesToMeters(18.75);
+    public static final double WHEEL_BASE = Units.inchesToMeters(22.75);
+    public static final double WHEELRADIUS = Units.inchesToMeters(1.99); // 2024 robot radius
+    public static final double DRIVEBASERADIUS = Units.inchesToMeters(14.942); 
     public static final double INTAKE_WIDTH_M = Units.inchesToMeters(19.25);
   }
 
@@ -197,7 +196,7 @@ public final class Constants {
     }
 
     public static final class rotationCorrection {
-      public static final PID rotation = new PID(0.035, 0, 0.0002);
+      public static final PID rotation = new PID(0.035, 0, 0);
     }
 
 
