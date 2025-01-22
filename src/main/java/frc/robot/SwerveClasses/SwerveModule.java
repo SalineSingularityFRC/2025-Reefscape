@@ -84,6 +84,8 @@ public class SwerveModule {
     absolutePositionEncoderOffset = zeroPosition;
     this.resetZeroAngle();
 
+    c_encoder.getAbsolutePosition().setUpdateFrequency(100);
+    driveMotor.getPosition().setUpdateFrequency(100);
   }
 
   public SwerveModuleState getState(){

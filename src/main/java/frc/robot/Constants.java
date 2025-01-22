@@ -129,10 +129,10 @@ public final class Constants {
 
   public static final class WheelOffset {
     // Converting rotations to radians
-    public static final double FL = (0.959961) * 2 * Math.PI;
-    public static final double FR = (0.673340) * 2 * Math.PI;
-    public static final double BL = (0.761230) * 2 * Math.PI;
-    public static final double BR = (0.556152) * 2 * Math.PI;
+    public static final double FL = (0.960205) * 2 * Math.PI;
+    public static final double FR = (0.682617) * 2 * Math.PI;
+    public static final double BL = (0.759521) * 2 * Math.PI;
+    public static final double BR = (0.546387) * 2 * Math.PI;
   }
 
   public static final class MotorGearRatio {
@@ -153,7 +153,7 @@ public final class Constants {
 
     public static final double TRACK_WIDTH = Units.inchesToMeters(18.75);
     public static final double WHEEL_BASE = Units.inchesToMeters(22.75);
-    public static final double WHEELRADIUS = Units.inchesToMeters(1.99); // 2024 robot radius
+    public static final double WHEELRADIUS = Units.inchesToMeters(1.8787); // 2024 robot radius
     public static final double DRIVEBASERADIUS = Units.inchesToMeters(14.942); 
     public static final double INTAKE_WIDTH_M = Units.inchesToMeters(19.25);
   }

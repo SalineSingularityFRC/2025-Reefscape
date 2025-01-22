@@ -57,7 +57,7 @@ public class RobotContainer {
             }, () -> {
                 return 0;
             },
-                4));
+                2));
 
         driveController.b().whileTrue(
             new DriveController(drive, () -> {
@@ -67,7 +67,7 @@ public class RobotContainer {
             }, () -> {
                 return 0;
             },
-                4));
+                2));
 
         driveController.povRight().onTrue(drive.xMode());
 

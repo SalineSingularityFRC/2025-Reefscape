@@ -199,6 +199,7 @@ public class SwerveSubsystem extends SubsystemBase {
     pastRobotAngleDerivative = 0;
     currentRobotAngleDerivative = 0;
     isRotating = false;
+
   }
 
   public void drive(
@@ -284,7 +285,6 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   public void periodic() {
-    odometry.update();
     publisher.set(odometry.getEstimatedPosition());
   }
 
