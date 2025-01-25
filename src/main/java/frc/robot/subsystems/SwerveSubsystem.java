@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -8,6 +9,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.util.DriveFeedforwards;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -59,7 +61,7 @@ public class SwerveSubsystem extends SubsystemBase {
   private double gyroZero = 0;
 
   private PIDController rotationController;
-  private SimpleMotorFeedforward feedforwardRotation;
+  //private SimpleMotorFeedforward feedforwardRotation;
 
   private double pastRobotAngle;
   private double currentRobotAngle;
@@ -137,6 +139,7 @@ public class SwerveSubsystem extends SubsystemBase {
       ChassisSpeeds temp = getChassisSpeed();
       return temp;
     };
+
     Consumer<ChassisSpeeds> consumer_chasis = ch_speed -> {
       SwerveModuleState[] modules = swerveDriveKinematics.toSwerveModuleStates(ch_speed);
       setModuleStates(modules);
@@ -192,7 +195,7 @@ public class SwerveSubsystem extends SubsystemBase {
       Constants.PidGains.rotationCorrection.rotation.I, 
       Constants.PidGains.rotationCorrection.rotation.D);
     rotationController.setTolerance(0.5);
-    feedforwardRotation = new SimpleMotorFeedforward(0.05, 0);
+    //feedforwardRotation = new SimpleMotorFeedforward(0.05, 0);
 
     pastRobotAngle = 0;
     currentRobotAngle = 0;

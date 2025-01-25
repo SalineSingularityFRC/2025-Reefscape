@@ -190,9 +190,9 @@ public final class Constants {
   public static final class PidGains {
     public static final class PathPlanner {
       //public static final PID translation = new PID(3, 5, 0.0);
-      public static final PID translation = new PID(25, 0, 0.0);
+      public static final PID translation = new PID(10, 0, 0);
       //public static final PID rotation = new PID(1, 0, 0.3);
-      public static final PID rotation = new PID(0.9, 0, 0);
+      public static final PID rotation = new PID(5, 0, 0);
     }
 
     public static final class rotationCorrection {

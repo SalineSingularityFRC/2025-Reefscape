@@ -39,7 +39,10 @@ public class Robot extends TimedRobot {
   public void disabledExit() {}
 
   @Override
-  public void autonomousInit() {
+  public void autonomousInit() {  
+
+    m_robotContainer.zeroRotation();
+
     m_robotContainer.updateOdometry();
 
     m_robotContainer.updateRotationPIDSetpoint();

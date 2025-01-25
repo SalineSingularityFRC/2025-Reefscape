@@ -38,7 +38,9 @@ public class RobotContainer {
 
         this.pathAutonChooser = new SendableChooser<String>();
 
-        this.pathAutonChooser.setDefaultOption("1 Meter", "1 Meter Auto");
+        this.pathAutonChooser.setDefaultOption("Modified Tag", "Modified Tag");
+        this.pathAutonChooser.addOption("1 Meter Auto", "1 Meter Auto");
+        this.pathAutonChooser.addOption("4 Meter Auto", "4 Meter Auto");
         SmartDashboard.putData("Auton Choices", pathAutonChooser);
     }
 
@@ -100,6 +102,10 @@ public class RobotContainer {
 
     protected void updateOdometry() {
         this.drive.updateOdometry();
+    }
+
+    protected void zeroRotation() {
+        this.drive.resetGyro();
     }
 
     protected void updateRotationPIDSetpoint() {

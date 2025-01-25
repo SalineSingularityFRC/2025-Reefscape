@@ -7,13 +7,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "1 Meter"
+            "pathName": "Out"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "In"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "Straight",
+  "folder": null,
   "choreoAuto": false
 }
