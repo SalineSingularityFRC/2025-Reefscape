@@ -26,7 +26,7 @@ public class Limelight extends SubsystemBase{
 
   public NetworkTableEntry botpose, targetspace;
   public double poseX, poseY, poseYaw;
-  public double targetPoseX, targetPoseZ, targetPoseYaw, targetPoseY;
+  public double targetPoseX, targetPoseZ, targetPoseYaw, targetPoseY, targetPosePitch, targetPoseRoll;
   public double tid;
 
   public double limeLatency;
@@ -77,10 +77,12 @@ public class Limelight extends SubsystemBase{
 
     // the robots position based on the primary in view april tag, (0, 0, 0) at center of the april tag
     // targetspace = table.getEntry("targetpose_cameraspace");
-    // targetPoseX = targetspace.getDoubleArray(new double [6])[0]; // to the right of the target from front face
+    // targetPoseX = targetspace.getDoubleArray(new double [6])[0];
     // targetPoseY = targetspace.getDoubleArray(new double [6])[1]; 
-    // targetPoseZ = limelightHelper.getPosEstim // pointing out of the april tag
-     //targetPoseYaw = targetspace.getDoubleArray(new double[6])[5] * (Math.PI/180); 
+    // targetPoseZ = targetspace.getDoubleArray(new double[6])[2]; 
+    // targetPosePitch = targetspace.getDoubleArray(new double[6])[3];
+    // targetPoseYaw = targetspace.getDoubleArray(new double[6])[4]; 
+    // targetPoseRoll = targetspace.getDoubleArray(new double[6])[5];
 
     //limeLatency = botpose.getDoubleArray(new double[6])[6];
 

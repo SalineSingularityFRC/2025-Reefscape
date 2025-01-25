@@ -286,6 +286,25 @@ public class SwerveSubsystem extends SubsystemBase {
 
   public void periodic() {
     publisher.set(odometry.getEstimatedPosition());
+
+    //Encoder Logging
+    SmartDashboard.putNumber("FL encoder position:", swerveModules[FL].getEncoderPosition());
+    SmartDashboard.putNumber("FR encoder position:", swerveModules[FR].getEncoderPosition());
+    SmartDashboard.putNumber("BL encoder position:", swerveModules[BL].getEncoderPosition());
+    SmartDashboard.putNumber("BR encoder position:", swerveModules[BR].getEncoderPosition());
+    SmartDashboard.putNumber("FL position:", swerveModules[FL].getPosition());
+    SmartDashboard.putNumber("FR position:", swerveModules[FR].getPosition());
+    SmartDashboard.putNumber("BL position:", swerveModules[BL].getPosition());
+    SmartDashboard.putNumber("BR position:", swerveModules[BR].getPosition());
+
+    //Pidgeon Logging
+    SmartDashboard.putNumber("Pidgeon Acceleration X", gyro.getAccelerationX().getValueAsDouble());
+    SmartDashboard.putNumber("Pidgeon Acceleration Y", gyro.getAccelerationY().getValueAsDouble());
+    SmartDashboard.putNumber("Pidgeon Acceleration Z", gyro.getAccelerationZ().getValueAsDouble());
+    SmartDashboard.putNumber("Pidgeon Angular Velocity X", gyro.getAngularVelocityXDevice().getValueAsDouble());
+    SmartDashboard.putNumber("Pidgeon Angular Velocity Y", gyro.getAngularVelocityYDevice().getValueAsDouble());
+    SmartDashboard.putNumber("Pidgeon Agular Velocity Z", gyro.getAngularVelocityZDevice().getValueAsDouble());
+    SmartDashboard.putNumber("Pidgeon Time", gyro.getUpTime().getValueAsDouble());
   }
 
   public void disabledPeriodic() {

@@ -101,7 +101,14 @@ public class SwerveOdometry {
             mt1.pose,
             mt1.timestampSeconds);
       }
-    
+      
+      SmartDashboard.putNumber("Target X", LimelightHelpers.getBotPose_TargetSpace("limelight")[0]);
+      SmartDashboard.putNumber("Target Y", LimelightHelpers.getBotPose_TargetSpace("limelight")[1]);
+      SmartDashboard.putNumber("Target Z", LimelightHelpers.getBotPose_TargetSpace("limelight")[2]);
+      SmartDashboard.putNumber("Target Pitch", LimelightHelpers.getBotPose_TargetSpace("limelight")[3]);
+      SmartDashboard.putNumber("Target Yaw", LimelightHelpers.getBotPose_TargetSpace("limelight")[4]);
+      SmartDashboard.putNumber("Target Roll", LimelightHelpers.getBotPose_TargetSpace("limelight")[5]);
+
     // // MegaTag 2
     // LimelightHelpers.SetRobotOrientation("limelight", swerveOdometry.getEstimatedPosition().getRotation().getDegrees(), 0, 0, 0, 0, 0);
     // LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
