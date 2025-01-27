@@ -8,7 +8,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.Elevator;
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 
@@ -85,7 +84,6 @@ public class ElevatorSubsystem extends SubsystemBase {
         // elevatorSpeed = Preferences.getDouble("Elevator Motor Speed (rpm)", 1);
 
         // Elevator Motor
-        Preferences.initDouble("Elevator/kP", 5);
         liftMotorConfig.idleMode(IdleMode.kBrake).smartCurrentLimit(Elevator.PrimaryMotor.MAX_CURRENT_IN_A.getValue())
                 .voltageCompensation(Elevator.PrimaryMotor.VOLTAGE_COMPENSATION_IN_V.getValue());
         liftMotorConfig.closedLoop
