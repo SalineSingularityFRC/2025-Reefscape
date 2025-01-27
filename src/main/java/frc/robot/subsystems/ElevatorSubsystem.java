@@ -6,7 +6,7 @@ import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
+import frc.robot.Constants.Elevator;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.RobotController;
@@ -36,11 +36,11 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     /** Elevator setpoints */
     public enum Setpoint {
-        kFeederStation(0),
-        kLevel1(100),
-        kLevel2(200),
-        kLevel3(300),
-        kLevel4(400);
+        kFeederStation(Elevator.Positions.FEED_STATION_COUNTS.getValue()),
+        kLevel1(Elevator.Positions.L1_COUNTS.getValue()),
+        kLevel2(Elevator.Positions.L2_COUNTS.getValue()),
+        kLevel3(Elevator.Positions.L3_COUNTS.getValue()),
+        kLevel4(Elevator.Positions.L4_COUNTS.getValue());
 
         public final int encoderPosition;
 
@@ -54,8 +54,8 @@ public class ElevatorSubsystem extends SubsystemBase {
     private SparkMaxSim elevatorMotorSim;
     private SparkLimitSwitchSim elevatorLimitSwitchSim;
     public static final double kPixelsPerMeter = 20;
-    public static final double kElevatorGearing = 25; // 25:1
-    public static final double kCarriageMass = 4.3 + 3.15 + 0.151; // Kg, arm + elevator stage + chain
+    public static final double kElevatorGearing = 20; // 20:1
+    public static final double kCarriageMass = 4.3 + 0.151; // Kg, elevator stage + chain
     public static final double kElevatorDrumRadius = 0.0328 / 2.0; // m
     public static final double kMinElevatorHeightMeters = 0.922; // m
     public static final double kMaxElevatorHeightMeters = 1.62; // m
@@ -84,27 +84,20 @@ public class ElevatorSubsystem extends SubsystemBase {
     public ElevatorSubsystem() {
         // elevatorSpeed = Preferences.getDouble("Elevator Motor Speed (rpm)", 1);
 
-        // Left Motor
-        double intakeLeftConfigP = Preferences.getDouble("Elevator kP", .1);
-        double intakeLeftConfigPowerMin = Preferences.getDouble("Elevator Min Power", -1);
-        double intakeLeftConfigPowerMax = Preferences.getDouble("Elevator Max Power", 1);
-        double intakeLeftConfigMaxV = Preferences.getDouble("Elevator Max Velocity (rpm-ish)", 2000);
-        double intakeLeftConfigMaxA = Preferences.getDouble("Elevator Max Accel (rpm/s-ish)", 10000);
-        int intakeLeftConfigSmartCurrentLimitAmps = Preferences.getInt("Elevator Max Current (A)", 40);
-        double intakeLeftConfigVoltageCompensation = Preferences.getDouble("Elevator Voltage Compensation (V)", 12);
-        double intakeLeftConfigMaxClosedLoopError = Preferences.getDouble("Elevator Max Error", 0.25);
-        liftMotorConfig.idleMode(IdleMode.kBrake).smartCurrentLimit(intakeLeftConfigSmartCurrentLimitAmps)
-                .voltageCompensation(intakeLeftConfigVoltageCompensation);
+        // Elevator Motor
+        Preferences.initDouble("Elevator/kP", 5);
+        liftMotorConfig.idleMode(IdleMode.kBrake).smartCurrentLimit(Elevator.PrimaryMotor.MAX_CURRENT_IN_A.getValue())
+                .voltageCompensation(Elevator.PrimaryMotor.VOLTAGE_COMPENSATION_IN_V.getValue());
         liftMotorConfig.closedLoop
                 .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
                 // Set PID values for position control
-                .p(intakeLeftConfigP)
-                .outputRange(intakeLeftConfigPowerMin, intakeLeftConfigPowerMax).maxMotion
+                .p(Elevator.PrimaryMotor.KP.getValue())
+                .outputRange(Elevator.PrimaryMotor.MIN_POWER.getValue(), Elevator.PrimaryMotor.MAX_POWER.getValue()).maxMotion
                 // Set MAXMotion parameters for position control
-                .maxVelocity(intakeLeftConfigMaxV)
-                .maxAcceleration(intakeLeftConfigMaxA)
-                .allowedClosedLoopError(intakeLeftConfigMaxClosedLoopError);
-        elevatorMotor = new SparkMax(Constants.CanId.Elevator.ELEVATOR_MOTOR, MotorType.kBrushless);
+                .maxVelocity(Elevator.PrimaryMotor.MAX_VELOCITY_RPM.getValue())
+                .maxAcceleration(Elevator.PrimaryMotor.MAX_ACCEL_RPM_PER_S.getValue())
+                .allowedClosedLoopError(Elevator.PrimaryMotor.MAX_CONTROL_ERROR_IN_COUNTS.getValue());
+        elevatorMotor = new SparkMax(Elevator.PrimaryMotor.CAN_ID.getValue(), MotorType.kBrushless);
         elevatorMotor.configure(
                 liftMotorConfig,
                 ResetMode.kResetSafeParameters,
