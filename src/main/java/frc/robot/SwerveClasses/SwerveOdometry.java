@@ -9,6 +9,9 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.Odometry;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.util.datalog.DataLog;
+import edu.wpi.first.util.datalog.DoubleLogEntry;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.LimelightHelpers;
@@ -27,8 +30,12 @@ public class SwerveOdometry {
 
   private SwerveSubsystem subsystem;
 
+  private DataLog log;
+
   public SwerveOdometry(SwerveSubsystem subsystem, Translation2d[] vectorKinematics) {
     this.subsystem = subsystem;
+
+    log = DataLogManager.getLog();
 
     swerveKinematics =
         new SwerveDriveKinematics(
@@ -124,13 +131,29 @@ public class SwerveOdometry {
           mt2.pose,
           mt2.timestampSeconds);
     }
+
+    // Assuming DataLogManager has already been started and log initialized
+    DoubleLogEntry targetXLog = new DoubleLogEntry(log, "Target X");
+    DoubleLogEntry targetYLog = new DoubleLogEntry(log, "Target Y");
+    DoubleLogEntry targetZLog = new DoubleLogEntry(log, "Target Z");
+    DoubleLogEntry targetPitchLog = new DoubleLogEntry(log, "Target Pitch");
+    DoubleLogEntry targetYawLog = new DoubleLogEntry(log, "Target Yaw");
+    DoubleLogEntry targetRollLog = new DoubleLogEntry(log, "Target Roll");
+
+    double[] botPose = LimelightHelpers.getBotPose_TargetSpace("limelight");
+    targetXLog.append(botPose[0]);
+    targetYLog.append(botPose[1]);
+    targetZLog.append(botPose[2]);
+    targetPitchLog.append(botPose[3]);
+    targetYawLog.append(botPose[4]);
+    targetRollLog.append(botPose[5]);
     
-    SmartDashboard.putNumber("Target X", LimelightHelpers.getBotPose_TargetSpace("limelight")[0]);
-    SmartDashboard.putNumber("Target Y", LimelightHelpers.getBotPose_TargetSpace("limelight")[1]);
-    SmartDashboard.putNumber("Target Z", LimelightHelpers.getBotPose_TargetSpace("limelight")[2]);
-    SmartDashboard.putNumber("Target Pitch", LimelightHelpers.getBotPose_TargetSpace("limelight")[3]);
-    SmartDashboard.putNumber("Target Yaw", LimelightHelpers.getBotPose_TargetSpace("limelight")[4]);
-    SmartDashboard.putNumber("Target Roll", LimelightHelpers.getBotPose_TargetSpace("limelight")[5]);
+    // SmartDashboard.putNumber("Target X", LimelightHelpers.getBotPose_TargetSpace("limelight")[0]);
+    // SmartDashboard.putNumber("Target Y", LimelightHelpers.getBotPose_TargetSpace("limelight")[1]);
+    // SmartDashboard.putNumber("Target Z", LimelightHelpers.getBotPose_TargetSpace("limelight")[2]);
+    // SmartDashboard.putNumber("Target Pitch", LimelightHelpers.getBotPose_TargetSpace("limelight")[3]);
+    // SmartDashboard.putNumber("Target Yaw", LimelightHelpers.getBotPose_TargetSpace("limelight")[4]);
+    // SmartDashboard.putNumber("Target Roll", LimelightHelpers.getBotPose_TargetSpace("limelight")[5]);
 
   }
 

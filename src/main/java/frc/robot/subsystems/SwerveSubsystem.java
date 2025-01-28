@@ -23,6 +23,9 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.util.datalog.DataLog;
+import edu.wpi.first.util.datalog.DoubleLogEntry;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -75,6 +78,8 @@ public class SwerveSubsystem extends SubsystemBase {
 
   private NetworkTableInstance inst;
   private NetworkTable table;
+
+  private DataLog log;
   /*
    * This constructor should create an instance of the pidgeon class, and should
    * construct four copies of the
@@ -82,6 +87,8 @@ public class SwerveSubsystem extends SubsystemBase {
    * Use values from the Constants.java class
    */
   public SwerveSubsystem() {
+    log = DataLogManager.getLog();
+
     inst = NetworkTableInstance.getDefault();
     table = inst.getTable("datatable");
 
@@ -288,26 +295,68 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   public void periodic() {
+    
     publisher.set(odometry.getEstimatedPosition());
 
-    //Encoder Logging
-    SmartDashboard.putNumber("FL encoder position:", swerveModules[FL].getEncoderPosition());
-    SmartDashboard.putNumber("FR encoder position:", swerveModules[FR].getEncoderPosition());
-    SmartDashboard.putNumber("BL encoder position:", swerveModules[BL].getEncoderPosition());
-    SmartDashboard.putNumber("BR encoder position:", swerveModules[BR].getEncoderPosition());
-    SmartDashboard.putNumber("FL position:", swerveModules[FL].getPosition());
-    SmartDashboard.putNumber("FR position:", swerveModules[FR].getPosition());
-    SmartDashboard.putNumber("BL position:", swerveModules[BL].getPosition());
-    SmartDashboard.putNumber("BR position:", swerveModules[BR].getPosition());
+    DoubleLogEntry flEncoderPositionLog = new DoubleLogEntry(log, "FL encoder position");
+    DoubleLogEntry frEncoderPositionLog = new DoubleLogEntry(log, "FR encoder position");
+    DoubleLogEntry blEncoderPositionLog = new DoubleLogEntry(log, "BL encoder position");
+    DoubleLogEntry brEncoderPositionLog = new DoubleLogEntry(log, "BR encoder position");
 
-    //Pidgeon Logging
-    SmartDashboard.putNumber("Pidgeon Acceleration X", gyro.getAccelerationX().getValueAsDouble());
-    SmartDashboard.putNumber("Pidgeon Acceleration Y", gyro.getAccelerationY().getValueAsDouble());
-    SmartDashboard.putNumber("Pidgeon Acceleration Z", gyro.getAccelerationZ().getValueAsDouble());
-    SmartDashboard.putNumber("Pidgeon Angular Velocity X", gyro.getAngularVelocityXDevice().getValueAsDouble());
-    SmartDashboard.putNumber("Pidgeon Angular Velocity Y", gyro.getAngularVelocityYDevice().getValueAsDouble());
-    SmartDashboard.putNumber("Pidgeon Agular Velocity Z", gyro.getAngularVelocityZDevice().getValueAsDouble());
-    SmartDashboard.putNumber("Pidgeon Time", gyro.getUpTime().getValueAsDouble());
+    DoubleLogEntry flPositionLog = new DoubleLogEntry(log, "FL position");
+    DoubleLogEntry frPositionLog = new DoubleLogEntry(log, "FR position");
+    DoubleLogEntry blPositionLog = new DoubleLogEntry(log, "BL position");
+    DoubleLogEntry brPositionLog = new DoubleLogEntry(log, "BR position");
+
+    DoubleLogEntry pidgeonAccelerationXLog = new DoubleLogEntry(log, "Pidgeon Acceleration X");
+    DoubleLogEntry pidgeonAccelerationYLog = new DoubleLogEntry(log, "Pidgeon Acceleration Y");
+    DoubleLogEntry pidgeonAccelerationZLog = new DoubleLogEntry(log, "Pidgeon Acceleration Z");
+
+    DoubleLogEntry pidgeonAngularVelocityXLog = new DoubleLogEntry(log, "Pidgeon Angular Velocity X");
+    DoubleLogEntry pidgeonAngularVelocityYLog = new DoubleLogEntry(log, "Pidgeon Angular Velocity Y");
+    DoubleLogEntry pidgeonAngularVelocityZLog = new DoubleLogEntry(log, "Pidgeon Angular Velocity Z");
+
+    DoubleLogEntry pidgeonTimeLog = new DoubleLogEntry(log, "Pidgeon Time");
+
+    // To log data into these entries, wherever you would have used SmartDashboard, use:
+    flEncoderPositionLog.append(swerveModules[FL].getEncoderPosition());
+    frEncoderPositionLog.append(swerveModules[FR].getEncoderPosition());
+    blEncoderPositionLog.append(swerveModules[BL].getEncoderPosition());
+    brEncoderPositionLog.append(swerveModules[BR].getEncoderPosition());
+
+    flPositionLog.append(swerveModules[FL].getPosition());
+    frPositionLog.append(swerveModules[FR].getPosition());
+    blPositionLog.append(swerveModules[BL].getPosition());
+    brPositionLog.append(swerveModules[BR].getPosition());
+
+    pidgeonAccelerationXLog.append(gyro.getAccelerationX().getValueAsDouble());
+    pidgeonAccelerationYLog.append(gyro.getAccelerationY().getValueAsDouble());
+    pidgeonAccelerationZLog.append(gyro.getAccelerationZ().getValueAsDouble());
+
+    pidgeonAngularVelocityXLog.append(gyro.getAngularVelocityXDevice().getValueAsDouble());
+    pidgeonAngularVelocityYLog.append(gyro.getAngularVelocityYDevice().getValueAsDouble());
+    pidgeonAngularVelocityZLog.append(gyro.getAngularVelocityZDevice().getValueAsDouble());
+
+    pidgeonTimeLog.append(gyro.getUpTime().getValueAsDouble());
+
+    // //Encoder Logging
+    // SmartDashboard.putNumber("FL encoder position:", swerveModules[FL].getEncoderPosition());
+    // SmartDashboard.putNumber("FR encoder position:", swerveModules[FR].getEncoderPosition());
+    // SmartDashboard.putNumber("BL encoder position:", swerveModules[BL].getEncoderPosition());
+    // SmartDashboard.putNumber("BR encoder position:", swerveModules[BR].getEncoderPosition());
+    // SmartDashboard.putNumber("FL position:", swerveModules[FL].getPosition());
+    // SmartDashboard.putNumber("FR position:", swerveModules[FR].getPosition());
+    // SmartDashboard.putNumber("BL position:", swerveModules[BL].getPosition());
+    // SmartDashboard.putNumber("BR position:", swerveModules[BR].getPosition());
+
+    // //Pidgeon Logging
+    // SmartDashboard.putNumber("Pidgeon Acceleration X", gyro.getAccelerationX().getValueAsDouble());
+    // SmartDashboard.putNumber("Pidgeon Acceleration Y", gyro.getAccelerationY().getValueAsDouble());
+    // SmartDashboard.putNumber("Pidgeon Acceleration Z", gyro.getAccelerationZ().getValueAsDouble());
+    // SmartDashboard.putNumber("Pidgeon Angular Velocity X", gyro.getAngularVelocityXDevice().getValueAsDouble());
+    // SmartDashboard.putNumber("Pidgeon Angular Velocity Y", gyro.getAngularVelocityYDevice().getValueAsDouble());
+    // SmartDashboard.putNumber("Pidgeon Agular Velocity Z", gyro.getAngularVelocityZDevice().getValueAsDouble());
+    // SmartDashboard.putNumber("Pidgeon Time", gyro.getUpTime().getValueAsDouble());
   }
 
   public void disabledPeriodic() {
