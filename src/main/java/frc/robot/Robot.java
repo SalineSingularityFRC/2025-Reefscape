@@ -65,8 +65,10 @@ public class Robot extends LoggedRobot {
 
     CommandScheduler.getInstance().onCommandInterrupt((Command command) -> {
       Alert alert = alerts.get(command.getName());
-      alert.set(false);
-      alerts.remove(command.getName());
+      if (alert != null) {
+        alert.set(false);
+        alerts.remove(alert);
+      }
     });
 
     m_robotContainer = new RobotContainer();

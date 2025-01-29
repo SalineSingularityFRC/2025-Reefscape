@@ -1,5 +1,6 @@
 package frc.robot;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.RobotBase;
 
 /*
@@ -17,7 +18,13 @@ public final class Constants {
   }
 
   public static final class CanId {
-  
+    public static final class Intake {
+      public static final int LEFT_MOTOR = 30;
+      public static final int RIGHT_MOTOR = 31;
+      public static final int INTAKE_LASER = 32;
+      public static final int SHOOTER_LASER = 33;
+    }
+    
     public static final class CanCoder {
       public static final int GYRO = 20;
       public static final int FL = 1;
@@ -230,4 +237,68 @@ public final class Constants {
   }
 
   public static enum Mode{REAL, SIM, REPLAY}
+
+  public abstract static class Config<T> {
+    public final String name;
+    public final T defaultValue;
+
+    Config(String name, T defaultValue) {
+      this.name = name;
+      this.defaultValue = defaultValue;
+    }
+
+    abstract public T getValue();
+  }
+
+  public static class ConfigDouble extends Config<Double> {
+    public ConfigDouble(String name, double defaultValue) {
+      super(name, defaultValue);
+
+      // Make sure that it shows up in the Preferences
+      Preferences.initDouble(name, defaultValue);
+    }
+
+    @Override
+    public Double getValue() {
+      return Preferences.getDouble(name, defaultValue);
+    }
+  }
+
+  public static class ConfigInt extends Config<Integer> {
+    public ConfigInt(String name, int defaultValue) {
+      super(name, defaultValue);
+
+      // Make sure that it shows up in the Preferences
+      Preferences.initInt(name, defaultValue);
+    }
+
+    @Override
+    public Integer getValue() {
+      return Preferences.getInt(name, defaultValue);
+    }
+  }
+
+  public static class Elevator {
+    public static class Positions {
+      public static ConfigInt FEED_STATION_COUNTS = new ConfigInt("Elevator/Positions/Feed Station in counts", 0);
+      public static ConfigInt L1_COUNTS = new ConfigInt("Elevator/Positions/L1 in counts", 10);
+      public static ConfigInt L2_COUNTS = new ConfigInt("Elevator/Positions/L2 in counts", 30);
+      public static ConfigInt L3_COUNTS = new ConfigInt("Elevator/Positions/L3 in counts", 60);
+      public static ConfigInt L4_COUNTS = new ConfigInt("Elevator/Positions/L4 in counts", 90);
+    }
+    
+    public static class PrimaryMotor {
+      public static ConfigInt CAN_ID = new ConfigInt("Elevator/Primary Motor/CAN ID", 40);
+      public static ConfigDouble KP = new ConfigDouble("Elevator/Primary Motor/kP", 5);
+  
+      public static ConfigDouble MIN_POWER = new ConfigDouble("Elevator/Primary Motor/Min Power", -1);
+      public static ConfigDouble MAX_POWER = new ConfigDouble("Elevator/Primary Motor/Max Power", 1);
+  
+      public static ConfigDouble MAX_VELOCITY_RPM = new ConfigDouble("Elevator/Primary Motor/Max Velocity in rpm", 2000);
+      public static ConfigDouble MAX_ACCEL_RPM_PER_S = new ConfigDouble("Elevator/Primary Motor/Max Accel in rpm per s", 10000);
+      public static ConfigInt MAX_CURRENT_IN_A = new ConfigInt("Elevator/Primary Motor/Max Current in A", 40);
+      public static ConfigDouble VOLTAGE_COMPENSATION_IN_V = new ConfigDouble("Elevator/Primary Motor/Voltage Compensation in V", 12);
+      public static ConfigDouble MAX_CONTROL_ERROR_IN_COUNTS = new ConfigDouble("Elevator/Primary Motor/Control Error Tolerance", 0.25);  
+    }
+  }
 }
