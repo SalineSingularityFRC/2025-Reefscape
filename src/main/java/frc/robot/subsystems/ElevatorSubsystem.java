@@ -11,9 +11,9 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 
-import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.sim.SparkMaxSim;
+import com.revrobotics.sim.SparkFlexSim;
 import com.revrobotics.sim.SparkLimitSwitchSim;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
@@ -22,13 +22,13 @@ import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.SparkFlexConfig;
 
 public class ElevatorSubsystem extends SubsystemBase {
-    private SparkMax elevatorMotor;
+    private SparkFlex elevatorMotor;
     private SparkClosedLoopController elevatorClosedLoopController;
     private RelativeEncoder elevatorEncoder;
-    public static final SparkMaxConfig liftMotorConfig = new SparkMaxConfig();
+    public static final SparkFlexConfig liftMotorConfig = new SparkFlexConfig();
     private boolean wasResetByButton = false;
     private boolean wasResetByLimit = false;
     private Setpoint elevatorCurrentTarget = Setpoint.kFeederStation;
@@ -50,7 +50,7 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     // Simulation
     private DCMotor elevatorMotorModel = DCMotor.getNeoVortex(1);
-    private SparkMaxSim elevatorMotorSim;
+    private SparkFlexSim elevatorMotorSim;
     private SparkLimitSwitchSim elevatorLimitSwitchSim;
     public static final double kPixelsPerMeter = 20;
     public static final double kElevatorGearing = 20; // 20:1
@@ -95,7 +95,7 @@ public class ElevatorSubsystem extends SubsystemBase {
                 .maxVelocity(Elevator.PrimaryMotor.MAX_VELOCITY_RPM.getValue())
                 .maxAcceleration(Elevator.PrimaryMotor.MAX_ACCEL_RPM_PER_S.getValue())
                 .allowedClosedLoopError(Elevator.PrimaryMotor.MAX_CONTROL_ERROR_IN_COUNTS.getValue());
-        elevatorMotor = new SparkMax(Elevator.PrimaryMotor.CAN_ID.getValue(), MotorType.kBrushless);
+        elevatorMotor = new SparkFlex(Elevator.PrimaryMotor.CAN_ID.getValue(), MotorType.kBrushless);
         elevatorMotor.configure(
                 liftMotorConfig,
                 ResetMode.kResetSafeParameters,
@@ -106,7 +106,7 @@ public class ElevatorSubsystem extends SubsystemBase {
 
         // Simulation stuff
         elevatorLimitSwitchSim = new SparkLimitSwitchSim(elevatorMotor, false);
-        elevatorMotorSim = new SparkMaxSim(elevatorMotor, elevatorMotorModel);
+        elevatorMotorSim = new SparkFlexSim(elevatorMotor, elevatorMotorModel);
     }
 
     public void periodic() {
