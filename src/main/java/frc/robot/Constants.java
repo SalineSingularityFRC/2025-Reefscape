@@ -20,7 +20,7 @@ public final class Constants {
   public static final class CanId {
     public static final class Intake {
       public static final int LEFT_MOTOR = 30;
-      public static final int RIGHT_MOTOR = 31;
+      public static final int RIGHT_MOTOR = 34;
       public static final int INTAKE_LASER = 32;
       public static final int SHOOTER_LASER = 33;
     }
@@ -299,6 +299,25 @@ public final class Constants {
       public static ConfigInt MAX_CURRENT_IN_A = new ConfigInt("Elevator/Primary Motor/Max Current in A", 40);
       public static ConfigDouble VOLTAGE_COMPENSATION_IN_V = new ConfigDouble("Elevator/Primary Motor/Voltage Compensation in V", 12);
       public static ConfigDouble MAX_CONTROL_ERROR_IN_COUNTS = new ConfigDouble("Elevator/Primary Motor/Control Error Tolerance", 0.25);  
+    }
+  }
+
+  public static class Intake{
+    public static class LeftMotor{
+      public static ConfigDouble KP = new ConfigDouble("Intake Left P", .1);
+      public static ConfigDouble MAX_POWER = new ConfigDouble("Intake Left Max Power", 1);
+      public static ConfigDouble MIN_POWER = new ConfigDouble("Intake Left Max Power", -1);
+      public static ConfigDouble MAX_VELOCITY = new ConfigDouble("Intake Left Max V", 2000);
+      public static ConfigDouble MAX_ACCELERATION = new ConfigDouble("Intake Left Max A", 10000);
+      public static ConfigDouble MAX_CLOSED_LOOP_ERROR = new ConfigDouble("Intake Left Max Error", 0.25);
+    }
+    public static class RightMotor{
+      public static ConfigDouble KP = new ConfigDouble("Intake Right P", .1);
+      public static ConfigDouble MAX_POWER = new ConfigDouble("Intake Right Max Power", 1);
+      public static ConfigDouble MIN_POWER = new ConfigDouble("Intake Right Max Power", -1);
+      public static ConfigDouble MAX_VELOCITY = new ConfigDouble("Intake Right Max V", 2000);
+      public static ConfigDouble MAX_ACCELERATION = new ConfigDouble("Intake Right Max A", 10000);
+      public static ConfigDouble MAX_CLOSED_LOOP_ERROR = new ConfigDouble("Intake Right Max Error", 0.25);
     }
   }
 }

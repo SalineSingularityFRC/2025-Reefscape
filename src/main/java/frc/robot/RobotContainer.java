@@ -52,14 +52,13 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
-        driveController.a().whileTrue(intake.runMotors());
+        driveController.a().whileTrue(intake.intakeCoral());
+        // driveController.x().whileTrue(intake.shootCoral());
 
         driveController.b().whileTrue(elevator.moveToTargetPosition(Setpoint.kLevel1));
         driveController.y().whileTrue(elevator.moveToTargetPosition(Setpoint.kLevel4));
 
         driveController.x().whileTrue(drive.resetGyroCommand());
-
-        driveController.a().whileTrue(intake.runMotors());
 
         driveController.povRight().onTrue(drive.xMode());
 
