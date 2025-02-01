@@ -1,0 +1,114 @@
+[
+  {
+    "name": "/Preferences/Elevator/Positions/Feed Station in counts",
+    "type": "double",
+    "value": 0.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Elevator/Positions/L1 in counts",
+    "type": "double",
+    "value": 10.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Elevator/Positions/L2 in counts",
+    "type": "double",
+    "value": 30.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Elevator/Positions/L3 in counts",
+    "type": "double",
+    "value": 60.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Elevator/Positions/L4 in counts",
+    "type": "double",
+    "value": 90.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Elevator/Primary Motor/CAN ID",
+    "type": "double",
+    "value": 40.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Elevator/Primary Motor/kP",
+    "type": "double",
+    "value": 5.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Elevator/Primary Motor/Min Power",
+    "type": "double",
+    "value": -1.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Elevator/Primary Motor/Max Power",
+    "type": "double",
+    "value": 1.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Elevator/Primary Motor/Max Velocity in rpm",
+    "type": "double",
+    "value": 2000.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Elevator/Primary Motor/Max Accel in rpm per s",
+    "type": "double",
+    "value": 10000.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Elevator/Primary Motor/Max Current in A",
+    "type": "double",
+    "value": 40.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Elevator/Primary Motor/Voltage Compensation in V",
+    "type": "double",
+    "value": 12.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Elevator/Primary Motor/Control Error Tolerance",
+    "type": "double",
+    "value": 0.25,
+    "properties": {
+      "persistent": true
+    }
+  }
+]

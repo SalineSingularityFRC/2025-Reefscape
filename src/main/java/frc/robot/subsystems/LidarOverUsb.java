@@ -23,7 +23,10 @@ public class LidarOverUsb extends SubsystemBase {
     @Override
     public void periodic() {
         super.periodic();
+        String data = serial.readString();
+        System.out.print("Serial ");
+        System.out.println(data);
 
-        SmartDashboard.putString("Lidar/Debug/Last Received", serial.readString());
+        SmartDashboard.putString("Lidar Debug Last Received", data);
     }
 }

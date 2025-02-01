@@ -88,12 +88,12 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void autonomousInit() {
-    m_robotContainer.updateOdometry();
-    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+    // m_robotContainer.updateOdometry();
+    // m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.schedule();
-    }
+    // if (m_autonomousCommand != null) {
+    //   m_autonomousCommand.schedule();
+    // }
   }
 
   @Override
@@ -106,11 +106,11 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void teleopInit() {
-    m_robotContainer.updateOdometry();
+    // m_robotContainer.updateOdometry();
 
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.cancel();
-    }
+    // if (m_autonomousCommand != null) {
+    //   m_autonomousCommand.cancel();
+    // }
   }
 
   @Override
