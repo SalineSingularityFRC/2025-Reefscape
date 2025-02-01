@@ -22,75 +22,77 @@ import frc.robot.commands.RumbleCommandStop;
 import frc.robot.commands.toSpeaker;
 
 public class RobotContainer {
-    private SwerveSubsystem drive;
-    private Limelight lime;
+    // private SwerveSubsystem drive;
+    // private Limelight lime;
     private CommandXboxController driveController;
-    private SendableChooser<String> pathAutonChooser;
+    // private SendableChooser<String> pathAutonChooser;
     private IntakeSubsystem intake;
     // private CommandGenericHID simController;
     private ElevatorSubsystem elevator;
 
     protected RobotContainer() {
-        lime = new Limelight();
-        drive = new SwerveSubsystem();
+        // lime = new Limelight();
+        // drive = new SwerveSubsystem();
         intake = new IntakeSubsystem();
-        elevator = new ElevatorSubsystem();
+        // elevator = new ElevatorSubsystem();
 
         driveController = new CommandXboxController(Constants.Gamepad.Controller.DRIVE);
 
         configureBindings();
 
-        NamedCommands.registerCommand("StopDriving", drive.stopDriving());
+        // NamedCommands.registerCommand("StopDriving", drive.stopDriving());
         NamedCommands.registerCommand("RumbleCommantStart", new RumbleCommandStart(driveController));
         NamedCommands.registerCommand("RumbleCommantStop", new RumbleCommandStop(driveController));
 
-        this.pathAutonChooser = new SendableChooser<String>();
+        // this.pathAutonChooser = new SendableChooser<String>();
 
-        this.pathAutonChooser.setDefaultOption("Noah's Auto", "New Auto");
-        this.pathAutonChooser.setDefaultOption("posEstimator Test", "Short Auto");
-        SmartDashboard.putData("Auton Choices", pathAutonChooser);
+        // this.pathAutonChooser.setDefaultOption("Noah's Auto", "New Auto");
+        // this.pathAutonChooser.setDefaultOption("posEstimator Test", "Short Auto");
+        // SmartDashboard.putData("Auton Choices", pathAutonChooser);
     }
 
     private void configureBindings() {
-        driveController.a().whileTrue(intake.intakeCoral());
-        // driveController.x().whileTrue(intake.shootCoral());
+        driveController.a().whileTrue(intake.runMotors());
+        driveController.b().whileTrue(intake.runMotorsBack());
+        driveController.x().whileTrue(intake.intakeCoral());
+        driveController.y().whileTrue(intake.shootCoral());
 
-        driveController.b().whileTrue(elevator.moveToTargetPosition(Setpoint.kLevel1));
-        driveController.y().whileTrue(elevator.moveToTargetPosition(Setpoint.kLevel4));
+        // driveController.b().whileTrue(elevator.moveToTargetPosition(Setpoint.kLevel1));
+        // driveController.y().whileTrue(elevator.moveToTargetPosition(Setpoint.kLevel4));
 
-        driveController.x().whileTrue(drive.resetGyroCommand());
+        // driveController.x().whileTrue(drive.resetGyroCommand());
 
-        driveController.povRight().onTrue(drive.xMode());
+        // driveController.povRight().onTrue(drive.xMode());
 
-        drive.setDefaultCommand(
-                new DriveController(drive, () -> {
-                    if (driveController.getRightX() < 0) {
-                        return -1.0 * driveController.getRightX() * driveController.getRightX();
-                    }
+        // drive.setDefaultCommand(
+        //         new DriveController(drive, () -> {
+        //             if (driveController.getRightX() < 0) {
+        //                 return -1.0 * driveController.getRightX() * driveController.getRightX();
+        //             }
 
-                    return driveController.getRightX() * driveController.getRightX();
-                }, () -> {
-                    if (driveController.getLeftY() < 0) {
-                        return -1.0 * driveController.getLeftY() * driveController.getLeftY();
-                    }
+        //             return driveController.getRightX() * driveController.getRightX();
+        //         }, () -> {
+        //             if (driveController.getLeftY() < 0) {
+        //                 return -1.0 * driveController.getLeftY() * driveController.getLeftY();
+        //             }
 
-                    return driveController.getLeftY() * driveController.getLeftY();
-                }, () -> {
-                    if (driveController.getLeftX() < 0) {
-                        return -1.0 * driveController.getLeftX() * driveController.getLeftX();
-                    }
+        //             return driveController.getLeftY() * driveController.getLeftY();
+        //         }, () -> {
+        //             if (driveController.getLeftX() < 0) {
+        //                 return -1.0 * driveController.getLeftX() * driveController.getLeftX();
+        //             }
 
-                    return driveController.getLeftX() * driveController.getLeftX();
-                },
-                        1.0));
+        //             return driveController.getLeftX() * driveController.getLeftX();
+        //         },
+        //                 1.0));
     }
 
-    protected Command getAutonomousCommand() {
-        return new PathPlannerAuto(this.pathAutonChooser.getSelected());
-    }
+    // protected Command getAutonomousCommand() {
+    //     return new PathPlannerAuto(this.pathAutonChooser.getSelected());
+    // }
 
-    protected void updateOdometry() {
-        this.drive.updateOdometry();
-    }
+    // protected void updateOdometry() {
+    //     this.drive.updateOdometry();
+    // }
 
 }

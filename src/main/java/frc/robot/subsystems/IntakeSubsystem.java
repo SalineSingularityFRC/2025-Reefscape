@@ -24,7 +24,6 @@ public class IntakeSubsystem extends SubsystemBase {
     private SparkFlex rightMotor;
     private SparkFlex leftMotor;
     private LaserCan intakeSensor;
-    private LaserCan shooterSensor;
     private double motorSpeed;
     private double sensingDistance;
     public static final SparkFlexConfig intakeLeftConfig = new SparkFlexConfig();
@@ -33,11 +32,6 @@ public class IntakeSubsystem extends SubsystemBase {
     
         public IntakeSubsystem() {
             intakeSensor = new LaserCan(Constants.CanId.Intake.INTAKE_LASER);
-            shooterSensor = new LaserCan(Constants.CanId.Intake.SHOOTER_LASER);
-    
-            sensingDistance = Preferences.getDouble("Sensing Distance", 100);
-            motorSpeed = Preferences.getDouble("Intake Motor Speed", 0.1);
-    
     
             // Left Motor
             intakeLeftConfig.idleMode(IdleMode.kCoast).smartCurrentLimit(40).voltageCompensation(12);
@@ -55,6 +49,7 @@ public class IntakeSubsystem extends SubsystemBase {
                     intakeLeftConfig,
                     ResetMode.kResetSafeParameters,
                     PersistMode.kPersistParameters);
+            leftMotor.setInverted(true);
     
             // Right Motor
             intakeRightConfig.idleMode(IdleMode.kCoast).smartCurrentLimit(40).voltageCompensation(12);
@@ -75,8 +70,10 @@ public class IntakeSubsystem extends SubsystemBase {
         }
     
         public void periodic() {
+            sensingDistance = Intake.Nums.sensingDistance.getValue();
+            motorSpeed = Intake.Nums.motorSpeed.getValue();
+            
             SmartDashboard.putNumber("Intake Sensor", getSensorValue(intakeSensor));
-            SmartDashboard.putNumber("Shooter Sensor", getSensorValue(shooterSensor));
         }
     
         public boolean canSeeCoral(LaserCan sensor) {
@@ -91,16 +88,25 @@ public class IntakeSubsystem extends SubsystemBase {
             return canSeeCoral(intakeSensor);
         }
     
-        public boolean coralInShooter() {
-            return canSeeCoral(shooterSensor);
-        }
-    
         public int getSensorValue(LaserCan sensor) {
             Measurement measurement = sensor.getMeasurement();
             return measurement == null ? LASER_CAN_NO_MEASUREMENT : measurement.distance_mm;
     }
 
     public Command runMotors() {
+        return runEnd(
+                () -> {
+                    leftMotor.set(motorSpeed);
+                    rightMotor.set(motorSpeed);
+                },
+                () -> {
+                    
+                    leftMotor.stopMotor();
+                    rightMotor.stopMotor();
+                });
+    }
+
+    public Command runMotorsBack(){
         return runEnd(
                 () -> {
                     leftMotor.set(-motorSpeed);
@@ -113,10 +119,10 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public Command shootCoral() {
-        return runMotors().until(() -> !coralInShooter());
+        return runMotorsBack().until(() -> !coralInIntake());
     }
 
     public Command intakeCoral() {
-        return runMotors().until(() -> coralInShooter());
+        return runMotors().until(() -> coralInIntake());
     }
 }
