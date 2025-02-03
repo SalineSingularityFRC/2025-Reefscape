@@ -276,9 +276,19 @@ public final class Constants {
     public Integer getValue() {
       return Preferences.getInt(name, defaultValue);
     }
+
+    public boolean isTrue(){
+      return getValue() != 0;
+    }
+
+    public boolean isFalse(){
+      return (!isTrue());
+    }
   }
 
   public static class Elevator {
+    public static ConfigInt FOLLOW_DUALENABLE = new ConfigInt("Elevator/DUALENABLE", 0);
+
     public static class Positions {
       public static ConfigInt FEED_STATION_COUNTS = new ConfigInt("Elevator/Positions/Feed Station in counts", 0);
       public static ConfigInt L1_COUNTS = new ConfigInt("Elevator/Positions/L1 in counts", 10);
@@ -288,6 +298,8 @@ public final class Constants {
     }
     
     public static class PrimaryMotor {
+      public static ConfigDouble SpeedTest = new ConfigDouble("Elevator/Primary Motor/SpeedTest", .1);
+      public static ConfigInt INVERTED = new ConfigInt("Elevator/Primary Motor/ INVERTED MOTOR", 0);
       public static ConfigInt CAN_ID = new ConfigInt("Elevator/Primary Motor/CAN ID", 40);
       public static ConfigDouble KP = new ConfigDouble("Elevator/Primary Motor/kP", 5);
   
@@ -299,6 +311,10 @@ public final class Constants {
       public static ConfigInt MAX_CURRENT_IN_A = new ConfigInt("Elevator/Primary Motor/Max Current in A", 40);
       public static ConfigDouble VOLTAGE_COMPENSATION_IN_V = new ConfigDouble("Elevator/Primary Motor/Voltage Compensation in V", 12);
       public static ConfigDouble MAX_CONTROL_ERROR_IN_COUNTS = new ConfigDouble("Elevator/Primary Motor/Control Error Tolerance", 0.25);  
+    }
+
+    public static class SecondaryMotor{
+      public static ConfigInt CAN_ID = new ConfigInt("Elevator/Secondary Motor/CAN ID", 41);
     }
   }
 }
