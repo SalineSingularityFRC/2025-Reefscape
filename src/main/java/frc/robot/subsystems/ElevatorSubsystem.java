@@ -25,10 +25,12 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
 
 public class ElevatorSubsystem extends SubsystemBase {
-    private SparkFlex elevatorMotor;
+    private SparkFlex elevatorSecondaryMotor;
+    private SparkFlex elevatorPrimaryMotor;
     private SparkClosedLoopController elevatorClosedLoopController;
     private RelativeEncoder elevatorEncoder;
-    public static final SparkFlexConfig liftMotorConfig = new SparkFlexConfig();
+    public static final SparkFlexConfig elevatorPrimaryMotorConfig = new SparkFlexConfig();
+    public static final SparkFlexConfig elevatorSecondaryMotorConfig = new SparkFlexConfig();
     private boolean wasResetByButton = false;
     private boolean wasResetByLimit = false;
     private Setpoint elevatorCurrentTarget = Setpoint.kFeederStation;
@@ -84,33 +86,64 @@ public class ElevatorSubsystem extends SubsystemBase {
         // elevatorSpeed = Preferences.getDouble("Elevator Motor Speed (rpm)", 1);
 
         // Elevator Motor
-        liftMotorConfig.idleMode(IdleMode.kBrake).smartCurrentLimit(Elevator.PrimaryMotor.MAX_CURRENT_IN_A.getValue())
+        elevatorPrimaryMotorConfig.idleMode(IdleMode.kBrake)
+                .smartCurrentLimit(Elevator.PrimaryMotor.MAX_CURRENT_IN_A.getValue())
                 .voltageCompensation(Elevator.PrimaryMotor.VOLTAGE_COMPENSATION_IN_V.getValue());
-        liftMotorConfig.closedLoop
+        elevatorPrimaryMotorConfig.closedLoop
                 .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
                 // Set PID values for position control
                 .p(Elevator.PrimaryMotor.KP.getValue())
-                .outputRange(Elevator.PrimaryMotor.MIN_POWER.getValue(), Elevator.PrimaryMotor.MAX_POWER.getValue()).maxMotion
+                .outputRange(Elevator.PrimaryMotor.MIN_POWER.getValue(),
+                        Elevator.PrimaryMotor.MAX_POWER.getValue()).maxMotion
                 // Set MAXMotion parameters for position control
                 .maxVelocity(Elevator.PrimaryMotor.MAX_VELOCITY_RPM.getValue())
                 .maxAcceleration(Elevator.PrimaryMotor.MAX_ACCEL_RPM_PER_S.getValue())
                 .allowedClosedLoopError(Elevator.PrimaryMotor.MAX_CONTROL_ERROR_IN_COUNTS.getValue());
-        elevatorMotor = new SparkFlex(Elevator.PrimaryMotor.CAN_ID.getValue(), MotorType.kBrushless);
-        elevatorMotor.configure(
-                liftMotorConfig,
+        elevatorPrimaryMotorConfig.inverted(Elevator.PrimaryMotor.INVERTED.isTrue());
+        System.out.println(Elevator.PrimaryMotor.INVERTED.isTrue());
+
+        elevatorPrimaryMotor = new SparkFlex(Elevator.PrimaryMotor.CAN_ID.getValue(), MotorType.kBrushless);
+        elevatorPrimaryMotor.configure(
+                elevatorPrimaryMotorConfig,
                 ResetMode.kResetSafeParameters,
                 PersistMode.kPersistParameters);
 
-        elevatorClosedLoopController = elevatorMotor.getClosedLoopController();
-        elevatorEncoder = elevatorMotor.getEncoder();
+        if (Elevator.FOLLOW_DUALENABLE.isTrue()) {
+            elevatorSecondaryMotorConfig.idleMode(IdleMode.kBrake)
+                    .smartCurrentLimit(Elevator.PrimaryMotor.MAX_CURRENT_IN_A.getValue())
+                    .voltageCompensation(Elevator.PrimaryMotor.VOLTAGE_COMPENSATION_IN_V.getValue());
+            elevatorSecondaryMotorConfig.closedLoop
+                    .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+                    // Set PID values for position control
+                    .p(Elevator.PrimaryMotor.KP.getValue())
+                    .outputRange(Elevator.PrimaryMotor.MIN_POWER.getValue(),
+                            Elevator.PrimaryMotor.MAX_POWER.getValue()).maxMotion
+                    // Set MAXMotion parameters for position control
+                    .maxVelocity(Elevator.PrimaryMotor.MAX_VELOCITY_RPM.getValue())
+                    .maxAcceleration(Elevator.PrimaryMotor.MAX_ACCEL_RPM_PER_S.getValue())
+                    .allowedClosedLoopError(Elevator.PrimaryMotor.MAX_CONTROL_ERROR_IN_COUNTS.getValue());
+            elevatorSecondaryMotorConfig.follow(elevatorPrimaryMotor);
+
+            // Using the opposite sate of the primary motor.
+            elevatorSecondaryMotorConfig.inverted(Elevator.PrimaryMotor.INVERTED.isFalse());
+
+            elevatorSecondaryMotor = new SparkFlex(Elevator.SecondaryMotor.CAN_ID.getValue(), MotorType.kBrushless);
+            elevatorSecondaryMotor.configure(
+                    elevatorPrimaryMotorConfig,
+                    ResetMode.kResetSafeParameters,
+                    PersistMode.kPersistParameters);
+        }
+
+        elevatorClosedLoopController = elevatorPrimaryMotor.getClosedLoopController();
+        elevatorEncoder = elevatorPrimaryMotor.getEncoder();
 
         // Simulation stuff
-        elevatorLimitSwitchSim = new SparkLimitSwitchSim(elevatorMotor, false);
-        elevatorMotorSim = new SparkFlexSim(elevatorMotor, elevatorMotorModel);
+        elevatorLimitSwitchSim = new SparkLimitSwitchSim(elevatorPrimaryMotor, false);
+        elevatorMotorSim = new SparkFlexSim(elevatorPrimaryMotor, elevatorMotorModel);
     }
 
     public void periodic() {
-        moveToSetpoint();
+        //moveToSetpoint();
         zeroElevatorOnLimitSwitch();
         zeroOnUserButton();
 
@@ -169,12 +202,13 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     /** Zero the elevator encoder when the limit switch is pressed. */
     private void zeroElevatorOnLimitSwitch() {
-        if (!wasResetByLimit && elevatorMotor.getReverseLimitSwitch().isPressed()) {
+        if (!wasResetByLimit && elevatorPrimaryMotor.getReverseLimitSwitch().isPressed()) {
             // Zero the encoder only when the limit switch is switches from "unpressed" to
             // "pressed" to prevent constant zeroing while pressed
             elevatorEncoder.setPosition(0);
             wasResetByLimit = true;
-        } else if (!elevatorMotor.getReverseLimitSwitch().isPressed()) {
+            // System.out.println(true);
+        } else if (!elevatorPrimaryMotor.getReverseLimitSwitch().isPressed()) {
             wasResetByLimit = false;
         }
     }
@@ -199,10 +233,10 @@ public class ElevatorSubsystem extends SubsystemBase {
     public void simulationPeriodic() {
         // In this method, we update our simulation of what our elevator is doing
         // First, we set our "inputs" (voltages)
-        elevatorSim.setInput(elevatorMotor.getAppliedOutput() * RobotController.getBatteryVoltage());
+        elevatorSim.setInput(elevatorPrimaryMotor.getAppliedOutput() * RobotController.getBatteryVoltage());
 
         // Update sim limit switch
-        elevatorLimitSwitchSim.setPressed(elevatorSim.getPositionMeters() == 0);
+        elevatorLimitSwitchSim.setPressed(elevatorSim.getPositionMeters() >= 0 && elevatorSim.getPositionMeters() <= 5);
 
         // Next, we update it. The standard loop time is 20ms.
         elevatorSim.update(0.020);
@@ -215,6 +249,16 @@ public class ElevatorSubsystem extends SubsystemBase {
                         * 60.0,
                 RobotController.getBatteryVoltage(),
                 0.02);
+    }
+
+    public Command runMotors() {
+        return runEnd(
+                () -> {
+                    elevatorPrimaryMotor.set(Elevator.PrimaryMotor.SpeedTest.getValue());
+                },
+                () -> {
+                    elevatorPrimaryMotor.stopMotor();
+                });
     }
 
 }
