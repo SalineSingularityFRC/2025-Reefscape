@@ -16,6 +16,7 @@ import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem.Setpoint;
+import frc.robot.Constants.Elevator;
 import frc.robot.commands.DriveController;
 import frc.robot.commands.RumbleCommandStart;
 import frc.robot.commands.RumbleCommandStop;
@@ -25,6 +26,7 @@ public class RobotContainer {
     // private SwerveSubsystem drive;
     // private Limelight lime;
     private CommandXboxController driveController;
+    private CommandXboxController elevatorController;
     // private SendableChooser<String> pathAutonChooser;
     private IntakeSubsystem intake;
     // private CommandGenericHID simController;
@@ -34,9 +36,10 @@ public class RobotContainer {
         // lime = new Limelight();
         // drive = new SwerveSubsystem();
         intake = new IntakeSubsystem();
-        // elevator = new ElevatorSubsystem();
+        elevator = new ElevatorSubsystem();
 
         driveController = new CommandXboxController(Constants.Gamepad.Controller.DRIVE);
+        elevatorController = new CommandXboxController(Constants.Gamepad.Controller.ELEVATOR);
 
         configureBindings();
 
@@ -56,6 +59,11 @@ public class RobotContainer {
         driveController.b().whileTrue(intake.runMotorsBack());
         driveController.x().whileTrue(intake.intakeCoral());
         driveController.y().whileTrue(intake.shootCoral());
+
+        elevatorController.button(1).whileTrue(elevator.moveToTargetPosition(Setpoint.kLevel1)); // Red
+        elevatorController.button(2).whileTrue(elevator.moveToTargetPosition(Setpoint.kLevel2)); // Blue
+        elevatorController.button(3).whileTrue(elevator.moveToTargetPosition(Setpoint.kLevel3)); // Yellow
+
 
         // driveController.b().whileTrue(elevator.moveToTargetPosition(Setpoint.kLevel1));
         // driveController.y().whileTrue(elevator.moveToTargetPosition(Setpoint.kLevel4));
