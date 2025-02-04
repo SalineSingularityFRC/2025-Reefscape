@@ -19,16 +19,16 @@ import frc.robot.commands.RumbleCommandStop;
 import frc.robot.commands.toSpeaker;
 
 public class RobotContainer {
-    // private SwerveSubsystem drive;
-    // private Limelight lime;
+    private SwerveSubsystem drive;
+    private Limelight lime;
     private CommandXboxController driveController;
     // private SendableChooser<String> pathAutonChooser;
     private LidarOverUsb lidar;
     private LidarOverCAN lidarCan;
 
     protected RobotContainer() {
-        // lime = new Limelight();
-        // drive = new SwerveSubsystem();
+        lime = new Limelight();
+        drive = new SwerveSubsystem();
         lidar = new LidarOverUsb();
         lidarCan = new LidarOverCAN();
 
@@ -48,7 +48,7 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
-    //     driveController.x().whileTrue(drive.resetGyroCommand());
+        driveController.x().whileTrue(drive.resetGyroCommand());
 
     //     driveController.b().whileTrue(
     //             new toSpeaker(drive, lime)

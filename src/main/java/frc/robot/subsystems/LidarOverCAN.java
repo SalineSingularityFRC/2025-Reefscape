@@ -30,7 +30,13 @@ public class LidarOverCAN extends SubsystemBase {
             System.out.println(e.toString());
         }
         
-        System.out.println("Last Can: " + message.toString());
-        SmartDashboard.putRaw("Lidar Debug Last CAN", message);
+        if (message != null && message.length > 0) {
+            SmartDashboard.putRaw("Lidar Debug Last CAN", message);
+            System.out.println("Last Can: " + message.toString());
+            for (byte b : message) {
+                System.out.print(String.format("%02X ", b));
+            }
+            System.out.println("");
+        }
     }
 }

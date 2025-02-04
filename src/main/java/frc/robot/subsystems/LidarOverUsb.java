@@ -11,22 +11,32 @@ public class LidarOverUsb extends SubsystemBase {
     public LidarOverUsb() {
         super();
 
-        serial = new SerialPort(115200, Port.kUSB);
-        serial.enableTermination();
-        serial.setTimeout(1);
-        serial.setFlowControl(SerialPort.FlowControl.kNone);
-        serial.setReadBufferSize(32);
-        serial.setWriteBufferSize(8);
-        serial.setWriteBufferMode(SerialPort.WriteBufferMode.kFlushOnAccess);
+        try {
+            serial = new SerialPort(115200, Port.kUSB);
+            serial.enableTermination();
+            serial.setTimeout(1);
+            serial.setFlowControl(SerialPort.FlowControl.kNone);
+            serial.setReadBufferSize(32);
+            serial.setWriteBufferSize(8);
+            serial.setWriteBufferMode(SerialPort.WriteBufferMode.kFlushOnAccess);                
+        } catch (Exception e) {
+            System.out.println("No serial port available");
+        }
     }
 
     @Override
     public void periodic() {
-        super.periodic();
-        String data = serial.readString();
-        System.out.print("Serial ");
-        System.out.println(data);
+        if (serial == null) {
+            return;
+        }
 
-        SmartDashboard.putString("Lidar Debug Last Received", data);
+        String data = serial.readString();
+        
+        if (data == null || data.length() == 0) {            
+        } else {
+            System.out.print("Serial ");
+            System.out.println(data);
+            SmartDashboard.putString("Lidar Debug Last Received", data);
+        }
     }
 }
