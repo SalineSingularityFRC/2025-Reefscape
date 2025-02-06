@@ -57,7 +57,8 @@ public class RobotContainer {
         //driveController.b().whileTrue(elevator.moveToTargetPosition(Setpoint.kFeederStation));
         //driveController.y().whileTrue(elevator.moveToTargetPosition(Setpoint.kLevel4));
 
-        driveController.b().whileTrue(elevator.runMotors());
+        driveController.b().whileTrue(elevator.runMotors(true));
+        driveController.y().whileTrue(elevator.runMotors(false));
 
         driveController.x().whileTrue(drive.resetGyroCommand());
 

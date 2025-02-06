@@ -144,7 +144,7 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     public void periodic() {
         //moveToSetpoint();
-        zeroElevatorOnLimitSwitch();
+        //zeroElevatorOnLimitSwitch();
         zeroOnUserButton();
 
         // Update mechanism2d
@@ -251,10 +251,12 @@ public class ElevatorSubsystem extends SubsystemBase {
                 0.02);
     }
 
-    public Command runMotors() {
+    public Command runMotors(boolean reverse) {
+        double direction = reverse ? -1: 1;
+        double result = Elevator.PrimaryMotor.SpeedTest.getValue() * direction;
         return runEnd(
                 () -> {
-                    elevatorPrimaryMotor.set(Elevator.PrimaryMotor.SpeedTest.getValue());
+                    elevatorPrimaryMotor.set(result);
                 },
                 () -> {
                     elevatorPrimaryMotor.stopMotor();
