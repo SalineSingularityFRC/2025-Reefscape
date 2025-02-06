@@ -1,0 +1,31 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "To Reef"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Midreef"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Other Side Reef"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}

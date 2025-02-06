@@ -129,10 +129,10 @@ public final class Constants {
 
   public static final class WheelOffset {
     // Converting rotations to radians
-    public static final double FL = (0.960205) * 2 * Math.PI;
-    public static final double FR = (0.682617) * 2 * Math.PI;
-    public static final double BL = (0.759521) * 2 * Math.PI;
-    public static final double BR = (0.546387) * 2 * Math.PI;
+    public static final double FL = (0.970459) * 2 * Math.PI;
+    public static final double FR = (0.679443) * 2 * Math.PI;
+    public static final double BL = (0.761475) * 2 * Math.PI;
+    public static final double BR = (0.550293) * 2 * Math.PI;
   }
 
   public static final class MotorGearRatio {
@@ -190,9 +190,9 @@ public final class Constants {
   public static final class PidGains {
     public static final class PathPlanner {
       //public static final PID translation = new PID(3, 5, 0.0);
-      public static final PID translation = new PID(10, 0, 0);
+      public static final PID translation = new PID(11, 0, 0.011);
       //public static final PID rotation = new PID(1, 0, 0.3);
-      public static final PID rotation = new PID(5, 0, 0);
+      public static final PID rotation = new PID(1, 0, 0);
     }
 
     public static final class rotationCorrection {
@@ -213,7 +213,7 @@ public final class Constants {
 
     public static final class SwerveModule {
       public static final PID DRIVE_PID_CONTROLLER = new PID(.5, 0, 0);
-      public static final PID TURNING_PID_CONTROLLER = new PID(7, 0, 0.3, 0);
+      public static final PID TURNING_PID_CONTROLLER = new PID(7, 0, 0.1, 0);
     }
   }
 

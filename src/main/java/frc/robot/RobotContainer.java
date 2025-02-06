@@ -38,7 +38,9 @@ public class RobotContainer {
 
         this.pathAutonChooser = new SendableChooser<String>();
 
-        this.pathAutonChooser.setDefaultOption("Modified Tag", "Modified Tag");
+        this.pathAutonChooser.setDefaultOption("Red", "Red");
+        this.pathAutonChooser.addOption("Reef", "Reef");
+        this.pathAutonChooser.addOption("Modified Tag", "Modified Tag");
         this.pathAutonChooser.addOption("1 Meter Auto", "1 Meter Auto");
         this.pathAutonChooser.addOption("4 Meter Auto", "4 Meter Auto");
         SmartDashboard.putData("Auton Choices", pathAutonChooser);
