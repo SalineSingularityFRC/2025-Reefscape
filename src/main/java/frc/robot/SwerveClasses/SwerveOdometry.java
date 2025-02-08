@@ -33,22 +33,10 @@ public class SwerveOdometry {
 
   private DataLog log;
 
-  private Boolean blueAlliance;
-
   public SwerveOdometry(SwerveSubsystem subsystem, Translation2d[] vectorKinematics) {
     this.subsystem = subsystem;
 
     log = DataLogManager.getLog();
-
-    var alliance = DriverStation.getAlliance();
-
-    blueAlliance = true;
-    if (alliance.isPresent()) {
-      if (alliance.get() == DriverStation.Alliance.Red) {
-        blueAlliance = false;
-        SmartDashboard.putBoolean("Is on Blue Side", false);
-      }
-    }
 
     swerveKinematics =
         new SwerveDriveKinematics(
@@ -57,7 +45,7 @@ public class SwerveOdometry {
     swerveOdometry =
         new SwerveDrivePoseEstimator(
             swerveKinematics,
-            new Rotation2d(subsystem.getRobotAngle()),
+            subsystem.getRobotRotation2dForOdometry(),
             new SwerveModulePosition[] {
               new SwerveModulePosition(
                   subsystem.getSwerveModule(FL).getPosition(),
@@ -72,7 +60,7 @@ public class SwerveOdometry {
                   subsystem.getSwerveModule(BR).getPosition(),
                   new Rotation2d(subsystem.getSwerveModule(BR).getEncoderPosition())),
             },
-            new Pose2d(0, 0, new Rotation2d()));
+            new Pose2d(0, 0, subsystem.getRobotRotation2dForOdometry()));
 
     // int[] validIDs = {18};
     // LimelightHelpers.SetFiducialIDFiltersOverride("limelight", validIDs);
@@ -81,7 +69,7 @@ public class SwerveOdometry {
 
   public void update() {
     swerveOdometry.update(
-        new Rotation2d(subsystem.getRobotAngle()),
+        subsystem.getRobotRotation2dForOdometry(),
         new SwerveModulePosition[] {
           new SwerveModulePosition(
               subsystem.getSwerveModule(FL).getPosition(),
@@ -128,6 +116,8 @@ public class SwerveOdometry {
     
     // MegaTag 2
     LimelightHelpers.SetRobotOrientation("limelight", swerveOdometry.getEstimatedPosition().getRotation().getDegrees(), 0, 0, 0, 0, 0);
+
+    // Always wpiBlue no matter what since we are always using blue origin
     LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
     
     if(Math.abs(subsystem.getAngularChassisSpeed()) > 720) // if our angular velocity is greater than 720 degrees per second, ignore vision updates
@@ -140,7 +130,7 @@ public class SwerveOdometry {
     }
     if(!doRejectUpdate)
     {
-      swerveOdometry.setVisionMeasurementStdDevs(VecBuilder.fill(1.5,1.5,9999999));
+      swerveOdometry.setVisionMeasurementStdDevs(VecBuilder.fill(0.7,0.7,9999999));
       swerveOdometry.addVisionMeasurement(
           mt2.pose,
           mt2.timestampSeconds);
@@ -177,7 +167,7 @@ public class SwerveOdometry {
 
   public void resetPosition() {
     swerveOdometry.resetPosition(
-        new Rotation2d(subsystem.getRobotAngle()),
+        subsystem.getRobotRotation2dForOdometry(),
         new SwerveModulePosition[] {
           new SwerveModulePosition(
               subsystem.getSwerveModule(FL).getPosition(),
@@ -192,12 +182,12 @@ public class SwerveOdometry {
               subsystem.getSwerveModule(BR).getPosition(),
               new Rotation2d(subsystem.getSwerveModule(BR).getEncoderPosition())),
         },
-        new Pose2d(0, 0, new Rotation2d()));
+        new Pose2d(0, 0, subsystem.getRobotRotation2dForOdometry()));
   }
 
     public void setPosition(Pose2d pos) {
     swerveOdometry.resetPosition(
-        new Rotation2d(subsystem.getRobotAngle()),
+        subsystem.getRobotRotation2dForOdometry(),
         new SwerveModulePosition[] {
           new SwerveModulePosition(
               subsystem.getSwerveModule(FL).getPosition(),
