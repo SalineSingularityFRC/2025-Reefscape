@@ -12,6 +12,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.LimelightHelpers;
@@ -32,10 +33,22 @@ public class SwerveOdometry {
 
   private DataLog log;
 
+  private Boolean blueAlliance;
+
   public SwerveOdometry(SwerveSubsystem subsystem, Translation2d[] vectorKinematics) {
     this.subsystem = subsystem;
 
     log = DataLogManager.getLog();
+
+    var alliance = DriverStation.getAlliance();
+
+    blueAlliance = true;
+    if (alliance.isPresent()) {
+      if (alliance.get() == DriverStation.Alliance.Red) {
+        blueAlliance = false;
+        SmartDashboard.putBoolean("Is on Blue Side", false);
+      }
+    }
 
     swerveKinematics =
         new SwerveDriveKinematics(
@@ -116,6 +129,7 @@ public class SwerveOdometry {
     // MegaTag 2
     LimelightHelpers.SetRobotOrientation("limelight", swerveOdometry.getEstimatedPosition().getRotation().getDegrees(), 0, 0, 0, 0, 0);
     LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
+    
     if(Math.abs(subsystem.getAngularChassisSpeed()) > 720) // if our angular velocity is greater than 720 degrees per second, ignore vision updates
     {
       doRejectUpdate = true;
