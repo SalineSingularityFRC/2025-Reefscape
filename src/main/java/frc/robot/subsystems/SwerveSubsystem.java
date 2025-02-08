@@ -294,6 +294,10 @@ public class SwerveSubsystem extends SubsystemBase {
     return swerveDriveKinematics.toChassisSpeeds(getModuleStates());
   }
 
+  public void initialize() {
+      // gyro.reset();
+  }
+
   public void periodic() {
     
     publisher.set(odometry.getEstimatedPosition());
@@ -390,10 +394,7 @@ public class SwerveSubsystem extends SubsystemBase {
    * from the pidgeon 2.0
    */
   public double getRobotAngle() {
-    return (((gyro.getYaw().getValueAsDouble() - gyroZero)) * Math.PI)
-        / 180; // returns in counterclockwise hence why 360 minus
-    // it is gyro.getAngle() - 180 because the pigeon for this robot is facing
-    // backwards
+    return gyro.getRotation2d().plus(Rotation2d.fromDegrees(90.0)).getRadians() - gyroZero;
   }
 
   public double getAngularChassisSpeed() {
@@ -662,7 +663,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
   public void resetGyro() {
     // gyro.reset();
-    gyroZero = gyro.getYaw().getValueAsDouble();
+    gyroZero = gyro.getRotation2d().plus(Rotation2d.fromDegrees(90.0)).getRadians();
     odometry.resetPosition();
   }
 

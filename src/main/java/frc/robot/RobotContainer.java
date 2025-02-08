@@ -45,6 +45,10 @@ public class RobotContainer {
         SmartDashboard.putData("Auton Choices", pathAutonChooser);
     }
 
+    public void initialize() {
+        drive.initialize();
+    }
+
     private void configureBindings() {
         driveController.x().whileTrue(drive.resetGyroCommand());
 
