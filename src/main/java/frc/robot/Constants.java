@@ -298,7 +298,8 @@ public final class Constants {
     }
     
     public static class PrimaryMotor {
-      public static ConfigDouble SpeedTest = new ConfigDouble("Elevator/Primary Motor/SpeedTest", .1);
+      public static ConfigDouble RAISE_SPEED = new ConfigDouble("Elevator/Primary Motor/RAISE_SPEED", .1);
+      public static ConfigDouble LOWER_SPEED = new ConfigDouble("Elevator/Primary Motor/LOWER_SPEED", .1);
       public static ConfigInt INVERTED = new ConfigInt("Elevator/Primary Motor/ INVERTED MOTOR", 1);
       public static ConfigInt CAN_ID = new ConfigInt("Elevator/Primary Motor/CAN ID", 40);
       public static ConfigDouble KP = new ConfigDouble("Elevator/Primary Motor/kP", 5);

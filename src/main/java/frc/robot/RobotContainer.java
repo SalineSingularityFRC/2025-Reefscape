@@ -33,7 +33,7 @@ public class RobotContainer {
     protected RobotContainer() {
         lime = new Limelight();
         drive = new SwerveSubsystem();
-        intake = new IntakeSubsystem();
+        // intake = new IntakeSubsystem();
         elevator = new ElevatorSubsystem();
 
         driveController = new CommandXboxController(Constants.Gamepad.Controller.DRIVE);
@@ -52,17 +52,15 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
-        driveController.a().whileTrue(intake.runMotors());
+        // driveController.a().whileTrue(intake.runMotors());
 
         //driveController.b().whileTrue(elevator.moveToTargetPosition(Setpoint.kFeederStation));
         //driveController.y().whileTrue(elevator.moveToTargetPosition(Setpoint.kLevel4));
 
+        driveController.a().whileTrue(elevator.moveToTargetPosition(Setpoint.kLevel1));
         driveController.b().whileTrue(elevator.runMotors(true));
-        driveController.y().whileTrue(elevator.runMotors(false));
-
-        driveController.x().whileTrue(drive.resetGyroCommand());
-
-        driveController.a().whileTrue(intake.runMotors());
+        driveController.x().whileTrue(elevator.runMotors(false));
+        driveController.y().whileTrue(elevator.moveToTargetPosition(Setpoint.kLevel4));
 
         driveController.povRight().onTrue(drive.xMode());
 
