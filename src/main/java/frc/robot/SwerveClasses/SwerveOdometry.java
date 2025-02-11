@@ -9,6 +9,9 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.Odometry;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
@@ -33,10 +36,29 @@ public class SwerveOdometry {
 
   private DataLog log;
 
+  private StructPublisher<Pose2d> publisher;
+
+  private NetworkTableInstance inst;
+  private NetworkTable table;
+
+  private Boolean BlueAlliance;
+
   public SwerveOdometry(SwerveSubsystem subsystem, Translation2d[] vectorKinematics) {
     this.subsystem = subsystem;
 
     log = DataLogManager.getLog();
+
+    var Alliance = DriverStation.getAlliance();
+    BlueAlliance = true;
+    if (Alliance.isPresent()) {
+      if (Alliance.get() == DriverStation.Alliance.Red) {
+        BlueAlliance = false;
+      }
+    }
+
+    inst = NetworkTableInstance.getDefault();
+    table = inst.getTable("datatable");
+    publisher = table.getStructTopic("Limelight MegaTag2 Pos", Pose2d.struct).publish();
 
     swerveKinematics =
         new SwerveDriveKinematics(
@@ -136,6 +158,8 @@ public class SwerveOdometry {
           mt2.timestampSeconds);
     }
 
+    publisher.set(mt2.pose);
+
     // Assuming DataLogManager has already been started and log initialized
     DoubleLogEntry targetXLog = new DoubleLogEntry(log, "Target X");
     DoubleLogEntry targetYLog = new DoubleLogEntry(log, "Target Y");
@@ -186,6 +210,10 @@ public class SwerveOdometry {
   }
 
     public void setPosition(Pose2d pos) {
+
+    SmartDashboard.putNumber("Pathplanner Angle", pos.getRotation().getRadians());
+    SmartDashboard.putNumber("Setting Angle", subsystem.getRobotRotation2dForOdometry().getRadians());
+
     swerveOdometry.resetPosition(
         subsystem.getRobotRotation2dForOdometry(),
         new SwerveModulePosition[] {

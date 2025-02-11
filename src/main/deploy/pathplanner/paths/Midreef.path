@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.7011479591836736,
-        "y": 4.916677295918367
+        "x": 2.6563775510204084,
+        "y": 4.513743622448979
       },
       "isLocked": false,
       "linkedName": "Reef Test"
@@ -20,7 +20,7 @@
         "y": 5.259917091836735
       },
       "prevControl": {
-        "x": 3.506887755102041,
+        "x": 3.8204081632653066,
         "y": 5.259917091836735
       },
       "nextControl": null,
@@ -30,10 +30,21 @@
   ],
   "rotationTargets": [],
   "constraintZones": [],
-  "pointTowardsZones": [],
+  "pointTowardsZones": [
+    {
+      "fieldPosition": {
+        "x": 4.5,
+        "y": 4.0
+      },
+      "rotationOffset": 0.0,
+      "minWaypointRelativePos": 0.0,
+      "maxWaypointRelativePos": 1.0,
+      "name": "Point Towards Zone"
+    }
+  ],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3.0,
+    "maxVelocity": 2.0,
     "maxAcceleration": 3.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
@@ -41,7 +52,7 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 2.0,
+    "velocity": 2.5,
     "rotation": -90.0
   },
   "reversed": false,

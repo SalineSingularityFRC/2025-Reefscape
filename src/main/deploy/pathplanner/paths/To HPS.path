@@ -3,47 +3,33 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 0.381,
-        "y": 4.0259
+        "x": 6.1,
+        "y": 4.0
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.4821674157830957,
-        "y": 4.002830609360577
+        "x": 7.1,
+        "y": 4.0
       },
       "isLocked": false,
-      "linkedName": "Test Start Point"
+      "linkedName": "1st L4"
     },
     {
       "anchor": {
-        "x": 2.6924,
-        "y": 4.026
+        "x": 3.7775191326530613,
+        "y": 5.607445790816326
       },
       "prevControl": {
-        "x": 1.979452673053959,
-        "y": 4.03783466012343
+        "x": 5.438759566326531,
+        "y": 4.803722895408163
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Reef Test"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
-  "constraintZones": [
-    {
-      "name": "Constraints Zone",
-      "minWaypointRelativePos": 0,
-      "maxWaypointRelativePos": 1.0,
-      "constraints": {
-        "maxVelocity": 2.5,
-        "maxAcceleration": 1.5,
-        "maxAngularVelocity": 540.0,
-        "maxAngularAcceleration": 720.0,
-        "nominalVoltage": 12.0,
-        "unlimited": false
-      }
-    }
-  ],
+  "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
@@ -59,10 +45,10 @@
     "rotation": 0.0
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Potential Paths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 180.0
   },
   "useDefaultConstraints": true
 }

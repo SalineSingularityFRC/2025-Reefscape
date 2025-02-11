@@ -6,6 +6,10 @@ package frc.robot;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -38,7 +42,8 @@ public class RobotContainer {
 
         this.pathAutonChooser = new SendableChooser<String>();
 
-        this.pathAutonChooser.setDefaultOption("Reef", "Reef");
+        this.pathAutonChooser.setDefaultOption("Fake Auto", "Fake Auto");
+        this.pathAutonChooser.addOption("Reef", "Reef");
         this.pathAutonChooser.addOption("Modified Tag", "Modified Tag");
         this.pathAutonChooser.addOption("1 Meter Auto", "1 Meter Auto");
         this.pathAutonChooser.addOption("4 Meter Auto", "4 Meter Auto");

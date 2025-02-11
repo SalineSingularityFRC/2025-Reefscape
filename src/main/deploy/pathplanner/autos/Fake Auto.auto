@@ -7,19 +7,25 @@
         {
           "type": "path",
           "data": {
-            "pathName": "To Reef"
+            "pathName": "Start"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Arc-reef"
+            "pathName": "Fake Coral Station"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Other Side of Coral Station"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "Test Autos",
+  "folder": null,
   "choreoAuto": false
 }
