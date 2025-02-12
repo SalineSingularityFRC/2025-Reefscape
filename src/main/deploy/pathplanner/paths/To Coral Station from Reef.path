@@ -3,16 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 6.1,
-        "y": 4.0
+        "x": 2.6924,
+        "y": 4.026
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.144770408163264,
-        "y": 6.364253826530612
+        "x": 2.2935323738532056,
+        "y": 5.051378478212855
       },
       "isLocked": false,
-      "linkedName": "1st L4"
+      "linkedName": "Reef Test"
     },
     {
       "anchor": {
@@ -20,8 +20,8 @@
         "y": 6.729878826530612
       },
       "prevControl": {
-        "x": 2.574298469387757,
-        "y": 7.0059630102040815
+        "x": 2.119282295978154,
+        "y": 5.618523397611869
       },
       "nextControl": null,
       "isLocked": false,
@@ -29,21 +29,7 @@
     }
   ],
   "rotationTargets": [],
-  "constraintZones": [
-    {
-      "name": "Constraints Zone",
-      "minWaypointRelativePos": 0,
-      "maxWaypointRelativePos": 1.0,
-      "constraints": {
-        "maxVelocity": 2.5,
-        "maxAcceleration": 3.0,
-        "maxAngularVelocity": 540.0,
-        "maxAngularAcceleration": 720.0,
-        "nominalVoltage": 12.0,
-        "unlimited": false
-      }
-    }
-  ],
+  "constraintZones": [],
   "pointTowardsZones": [
     {
       "fieldPosition": {
@@ -51,8 +37,8 @@
         "y": 4.0
       },
       "rotationOffset": 0.0,
-      "minWaypointRelativePos": 0.0,
-      "maxWaypointRelativePos": 0.75,
+      "minWaypointRelativePos": 0.21533923303834812,
+      "maxWaypointRelativePos": 0.7094395280235994,
       "name": "Point Towards Zone"
     }
   ],
@@ -73,7 +59,7 @@
   "folder": "Potential Paths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": 0.0
   },
   "useDefaultConstraints": true
 }

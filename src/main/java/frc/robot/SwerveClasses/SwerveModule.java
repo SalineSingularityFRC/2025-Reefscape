@@ -3,12 +3,19 @@ package frc.robot.SwerveClasses;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
+import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.*;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.units.measure.Velocity;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 import com.ctre.phoenix6.hardware.CANcoder;
 import frc.robot.Constants;
 import frc.robot.PID;
@@ -29,6 +36,8 @@ public class SwerveModule {
   private CANcoder c_encoder;
   private TalonFX driveMotor;
   private MotorOutputConfigs motorOutputConfigs = new MotorOutputConfigs();
+  private VelocityTorqueCurrentFOC velocityTarget;
+
 
   private final PID drive_controller_gains = Constants.PidGains.SwerveModule.DRIVE_PID_CONTROLLER;
   private final PIDController m_drivePIDController = new PIDController(
@@ -86,6 +95,18 @@ public class SwerveModule {
 
     c_encoder.getAbsolutePosition().setUpdateFrequency(100);
     driveMotor.getPosition().setUpdateFrequency(100);
+
+    // For drive PIDs
+    velocityTarget = new VelocityTorqueCurrentFOC(0).withSlot(0).withFeedForward(0);
+    
+    PID drivePID = Constants.PidGains.SwerveModule.DRIVE_PID_CONTROLLER;
+    Slot0Configs slot0Configs = new Slot0Configs();
+    slot0Configs.kP = drivePID.P;
+    slot0Configs.kI = drivePID.I;
+    slot0Configs.kD = drivePID.D;;
+    slot0Configs.kS = drivePID.S;
+
+    driveMotor.getConfigurator().apply(slot0Configs);
   }
 
   public SwerveModuleState getState(){
@@ -125,12 +146,15 @@ public class SwerveModule {
     state.cosineScale(new Rotation2d(getEncoderPosition()));
     double driveOutput = m_drivePIDController.calculate(driveMotor.get(), state.speedMetersPerSecond);
 
-    switch(angleMotor.setAngle(state.angle.getRadians())){
+    SmartDashboard.putNumber("Target Velocity" + name, toRotationsPerSecond(state));
+    SmartDashboard.putNumber("Current Velocity" + name, driveMotor.getVelocity().getValueAsDouble());
+
+    switch(angleMotor.setAngle(state.angle.getRadians(), name)){
       case Positive:
-          driveMotor.set(driveOutput);
-          break;
+        driveMotor.setControl(velocityTarget.withVelocity(toRotationsPerSecond(state)));
+        break;
       case Negative:
-        driveMotor.set(-driveOutput);
+        driveMotor.setControl(velocityTarget.withVelocity(-toRotationsPerSecond(state)));
         break;
       default:
         break;
@@ -166,6 +190,15 @@ public class SwerveModule {
     return driveMotor.getPosition().getValueAsDouble() * 2 * Math.PI * Constants.Measurement.WHEELRADIUS
         / Constants.MotorGearRatio.DRIVE;
   }
+
+  // Conversion to get in meters/sec to rotations/sec and accounting for motor rotating
+  // the gear
+  public double toRotationsPerSecond(SwerveModuleState state) {
+    return state.speedMetersPerSecond / ( 2 * Math.PI) / Constants.Measurement.WHEELRADIUS
+        * Constants.MotorGearRatio.DRIVE;
+  }
+
+  
 
   public void stopDriving() {
       driveMotor.stopMotor();

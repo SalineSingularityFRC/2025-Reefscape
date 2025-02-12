@@ -686,7 +686,7 @@ public class SwerveSubsystem extends SubsystemBase {
   public void resetGyro() {
     // gyro.reset();
     gyroZero = gyro.getRotation2d().plus(Rotation2d.fromDegrees(90.0)).getRadians();
-    odometry.resetPosition();
+    // odometry.resetPosition();
   }
 
   public SwerveModule getSwerveModule(int module) {

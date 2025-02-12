@@ -190,9 +190,9 @@ public final class Constants {
   public static final class PidGains {
     public static final class PathPlanner {
       //public static final PID translation = new PID(3, 5, 0.0);
-      public static final PID translation = new PID(11, 0, 0.011);
+      public static final PID translation = new PID(3, 0, 0.011);
       //public static final PID rotation = new PID(1, 0, 0.3);
-      public static final PID rotation = new PID(1.2, 0, 0);
+      public static final PID rotation = new PID(3, 0, 0);
     }
 
     public static final class rotationCorrection {
@@ -212,8 +212,14 @@ public final class Constants {
     }
 
     public static final class SwerveModule {
-      public static final PID DRIVE_PID_CONTROLLER = new PID(.5, 0, 0);
-      public static final PID TURNING_PID_CONTROLLER = new PID(7, 0, 0.1, 0);
+
+      //On real carpet
+      public static final PID DRIVE_PID_CONTROLLER = new PID(5, 0, 0, 2.5);
+      //public static final PID TURNING_PID_CONTROLLER = new PID(7, 0, 0.1, 0);
+
+      // On real carpet
+      public static final PID TURNING_PID_CONTROLLER = new PID(7, 0, 0.1, 0.018);
+
     }
   }
 

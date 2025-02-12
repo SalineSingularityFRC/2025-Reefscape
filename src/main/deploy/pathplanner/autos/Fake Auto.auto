@@ -21,6 +21,18 @@
           "data": {
             "pathName": "Other Side of Coral Station"
           }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "To Coral Station from Reef"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Other Side of Coral Station"
+          }
         }
       ]
     }
