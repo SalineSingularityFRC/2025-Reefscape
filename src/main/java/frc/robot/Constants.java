@@ -130,10 +130,10 @@ public final class Constants {
 
   public static final class WheelOffset {
     // Converting rotations to radians
-    public static final double FL = (0.962646) * 2 * Math.PI;
-    public static final double FR = (0.682861) * 2 * Math.PI;
-    public static final double BL = (0.760986) * 2 * Math.PI;
-    public static final double BR = (0.555908) * 2 * Math.PI;
+    public static final double FL = (0.972168) * 2 * Math.PI;
+    public static final double FR = (0.679932) * 2 * Math.PI;
+    public static final double BL = (0.760742) * 2 * Math.PI;
+    public static final double BR = (0.548828) * 2 * Math.PI;
   }
 
   public static final class MotorGearRatio {
@@ -151,16 +151,16 @@ public final class Constants {
     // wheelBase - distance between pairs of wheels on the same side of the robot
     // driveBaseRadius - distance from robot center to furthest module.
     // radiusFactor - to account for real world factors of the wheel radius
-    // THIS IS IMPORTANT FOR A RECTANGULAR ROBOT
-    // In meters
-    public static final double TRACK_WIDTH = 18.75 * 0.0254; // Inches to meters
-    public static final double WHEEL_BASE = 22.75 * 0.0254; // Inches to meters
-    public static final double WHEELRADIUS = 2.003 * 0.0254; // 2024 robot radius from inches to meters
-    public static final double DRIVEBASERADIUS = 14.942 * 0.0254; // Inches to meters
+
+    public static final double TRACK_WIDTH = Units.inchesToMeters(18.75);
+    public static final double WHEEL_BASE = Units.inchesToMeters(22.75);
+    public static final double WHEELRADIUS = Units.inchesToMeters(1.8787); // 2024 robot radius
+    public static final double DRIVEBASERADIUS = Units.inchesToMeters(14.942); 
     public static final double INTAKE_WIDTH_M = Units.inchesToMeters(19.25);
   }
 
   public static final class Speed {
+    public static final double MAX_SPEED = 4.57; // m/s, mk4i, L2, FOC off
     public static final double ROBOT_SPEED_DIVISOR = 2.5; // what the max speed should be divided by, 1 is max power
     public static final double SHOOTER = 65; // speed of the shooter in rotations per second
     public static final double AMPSHOOTER = 15; // speed of the shooter in rotations per second
@@ -190,9 +190,16 @@ public final class Constants {
 
   public static final class PidGains {
     public static final class PathPlanner {
-      public static final PID translation = new PID(3, 5, 0.0);
-      public static final PID rotation = new PID(1, 1, 0.3);
+      //public static final PID translation = new PID(3, 5, 0.0);
+      public static final PID translation = new PID(3, 0, 0.011);
+      //public static final PID rotation = new PID(1, 0, 0.3);
+      public static final PID rotation = new PID(3, 0, 0);
     }
+
+    public static final class rotationCorrection {
+      public static final PID rotation = new PID(0.16, 0, 0.02);
+    }
+
 
     public static final class Limelight {
       public static final PID DRIVE_CONTROLLER = new PID(0.0025, 0, 0);
@@ -206,8 +213,14 @@ public final class Constants {
     }
 
     public static final class SwerveModule {
-      public static final PID DRIVE_PID_CONTROLLER = new PID(.5, 0, 0);
-      public static final PID TURNING_PID_CONTROLLER = new PID(7, 0, 0.3, 0);
+
+      //On real carpet
+      public static final PID DRIVE_PID_CONTROLLER = new PID(5, 0, 0, 2.5);
+      //public static final PID TURNING_PID_CONTROLLER = new PID(7, 0, 0.1, 0);
+
+      // On real carpet
+      public static final PID TURNING_PID_CONTROLLER = new PID(7, 0, 0.1, 0.018);
+
     }
   }
 

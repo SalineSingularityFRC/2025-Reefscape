@@ -17,59 +17,24 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
-public class Robot extends LoggedRobot {
+import edu.wpi.first.wpilibj.DataLogManager;
+
+public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
   private RobotContainer m_robotContainer;
 
-  private HashMap<String, Alert> alerts;
+  public Robot() {
+    DataLogManager.start();
+    addPeriodic(() -> {
+      m_robotContainer.updateOdometry();
+  }, 0.01, 0.005);
+  }
 
   @Override
   public void robotInit() {
-    Logger.recordMetadata("ProjectName", "2025-Reefscape");
-
-    switch (Constants.Modes.currentMode) {
-      case REAL: // on a real robot
-        System.out.println("REAL!");
-        Logger.addDataReceiver(new WPILOGWriter()); // logs to /logs/ on USB stick
-        Logger.addDataReceiver(new NT4Publisher());
-        break;
-      case SIM: // on "Simulate Robot Code"
-        System.out.println("SIM!");
-        Logger.addDataReceiver(new WPILOGWriter()); // logs to logs folder in project
-        Logger.addDataReceiver(new NT4Publisher());
-        break;
-      case REPLAY:
-        System.out.println("REPLAY!");
-        setUseTiming(false);
-        String logPath = LogFileUtil.findReplayLog();
-        Logger.setReplaySource(new WPILOGReader(logPath));
-        Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim")));
-        break;
-    }
-
-    Logger.start();
-
-    alerts = new HashMap<String, Alert>();
-
-    CommandScheduler.getInstance().onCommandExecute((Command command) -> {
-      Alert alert = new Alert(command.getName(), Alert.AlertType.kInfo);
-      alert.set(true);
-      alerts.put(command.getName(), alert);
-    });
-
-    CommandScheduler.getInstance().onCommandFinish((Command command) -> {
-      Alert alert = alerts.get(command.getName());
-      alert.set(false);
-      alerts.remove(command.getName());
-    });
-
-    CommandScheduler.getInstance().onCommandInterrupt((Command command) -> {
-      Alert alert = alerts.get(command.getName());
-      alert.set(false);
-      alerts.remove(command.getName());
-    });
-
-    m_robotContainer = new RobotContainer();
+    m_robotContainer =
+        new RobotContainer();
+    m_robotContainer.initialize();
   }
 
   @Override
@@ -87,8 +52,12 @@ public class Robot extends LoggedRobot {
   public void disabledExit() {}
 
   @Override
-  public void autonomousInit() {
+  public void autonomousInit() {  
+
     m_robotContainer.updateOdometry();
+
+    m_robotContainer.updateRotationPIDSetpoint();
+
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
     if (m_autonomousCommand != null) {
@@ -106,7 +75,10 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void teleopInit() {
+
     m_robotContainer.updateOdometry();
+
+    m_robotContainer.updateRotationPIDSetpoint();
 
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();

@@ -68,9 +68,7 @@ public class SwerveAngle {
    * It returns a value that indicates if we are in the target position, or 180° off of it,
    * or still working to get to one of those positions
    */
-  protected AnglePosition setAngle(double targetAngle) {
-    SmartDashboard.putNumber("Target Angle", targetAngle);
-    SmartDashboard.putNumber("Angle Clamped", getAngleClamped());
+  protected AnglePosition setAngle(double targetAngle, String name) {
     double wheelPosition =
         getAngleClamped(); // the angle to set the wheel to minus the leftover full rotations
     double remainderRotations =
@@ -109,6 +107,9 @@ public class SwerveAngle {
 
     targetAngle += remainderRotations;
     targetAngle += zeroPositionOffset;
+
+    SmartDashboard.putNumber("Target Angle" + name, Constants.MotorGearRatio.ANGLE * (targetAngle / (2 * Math.PI)));
+    SmartDashboard.putNumber("Current Angle" + name, angleMotor.getPosition().getValueAsDouble());
 
     // Let's drive
     angleMotor.setControl(
