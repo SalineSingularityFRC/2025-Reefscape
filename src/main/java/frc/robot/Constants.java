@@ -28,6 +28,10 @@ public final class Constants {
       public static final int INTAKE_LASER = 32;
       public static final int SHOOTER_LASER = 33;
     }
+
+    public static final class Climber {
+      public static final int MOTOR = 60;
+    }
     
     public static final class CanCoder {
       public static final int GYRO = 20;
@@ -275,7 +279,11 @@ public final class Constants {
       return (!isTrue());
     }
   }
+  public static class Climber {
+    public static ConfigDouble WINCH_SPEED = new ConfigDouble("Climber/WINCH_SPEED", .5);
 
+
+  }
   public static class Elevator {
     public static ConfigInt FOLLOW_DUALENABLE = new ConfigInt("Elevator/DUALENABLE", 0);
 

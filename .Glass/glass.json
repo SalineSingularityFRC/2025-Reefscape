@@ -2,6 +2,9 @@
   "NetworkTables": {
     "persistent": {
       "Preferences": {
+        "Climber": {
+          "open": true
+        },
         "Elevator": {
           "Primary Motor": {
             "open": true
