@@ -1,4 +1,8 @@
 package frc.robot;
+import com.pathplanner.lib.config.ModuleConfig;
+import com.pathplanner.lib.config.RobotConfig;
+
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 
 /*
@@ -159,28 +163,12 @@ public final class Constants {
   }
 
   public static final class Speed {
-    public static final double MAX_SPEED = 4.57; // m/s, mk4i, L2, FOC off
+    public static final double MAX_SPEED = 4.572; // m/s, mk4i, L2, FOC off
     public static final double ROBOT_SPEED_DIVISOR = 2.5; // what the max speed should be divided by, 1 is max power
     public static final double SHOOTER = 65; // speed of the shooter in rotations per second
     public static final double AMPSHOOTER = 15; // speed of the shooter in rotations per second
     public static final double INTAKE = 20; // rotations per second
     public static final double ARM = 30; // rotations per second
-    public static final double HOME = 0.2; // proportional
-    public static final double CLIMBER = 280;
-    public static final double ARMDUTYCYCLEUP = 0.4; // between -1 and 1
-    public static final double ARMDUTYCYCLEDOWN = 0.2; // between -1 and 1
-    public static final double REVERSESHOOTER = 0.15; // between -1 and 1
-  }
-
-  public static final class Distance {
-    // CHARGE STATION COMMUNITY DISTANCE:
-    public static final double TO_BLUE_CHARGE_STATION = 96.4694981;
-    public static final double TO_RED_CHARGE_STATION = 99;
-    public static final double TO_CENTER_COMMUNITY = 100;
-    public static final double TO_OUTSIDE_COMMUNITY = 87.30208217;
-    // 1.832716884 is the number of inches per 1 encoder value
-    // ~80 (plus offset) to the center of the charge station for robot
-    // ~160 is the distance to leave the community plus some extra cushion
   }
 
   public static final class AngleInaccuracy {
@@ -196,7 +184,7 @@ public final class Constants {
     }
 
     public static final class rotationCorrection {
-      public static final PID rotation = new PID(0.16, 0, 0.02);
+      public static final PID rotation = new PID(0.22, 0, 0);
     }
 
 
@@ -207,10 +195,6 @@ public final class Constants {
       
     }
 
-    public static final class TurnAngle {
-      public static final double[] TURN_ANGLE = { Math.PI / 6, 0, 0 };
-    }
-
     public static final class SwerveModule {
 
       //On real carpet
@@ -218,9 +202,31 @@ public final class Constants {
       //public static final PID TURNING_PID_CONTROLLER = new PID(7, 0, 0.1, 0);
 
       // On real carpet
-      public static final PID TURNING_PID_CONTROLLER = new PID(7, 0, 0.1, 0.018);
+      public static final PID TURNING_PID_CONTROLLER = new PID(7, 0, 0.1,0.2);
 
     }
+  }
+
+  public static final class PathplannerConfig {
+    public static Translation2d[] ChassisModuleOffsets = {
+      new Translation2d(0.289, 0.238), 
+      new Translation2d(0.289, -0.238),
+      new Translation2d(-0.289, 0.238),
+      new Translation2d(-0.289, -0.238),
+    };
+
+    public static ModuleConfig ChassisModuleConfig = 
+      new ModuleConfig(
+        0.051, 
+        Speed.MAX_SPEED, 
+        1.0, 
+        null, 
+        MotorGearRatio.DRIVE, 
+        60, 
+        1);
+        
+    public static RobotConfig ChassisRobotConfig = 
+      new RobotConfig(23.350, 1.705, ChassisModuleConfig, ChassisModuleOffsets);
   }
 
   public static final class Limelight {

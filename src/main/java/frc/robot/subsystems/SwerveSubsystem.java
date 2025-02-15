@@ -181,6 +181,8 @@ public class SwerveSubsystem extends SubsystemBase {
       e.printStackTrace();
     }
 
+    // config = Constants.PathplannerConfig.ChassisRobotConfig;
+
     AutoBuilder.configure(
         supplier_position, // Robot pose supplier
         consumer_position, // Method to reset odometry (will be called if your auto has a starting pose)

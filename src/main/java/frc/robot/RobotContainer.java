@@ -42,7 +42,8 @@ public class RobotContainer {
 
         this.pathAutonChooser = new SendableChooser<String>();
 
-        this.pathAutonChooser.setDefaultOption("Fake Auto", "Fake Auto");
+        this.pathAutonChooser.setDefaultOption("L Auto", "L Auto");
+        this.pathAutonChooser.addOption("Fake Auto", "Fake Auto");
         this.pathAutonChooser.addOption("Reef", "Reef");
         this.pathAutonChooser.addOption("Modified Tag", "Modified Tag");
         this.pathAutonChooser.addOption("1 Meter Auto", "1 Meter Auto");

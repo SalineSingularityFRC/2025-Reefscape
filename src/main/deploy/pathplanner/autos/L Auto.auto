@@ -19,6 +19,18 @@
         {
           "type": "path",
           "data": {
+            "pathName": "CS_1 - L"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "L - CS_1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
             "pathName": "CS_1 - A"
           }
         },
@@ -31,7 +43,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "CS_1 - A"
+            "pathName": "CS_1 - L"
           }
         }
       ]
