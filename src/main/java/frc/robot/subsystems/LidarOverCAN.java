@@ -22,10 +22,10 @@ public class LidarOverCAN extends SubsystemBase {
 
     @Override
     public void periodic() {
-        ByteBuffer targetedMessageID = ByteBuffer.allocateDirect(4); // Must be direct
-        targetedMessageID.asIntBuffer().put(0, 0x8041481);
-        ByteBuffer timeStamp = ByteBuffer.allocateDirect(4); // Allocate memory for time stamp
-        byte[] message = new byte[] {};
+        //ByteBuffer targetedMessageID = ByteBuffer.allocateDirect(4); // Must be direct
+        //targetedMessageID.asIntBuffer().put(0, 0x8041481);
+        //ByteBuffer timeStamp = ByteBuffer.allocateDirect(4); // Allocate memory for time stamp
+        //byte[] message = new byte[] {};
         CANStreamMessage[] messages = new CANStreamMessage[4];
         try {
             // Return call is data, selection is assigned
@@ -39,6 +39,7 @@ public class LidarOverCAN extends SubsystemBase {
         
         if (messages != null && messages.length > 0) {
             for( CANStreamMessage msg : messages) {
+                if (msg == null) {continue;}
             //SmartDashboard.putRaw("Lidar Debug Last CAN", message);
             //System.out.println("Last Can: " + message.toString());
             System.out.println(String.format("%08X", msg.messageID));
