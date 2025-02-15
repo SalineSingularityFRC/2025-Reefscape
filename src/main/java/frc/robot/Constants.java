@@ -59,33 +59,6 @@ public final class Constants {
     }
   }
 
-  public static final class Position {
-    public static final class MainArm {
-      public static final class Auton {
-        public static final class CloseNote {
-          public static final double SIDE = 19; // Close Note1 or Close Note3
-        }
-
-        public static final class WhiteLine {
-          public static final double SIDE = 18; // Not clearly tuned
-          public static final double MIDDLE = 17.5; // Not clearly tuned
-        }
-      }
-
-      public static final class Speaker {
-          public static final double SIDE = 11; // Touching the right or left side of the Speaker
-          public static final double MIDDLE = 10; // Middle of speaker
-          public static final double FEET3 = 10; // 3 feet from april tag speaker
-          public static final double FEET6 = 17.1162; // 6 feet from april tag speaker
-          public static final double FEET7_4 = 18.48877; // 7.4 feet from april tag speaker
-      }
-
-      public static final double AMP = 48.5;
-      public static final double PICKUP = 0.5;
-      public static final double CLIMBER = 0;
-    }
-  }
-
   public static final class Inverted {
     // This is for motors
     public static final boolean FL = false;
@@ -148,9 +121,8 @@ public final class Constants {
   }
 
   public static final class MotorGearRatio {
-    public static final double DRIVE = 6.75;
-    public static final double ANGLE = 150.0 / 7.0;// 12.8; 
-                                                   // https://www.swervedrivespecialties.com/products/mk4-swerve-module
+    public static final double DRIVE = 5.9;
+    public static final double ANGLE = 18.75;
     public static final int BIG = 10;
     public static final double ARM = 45.0;
     public static final int SMALL = 7;
@@ -165,8 +137,7 @@ public final class Constants {
 
     public static final double TRACK_WIDTH = Units.inchesToMeters(18.75);
     public static final double WHEEL_BASE = Units.inchesToMeters(22.75);
-    public static final double WHEELRADIUS = Units.inchesToMeters(1.8787); // 2024 robot radius
-    public static final double DRIVEBASERADIUS = Units.inchesToMeters(14.942); 
+    public static final double WHEELRADIUS = Units.inchesToMeters(1.8787);
     public static final double INTAKE_WIDTH_M = Units.inchesToMeters(19.25);
   }
 
@@ -225,7 +196,7 @@ public final class Constants {
 
     public static ModuleConfig ChassisModuleConfig = 
       new ModuleConfig(
-        0.051, 
+        Measurement.WHEELRADIUS, 
         Speed.MAX_SPEED, 
         1.0, 
         null, 
@@ -237,14 +208,14 @@ public final class Constants {
       new RobotConfig(23.350, 1.705, ChassisModuleConfig, ChassisModuleOffsets);
   }
 
-  public static final class Limelight {
-    public static final double[] knownDriveDistances = {3, 6, 8};
-    public static final double[] knownShootingPositions = {
-      Constants.Position.MainArm.Speaker.FEET3, 
-      Constants.Position.MainArm.Speaker.FEET6, 
-      Constants.Position.MainArm.Speaker.FEET7_4
-    };
-  }
+  // public static final class Limelight {
+  //   public static final double[] knownDriveDistances = {3, 6, 8};
+  //   public static final double[] knownShootingPositions = {
+  //     Constants.Position.MainArm.Speaker.FEET3, 
+  //     Constants.Position.MainArm.Speaker.FEET6, 
+  //     Constants.Position.MainArm.Speaker.FEET7_4
+  //   };
+  // }
 
   public static final class Modes {
     /*
@@ -317,7 +288,7 @@ public final class Constants {
     }
     
     public static class PrimaryMotor {
-      public static ConfigDouble RAISE_SPEED = new ConfigDouble("Elevator/Primary Motor/RAISE_SPEED", .1);
+      public static ConfigDouble RAISE_SPEED = new ConfigDouble("Elevator/Primary Motor/RAISE_SPEED", 0.1);
       public static ConfigDouble LOWER_SPEED = new ConfigDouble("Elevator/Primary Motor/LOWER_SPEED", .1);
       public static ConfigInt INVERTED = new ConfigInt("Elevator/Primary Motor/ INVERTED MOTOR", 1);
       public static ConfigInt CAN_ID = new ConfigInt("Elevator/Primary Motor/CAN ID", 40);
@@ -328,7 +299,7 @@ public final class Constants {
       public static ConfigDouble MAX_POWER = new ConfigDouble("Elevator/Primary Motor/Max Power", 1);
   
       public static ConfigDouble MAX_VELOCITY_RPM = new ConfigDouble("Elevator/Primary Motor/Max Velocity in rpm", 2000);
-      public static ConfigDouble MAX_ACCEL_RPM_PER_S = new ConfigDouble("Elevator/Primary Motor/Max Accel in rpm per s", 10000);
+      public static ConfigDouble MAX_ACCEL_RPM_PER_S = new ConfigDouble("Elevator/Primary Motor/Max Accel in rpm per s", 200);
       public static ConfigInt MAX_CURRENT_IN_A = new ConfigInt("Elevator/Primary Motor/Max Current in A", 40);
       public static ConfigDouble VOLTAGE_COMPENSATION_IN_V = new ConfigDouble("Elevator/Primary Motor/Voltage Compensation in V", 12);
       public static ConfigDouble MAX_CONTROL_ERROR_IN_COUNTS = new ConfigDouble("Elevator/Primary Motor/Control Error Tolerance", 0.25);  

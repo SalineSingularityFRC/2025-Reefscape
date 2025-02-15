@@ -506,34 +506,34 @@ public class SwerveSubsystem extends SubsystemBase {
         this);
   }
 
-  //Finds the Closest Distances That We have Calibrated Shooting From
-  // Not using this in RobotContainer.java, using this in alignAndDriveToTagCommand
-  public double[] findClosestDistance(double currentDistance){
-    double[] knownDistances = Constants.Limelight.knownDriveDistances;
+  // //Finds the Closest Distances That We have Calibrated Shooting From
+  // // Not using this in RobotContainer.java, using this in alignAndDriveToTagCommand
+  // public double[] findClosestDistance(double currentDistance){
+  //   double[] knownDistances = Constants.Limelight.knownDriveDistances;
 
-    //Final Distance from Known Distances
-    double closestDistance = 0.0;
+  //   //Final Distance from Known Distances
+  //   double closestDistance = 0.0;
     
-    /*
-     * Needs to be Maxiximum Value possible as it 
-     * gets compared to smaller numbers in the code
-     * below.
-     */
-    double closestDistanceFromKnownPoint = Double.MAX_VALUE;
-    int index = Integer.MAX_VALUE;
+  //   /*
+  //    * Needs to be Maxiximum Value possible as it 
+  //    * gets compared to smaller numbers in the code
+  //    * below.
+  //    */
+  //   double closestDistanceFromKnownPoint = Double.MAX_VALUE;
+  //   int index = Integer.MAX_VALUE;
 
-    for(int i = 0; i < knownDistances.length; i++){
+  //   for(int i = 0; i < knownDistances.length; i++){
 
-        double distanceFromKnownPoint = Math.abs(currentDistance - knownDistances[i]);
-        if(distanceFromKnownPoint < closestDistanceFromKnownPoint) {
-            closestDistanceFromKnownPoint = distanceFromKnownPoint;
-            closestDistance = knownDistances[i];
-            index = i;
-        }
-    }
-    double returnValues[] = {closestDistance, index};
-    return returnValues;
-  }
+  //       double distanceFromKnownPoint = Math.abs(currentDistance - knownDistances[i]);
+  //       if(distanceFromKnownPoint < closestDistanceFromKnownPoint) {
+  //           closestDistanceFromKnownPoint = distanceFromKnownPoint;
+  //           closestDistance = knownDistances[i];
+  //           index = i;
+  //       }
+  //   }
+  //   double returnValues[] = {closestDistance, index};
+  //   return returnValues;
+  // }
 
   // For Speaker with various distances to shoot
   public Command alignAndDriveToTagCommand(Limelight lime) {

@@ -168,13 +168,13 @@ public class SwerveOdometry {
     DoubleLogEntry targetYawLog = new DoubleLogEntry(log, "Target Yaw");
     DoubleLogEntry targetRollLog = new DoubleLogEntry(log, "Target Roll");
 
-    double[] botPose = LimelightHelpers.getBotPose_TargetSpace("limelight");
-    targetXLog.append(botPose[0]);
-    targetYLog.append(botPose[1]);
-    targetZLog.append(botPose[2]);
-    targetPitchLog.append(botPose[3]);
-    targetYawLog.append(botPose[4]);
-    targetRollLog.append(botPose[5]);
+    // double[] botPose = LimelightHelpers.getBotPose_TargetSpace("limelight");
+    // targetXLog.append(botPose[0]);
+    // targetYLog.append(botPose[1]);
+    // targetZLog.append(botPose[2]);
+    // targetPitchLog.append(botPose[3]);
+    // targetYawLog.append(botPose[4]);
+    // targetRollLog.append(botPose[5]);
     
     // SmartDashboard.putNumber("Target X", LimelightHelpers.getBotPose_TargetSpace("limelight")[0]);
     // SmartDashboard.putNumber("Target Y", LimelightHelpers.getBotPose_TargetSpace("limelight")[1]);
