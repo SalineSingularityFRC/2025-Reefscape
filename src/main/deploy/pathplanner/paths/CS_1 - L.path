@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.6924,
-        "y": 4.026
+        "x": 1.164030612244898,
+        "y": 7.095503826530612
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.2935323738532056,
-        "y": 5.051378478212855
+        "x": 1.7068015530959375,
+        "y": 6.247096892065986
       },
       "isLocked": false,
-      "linkedName": "Reef Test"
+      "linkedName": "CS_1"
     },
     {
       "anchor": {
-        "x": 1.4475765306122448,
-        "y": 6.729878826530612
+        "x": 3.611479591836735,
+        "y": 5.237531887755101
       },
       "prevControl": {
-        "x": 2.119282295978154,
-        "y": 5.618523397611869
+        "x": 3.2007692917031165,
+        "y": 6.176947542671188
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Coral Station"
+      "linkedName": "L"
     }
   ],
   "rotationTargets": [],
@@ -33,19 +33,19 @@
   "pointTowardsZones": [
     {
       "fieldPosition": {
-        "x": 4.5,
-        "y": 4.0
+        "x": 4.073906,
+        "y": 4.745482
       },
       "rotationOffset": 0.0,
-      "minWaypointRelativePos": 0.21533923303834812,
-      "maxWaypointRelativePos": 0.7094395280235994,
+      "minWaypointRelativePos": 0.11061946902654878,
+      "maxWaypointRelativePos": 0.8657817109144537,
       "name": "Point Towards Zone"
     }
   ],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 2.0,
-    "maxAcceleration": 3.0,
+    "maxVelocity": 4.572,
+    "maxAcceleration": 3.5,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
@@ -53,13 +53,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -55.0
+    "rotation": -59.99999999999999
   },
   "reversed": false,
-  "folder": "Potential Paths",
+  "folder": "To Reef",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": -55.0
   },
   "useDefaultConstraints": true
 }
