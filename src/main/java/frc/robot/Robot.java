@@ -32,9 +32,53 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotInit() {
-    m_robotContainer =
-        new RobotContainer();
-    m_robotContainer.initialize();
+    Logger.recordMetadata("ProjectName", "2025-Reefscape");
+
+    switch (Constants.Modes.currentMode) {
+      case REAL: // on a real robot
+        System.out.println("REAL!");
+        Logger.addDataReceiver(new WPILOGWriter()); // logs to /logs/ on USB stick
+        Logger.addDataReceiver(new NT4Publisher());
+        break;
+      case SIM: // on "Simulate Robot Code"
+        System.out.println("SIM!");
+        Logger.addDataReceiver(new WPILOGWriter()); // logs to logs folder in project
+        Logger.addDataReceiver(new NT4Publisher());
+        break;
+      case REPLAY:
+        System.out.println("REPLAY!");
+        setUseTiming(false);
+        String logPath = LogFileUtil.findReplayLog();
+        Logger.setReplaySource(new WPILOGReader(logPath));
+        Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim")));
+        break;
+    }
+
+    Logger.start();
+
+    alerts = new HashMap<String, Alert>();
+
+    CommandScheduler.getInstance().onCommandExecute((Command command) -> {
+      Alert alert = new Alert(command.getName(), Alert.AlertType.kInfo);
+      alert.set(true);
+      alerts.put(command.getName(), alert);
+    });
+
+    CommandScheduler.getInstance().onCommandFinish((Command command) -> {
+      Alert alert = alerts.get(command.getName());
+      alert.set(false);
+      alerts.remove(command.getName());
+    });
+
+    CommandScheduler.getInstance().onCommandInterrupt((Command command) -> {
+      Alert alert = alerts.get(command.getName());
+      if (alert != null) {
+        alert.set(false);
+        alerts.remove(alert);
+      }
+    });
+
+    m_robotContainer = new RobotContainer();
   }
 
   @Override
