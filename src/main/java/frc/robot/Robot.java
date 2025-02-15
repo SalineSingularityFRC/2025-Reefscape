@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
   private RobotContainer m_robotContainer;
+  private HashMap<String, Alert> alerts;
 
   public Robot() {
     DataLogManager.start();
@@ -48,7 +49,7 @@ public class Robot extends TimedRobot {
         break;
       case REPLAY:
         System.out.println("REPLAY!");
-        setUseTiming(false);
+        // setUseTiming(false);
         String logPath = LogFileUtil.findReplayLog();
         Logger.setReplaySource(new WPILOGReader(logPath));
         Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim")));
