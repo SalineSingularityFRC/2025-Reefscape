@@ -10,9 +10,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.Constants.Climber;
 import frc.robot.commands.DriveController;
 import frc.robot.commands.RumbleCommandStart;
 import frc.robot.commands.RumbleCommandStop;
+import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem.Setpoint;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -26,12 +28,14 @@ public class RobotContainer {
     private IntakeSubsystem intake;
     // private CommandGenericHID simController;
     private ElevatorSubsystem elevator;
+    private ClimberSubsystem climber;
 
     protected RobotContainer() {
         lime = new Limelight();
         drive = new SwerveSubsystem();
         // intake = new IntakeSubsystem();
         elevator = new ElevatorSubsystem();
+        climber = new ClimberSubsystem();
 
         driveController = new CommandXboxController(Constants.Gamepad.Controller.DRIVE);
 
@@ -66,6 +70,9 @@ public class RobotContainer {
         driveController.b().whileTrue(elevator.runMotors(true));
         driveController.x().whileTrue(elevator.runMotors(false));
         driveController.y().whileTrue(elevator.moveToTargetPosition(Setpoint.kLevel4));
+
+        driveController.leftTrigger().whileTrue(climber.moveWinchBack());
+        driveController.rightTrigger().whileTrue(climber.moveWinchForward());
 
 
         driveController.povUp().whileTrue(
