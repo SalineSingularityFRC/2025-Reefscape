@@ -145,7 +145,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         if(!manual){
             moveToSetpoint();
         }
-        //zeroElevatorOnLimitSwitch();
+        zeroElevatorOnLimitSwitch();
         zeroOnUserButton();
 
         // Update mechanism2d
@@ -208,7 +208,7 @@ public class ElevatorSubsystem extends SubsystemBase {
             // "pressed" to prevent constant zeroing while pressed
             elevatorEncoder.setPosition(0);
             wasResetByLimit = true;
-            // System.out.println(true);
+            System.out.println("Was RESET");
         } else if (!elevatorPrimaryMotor.getReverseLimitSwitch().isPressed()) {
             wasResetByLimit = false;
         }
