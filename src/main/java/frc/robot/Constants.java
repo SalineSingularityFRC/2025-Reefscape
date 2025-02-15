@@ -316,6 +316,7 @@ public final class Constants {
       public static ConfigInt INVERTED = new ConfigInt("Elevator/Primary Motor/ INVERTED MOTOR", 1);
       public static ConfigInt CAN_ID = new ConfigInt("Elevator/Primary Motor/CAN ID", 40);
       public static ConfigDouble KP = new ConfigDouble("Elevator/Primary Motor/kP", 5);
+      public static ConfigDouble KD = new ConfigDouble("Elevator/Primary Motor/kD", 0);
   
       public static ConfigDouble MIN_POWER = new ConfigDouble("Elevator/Primary Motor/Min Power", -1);
       public static ConfigDouble MAX_POWER = new ConfigDouble("Elevator/Primary Motor/Max Power", 1);

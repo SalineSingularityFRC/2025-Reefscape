@@ -94,6 +94,7 @@ public class ElevatorSubsystem extends SubsystemBase {
                 .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
                 // Set PID values for position control
                 .p(Elevator.PrimaryMotor.KP.getValue())
+                .d(Elevator.PrimaryMotor.KD.getValue())
                 .outputRange(Elevator.PrimaryMotor.MIN_POWER.getValue(),
                         Elevator.PrimaryMotor.MAX_POWER.getValue()).maxMotion
                 // Set MAXMotion parameters for position control
