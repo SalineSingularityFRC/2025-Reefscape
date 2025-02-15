@@ -33,8 +33,7 @@ public class IntakeSubsystem extends SubsystemBase {
             shooterSensor = new LaserCan(Constants.CanId.Intake.SHOOTER_LASER);
     
             sensingDistance = Preferences.getDouble("Sensing Distance", 100);
-            motorSpeed = Preferences.getDouble("Intake Motor Speed", 1);
-    
+            motorSpeed = Preferences.getDouble("Intake Motor Speed", 0.4);
     
             // Left Motor
             double intakeLeftConfigP = Preferences.getDouble("Intake Left P", .1);
@@ -113,7 +112,7 @@ public class IntakeSubsystem extends SubsystemBase {
         return runEnd(
                 () -> {
                     leftMotor.set(-motorSpeed);
-                    rightMotor.set(-motorSpeed);
+                    rightMotor.set(motorSpeed);
                 },
                 () -> {
                     leftMotor.stopMotor();

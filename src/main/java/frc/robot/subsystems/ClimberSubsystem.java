@@ -18,7 +18,7 @@ public class ClimberSubsystem extends SubsystemBase {
 
         // Winch Motor
 
-        winchMotor = new TalonFX(Constants.CanId.Intake.RIGHT_MOTOR);
+        winchMotor = new TalonFX(Constants.CanId.Climber.MOTOR);
         /*winchMotor.configure(
                 intakeLeftConfig,
                 ResetMode.kResetSafeParameters,

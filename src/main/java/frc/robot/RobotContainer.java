@@ -33,7 +33,7 @@ public class RobotContainer {
     protected RobotContainer() {
         lime = new Limelight();
         drive = new SwerveSubsystem();
-        // intake = new IntakeSubsystem();
+        intake = new IntakeSubsystem();
         elevator = new ElevatorSubsystem();
         climber = new ClimberSubsystem();
 
@@ -65,6 +65,8 @@ public class RobotContainer {
 
         //driveController.b().whileTrue(elevator.moveToTargetPosition(Setpoint.kFeederStation));
         //driveController.y().whileTrue(elevator.moveToTargetPosition(Setpoint.kLevel4));
+
+        driveController.povUp().whileTrue(intake.runMotors());
 
         driveController.a().whileTrue(elevator.moveToTargetPosition(Setpoint.kLevel1));
         driveController.b().whileTrue(elevator.runMotors(true));
