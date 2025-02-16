@@ -112,7 +112,7 @@ public class SwerveModule {
   public SwerveModuleState getState(){
 
     return new SwerveModuleState(driveMotor.getVelocity().getValueAsDouble() * 2 * Math.PI * Constants.Measurement.WHEELRADIUS
-        / Constants.MotorGearRatio.DRIVE, new Rotation2d(getEncoderPosition()));
+        / Constants.SwerveModule.GearRatio.DRIVE, new Rotation2d(getEncoderPosition()));
   }
 
   protected void coast() {
@@ -188,14 +188,14 @@ public class SwerveModule {
   // the gear
   public double getPosition() {
     return driveMotor.getPosition().getValueAsDouble() * 2 * Math.PI * Constants.Measurement.WHEELRADIUS
-        / Constants.MotorGearRatio.DRIVE;
+        / Constants.SwerveModule.GearRatio.DRIVE;
   }
 
   // Conversion to get in meters/sec to rotations/sec and accounting for motor rotating
   // the gear
   public double toRotationsPerSecond(SwerveModuleState state) {
     return state.speedMetersPerSecond / ( 2 * Math.PI) / Constants.Measurement.WHEELRADIUS
-        * Constants.MotorGearRatio.DRIVE;
+        * Constants.SwerveModule.GearRatio.DRIVE;
   }
 
   

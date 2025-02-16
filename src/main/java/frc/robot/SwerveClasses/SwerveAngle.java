@@ -102,7 +102,7 @@ public class SwerveAngle {
     targetAngle += remainderRotations;
     targetAngle += zeroPositionOffset;
 
-    SmartDashboard.putNumber("Target Angle" + name, Constants.MotorGearRatio.ANGLE * (targetAngle / (2 * Math.PI)));
+    SmartDashboard.putNumber("Target Angle" + name, Constants.SwerveModule.GearRatio.ANGLE * (targetAngle / (2 * Math.PI)));
     SmartDashboard.putNumber("Current Angle" + name, angleMotor.getPosition().getValueAsDouble());
 
 
@@ -114,7 +114,7 @@ public class SwerveAngle {
     // Let's drive
     angleMotor.setControl(
         positionTarget.withPosition(
-            Constants.MotorGearRatio.ANGLE * (targetAngle / (2 * Math.PI))).withEnableFOC(true));
+            Constants.SwerveModule.GearRatio.ANGLE * (targetAngle / (2 * Math.PI))).withEnableFOC(true));
 
     if (Math.abs(delta % Math.PI) > Constants.AngleInaccuracy.MAX
         && Math.abs(delta % Math.PI) < Math.PI - Constants.AngleInaccuracy.MAX) {
@@ -129,7 +129,7 @@ public class SwerveAngle {
    */
   protected double getAngle() {
     double talonRadians = (angleMotor.getPosition().getValueAsDouble() * 2 * Math.PI);
-    double wheelRadians = talonRadians / Constants.MotorGearRatio.ANGLE;
+    double wheelRadians = talonRadians / Constants.SwerveModule.GearRatio.ANGLE;
     return wheelRadians - zeroPositionOffset;
   }
 

@@ -116,20 +116,29 @@ public final class Constants {
     }
   }
 
-  public static final class WheelOffset {
-    // Converting rotations to radians
-    public static final double FL = (0.972168) * 2 * Math.PI;
-    public static final double FR = (0.679932) * 2 * Math.PI;
-    public static final double BL = (0.760742) * 2 * Math.PI;
-    public static final double BR = (0.548828) * 2 * Math.PI;
-  }
 
-  public static final class MotorGearRatio {
-    public static final double DRIVE = 5.9;
-    public static final double ANGLE = 18.75;
-    public static final int BIG = 10;
-    public static final double ARM = 45.0;
-    public static final int SMALL = 7;
+  public static final class SwerveModule {
+
+    /*
+     * The following are for the Mk4n Swerve Modules, L2+ Ratio, FOC on (from liscence)
+     */
+    public static final class GearRatio {
+      public static final double DRIVE = 5.9;
+      public static final double ANGLE = 18.75;
+    }
+
+    // Free speed of the motors
+    public static final class Speed {
+      public static final double MAX_SPEED = Units.feetToMeters(17.1); // 5.21208 m/s
+    }
+
+    public static final class WheelOffset {
+      public static final double FL = Units.rotationsToRadians(0.972168);
+      public static final double FR = Units.rotationsToRadians(0.679932);
+      public static final double BL = Units.rotationsToRadians(0.760742);
+      public static final double BR = Units.rotationsToRadians(0.548828);
+    }
+
   }
 
   public static final class Measurement {
@@ -143,15 +152,6 @@ public final class Constants {
     public static final double WHEEL_BASE = Units.inchesToMeters(22.75);
     public static final double WHEELRADIUS = Units.inchesToMeters(1.8787);
     public static final double INTAKE_WIDTH_M = Units.inchesToMeters(19.25);
-  }
-
-  public static final class Speed {
-    public static final double MAX_SPEED = 4.572; // m/s, mk4i, L2, FOC off
-    public static final double ROBOT_SPEED_DIVISOR = 2.5; // what the max speed should be divided by, 1 is max power
-    public static final double SHOOTER = 65; // speed of the shooter in rotations per second
-    public static final double AMPSHOOTER = 15; // speed of the shooter in rotations per second
-    public static final double INTAKE = 20; // rotations per second
-    public static final double ARM = 30; // rotations per second
   }
 
   public static final class AngleInaccuracy {
@@ -179,7 +179,6 @@ public final class Constants {
     }
 
     public static final class SwerveModule {
-
       //On real carpet
       public static final PID DRIVE_PID_CONTROLLER = new PID(5, 0, 0, 2.5);
       //public static final PID TURNING_PID_CONTROLLER = new PID(7, 0, 0.1, 0);
@@ -201,10 +200,10 @@ public final class Constants {
     public static ModuleConfig ChassisModuleConfig = 
       new ModuleConfig(
         Measurement.WHEELRADIUS, 
-        Speed.MAX_SPEED, 
+        SwerveModule.Speed.MAX_SPEED, 
         1.0, 
         null, 
-        MotorGearRatio.DRIVE, 
+        SwerveModule.GearRatio.DRIVE, 
         60, 
         1);
         

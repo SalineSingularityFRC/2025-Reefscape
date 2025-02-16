@@ -66,10 +66,8 @@ public class RobotContainer {
         //driveController.b().whileTrue(elevator.moveToTargetPosition(Setpoint.kFeederStation));
         //driveController.y().whileTrue(elevator.moveToTargetPosition(Setpoint.kLevel4));
 
-        driveController.povUp().whileTrue(intake.runMotors());
 
-        driveController.povUp().whileTrue(intake.runMotors());
-
+        // driveController.povUp().whileTrue(intake.runMotors());
         driveController.povUp().whileTrue(elevator.moveToTargetPosition(Setpoint.kLevel4));
         driveController.povDown().whileTrue(elevator.moveToTargetPosition(Setpoint.kLevel1));
         driveController.a().whileTrue(elevator.moveToTargetPosition(Setpoint.kLevel2));
