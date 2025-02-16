@@ -73,7 +73,7 @@ public final class Constants {
   }
 
   public static final class Canbus {
-    public static final String DEFAULT = "rio";
+    // public static final String DEFAULT = "rio";
     public static final String DRIVE_TRAIN = "drivetrain";
   }
 
@@ -133,10 +133,10 @@ public final class Constants {
     }
 
     public static final class WheelOffset {
-      public static final double FL = Units.rotationsToRadians(0.972168);
-      public static final double FR = Units.rotationsToRadians(0.679932);
-      public static final double BL = Units.rotationsToRadians(0.760742);
-      public static final double BR = Units.rotationsToRadians(0.548828);
+      public static final double FL = Units.rotationsToRadians(0.732666);
+      public static final double FR = Units.rotationsToRadians(0.871094);
+      public static final double BL = Units.rotationsToRadians(0.832764);
+      public static final double BR = Units.rotationsToRadians(0.669189);
     }
 
   }
@@ -148,8 +148,8 @@ public final class Constants {
     // driveBaseRadius - distance from robot center to furthest module.
     // radiusFactor - to account for real world factors of the wheel radius
 
-    public static final double TRACK_WIDTH = Units.inchesToMeters(18.75);
-    public static final double WHEEL_BASE = Units.inchesToMeters(22.75);
+    public static final double TRACK_WIDTH = Units.inchesToMeters(21.75);
+    public static final double WHEEL_BASE = Units.inchesToMeters(21.75);
     public static final double WHEELRADIUS = Units.inchesToMeters(1.8787);
     public static final double INTAKE_WIDTH_M = Units.inchesToMeters(19.25);
   }
@@ -167,7 +167,7 @@ public final class Constants {
     }
 
     public static final class rotationCorrection {
-      public static final PID rotation = new PID(0.22, 0, 0);
+      public static final PID rotation = new PID(0.085, 0, 0);
     }
 
 
@@ -179,12 +179,12 @@ public final class Constants {
     }
 
     public static final class SwerveModule {
-      //On real carpet
-      public static final PID DRIVE_PID_CONTROLLER = new PID(5, 0, 0, 2.5);
+      //On test carpet
+      public static final PID DRIVE_PID_CONTROLLER = new PID(5.3, 0, 0.053, 3.5);
       //public static final PID TURNING_PID_CONTROLLER = new PID(7, 0, 0.1, 0);
 
-      // On real carpet
-      public static final PID TURNING_PID_CONTROLLER = new PID(7, 0, 0.1,0.2);
+      // On test carpet
+      public static final PID TURNING_PID_CONTROLLER = new PID(7, 0, 0.1,0.4);
 
     }
   }

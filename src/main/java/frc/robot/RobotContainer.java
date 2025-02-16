@@ -68,12 +68,14 @@ public class RobotContainer {
 
 
         // driveController.povUp().whileTrue(intake.runMotors());
-        driveController.povUp().whileTrue(elevator.moveToTargetPosition(Setpoint.kLevel4));
-        driveController.povDown().whileTrue(elevator.moveToTargetPosition(Setpoint.kLevel1));
-        driveController.a().whileTrue(elevator.moveToTargetPosition(Setpoint.kLevel2));
-        driveController.b().whileTrue(elevator.runMotors(true));
-        driveController.x().whileTrue(elevator.runMotors(false));
-        driveController.y().whileTrue(elevator.moveToTargetPosition(Setpoint.kLevel4));
+        // driveController.povUp().whileTrue(elevator.moveToTargetPosition(Setpoint.kLevel4));
+        // driveController.povDown().whileTrue(elevator.moveToTargetPosition(Setpoint.kLevel1));
+        // driveController.a().whileTrue(elevator.moveToTargetPosition(Setpoint.kLevel2));
+        // driveController.b().whileTrue(elevator.runMotors(true));
+        // driveController.x().whileTrue(elevator.runMotors(false));
+        // driveController.y().whileTrue(elevator.moveToTargetPosition(Setpoint.kLevel4));
+
+        driveController.x().onTrue(drive.resetGyroCommand());
 
 
         driveController.povUp().whileTrue(
@@ -98,27 +100,27 @@ public class RobotContainer {
 
         // driveController.povRight().onTrue(drive.xMode());
 
-        // drive.setDefaultCommand(
-        //         new DriveController(drive, () -> {
-        //             if (driveController.getRightX() < 0) {
-        //                 return -1.0 * driveController.getRightX() * driveController.getRightX();
-        //             }
+        drive.setDefaultCommand(
+                new DriveController(drive, () -> {
+                    if (driveController.getRightX() < 0) {
+                        return -1.0 * driveController.getRightX() * driveController.getRightX();
+                    }
 
-        //             return driveController.getRightX() * driveController.getRightX();
-        //         }, () -> {
-        //             if (driveController.getLeftY() < 0) {
-        //                 return -1.0 * driveController.getLeftY() * driveController.getLeftY();
-        //             }
+                    return driveController.getRightX() * driveController.getRightX();
+                }, () -> {
+                    if (driveController.getLeftY() < 0) {
+                        return -1.0 * driveController.getLeftY() * driveController.getLeftY();
+                    }
 
-        //             return driveController.getLeftY() * driveController.getLeftY();
-        //         }, () -> {
-        //             if (driveController.getLeftX() < 0) {
-        //                 return -1.0 * driveController.getLeftX() * driveController.getLeftX();
-        //             }
+                    return driveController.getLeftY() * driveController.getLeftY();
+                }, () -> {
+                    if (driveController.getLeftX() < 0) {
+                        return -1.0 * driveController.getLeftX() * driveController.getLeftX();
+                    }
 
-        //             return driveController.getLeftX() * driveController.getLeftX();
-        //         },
-        //                 4.0));
+                    return driveController.getLeftX() * driveController.getLeftX();
+                },
+                    Constants.SwerveModule.Speed.MAX_SPEED));
     }
 
     protected Command getAutonomousCommand() {
