@@ -10,10 +10,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.subsystems.ElevatorSubsystem;
-import frc.robot.subsystems.IntakeSubsystem;
-import frc.robot.subsystems.SwerveSubsystem;
-import frc.robot.subsystems.ElevatorSubsystem.Setpoint;
 import frc.robot.commands.DriveController;
 import frc.robot.commands.RumbleCommandStart;
 import frc.robot.commands.RumbleCommandStop;
@@ -122,13 +118,13 @@ public class RobotContainer {
         //                 1.0));
     }
 
-    // protected Command getAutonomousCommand() {
-    //     return new PathPlannerAuto(this.pathAutonChooser.getSelected());
-    // }
+    protected Command getAutonomousCommand() {
+        return new PathPlannerAuto(this.pathAutonChooser.getSelected());
+    }
 
-    // protected void updateOdometry() {
-    //     this.drive.updateOdometry();
-    // }
+    protected void updateOdometry() {
+        this.drive.updateOdometry();
+    }
 
     protected void zeroRotation() {
         this.drive.resetGyro();
