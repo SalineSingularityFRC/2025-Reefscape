@@ -24,6 +24,7 @@ public class RobotContainer {
     private SwerveSubsystem drive;
     private Limelight lime;
     private CommandXboxController driveController;
+    private CommandXboxController elevatorController;
     private SendableChooser<String> pathAutonChooser;
     private IntakeSubsystem intake;
     // private CommandGenericHID simController;
@@ -38,6 +39,7 @@ public class RobotContainer {
         climber = new ClimberSubsystem();
 
         driveController = new CommandXboxController(Constants.Gamepad.Controller.DRIVE);
+        elevatorController = new CommandXboxController(Constants.Gamepad.Controller.ELEVATOR);
 
         configureBindings();
 
@@ -63,9 +65,8 @@ public class RobotContainer {
     private void configureBindings() {
         // driveController.a().whileTrue(intake.runMotors());
 
-        //driveController.b().whileTrue(elevator.moveToTargetPosition(Setpoint.kFeederStation));
-        //driveController.y().whileTrue(elevator.moveToTargetPosition(Setpoint.kLevel4));
-
+        // driveController.b().whileTrue(elevator.moveToTargetPosition(Setpoint.kFeederStation));
+        // driveController.y().whileTrue(elevator.moveToTargetPosition(Setpoint.kLevel4));
 
         // driveController.povUp().whileTrue(intake.runMotors());
         // driveController.povUp().whileTrue(elevator.moveToTargetPosition(Setpoint.kLevel4));
@@ -77,16 +78,23 @@ public class RobotContainer {
 
         driveController.x().onTrue(drive.resetGyroCommand());
 
+        driveController.povDown().whileTrue(intake.runMotorsBack());
+        driveController.leftBumper().whileTrue(intake.intakeCoral());
+        driveController.rightBumper().whileTrue(intake.shootCoral());
+
+        elevatorController.button(1).whileTrue(elevator.moveToTargetPosition(Setpoint.kLevel1)); // Red
+        elevatorController.button(2).whileTrue(elevator.moveToTargetPosition(Setpoint.kLevel2)); // Blue
+        elevatorController.button(3).whileTrue(elevator.moveToTargetPosition(Setpoint.kLevel3)); // Yellow
 
         driveController.povUp().whileTrue(
-            new DriveController(drive, () -> {
-                return 0;
-            }, () -> {
-                return 1;
-            }, () -> {
-                return 0;
-            },
-                2));
+                new DriveController(drive, () -> {
+                    return 0;
+                }, () -> {
+                    return 1;
+                }, () -> {
+                    return 0;
+                },
+                        2));
 
         // driveController.povDown().whileTrue(
         //     new DriveController(drive, () -> {
@@ -97,6 +105,8 @@ public class RobotContainer {
         //         return 0;
         //     },
         //         2));
+
+        // driveController.povRight().onTrue(drive.xMode());
 
         // driveController.povRight().onTrue(drive.xMode());
 

@@ -724,4 +724,19 @@ public class SwerveSubsystem extends SubsystemBase {
   public boolean isCoast() {
     return swerveModules[0].isCoast();
   }
+
+  // public Command goToLeftReef(Limelight lime){
+  //   return run(() -> {
+  //     alignAndDriveToTagCommand(lime);
+      
+  //   });
+  // }
+  
+  // public Command goToRightReef(Limelight lime){
+  //   return run(() -> {
+  //     alignAndDriveToTagCommand(lime);
+
+  //   });
+  // }
+
 }

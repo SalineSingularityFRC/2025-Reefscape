@@ -89,6 +89,7 @@ public final class Constants {
     public static final class Controller {
       public static final int DRIVE = 0;
       public static final int ARM = 1;
+      public static final int ELEVATOR = 2;
     }
 
     public static final class Axis {
@@ -314,6 +315,29 @@ public final class Constants {
 
     public static class SecondaryMotor{
       public static ConfigInt CAN_ID = new ConfigInt("Elevator/Secondary Motor/CAN ID", 41);
+    }
+  }
+
+  public static class Intake{
+    public static class Nums{
+      public static ConfigDouble motorSpeed = new ConfigDouble("Intake Motor Speed", .1);
+      public static ConfigDouble sensingDistance = new ConfigDouble("Sensor Max Distance", 100);
+    }
+    public static class LeftMotor{
+      public static ConfigDouble KP = new ConfigDouble("Intake Left P", .1);
+      public static ConfigDouble MAX_POWER = new ConfigDouble("Intake Left Max Power", 1);
+      public static ConfigDouble MIN_POWER = new ConfigDouble("Intake Left Max Power", -1);
+      public static ConfigDouble MAX_VELOCITY = new ConfigDouble("Intake Left Max V", 2000);
+      public static ConfigDouble MAX_ACCELERATION = new ConfigDouble("Intake Left Max A", 10000);
+      public static ConfigDouble MAX_CLOSED_LOOP_ERROR = new ConfigDouble("Intake Left Max Error", 0.25);
+    }
+    public static class RightMotor{
+      public static ConfigDouble KP = new ConfigDouble("Intake Right P", .1);
+      public static ConfigDouble MAX_POWER = new ConfigDouble("Intake Right Max Power", 1);
+      public static ConfigDouble MIN_POWER = new ConfigDouble("Intake Right Max Power", -1);
+      public static ConfigDouble MAX_VELOCITY = new ConfigDouble("Intake Right Max V", 2000);
+      public static ConfigDouble MAX_ACCELERATION = new ConfigDouble("Intake Right Max A", 10000);
+      public static ConfigDouble MAX_CLOSED_LOOP_ERROR = new ConfigDouble("Intake Right Max Error", 0.25);
     }
   }
 }
