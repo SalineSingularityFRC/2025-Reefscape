@@ -97,33 +97,40 @@ public class RobotContainer {
                         2));
 
         // driveController.povDown().whileTrue(
-        // new DriveController(drive, () -> {
-        // return 0;
-        // }, () -> {
-        // return -1;
-        // }, () -> {
-        // return 0;
-        // },
-        // 2));
+        //     new DriveController(drive, () -> {
+        //         return 0;
+        //     }, () -> {
+        //         return -1;
+        //     }, () -> {
+        //         return 0;
+        //     },
+        //         2));
 
         // driveController.povRight().onTrue(drive.xMode());
 
         // driveController.povRight().onTrue(drive.xMode());
 
-        // drive.setDefaultCommand(
-        // new DriveController(drive, () -> {
-        // if (driveController.getRightX() < 0) {
-        // return -1.0 * driveController.getRightX() * driveController.getRightX();
-        // }
+        drive.setDefaultCommand(
+                new DriveController(drive, () -> {
+                    if (driveController.getRightX() < 0) {
+                        return -1.0 * driveController.getRightX() * driveController.getRightX();
+                    }
 
-        // return driveController.getRightX() * driveController.getRightX();
-        // }, () -> {
-        // if (driveController.getLeftY() < 0) {
-        // return -1.0 * driveController.getLeftY() * driveController.getLeftY();
-        // }
-        // return driveController.getLeftX() * driveController.getLeftX();
-        // },
-        // Constants.SwerveModule.Speed.MAX_SPEED));
+                    return driveController.getRightX() * driveController.getRightX();
+                }, () -> {
+                    if (driveController.getLeftY() < 0) {
+                        return -1.0 * driveController.getLeftY() * driveController.getLeftY();
+                    }
+
+                    return driveController.getLeftY() * driveController.getLeftY();
+                }, () -> {
+                    if (driveController.getLeftX() < 0) {
+                        return -1.0 * driveController.getLeftX() * driveController.getLeftX();
+                    }
+
+                    return driveController.getLeftX() * driveController.getLeftX();
+                },
+                    Constants.SwerveModule.Speed.MAX_SPEED));
     }
 
     protected Command getAutonomousCommand() {

@@ -23,10 +23,10 @@ public final class Constants {
 
   public static final class CanId {
     public static final class Intake {
-      public static final int LEFT_MOTOR = 33;
-      public static final int RIGHT_MOTOR = 34;
-      public static final int INTAKE_LASER = 49;
-      public static final int SHOOTER_LASER = 32;
+      public static final int LEFT_MOTOR = 30;
+      public static final int RIGHT_MOTOR = 31;
+      public static final int INTAKE_LASER = 32;
+      public static final int SHOOTER_LASER = 33;
     }
 
     public static final class Climber {
