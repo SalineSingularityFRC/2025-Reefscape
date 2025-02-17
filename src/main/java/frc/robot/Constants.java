@@ -1,4 +1,8 @@
 package frc.robot;
+import com.pathplanner.lib.config.ModuleConfig;
+import com.pathplanner.lib.config.RobotConfig;
+
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -23,6 +27,10 @@ public final class Constants {
       public static final int RIGHT_MOTOR = 34;
       public static final int INTAKE_LASER = 49;
       public static final int SHOOTER_LASER = 32;
+    }
+
+    public static final class Climber {
+      public static final int MOTOR = 60;
     }
     
     public static final class CanCoder {
@@ -55,33 +63,6 @@ public final class Constants {
     }
   }
 
-  public static final class Position {
-    public static final class MainArm {
-      public static final class Auton {
-        public static final class CloseNote {
-          public static final double SIDE = 19; // Close Note1 or Close Note3
-        }
-
-        public static final class WhiteLine {
-          public static final double SIDE = 18; // Not clearly tuned
-          public static final double MIDDLE = 17.5; // Not clearly tuned
-        }
-      }
-
-      public static final class Speaker {
-          public static final double SIDE = 11; // Touching the right or left side of the Speaker
-          public static final double MIDDLE = 10; // Middle of speaker
-          public static final double FEET3 = 10; // 3 feet from april tag speaker
-          public static final double FEET6 = 17.1162; // 6 feet from april tag speaker
-          public static final double FEET7_4 = 18.48877; // 7.4 feet from april tag speaker
-      }
-
-      public static final double AMP = 48.5;
-      public static final double PICKUP = 0.5;
-      public static final double CLIMBER = 0;
-    }
-  }
-
   public static final class Inverted {
     // This is for motors
     public static final boolean FL = false;
@@ -92,7 +73,7 @@ public final class Constants {
   }
 
   public static final class Canbus {
-    public static final String DEFAULT = "rio";
+    // public static final String DEFAULT = "rio";
     public static final String DRIVE_TRAIN = "drivetrain";
   }
 
@@ -136,21 +117,29 @@ public final class Constants {
     }
   }
 
-  public static final class WheelOffset {
-    // Converting rotations to radians
-    public static final double FL = (0.972168) * 2 * Math.PI;
-    public static final double FR = (0.679932) * 2 * Math.PI;
-    public static final double BL = (0.760742) * 2 * Math.PI;
-    public static final double BR = (0.548828) * 2 * Math.PI;
-  }
 
-  public static final class MotorGearRatio {
-    public static final double DRIVE = 6.75;
-    public static final double ANGLE = 150.0 / 7.0;// 12.8; 
-                                                   // https://www.swervedrivespecialties.com/products/mk4-swerve-module
-    public static final int BIG = 10;
-    public static final double ARM = 45.0;
-    public static final int SMALL = 7;
+  public static final class SwerveModule {
+
+    /*
+     * The following are for the Mk4n Swerve Modules, L2+ Ratio, FOC on (from liscence)
+     */
+    public static final class GearRatio {
+      public static final double DRIVE = 5.9;
+      public static final double ANGLE = 18.75;
+    }
+
+    // Free speed of the motors
+    public static final class Speed {
+      public static final double MAX_SPEED = Units.feetToMeters(17.1); // 5.21208 m/s
+    }
+
+    public static final class WheelOffset {
+      public static final double FL = Units.rotationsToRadians(0.732666);
+      public static final double FR = Units.rotationsToRadians(0.871094);
+      public static final double BL = Units.rotationsToRadians(0.832764);
+      public static final double BR = Units.rotationsToRadians(0.669189);
+    }
+
   }
 
   public static final class Measurement {
@@ -160,36 +149,10 @@ public final class Constants {
     // driveBaseRadius - distance from robot center to furthest module.
     // radiusFactor - to account for real world factors of the wheel radius
 
-    public static final double TRACK_WIDTH = Units.inchesToMeters(18.75);
-    public static final double WHEEL_BASE = Units.inchesToMeters(22.75);
-    public static final double WHEELRADIUS = Units.inchesToMeters(1.8787); // 2024 robot radius
-    public static final double DRIVEBASERADIUS = Units.inchesToMeters(14.942); 
+    public static final double TRACK_WIDTH = Units.inchesToMeters(21.75);
+    public static final double WHEEL_BASE = Units.inchesToMeters(21.75);
+    public static final double WHEELRADIUS = Units.inchesToMeters(1.8787);
     public static final double INTAKE_WIDTH_M = Units.inchesToMeters(19.25);
-  }
-
-  public static final class Speed {
-    public static final double MAX_SPEED = 4.57; // m/s, mk4i, L2, FOC off
-    public static final double ROBOT_SPEED_DIVISOR = 2.5; // what the max speed should be divided by, 1 is max power
-    public static final double SHOOTER = 65; // speed of the shooter in rotations per second
-    public static final double AMPSHOOTER = 15; // speed of the shooter in rotations per second
-    public static final double INTAKE = 20; // rotations per second
-    public static final double ARM = 30; // rotations per second
-    public static final double HOME = 0.2; // proportional
-    public static final double CLIMBER = 280;
-    public static final double ARMDUTYCYCLEUP = 0.4; // between -1 and 1
-    public static final double ARMDUTYCYCLEDOWN = 0.2; // between -1 and 1
-    public static final double REVERSESHOOTER = 0.15; // between -1 and 1
-  }
-
-  public static final class Distance {
-    // CHARGE STATION COMMUNITY DISTANCE:
-    public static final double TO_BLUE_CHARGE_STATION = 96.4694981;
-    public static final double TO_RED_CHARGE_STATION = 99;
-    public static final double TO_CENTER_COMMUNITY = 100;
-    public static final double TO_OUTSIDE_COMMUNITY = 87.30208217;
-    // 1.832716884 is the number of inches per 1 encoder value
-    // ~80 (plus offset) to the center of the charge station for robot
-    // ~160 is the distance to leave the community plus some extra cushion
   }
 
   public static final class AngleInaccuracy {
@@ -205,7 +168,7 @@ public final class Constants {
     }
 
     public static final class rotationCorrection {
-      public static final PID rotation = new PID(0.16, 0, 0.02);
+      public static final PID rotation = new PID(0.085, 0, 0);
     }
 
 
@@ -216,30 +179,47 @@ public final class Constants {
       
     }
 
-    public static final class TurnAngle {
-      public static final double[] TURN_ANGLE = { Math.PI / 6, 0, 0 };
-    }
-
     public static final class SwerveModule {
-
-      //On real carpet
-      public static final PID DRIVE_PID_CONTROLLER = new PID(5, 0, 0, 2.5);
+      //On test carpet
+      public static final PID DRIVE_PID_CONTROLLER = new PID(5.3, 0, 0.053, 3.5);
       //public static final PID TURNING_PID_CONTROLLER = new PID(7, 0, 0.1, 0);
 
-      // On real carpet
-      public static final PID TURNING_PID_CONTROLLER = new PID(7, 0, 0.1, 0.018);
+      // On test carpet
+      public static final PID TURNING_PID_CONTROLLER = new PID(7, 0, 0.1,0.4);
 
     }
   }
 
-  public static final class Limelight {
-    public static final double[] knownDriveDistances = {3, 6, 8};
-    public static final double[] knownShootingPositions = {
-      Constants.Position.MainArm.Speaker.FEET3, 
-      Constants.Position.MainArm.Speaker.FEET6, 
-      Constants.Position.MainArm.Speaker.FEET7_4
+  public static final class PathplannerConfig {
+    public static Translation2d[] ChassisModuleOffsets = {
+      new Translation2d(0.289, 0.238), 
+      new Translation2d(0.289, -0.238),
+      new Translation2d(-0.289, 0.238),
+      new Translation2d(-0.289, -0.238),
     };
+
+    public static ModuleConfig ChassisModuleConfig = 
+      new ModuleConfig(
+        Measurement.WHEELRADIUS, 
+        SwerveModule.Speed.MAX_SPEED, 
+        1.0, 
+        null, 
+        SwerveModule.GearRatio.DRIVE, 
+        60, 
+        1);
+        
+    public static RobotConfig ChassisRobotConfig = 
+      new RobotConfig(23.350, 1.705, ChassisModuleConfig, ChassisModuleOffsets);
   }
+
+  // public static final class Limelight {
+  //   public static final double[] knownDriveDistances = {3, 6, 8};
+  //   public static final double[] knownShootingPositions = {
+  //     Constants.Position.MainArm.Speaker.FEET3, 
+  //     Constants.Position.MainArm.Speaker.FEET6, 
+  //     Constants.Position.MainArm.Speaker.FEET7_4
+  //   };
+  // }
 
   public static final class Modes {
     /*
@@ -299,7 +279,11 @@ public final class Constants {
       return (!isTrue());
     }
   }
+  public static class Climber {
+    public static ConfigDouble WINCH_SPEED = new ConfigDouble("Climber/WINCH_SPEED", .5);
 
+
+  }
   public static class Elevator {
     public static ConfigInt FOLLOW_DUALENABLE = new ConfigInt("Elevator/DUALENABLE", 0);
 
@@ -312,7 +296,7 @@ public final class Constants {
     }
     
     public static class PrimaryMotor {
-      public static ConfigDouble RAISE_SPEED = new ConfigDouble("Elevator/Primary Motor/RAISE_SPEED", .1);
+      public static ConfigDouble RAISE_SPEED = new ConfigDouble("Elevator/Primary Motor/RAISE_SPEED", 0.1);
       public static ConfigDouble LOWER_SPEED = new ConfigDouble("Elevator/Primary Motor/LOWER_SPEED", .1);
       public static ConfigInt INVERTED = new ConfigInt("Elevator/Primary Motor/ INVERTED MOTOR", 1);
       public static ConfigInt CAN_ID = new ConfigInt("Elevator/Primary Motor/CAN ID", 40);
@@ -323,7 +307,7 @@ public final class Constants {
       public static ConfigDouble MAX_POWER = new ConfigDouble("Elevator/Primary Motor/Max Power", 1);
   
       public static ConfigDouble MAX_VELOCITY_RPM = new ConfigDouble("Elevator/Primary Motor/Max Velocity in rpm", 2000);
-      public static ConfigDouble MAX_ACCEL_RPM_PER_S = new ConfigDouble("Elevator/Primary Motor/Max Accel in rpm per s", 10000);
+      public static ConfigDouble MAX_ACCEL_RPM_PER_S = new ConfigDouble("Elevator/Primary Motor/Max Accel in rpm per s", 200);
       public static ConfigInt MAX_CURRENT_IN_A = new ConfigInt("Elevator/Primary Motor/Max Current in A", 40);
       public static ConfigDouble VOLTAGE_COMPENSATION_IN_V = new ConfigDouble("Elevator/Primary Motor/Voltage Compensation in V", 12);
       public static ConfigDouble MAX_CONTROL_ERROR_IN_COUNTS = new ConfigDouble("Elevator/Primary Motor/Control Error Tolerance", 0.25);  

@@ -21,7 +21,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.TimedRobot;
 
-public class Robot extends TimedRobot {
+public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
   private RobotContainer m_robotContainer;
   private HashMap<String, Alert> alerts;
@@ -29,9 +29,9 @@ public class Robot extends TimedRobot {
   public Robot() {
     CanBridge.runTCP();
     DataLogManager.start();
-    addPeriodic(() -> {
-        m_robotContainer.updateOdometry();
-    }, 0.01, 0.005);
+  //   addPeriodic(() -> {
+  //     m_robotContainer.updateOdometry();
+  // }, 0.01, 0.005);
   }
 
   @Override
@@ -88,6 +88,7 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
+    m_robotContainer.updateOdometry();
   }
 
   @Override

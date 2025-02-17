@@ -116,7 +116,7 @@ public class SwerveSubsystem extends SubsystemBase {
         Constants.CanId.Swerve.Drive.FL,
         Constants.CanId.Swerve.Angle.FL,
         Constants.CanId.CanCoder.FL,
-        Constants.WheelOffset.FL,
+        Constants.SwerveModule.WheelOffset.FL,
         Constants.Canbus.DRIVE_TRAIN,
         Constants.Inverted.FL,
         Constants.Inverted.ANGLE,
@@ -125,7 +125,7 @@ public class SwerveSubsystem extends SubsystemBase {
         Constants.CanId.Swerve.Drive.FR,
         Constants.CanId.Swerve.Angle.FR,
         Constants.CanId.CanCoder.FR,
-        Constants.WheelOffset.FR,
+        Constants.SwerveModule.WheelOffset.FR,
         Constants.Canbus.DRIVE_TRAIN,
         Constants.Inverted.FR,
         Constants.Inverted.ANGLE,
@@ -134,7 +134,7 @@ public class SwerveSubsystem extends SubsystemBase {
         Constants.CanId.Swerve.Drive.BL,
         Constants.CanId.Swerve.Angle.BL,
         Constants.CanId.CanCoder.BL,
-        Constants.WheelOffset.BL,
+        Constants.SwerveModule.WheelOffset.BL,
         Constants.Canbus.DRIVE_TRAIN,
         Constants.Inverted.BL,
         Constants.Inverted.ANGLE,
@@ -143,7 +143,7 @@ public class SwerveSubsystem extends SubsystemBase {
         Constants.CanId.Swerve.Drive.BR,
         Constants.CanId.Swerve.Angle.BR,
         Constants.CanId.CanCoder.BR,
-        Constants.WheelOffset.BR,
+        Constants.SwerveModule.WheelOffset.BR,
         Constants.Canbus.DRIVE_TRAIN,
         Constants.Inverted.BR,
         Constants.Inverted.ANGLE,
@@ -180,6 +180,8 @@ public class SwerveSubsystem extends SubsystemBase {
       // Handle exception as needed
       e.printStackTrace();
     }
+
+    // config = Constants.PathplannerConfig.ChassisRobotConfig;
 
     AutoBuilder.configure(
         supplier_position, // Robot pose supplier
@@ -430,24 +432,24 @@ public class SwerveSubsystem extends SubsystemBase {
         });
   }
 
-  public Command rotate90() {
-    return runOnce(
-        () -> {
+  // public Command rotate90() {
+  //   return runOnce(
+  //       () -> {
 
-          ChassisSpeeds chassisSpeeds = new ChassisSpeeds(0, 0, 0);
+  //         ChassisSpeeds chassisSpeeds = new ChassisSpeeds(0, 0, 0);
 
-          SwerveModuleState[] modules = swerveDriveKinematics.toSwerveModuleStates(chassisSpeeds);
-          modules[FL].angle = new Rotation2d(swerveModules[FL].getAngleClamped() + Math.PI / 8);
-          modules[FR].angle = new Rotation2d(swerveModules[FR].getAngleClamped() + Math.PI / 8);
-          modules[BR].angle = new Rotation2d(swerveModules[BR].getAngleClamped() + Math.PI / 8);
-          modules[BL].angle = new Rotation2d(swerveModules[BL].getAngleClamped() + Math.PI / 8);
-          modules[FL].speedMetersPerSecond = 0.02;
-          modules[FR].speedMetersPerSecond = 0.02;
-          modules[BR].speedMetersPerSecond = 0.02;
-          modules[BL].speedMetersPerSecond = 0.02;
-          setModuleStates(modules);
-        });
-  }
+  //         SwerveModuleState[] modules = swerveDriveKinematics.toSwerveModuleStates(chassisSpeeds);
+  //         modules[FL].angle = new Rotation2d(swerveModules[FL].getAngleClamped() + Math.PI / 8);
+  //         modules[FR].angle = new Rotation2d(swerveModules[FR].getAngleClamped() + Math.PI / 8);
+  //         modules[BR].angle = new Rotation2d(swerveModules[BR].getAngleClamped() + Math.PI / 8);
+  //         modules[BL].angle = new Rotation2d(swerveModules[BL].getAngleClamped() + Math.PI / 8);
+  //         modules[FL].speedMetersPerSecond = 0.02;
+  //         modules[FR].speedMetersPerSecond = 0.02;
+  //         modules[BR].speedMetersPerSecond = 0.02;
+  //         modules[BL].speedMetersPerSecond = 0.02;
+  //         setModuleStates(modules);
+  //       });
+  // }
 
   //Aligns the limelight to have near 0 degrees horizontal offset (around 0 tx)
   public Command alignToTagCommand(Limelight lime) {
@@ -504,34 +506,34 @@ public class SwerveSubsystem extends SubsystemBase {
         this);
   }
 
-  //Finds the Closest Distances That We have Calibrated Shooting From
-  // Not using this in RobotContainer.java, using this in alignAndDriveToTagCommand
-  public double[] findClosestDistance(double currentDistance){
-    double[] knownDistances = Constants.Limelight.knownDriveDistances;
+  // //Finds the Closest Distances That We have Calibrated Shooting From
+  // // Not using this in RobotContainer.java, using this in alignAndDriveToTagCommand
+  // public double[] findClosestDistance(double currentDistance){
+  //   double[] knownDistances = Constants.Limelight.knownDriveDistances;
 
-    //Final Distance from Known Distances
-    double closestDistance = 0.0;
+  //   //Final Distance from Known Distances
+  //   double closestDistance = 0.0;
     
-    /*
-     * Needs to be Maxiximum Value possible as it 
-     * gets compared to smaller numbers in the code
-     * below.
-     */
-    double closestDistanceFromKnownPoint = Double.MAX_VALUE;
-    int index = Integer.MAX_VALUE;
+  //   /*
+  //    * Needs to be Maxiximum Value possible as it 
+  //    * gets compared to smaller numbers in the code
+  //    * below.
+  //    */
+  //   double closestDistanceFromKnownPoint = Double.MAX_VALUE;
+  //   int index = Integer.MAX_VALUE;
 
-    for(int i = 0; i < knownDistances.length; i++){
+  //   for(int i = 0; i < knownDistances.length; i++){
 
-        double distanceFromKnownPoint = Math.abs(currentDistance - knownDistances[i]);
-        if(distanceFromKnownPoint < closestDistanceFromKnownPoint) {
-            closestDistanceFromKnownPoint = distanceFromKnownPoint;
-            closestDistance = knownDistances[i];
-            index = i;
-        }
-    }
-    double returnValues[] = {closestDistance, index};
-    return returnValues;
-  }
+  //       double distanceFromKnownPoint = Math.abs(currentDistance - knownDistances[i]);
+  //       if(distanceFromKnownPoint < closestDistanceFromKnownPoint) {
+  //           closestDistanceFromKnownPoint = distanceFromKnownPoint;
+  //           closestDistance = knownDistances[i];
+  //           index = i;
+  //       }
+  //   }
+  //   double returnValues[] = {closestDistance, index};
+  //   return returnValues;
+  // }
 
   // For Speaker with various distances to shoot
   public Command alignAndDriveToTagCommand(Limelight lime) {

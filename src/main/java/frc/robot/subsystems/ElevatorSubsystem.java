@@ -12,6 +12,9 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 
 import com.revrobotics.spark.SparkFlex;
+
+import java.util.function.DoubleSupplier;
+
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.sim.SparkFlexSim;
 import com.revrobotics.sim.SparkLimitSwitchSim;
@@ -111,7 +114,7 @@ public class ElevatorSubsystem extends SubsystemBase {
                 PersistMode.kPersistParameters);
 
         if (Elevator.FOLLOW_DUALENABLE.isTrue()) {
-            elevatorSecondaryMotorConfig.idleMode(IdleMode.kCoast);
+            elevatorSecondaryMotorConfig.idleMode(IdleMode.kBrake);
                     // .smartCurrentLimit(Elevator.PrimaryMotor.MAX_CURRENT_IN_A.getValue())
             //         .voltageCompensation(Elevator.PrimaryMotor.VOLTAGE_COMPENSATION_IN_V.getValue());
             // elevatorSecondaryMotorConfig.closedLoop
@@ -159,6 +162,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("Elevator/Target Position Encoder", elevatorCurrentTarget);
         SmartDashboard.putNumber("Elevator/Actual Position", elevatorEncoder.getPosition());
         SmartDashboard.putData("Elevator/Model", mech2d);
+        SmartDashboard.putNumber("Elevator/Amp", elevatorPrimaryMotor.getOutputCurrent());
     }
 
     /**
@@ -254,9 +258,23 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     public Command runMotors(boolean reverse) {
-        double speed = reverse ? Elevator.PrimaryMotor.LOWER_SPEED.getValue() * -1: Elevator.PrimaryMotor.RAISE_SPEED.getValue() * 1;
         return runEnd(
                 () -> {
+                    double speed = reverse ? Elevator.PrimaryMotor.LOWER_SPEED.getValue() * -1: Elevator.PrimaryMotor.RAISE_SPEED.getValue() * 1;
+                    elevatorPrimaryMotor.set(speed);
+                    manual = true;
+                },
+                () -> {
+                    elevatorPrimaryMotor.stopMotor();
+                    manual = false;
+                    elevatorCurrentTarget = elevatorEncoder.getPosition();
+                });
+    }
+
+    public Command runMotorsJoystick(boolean reverse, DoubleSupplier joyStickSpeed) {
+        return runEnd(
+                () -> {
+                    double speed = reverse ? joyStickSpeed.getAsDouble() * -1: joyStickSpeed.getAsDouble() * 1;
                     elevatorPrimaryMotor.set(speed);
                     manual = true;
                 },

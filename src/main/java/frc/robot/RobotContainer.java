@@ -10,9 +10,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.Constants.Climber;
 import frc.robot.commands.DriveController;
 import frc.robot.commands.RumbleCommandStart;
 import frc.robot.commands.RumbleCommandStop;
+import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem.Setpoint;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -27,12 +29,14 @@ public class RobotContainer {
     private IntakeSubsystem intake;
     // private CommandGenericHID simController;
     private ElevatorSubsystem elevator;
+    private ClimberSubsystem climber;
 
     protected RobotContainer() {
         lime = new Limelight();
         drive = new SwerveSubsystem();
         intake = new IntakeSubsystem();
         elevator = new ElevatorSubsystem();
+        climber = new ClimberSubsystem();
 
         driveController = new CommandXboxController(Constants.Gamepad.Controller.DRIVE);
         elevatorController = new CommandXboxController(Constants.Gamepad.Controller.ELEVATOR);
@@ -45,7 +49,8 @@ public class RobotContainer {
 
         this.pathAutonChooser = new SendableChooser<String>();
 
-        this.pathAutonChooser.setDefaultOption("Fake Auto", "Fake Auto");
+        this.pathAutonChooser.setDefaultOption("L Auto", "L Auto");
+        this.pathAutonChooser.addOption("Fake Auto", "Fake Auto");
         this.pathAutonChooser.addOption("Reef", "Reef");
         this.pathAutonChooser.addOption("Modified Tag", "Modified Tag");
         this.pathAutonChooser.addOption("1 Meter Auto", "1 Meter Auto");
@@ -58,64 +63,67 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
-        driveController.a().whileTrue(elevator.moveToTargetPosition(Setpoint.kLevel1));
-        driveController.b().whileTrue(elevator.runMotors(true));
-        driveController.x().whileTrue(elevator.runMotors(false));
-        driveController.y().whileTrue(elevator.moveToTargetPosition(Setpoint.kLevel4));
+        // driveController.a().whileTrue(intake.runMotors());
+
+        // driveController.b().whileTrue(elevator.moveToTargetPosition(Setpoint.kFeederStation));
+        // driveController.y().whileTrue(elevator.moveToTargetPosition(Setpoint.kLevel4));
+
+        // driveController.povUp().whileTrue(intake.runMotors());
+        // driveController.povUp().whileTrue(elevator.moveToTargetPosition(Setpoint.kLevel4));
+        // driveController.povDown().whileTrue(elevator.moveToTargetPosition(Setpoint.kLevel1));
+        // driveController.a().whileTrue(elevator.moveToTargetPosition(Setpoint.kLevel2));
+        // driveController.b().whileTrue(elevator.runMotors(true));
+        // driveController.x().whileTrue(elevator.runMotors(false));
+        // driveController.y().whileTrue(elevator.moveToTargetPosition(Setpoint.kLevel4));
+
+        driveController.x().onTrue(drive.resetGyroCommand());
 
         driveController.povDown().whileTrue(intake.runMotorsBack());
         driveController.leftBumper().whileTrue(intake.intakeCoral());
         driveController.rightBumper().whileTrue(intake.shootCoral());
-
 
         elevatorController.button(1).whileTrue(elevator.moveToTargetPosition(Setpoint.kLevel1)); // Red
         elevatorController.button(2).whileTrue(elevator.moveToTargetPosition(Setpoint.kLevel2)); // Blue
         elevatorController.button(3).whileTrue(elevator.moveToTargetPosition(Setpoint.kLevel3)); // Yellow
 
         driveController.povUp().whileTrue(
-            new DriveController(drive, () -> {
-                return 0;
-            }, () -> {
-                return 1;
-            }, () -> {
-                return 0;
-            },
-                2));
+                new DriveController(drive, () -> {
+                    return 0;
+                }, () -> {
+                    return 1;
+                }, () -> {
+                    return 0;
+                },
+                        2));
 
-        driveController.povDown().whileTrue(
-            new DriveController(drive, () -> {
-                return 0;
-            }, () -> {
-                return -1;
-            }, () -> {
-                return 0;
-            },
-                2));
+        // driveController.povDown().whileTrue(
+        // new DriveController(drive, () -> {
+        // return 0;
+        // }, () -> {
+        // return -1;
+        // }, () -> {
+        // return 0;
+        // },
+        // 2));
 
+        // driveController.povRight().onTrue(drive.xMode());
 
         // driveController.povRight().onTrue(drive.xMode());
 
         // drive.setDefaultCommand(
-        //         new DriveController(drive, () -> {
-        //             if (driveController.getRightX() < 0) {
-        //                 return -1.0 * driveController.getRightX() * driveController.getRightX();
-        //             }
+        // new DriveController(drive, () -> {
+        // if (driveController.getRightX() < 0) {
+        // return -1.0 * driveController.getRightX() * driveController.getRightX();
+        // }
 
-        //             return driveController.getRightX() * driveController.getRightX();
-        //         }, () -> {
-        //             if (driveController.getLeftY() < 0) {
-        //                 return -1.0 * driveController.getLeftY() * driveController.getLeftY();
-        //             }
-
-        //             return driveController.getLeftY() * driveController.getLeftY();
-        //         }, () -> {
-        //             if (driveController.getLeftX() < 0) {
-        //                 return -1.0 * driveController.getLeftX() * driveController.getLeftX();
-        //             }
-
-        //             return driveController.getLeftX() * driveController.getLeftX();
-        //         },
-        //                 1.0));
+        // return driveController.getRightX() * driveController.getRightX();
+        // }, () -> {
+        // if (driveController.getLeftY() < 0) {
+        // return -1.0 * driveController.getLeftY() * driveController.getLeftY();
+        // }
+        // return driveController.getLeftX() * driveController.getLeftX();
+        // },
+        // Constants.SwerveModule.Speed.MAX_SPEED));
     }
 
     protected Command getAutonomousCommand() {

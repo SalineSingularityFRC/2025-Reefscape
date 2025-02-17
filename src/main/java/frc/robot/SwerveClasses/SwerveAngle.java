@@ -3,8 +3,11 @@ package frc.robot.SwerveClasses;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
@@ -22,6 +25,7 @@ public class SwerveAngle {
   private double zeroPositionOffset;
   private TalonFX angleMotor;
   private PositionVoltage positionTarget;
+  private PositionTorqueCurrentFOC positionTorqueCurrentFOC;
 
   /*
    * Our constructor needs to take a parameter that determines which CAN ID the falcon we are using has
@@ -36,6 +40,7 @@ public class SwerveAngle {
     angleMotor.getConfigurator().apply(new TalonFXConfiguration());
 
     zeroPositionOffset = 0;
+
     positionTarget = new PositionVoltage(0).withSlot(0).withFeedForward(0.2);
     
     PID turnPID = Constants.PidGains.SwerveModule.TURNING_PID_CONTROLLER;
@@ -44,6 +49,11 @@ public class SwerveAngle {
     slot0Configs.kI = turnPID.I;
     slot0Configs.kD = turnPID.D;;
     slot0Configs.kS = turnPID.S;
+
+    // Initializing FOC control
+    positionTorqueCurrentFOC = new PositionTorqueCurrentFOC(0);
+    positionTorqueCurrentFOC.withSlot(0);
+    positionTorqueCurrentFOC.withFeedForward(0);
 
     configs.NeutralMode = NeutralModeValue.Brake;
     angleMotor.getConfigurator().apply(slot0Configs);
@@ -87,34 +97,24 @@ public class SwerveAngle {
     delta = wheelPosition - targetAngle;
     AnglePosition currentPosition;
 
-    /*
-    These if else statements mean that if the target angle is closer  by turning in the other
-    direction, do it. Then set the wheels to reverse because the wheel is now facing the other way
-
-     tl;dr: turns the wheel the shortest possible distance by giving it the option to turn both
-     counterclockwise and clockwise
-    */
-    // if (delta > (Math.PI / 2) || delta < -(Math.PI / 2)) {
-    //   if (delta > (Math.PI / 2)) {
-    //     targetAngle += Math.PI;
-    //   } else if (delta < -(Math.PI / 2)) {
-    //     targetAngle -= Math.PI;
-    //   }
-    //   currentPosition = AnglePosition.Negative;
-    // } else {
-      currentPosition = AnglePosition.Positive;
-    // }
+    currentPosition = AnglePosition.Positive;
 
     targetAngle += remainderRotations;
     targetAngle += zeroPositionOffset;
 
-    SmartDashboard.putNumber("Target Angle" + name, Constants.MotorGearRatio.ANGLE * (targetAngle / (2 * Math.PI)));
+    SmartDashboard.putNumber("Target Angle" + name, Constants.SwerveModule.GearRatio.ANGLE * (targetAngle / (2 * Math.PI)));
     SmartDashboard.putNumber("Current Angle" + name, angleMotor.getPosition().getValueAsDouble());
+
+
+    // Set the desired torque using FOC
+    // angleMotor.setControl(
+    //   positionTorqueCurrentFOC.withPosition(
+    //     Constants.MotorGearRatio.ANGLE * (targetAngle / (2 * Math.PI))));
 
     // Let's drive
     angleMotor.setControl(
         positionTarget.withPosition(
-            Constants.MotorGearRatio.ANGLE * (targetAngle / (2 * Math.PI))));
+            Constants.SwerveModule.GearRatio.ANGLE * (targetAngle / (2 * Math.PI))).withEnableFOC(true));
 
     if (Math.abs(delta % Math.PI) > Constants.AngleInaccuracy.MAX
         && Math.abs(delta % Math.PI) < Math.PI - Constants.AngleInaccuracy.MAX) {
@@ -129,7 +129,7 @@ public class SwerveAngle {
    */
   protected double getAngle() {
     double talonRadians = (angleMotor.getPosition().getValueAsDouble() * 2 * Math.PI);
-    double wheelRadians = talonRadians / Constants.MotorGearRatio.ANGLE;
+    double wheelRadians = talonRadians / Constants.SwerveModule.GearRatio.ANGLE;
     return wheelRadians - zeroPositionOffset;
   }
 
