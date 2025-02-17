@@ -18,14 +18,20 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
-public class Robot extends LoggedRobot {
+import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.TimedRobot;
+
+public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
   private RobotContainer m_robotContainer;
-
   private HashMap<String, Alert> alerts;
 
   public Robot() {
     CanBridge.runTCP();
+    DataLogManager.start();
+    addPeriodic(() -> {
+        m_robotContainer.updateOdometry();
+    }, 0.01, 0.005);
   }
 
   @Override
@@ -45,7 +51,7 @@ public class Robot extends LoggedRobot {
         break;
       case REPLAY:
         System.out.println("REPLAY!");
-        setUseTiming(false);
+        // setUseTiming(false);
         String logPath = LogFileUtil.findReplayLog();
         Logger.setReplaySource(new WPILOGReader(logPath));
         Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim")));
@@ -94,9 +100,13 @@ public class Robot extends LoggedRobot {
   public void disabledExit() {}
 
   @Override
-  public void autonomousInit() {
-    // m_robotContainer.updateOdometry();
-    // m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+  public void autonomousInit() {  
+
+    m_robotContainer.updateOdometry();
+
+    m_robotContainer.updateRotationPIDSetpoint();
+
+    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
     // if (m_autonomousCommand != null) {
     //   m_autonomousCommand.schedule();
@@ -113,11 +123,14 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void teleopInit() {
-    // m_robotContainer.updateOdometry();
 
-    // if (m_autonomousCommand != null) {
-    //   m_autonomousCommand.cancel();
-    // }
+    m_robotContainer.updateOdometry();
+
+    m_robotContainer.updateRotationPIDSetpoint();
+
+    if (m_autonomousCommand != null) {
+      m_autonomousCommand.cancel();
+    }
   }
 
   @Override

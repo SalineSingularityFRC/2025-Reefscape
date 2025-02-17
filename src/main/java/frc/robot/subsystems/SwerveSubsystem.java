@@ -1,15 +1,18 @@
 package frc.robot.subsystems;
 
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+
 import com.ctre.phoenix6.hardware.Pigeon2;
-import com.pathplanner.lib.auto.*;
-import com.pathplanner.lib.config.*;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.util.DriveFeedforwards;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
-import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -17,11 +20,12 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
-import edu.wpi.first.util.sendable.Sendable;
-import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.util.datalog.DataLog;
+import edu.wpi.first.util.datalog.DoubleLogEntry;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -29,12 +33,9 @@ import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Limelight;
-import frc.robot.LimelightHelpers;
-import frc.robot.Robot;
 import frc.robot.SwerveClasses.SwerveModule;
 import frc.robot.SwerveClasses.SwerveOdometry;
 
-import org.littletonrobotics.junction.Logger;
 
 /*
  * This class provides functions to drive at a given angle and direction,
@@ -62,12 +63,25 @@ public class SwerveSubsystem extends SubsystemBase {
   private ChassisSpeeds chassisSpeeds;
   private double gyroZero = 0;
 
+  private PIDController rotationController;
+  //private SimpleMotorFeedforward feedforwardRotation;
+
+  private double pastRobotAngle;
+  private double currentRobotAngle;
+  private double pastRobotAngleDerivative;
+  private double currentRobotAngleDerivative;
+  private boolean isRotating;
+
   private SwerveOdometry odometry;
 
   private StructPublisher<Pose2d> publisher;
 
   private NetworkTableInstance inst;
   private NetworkTable table;
+
+  private Boolean BlueAlliance;
+
+  private DataLog log;
   /*
    * This constructor should create an instance of the pidgeon class, and should
    * construct four copies of the
@@ -75,6 +89,16 @@ public class SwerveSubsystem extends SubsystemBase {
    * Use values from the Constants.java class
    */
   public SwerveSubsystem() {
+    log = DataLogManager.getLog();
+
+    var Alliance = DriverStation.getAlliance();
+    BlueAlliance = true;
+    if (Alliance.isPresent()) {
+      if (Alliance.get() == DriverStation.Alliance.Red) {
+        BlueAlliance = false;
+      }
+    }
+
     inst = NetworkTableInstance.getDefault();
     table = inst.getTable("datatable");
 
@@ -132,6 +156,7 @@ public class SwerveSubsystem extends SubsystemBase {
       ChassisSpeeds temp = getChassisSpeed();
       return temp;
     };
+
     Consumer<ChassisSpeeds> consumer_chasis = ch_speed -> {
       SwerveModuleState[] modules = swerveDriveKinematics.toSwerveModuleStates(ch_speed);
       setModuleStates(modules);
@@ -183,23 +208,37 @@ public class SwerveSubsystem extends SubsystemBase {
     );
 
     publisher = table.getStructTopic("Final Odometry Position", Pose2d.struct).publish();
+    rotationController = new PIDController(Constants.PidGains.rotationCorrection.rotation.P, 
+      Constants.PidGains.rotationCorrection.rotation.I, 
+      Constants.PidGains.rotationCorrection.rotation.D);
+    rotationController.setTolerance(0.5);
+    //feedforwardRotation = new SimpleMotorFeedforward(0.05, 0);
+
+    pastRobotAngle = 0;
+    currentRobotAngle = 0;
+    pastRobotAngleDerivative = 0;
+    currentRobotAngleDerivative = 0;
+    isRotating = false;
+
   }
 
   public void drive(
           double rotation,
           double x,
           double y,
-          boolean fieldCentric) { // takes in the inputs from the controller
-    double currentRobotAngle = getRobotAngle();
+          boolean fieldCentric) { 
+    
+    double currentRobotAngle = gyro.getYaw().getValueAsDouble();
+    double currentRobotAngleRadians = getRobotAngle();
+
+    SmartDashboard.putNumber("Angular Z Speed", gyro.getAngularVelocityZWorld().getValueAsDouble());
+    SmartDashboard.putNumber("current robot angle", gyro.getYaw().getValueAsDouble());
 
     // this is to make sure if both the joysticks are at neutral position, the robot
     // and wheels
     // don't move or turn at all
     // 0.05 value can be increased if the joystick is increasingly inaccurate at
     // neutral position
-    SmartDashboard.putNumber("Swerve X: ", x);
-    SmartDashboard.putNumber("Swerve Y: ", y);
-    SmartDashboard.putNumber("Swerve R: ", rotation);
     if (Math.abs(x) < 0.07
         && Math.abs(y) < 0.07
         && Math.abs(rotation) < 0.05) {
@@ -211,29 +250,129 @@ public class SwerveSubsystem extends SubsystemBase {
     double robotX = x; 
     double robotY = y;
     if (fieldCentric) {
-      double difference = -(currentRobotAngle % (2 * Math.PI));
+      double difference = -(currentRobotAngleRadians % (2 * Math.PI));
       robotX = -y * Math.sin(difference)
           + x * Math.cos(difference);
       robotY = y * Math.cos(difference)
           + x * Math.sin(difference);
     }
 
+    currentRobotAngleDerivative = currentRobotAngle - pastRobotAngle;
+    if(currentRobotAngleDerivative == 0) {
+      currentRobotAngleDerivative = pastRobotAngleDerivative;
+    }
+
+    SmartDashboard.putNumber("Angle Derivative", currentRobotAngleDerivative);
+
+    if((pastRobotAngleDerivative > 0 && currentRobotAngleDerivative < 0) ||
+       (pastRobotAngleDerivative < 0 && currentRobotAngleDerivative > 0)) {
+      isRotating = false;
+    }
+
+    // For correcting angular position when not rotating manually
+    if (Math.abs(rotation) > 0.05 || isRotating) {
+      isRotating = true;
+      rotationController.setSetpoint(gyro.getYaw().getValueAsDouble());
+      rotationController.reset();
+      // rotationController.calculate(gyro.getYaw().getValueAsDouble());
+      // feedforwardRotation.calculate(rotation);
+    }
+    else {
+      rotation = rotationController.calculate(gyro.getYaw().getValueAsDouble());
+      // rotation += feedforwardRotation.calculate(rotation);
+    }
+
+    SmartDashboard.putNumber("Setpoint: Robot Angle", rotationController.getSetpoint());
+    SmartDashboard.putNumber("Plant state: Robot Angle", gyro.getYaw().getValueAsDouble());
+    SmartDashboard.putNumber("Control Effort: Calculated Rotation Speed", rotation);
+    SmartDashboard.putBoolean("Is bot turning", isRotating);
+
     this.chassisSpeeds = new ChassisSpeeds(robotX, robotY, rotation);
 
     SwerveModuleState[] modules = swerveDriveKinematics.toSwerveModuleStates(chassisSpeeds);
     setModuleStates(modules);
+    
+    pastRobotAngle = currentRobotAngle;
+    pastRobotAngleDerivative = currentRobotAngleDerivative;
+  }
+
+  public void updateRotationPIDSetpoint() {
+    rotationController.setSetpoint(gyro.getYaw().getValueAsDouble());
   }
 
   public ChassisSpeeds getChassisSpeed() {
     return swerveDriveKinematics.toChassisSpeeds(getModuleStates());
   }
 
+  public void initialize() {
+      // gyro.reset();
+  }
+
   public void periodic() {
-    odometry.update();
+    
     publisher.set(odometry.getEstimatedPosition());
 
-    Logger.recordOutput("Swerve/EstimatedPosition", odometry.getEstimatedPosition()); // logs estimated position as Swerve/EstimatedPosition
-    Logger.recordOutput("Swerve/ModuleStates", getModuleStates()); // logs module states as Swerve/ModuleStates
+    SmartDashboard.putNumber("Limelight Angle", getRobotRotation2dForOdometry().getDegrees());
+
+    DoubleLogEntry flEncoderPositionLog = new DoubleLogEntry(log, "FL encoder position");
+    DoubleLogEntry frEncoderPositionLog = new DoubleLogEntry(log, "FR encoder position");
+    DoubleLogEntry blEncoderPositionLog = new DoubleLogEntry(log, "BL encoder position");
+    DoubleLogEntry brEncoderPositionLog = new DoubleLogEntry(log, "BR encoder position");
+
+    DoubleLogEntry flPositionLog = new DoubleLogEntry(log, "FL position");
+    DoubleLogEntry frPositionLog = new DoubleLogEntry(log, "FR position");
+    DoubleLogEntry blPositionLog = new DoubleLogEntry(log, "BL position");
+    DoubleLogEntry brPositionLog = new DoubleLogEntry(log, "BR position");
+
+    DoubleLogEntry pidgeonAccelerationXLog = new DoubleLogEntry(log, "Pidgeon Acceleration X");
+    DoubleLogEntry pidgeonAccelerationYLog = new DoubleLogEntry(log, "Pidgeon Acceleration Y");
+    DoubleLogEntry pidgeonAccelerationZLog = new DoubleLogEntry(log, "Pidgeon Acceleration Z");
+
+    DoubleLogEntry pidgeonAngularVelocityXLog = new DoubleLogEntry(log, "Pidgeon Angular Velocity X");
+    DoubleLogEntry pidgeonAngularVelocityYLog = new DoubleLogEntry(log, "Pidgeon Angular Velocity Y");
+    DoubleLogEntry pidgeonAngularVelocityZLog = new DoubleLogEntry(log, "Pidgeon Angular Velocity Z");
+
+    DoubleLogEntry pidgeonTimeLog = new DoubleLogEntry(log, "Pidgeon Time");
+
+    // To log data into these entries, wherever you would have used SmartDashboard, use:
+    flEncoderPositionLog.append(swerveModules[FL].getEncoderPosition());
+    frEncoderPositionLog.append(swerveModules[FR].getEncoderPosition());
+    blEncoderPositionLog.append(swerveModules[BL].getEncoderPosition());
+    brEncoderPositionLog.append(swerveModules[BR].getEncoderPosition());
+
+    flPositionLog.append(swerveModules[FL].getPosition());
+    frPositionLog.append(swerveModules[FR].getPosition());
+    blPositionLog.append(swerveModules[BL].getPosition());
+    brPositionLog.append(swerveModules[BR].getPosition());
+
+    pidgeonAccelerationXLog.append(gyro.getAccelerationX().getValueAsDouble());
+    pidgeonAccelerationYLog.append(gyro.getAccelerationY().getValueAsDouble());
+    pidgeonAccelerationZLog.append(gyro.getAccelerationZ().getValueAsDouble());
+
+    pidgeonAngularVelocityXLog.append(gyro.getAngularVelocityXDevice().getValueAsDouble());
+    pidgeonAngularVelocityYLog.append(gyro.getAngularVelocityYDevice().getValueAsDouble());
+    pidgeonAngularVelocityZLog.append(gyro.getAngularVelocityZDevice().getValueAsDouble());
+
+    pidgeonTimeLog.append(gyro.getUpTime().getValueAsDouble());
+
+    // //Encoder Logging
+    // SmartDashboard.putNumber("FL encoder position:", swerveModules[FL].getEncoderPosition());
+    // SmartDashboard.putNumber("FR encoder position:", swerveModules[FR].getEncoderPosition());
+    // SmartDashboard.putNumber("BL encoder position:", swerveModules[BL].getEncoderPosition());
+    // SmartDashboard.putNumber("BR encoder position:", swerveModules[BR].getEncoderPosition());
+    // SmartDashboard.putNumber("FL position:", swerveModules[FL].getPosition());
+    // SmartDashboard.putNumber("FR position:", swerveModules[FR].getPosition());
+    // SmartDashboard.putNumber("BL position:", swerveModules[BL].getPosition());
+    // SmartDashboard.putNumber("BR position:", swerveModules[BR].getPosition());
+
+    // //Pidgeon Logging
+    // SmartDashboard.putNumber("Pidgeon Acceleration X", gyro.getAccelerationX().getValueAsDouble());
+    // SmartDashboard.putNumber("Pidgeon Acceleration Y", gyro.getAccelerationY().getValueAsDouble());
+    // SmartDashboard.putNumber("Pidgeon Acceleration Z", gyro.getAccelerationZ().getValueAsDouble());
+    // SmartDashboard.putNumber("Pidgeon Angular Velocity X", gyro.getAngularVelocityXDevice().getValueAsDouble());
+    // SmartDashboard.putNumber("Pidgeon Angular Velocity Y", gyro.getAngularVelocityYDevice().getValueAsDouble());
+    // SmartDashboard.putNumber("Pidgeon Agular Velocity Z", gyro.getAngularVelocityZDevice().getValueAsDouble());
+    // SmartDashboard.putNumber("Pidgeon Time", gyro.getUpTime().getValueAsDouble());
   }
 
   public void disabledPeriodic() {
@@ -267,10 +406,17 @@ public class SwerveSubsystem extends SubsystemBase {
    * from the pidgeon 2.0
    */
   public double getRobotAngle() {
-    return -(((gyro.getYaw().getValueAsDouble() - gyroZero)) * Math.PI)
-        / 180; // returns in counterclockwise hence why 360 minus
-    // it is gyro.getAngle() - 180 because the pigeon for this robot is facing
-    // backwards
+    return gyro.getRotation2d().plus(Rotation2d.fromDegrees(90.0)).getRadians() - gyroZero;
+  }
+
+  // Accounts for where foward is for swerve pos estimation (red/blue alliance)
+  public Rotation2d getRobotRotation2dForOdometry() {
+    if (BlueAlliance) {
+      return new Rotation2d(getRobotAngle());
+    }
+    else {
+      return new Rotation2d(getRobotAngle() + Math.PI);
+    }
   }
 
   public double getAngularChassisSpeed() {
@@ -539,8 +685,8 @@ public class SwerveSubsystem extends SubsystemBase {
 
   public void resetGyro() {
     // gyro.reset();
-    gyroZero = gyro.getYaw().getValueAsDouble();
-    odometry.resetPosition();
+    gyroZero = gyro.getRotation2d().plus(Rotation2d.fromDegrees(90.0)).getRadians();
+    // odometry.resetPosition();
   }
 
   public SwerveModule getSwerveModule(int module) {
