@@ -14,11 +14,9 @@ import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-
-import edu.wpi.first.wpilibj.DataLogManager;
-import edu.wpi.first.wpilibj.TimedRobot;
 
 public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
@@ -26,10 +24,11 @@ public class Robot extends LoggedRobot {
   private HashMap<String, Alert> alerts;
 
   public Robot() {
+    // CanBridge.runTCP();
     DataLogManager.start();
-  //   addPeriodic(() -> {
-  //     m_robotContainer.updateOdometry();
-  // }, 0.01, 0.005);
+    // addPeriodic(() -> {
+    //   m_robotContainer.updateOdometry();
+    // }, 0.01, 0.005);
   }
 
   @Override
@@ -90,16 +89,19 @@ public class Robot extends LoggedRobot {
   }
 
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+  }
 
   @Override
-  public void disabledPeriodic() {}
+  public void disabledPeriodic() {
+  }
 
   @Override
-  public void disabledExit() {}
+  public void disabledExit() {
+  }
 
   @Override
-  public void autonomousInit() {  
+  public void autonomousInit() {
 
     m_robotContainer.updateOdometry();
 
@@ -118,7 +120,8 @@ public class Robot extends LoggedRobot {
   }
 
   @Override
-  public void autonomousExit() {}
+  public void autonomousExit() {
+  }
 
   @Override
   public void teleopInit() {
@@ -138,7 +141,8 @@ public class Robot extends LoggedRobot {
   }
 
   @Override
-  public void teleopExit() {}
+  public void teleopExit() {
+  }
 
   @Override
   public void testInit() {
@@ -146,8 +150,10 @@ public class Robot extends LoggedRobot {
   }
 
   @Override
-  public void testPeriodic() {}
+  public void testPeriodic() {
+  }
 
   @Override
-  public void testExit() {}
+  public void testExit() {
+  }
 }
