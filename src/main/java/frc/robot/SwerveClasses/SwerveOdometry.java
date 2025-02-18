@@ -36,7 +36,8 @@ public class SwerveOdometry {
 
   private DataLog log;
 
-  private StructPublisher<Pose2d> publisher;
+  private StructPublisher<Pose2d> publisher_left_limelight;
+  private StructPublisher<Pose2d> publisher_right_limelight;
 
   private NetworkTableInstance inst;
   private NetworkTable table;
@@ -58,7 +59,8 @@ public class SwerveOdometry {
 
     inst = NetworkTableInstance.getDefault();
     table = inst.getTable("datatable");
-    publisher = table.getStructTopic("Limelight MegaTag2 Pos", Pose2d.struct).publish();
+    publisher_left_limelight = table.getStructTopic("Limelight MegaTag2 Pos Left", Pose2d.struct).publish();
+    publisher_right_limelight = table.getStructTopic("Limelight MegaTag2 Pos Right", Pose2d.struct).publish();
 
     swerveKinematics =
         new SwerveDriveKinematics(
@@ -137,16 +139,18 @@ public class SwerveOdometry {
     //   }
     
     // MegaTag 2
-    LimelightHelpers.SetRobotOrientation("limelight", swerveOdometry.getEstimatedPosition().getRotation().getDegrees(), 0, 0, 0, 0, 0);
+    LimelightHelpers.SetRobotOrientation("limelight-right", swerveOdometry.getEstimatedPosition().getRotation().getDegrees(), 0, 0, 0, 0, 0);
+    LimelightHelpers.SetRobotOrientation("limelight-left", swerveOdometry.getEstimatedPosition().getRotation().getDegrees(), 0, 0, 0, 0, 0);
 
     // Always wpiBlue no matter what since we are always using blue origin
-    LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
+    LimelightHelpers.PoseEstimate mt2_right = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-right");
+    LimelightHelpers.PoseEstimate mt2_left = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-left");
     
-    if(Math.abs(subsystem.getAngularChassisSpeed()) > 720) // if our angular velocity is greater than 720 degrees per second, ignore vision updates
+    if(Math.abs(subsystem.getAngularChassisSpeed()) > 680) // if our angular velocity is greater than 680 degrees per second, ignore vision updates
     {
       doRejectUpdate = true;
     }
-    if(mt2.tagCount == 0)
+    if(mt2_left.tagCount == 0)
     {
       doRejectUpdate = true;
     }
@@ -154,11 +158,28 @@ public class SwerveOdometry {
     {
       swerveOdometry.setVisionMeasurementStdDevs(VecBuilder.fill(0.7,0.7,9999999));
       swerveOdometry.addVisionMeasurement(
-          mt2.pose,
-          mt2.timestampSeconds);
+          mt2_left.pose,
+          mt2_left.timestampSeconds);
     }
 
-    publisher.set(mt2.pose);
+    if(Math.abs(subsystem.getAngularChassisSpeed()) > 680) // if our angular velocity is greater than 680 degrees per second, ignore vision updates
+    {
+      doRejectUpdate = true;
+    }
+    if(mt2_right.tagCount == 0)
+    {
+      doRejectUpdate = true;
+    }
+    if(!doRejectUpdate)
+    {
+      swerveOdometry.setVisionMeasurementStdDevs(VecBuilder.fill(0.7,0.7,9999999));
+      swerveOdometry.addVisionMeasurement(
+          mt2_right.pose,
+          mt2_right.timestampSeconds);
+    }
+
+    publisher_left_limelight.set(mt2_left.pose);
+    publisher_right_limelight.set(mt2_right.pose);
 
     // Assuming DataLogManager has already been started and log initialized
     DoubleLogEntry targetXLog = new DoubleLogEntry(log, "Target X");
@@ -208,7 +229,7 @@ public class SwerveOdometry {
         new Pose2d(0, 0, subsystem.getRobotRotation2dForOdometry()));
   }
 
-    public void setPosition(Pose2d pos) {
+  public void setPosition(Pose2d pos) {
 
     SmartDashboard.putNumber("Pathplanner Angle", pos.getRotation().getRadians());
     SmartDashboard.putNumber("Setting Angle", subsystem.getRobotRotation2dForOdometry().getRadians());

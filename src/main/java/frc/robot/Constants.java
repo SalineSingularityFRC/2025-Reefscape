@@ -13,14 +13,6 @@ import edu.wpi.first.wpilibj.RobotBase;
  */
 public final class Constants {
 
-  public static final class Analog {
-    public static final class SwerveModule {
-      public static final class Channel_ID {
-        public static final int FL = 1;
-      }
-    }
-  }
-
   public static final class CanId {
     public static final class Intake {
       public static final int LEFT_MOTOR = 30;
@@ -116,7 +108,6 @@ public final class Constants {
     }
   }
 
-
   public static final class SwerveModule {
 
     /*
@@ -127,9 +118,10 @@ public final class Constants {
       public static final double ANGLE = 18.75;
     }
 
-    // Free speed of the motors
     public static final class Speed {
-      public static final double MAX_SPEED = Units.feetToMeters(17.1); // 5.21208 m/s
+
+      // Tested max speed in m/s
+      public static final double MAX_SPEED = 4.35;
     }
 
     public static final class WheelOffset {
@@ -152,6 +144,15 @@ public final class Constants {
     public static final double WHEEL_BASE = Units.inchesToMeters(21.75);
     public static final double WHEELRADIUS = Units.inchesToMeters(1.8787);
     public static final double INTAKE_WIDTH_M = Units.inchesToMeters(19.25);
+
+    // Without bumpers (meters)
+    public static final double TOTAL_LENGTH = 0.70485;
+    public static final double TOTAL_WIDTH = 0.6858;
+
+    // Offest of limelight from robot center (inches)
+    public static final double LIMELIGHT_BOTTOM_FORWARD = 13.75; // 0.34925 meters
+    public static final double LIMELIGHT_BOTTOM_UP = 9; // 0.2286 meters
+    public static final double LIMELIGHT_BOTTOM_RIGHT = 8.125; // 0.206375 meters
   }
 
   public static final class AngleInaccuracy {

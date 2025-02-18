@@ -233,9 +233,6 @@ public class SwerveSubsystem extends SubsystemBase {
     double currentRobotAngle = gyro.getYaw().getValueAsDouble();
     double currentRobotAngleRadians = getRobotAngle();
 
-    SmartDashboard.putNumber("Angular Z Speed", gyro.getAngularVelocityZWorld().getValueAsDouble());
-    SmartDashboard.putNumber("current robot angle", gyro.getYaw().getValueAsDouble());
-
     // this is to make sure if both the joysticks are at neutral position, the robot
     // and wheels
     // don't move or turn at all
@@ -259,12 +256,11 @@ public class SwerveSubsystem extends SubsystemBase {
           + x * Math.sin(difference);
     }
 
+    // The following is for heading correction 
     currentRobotAngleDerivative = currentRobotAngle - pastRobotAngle;
     if(currentRobotAngleDerivative == 0) {
       currentRobotAngleDerivative = pastRobotAngleDerivative;
     }
-
-    SmartDashboard.putNumber("Angle Derivative", currentRobotAngleDerivative);
 
     if((pastRobotAngleDerivative > 0 && currentRobotAngleDerivative < 0) ||
        (pastRobotAngleDerivative < 0 && currentRobotAngleDerivative > 0)) {
@@ -276,18 +272,15 @@ public class SwerveSubsystem extends SubsystemBase {
       isRotating = true;
       rotationController.setSetpoint(gyro.getYaw().getValueAsDouble());
       rotationController.reset();
-      // rotationController.calculate(gyro.getYaw().getValueAsDouble());
-      // feedforwardRotation.calculate(rotation);
     }
     else {
       rotation = rotationController.calculate(gyro.getYaw().getValueAsDouble());
-      // rotation += feedforwardRotation.calculate(rotation);
     }
 
-    SmartDashboard.putNumber("Setpoint: Robot Angle", rotationController.getSetpoint());
-    SmartDashboard.putNumber("Plant state: Robot Angle", gyro.getYaw().getValueAsDouble());
-    SmartDashboard.putNumber("Control Effort: Calculated Rotation Speed", rotation);
-    SmartDashboard.putBoolean("Is bot turning", isRotating);
+    SmartDashboard.putNumber("Rotation Correction/Setpoint: Robot Angle", rotationController.getSetpoint());
+    SmartDashboard.putNumber("Rotation Correction/Plant state: Robot Angle", gyro.getYaw().getValueAsDouble());
+    // SmartDashboard.putNumber("Control Effort: Calculated Rotation Speed", rotation);
+    // SmartDashboard.putBoolean("Is bot turning", isRotating);
 
     this.chassisSpeeds = new ChassisSpeeds(robotX, robotY, rotation);
 
@@ -314,7 +307,12 @@ public class SwerveSubsystem extends SubsystemBase {
     
     publisher.set(odometry.getEstimatedPosition());
 
-    SmartDashboard.putNumber("Limelight Angle", getRobotRotation2dForOdometry().getDegrees());
+    // Logging total speed
+    ChassisSpeeds speeds = getChassisSpeed();
+    double vx = speeds.vxMetersPerSecond;
+    double vy = speeds.vyMetersPerSecond;
+    double totalSpeed = Math.sqrt(vx * vx + vy * vy);
+    SmartDashboard.putNumber("SwerveData/Chassis Speed", totalSpeed);
 
     DoubleLogEntry flEncoderPositionLog = new DoubleLogEntry(log, "FL encoder position");
     DoubleLogEntry frEncoderPositionLog = new DoubleLogEntry(log, "FR encoder position");
@@ -356,25 +354,6 @@ public class SwerveSubsystem extends SubsystemBase {
     pidgeonAngularVelocityZLog.append(gyro.getAngularVelocityZDevice().getValueAsDouble());
 
     pidgeonTimeLog.append(gyro.getUpTime().getValueAsDouble());
-
-    // //Encoder Logging
-    // SmartDashboard.putNumber("FL encoder position:", swerveModules[FL].getEncoderPosition());
-    // SmartDashboard.putNumber("FR encoder position:", swerveModules[FR].getEncoderPosition());
-    // SmartDashboard.putNumber("BL encoder position:", swerveModules[BL].getEncoderPosition());
-    // SmartDashboard.putNumber("BR encoder position:", swerveModules[BR].getEncoderPosition());
-    // SmartDashboard.putNumber("FL position:", swerveModules[FL].getPosition());
-    // SmartDashboard.putNumber("FR position:", swerveModules[FR].getPosition());
-    // SmartDashboard.putNumber("BL position:", swerveModules[BL].getPosition());
-    // SmartDashboard.putNumber("BR position:", swerveModules[BR].getPosition());
-
-    // //Pidgeon Logging
-    // SmartDashboard.putNumber("Pidgeon Acceleration X", gyro.getAccelerationX().getValueAsDouble());
-    // SmartDashboard.putNumber("Pidgeon Acceleration Y", gyro.getAccelerationY().getValueAsDouble());
-    // SmartDashboard.putNumber("Pidgeon Acceleration Z", gyro.getAccelerationZ().getValueAsDouble());
-    // SmartDashboard.putNumber("Pidgeon Angular Velocity X", gyro.getAngularVelocityXDevice().getValueAsDouble());
-    // SmartDashboard.putNumber("Pidgeon Angular Velocity Y", gyro.getAngularVelocityYDevice().getValueAsDouble());
-    // SmartDashboard.putNumber("Pidgeon Agular Velocity Z", gyro.getAngularVelocityZDevice().getValueAsDouble());
-    // SmartDashboard.putNumber("Pidgeon Time", gyro.getUpTime().getValueAsDouble());
   }
 
   public void disabledPeriodic() {
@@ -384,9 +363,6 @@ public class SwerveSubsystem extends SubsystemBase {
       odometry.update();
   }
 
-  /*
-   * Odometry
-   */
   public void setModuleStates(SwerveModuleState[] desiredStates) {
     swerveModules[FL].setDesiredState(desiredStates[0]);
     swerveModules[FR].setDesiredState(desiredStates[1]);
