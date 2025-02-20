@@ -39,6 +39,8 @@ public class ElevatorSubsystem extends SubsystemBase {
     private double elevatorCurrentTarget = Setpoint.kFeederStation.encoderPosition;
     private boolean manual = false;
 
+    private IntakeSubsystem intake;
+
     /** Elevator setpoints */
     public enum Setpoint {
         kFeederStation(Elevator.Positions.FEED_STATION_COUNTS.getValue()),
@@ -138,6 +140,8 @@ public class ElevatorSubsystem extends SubsystemBase {
 
         elevatorClosedLoopController = elevatorPrimaryMotor.getClosedLoopController();
         elevatorEncoder = elevatorPrimaryMotor.getEncoder();
+
+        intake = new IntakeSubsystem();
 
         // Simulation stuff
         elevatorLimitSwitchSim = new SparkLimitSwitchSim(elevatorPrimaryMotor, false);
@@ -268,7 +272,7 @@ public class ElevatorSubsystem extends SubsystemBase {
                     elevatorPrimaryMotor.stopMotor();
                     manual = false;
                     elevatorCurrentTarget = elevatorEncoder.getPosition();
-                });
+                }).onlyWhile(intake.supplier_ready_shoot);
     }
 
     public Command runMotorsJoystick(boolean reverse, DoubleSupplier joyStickSpeed) {
@@ -282,7 +286,6 @@ public class ElevatorSubsystem extends SubsystemBase {
                     elevatorPrimaryMotor.stopMotor();
                     manual = false;
                     elevatorCurrentTarget = elevatorEncoder.getPosition();
-                });
+                }).onlyWhile(intake.supplier_ready_shoot);
     }
-
 }

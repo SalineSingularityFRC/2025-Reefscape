@@ -2,6 +2,10 @@ package frc.robot.subsystems;
 
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
+
+import java.util.function.BooleanSupplier;
+import java.util.function.Supplier;
+
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
@@ -90,6 +94,14 @@ public class IntakeSubsystem extends SubsystemBase {
     public boolean coralInIntake() {
         return canSeeCoral(intakeSensor);
     }
+
+    public boolean readyToShoot(LaserCan intakeSensor, LaserCan shooterSensor) {
+        return (shooterSensor.getMeasurement() != null && getSensorValue(shooterSensor) <= sensingDistance) && getSensorValue(intakeSensor) > sensingDistance;
+    }
+
+    BooleanSupplier supplier_ready_shoot = () -> {
+        return readyToShoot(intakeSensor, shooterSensor);
+    };
 
     public int getSensorValue(LaserCan sensor) {
         Measurement measurement = sensor.getMeasurement();
