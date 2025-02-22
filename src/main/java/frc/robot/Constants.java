@@ -86,7 +86,7 @@ public final class Constants {
     public static final class Controller {
       public static final int DRIVE = 0;
       public static final int ARM = 1;
-      public static final int ELEVATOR = 2;
+      public static final int BUTTON = 2;
     }
 
     public static final class Axis {
@@ -285,11 +285,16 @@ public final class Constants {
       return (!isTrue());
     }
   }
+
   public static class Climber {
     public static ConfigDouble WINCH_SPEED = new ConfigDouble("Climber/WINCH_SPEED", .5);
+    public static final ConfigDouble ENCODER_MAX_POS = new ConfigDouble("Climber/ENCODER_MAX_POS", 100);
+    public static final ConfigDouble ENCODER_MIN_POS = new ConfigDouble("Climber/ENCODER_MIN_POS", 0);
+
 
 
   }
+
   public static class Elevator {
     public static ConfigInt FOLLOW_DUALENABLE = new ConfigInt("Elevator/DUALENABLE", 0);
 

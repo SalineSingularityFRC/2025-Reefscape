@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import java.util.ArrayList;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -10,6 +11,8 @@ import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.util.DriveFeedforwards;
+import com.pathplanner.lib.pathfinding.Pathfinding;
+import com.pathplanner.lib.pathfinding.Pathfinder;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -25,14 +28,19 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
+import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Limelight;
+import frc.robot.RobotContainer.AutoScoreTarget;
 import frc.robot.SwerveClasses.SwerveModule;
 import frc.robot.SwerveClasses.SwerveOdometry;
 
@@ -704,16 +712,61 @@ public class SwerveSubsystem extends SubsystemBase {
     return swerveModules[0].isCoast();
   }
 
+  public Command driveToPoseTarget(AutoScoreTarget target) {
+    ArrayList<Translation2d> reefs = new ArrayList<>();
+    Translation2d pose = odometry.getEstimatedPosition().getTranslation();
+    int closestReef = -1;
+    double minDistance = 10;
+
+    if(BlueAlliance){
+      if(target.equals(AutoScoreTarget.L4_LEFT) || target.equals(AutoScoreTarget.L3_LEFT) || target.equals(AutoScoreTarget.L2_LEFT)){
+       reefs.add(new Translation2d(5, 5));
+       reefs.add(new Translation2d(7.5, 8));
+      }
+      else if(target.equals(AutoScoreTarget.L4_RIGHT) || target.equals(AutoScoreTarget.L3_RIGHT) || target.equals(AutoScoreTarget.L2_RIGHT)){
+        reefs.add(new Translation2d(4.75, 4.75));
+        reefs.add(new Translation2d(7.75, 8.5));
+      }
+    }
+    else{
+      if(target.equals(AutoScoreTarget.L4_LEFT) || target.equals(AutoScoreTarget.L3_LEFT) || target.equals(AutoScoreTarget.L2_LEFT)){
+        reefs.add(new Translation2d(22, 28));
+        reefs.add(new Translation2d(24.3, 30));
+       }
+       else if(target.equals(AutoScoreTarget.L4_RIGHT) || target.equals(AutoScoreTarget.L3_RIGHT) || target.equals(AutoScoreTarget.L2_RIGHT)){
+         reefs.add(new Translation2d(22.32, 27.8));
+         reefs.add(new Translation2d(23.5, 29.6));
+       }
+    }
+
+    for(int i = 0; i < reefs.size(); i++){
+      Translation2d reef = reefs.get(i);
+      double distance = Math.sqrt(Math.abs(Math.pow(reef.getX() - pose.getX(), 2) + Math.pow(reef.getY() - pose.getY(), 2))); // Placeholder
+      if(distance < minDistance){
+        minDistance = distance;
+        closestReef = i;
+      }
+    }
+
+    Translation2d targetReef = reefs.get(closestReef);
+    
+    return new InstantCommand(() -> {
+      Pathfinding.setGoalPosition(targetReef);
+      Pathfinding.setStartPosition(pose);
+      Pathfinding.setDynamicObstacles(null, pose);
+    });
+  }
+
   // public Command goToLeftReef(Limelight lime){
   //   return run(() -> {
-  //     alignAndDriveToTagCommand(lime);
+  // 
       
   //   });
   // }
   
   // public Command goToRightReef(Limelight lime){
   //   return run(() -> {
-  //     alignAndDriveToTagCommand(lime);
+  //
 
   //   });
   // }
