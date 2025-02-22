@@ -91,13 +91,8 @@ public class SwerveSubsystem extends SubsystemBase {
   public SwerveSubsystem() {
     log = DataLogManager.getLog();
 
-    var Alliance = DriverStation.getAlliance();
+
     BlueAlliance = true;
-    if (Alliance.isPresent()) {
-      if (Alliance.get() == DriverStation.Alliance.Red) {
-        BlueAlliance = false;
-      }
-    }
 
     inst = NetworkTableInstance.getDefault();
     table = inst.getTable("datatable");
@@ -311,10 +306,21 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   public void periodic() {
+
+    // Need to do it in periodic because Driver station is only created/read after the initialization of these classes (assumed from testing)
+    var Alliance = DriverStation.getAlliance();
+    if (Alliance.isPresent()) {
+      if (Alliance.get() == DriverStation.Alliance.Red) {
+        BlueAlliance = false;
+      }
+    }
     
     publisher.set(odometry.getEstimatedPosition());
 
-    SmartDashboard.putNumber("Limelight Angle", getRobotRotation2dForOdometry().getDegrees());
+    SmartDashboard.putBoolean("Heading Issue/Is on blue side", BlueAlliance);
+
+    SmartDashboard.putNumber("Heading Issue/Field centric angle (wrt to blue side)", getRobotRotation2dForOdometry().getDegrees());
+    SmartDashboard.putNumber("Heading Issue/Our side angle", getRobotAngle());
 
     DoubleLogEntry flEncoderPositionLog = new DoubleLogEntry(log, "FL encoder position");
     DoubleLogEntry frEncoderPositionLog = new DoubleLogEntry(log, "FR encoder position");

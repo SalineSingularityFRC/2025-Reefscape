@@ -5,9 +5,13 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.CvSink;
+import edu.wpi.first.cscore.CvSource;
+import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.DataLogManager;
 
 public class Robot extends TimedRobot {
@@ -26,6 +30,14 @@ public class Robot extends TimedRobot {
     m_robotContainer =
         new RobotContainer();
     m_robotContainer.initialize();
+    // Creates UsbCamera and MjpegServer [1] and connects them
+    UsbCamera cam = CameraServer.startAutomaticCapture();
+    cam.setFPS(30);
+    cam.setResolution(320, 240);
+    // Creates the CvSink and connects it to the UsbCamera
+    CvSink cvSink = CameraServer.getVideo();
+    // Creates the CvSource and MjpegServer [2] and connects them
+    CvSource outputStream = CameraServer.putVideo("Blur", 640, 480);
   }
 
   @Override

@@ -56,7 +56,7 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
-        driveController.x().whileTrue(drive.resetGyroCommand());
+        driveController.x().onTrue(drive.resetGyroCommand());
 
         // driveController.b().whileTrue(
         //         new toSpeaker(drive, lime)
