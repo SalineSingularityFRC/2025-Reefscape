@@ -88,7 +88,7 @@ public class ElevatorSubsystem extends SubsystemBase {
                             * kPixelsPerMeter,
                     90));
 
-    public ElevatorSubsystem() {
+    public ElevatorSubsystem(IntakeSubsystem intake) {
         // elevatorSpeed = Preferences.getDouble("Elevator Motor Speed (rpm)", 1);
 
         // Elevator Motor
@@ -141,7 +141,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         elevatorClosedLoopController = elevatorPrimaryMotor.getClosedLoopController();
         elevatorEncoder = elevatorPrimaryMotor.getEncoder();
 
-        intake = new IntakeSubsystem();
+        this.intake = intake;
 
         // Simulation stuff
         elevatorLimitSwitchSim = new SparkLimitSwitchSim(elevatorPrimaryMotor, false);
@@ -149,7 +149,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     public void periodic() {
-        if(!manual){
+        if(!manual && intake.supplier_elevatar_move.getAsBoolean()){
             moveToSetpoint();
         }
         zeroElevatorOnLimitSwitch();
@@ -162,7 +162,6 @@ public class ElevatorSubsystem extends SubsystemBase {
                                 * (elevatorEncoder.getPosition() / kElevatorGearing)
                                 * (kElevatorDrumRadius * 2.0 * Math.PI));
 
-        SmartDashboard.putString("Elevator/Target Position", String.valueOf(elevatorCurrentTarget));
         SmartDashboard.putNumber("Elevator/Target Position Encoder", elevatorCurrentTarget);
         SmartDashboard.putNumber("Elevator/Actual Position", elevatorEncoder.getPosition());
         SmartDashboard.putData("Elevator/Model", mech2d);
@@ -179,19 +178,19 @@ public class ElevatorSubsystem extends SubsystemBase {
                 () -> {
                     switch (setpoint) {
                         case kFeederStation:
-                            elevatorCurrentTarget = Setpoint.kFeederStation.encoderPosition;
+                            elevatorCurrentTarget = Elevator.Positions.FEED_STATION_COUNTS.getValue();
                             break;
                         case kLevel1:
-                            elevatorCurrentTarget = Setpoint.kLevel1.encoderPosition;
+                            elevatorCurrentTarget = Elevator.Positions.L1_COUNTS.getValue();
                             break;
                         case kLevel2:
-                            elevatorCurrentTarget = Setpoint.kLevel2.encoderPosition;
+                            elevatorCurrentTarget = Elevator.Positions.L2_COUNTS.getValue();
                             break;
                         case kLevel3:
-                            elevatorCurrentTarget = Setpoint.kLevel3.encoderPosition;
+                            elevatorCurrentTarget = Elevator.Positions.L3_COUNTS.getValue();
                             break;
                         case kLevel4:
-                            elevatorCurrentTarget = Setpoint.kLevel4.encoderPosition;
+                            elevatorCurrentTarget = Elevator.Positions.L4_COUNTS.getValue();
                             break;
                     }
                 });
@@ -272,7 +271,7 @@ public class ElevatorSubsystem extends SubsystemBase {
                     elevatorPrimaryMotor.stopMotor();
                     manual = false;
                     elevatorCurrentTarget = elevatorEncoder.getPosition();
-                }).onlyWhile(intake.supplier_ready_shoot);
+                }).onlyWhile(intake.supplier_elevatar_move);
     }
 
     public Command runMotorsJoystick(boolean reverse, DoubleSupplier joyStickSpeed) {
@@ -286,6 +285,6 @@ public class ElevatorSubsystem extends SubsystemBase {
                     elevatorPrimaryMotor.stopMotor();
                     manual = false;
                     elevatorCurrentTarget = elevatorEncoder.getPosition();
-                }).onlyWhile(intake.supplier_ready_shoot);
+                }).onlyWhile(intake.supplier_elevatar_move);
     }
 }

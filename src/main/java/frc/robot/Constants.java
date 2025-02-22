@@ -24,6 +24,11 @@ public final class Constants {
     public static final class Climber {
       public static final int MOTOR = 60;
     }
+
+    public static final class Alge{
+      public static final int LEFT_MOTOE = 50;
+      public static final int RIGHT_MOTOR = 51;
+    }
     
     public static final class CanCoder {
       public static final int GYRO = 20;
@@ -322,6 +327,7 @@ public final class Constants {
   public static class Intake{
     public static class Nums{
       public static ConfigDouble motorSpeed = new ConfigDouble("Intake Motor Speed", .1);
+      public static ConfigDouble motorSpeedSlow = new ConfigDouble("Intake Motor Speed Slow", .1);
       public static ConfigDouble sensingDistance = new ConfigDouble("Sensor Max Distance", 100);
     }
     public static class LeftMotor{
