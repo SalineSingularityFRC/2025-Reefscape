@@ -47,23 +47,33 @@ uint8_t d=0;
         and printed column (width - 1) corresponds to sensor column 0.
 */
 
-int* getMinValuesPerColumn(const VL53L5CX_ResultsData &data, int width)
+boolean isGoodSample(int sample, int maxBound) {
+  if (sample != 0 && sample < maxBound) {
+    return true;
+  } 
+  return false;
+}
+
+
+int* getMinValuesPerColumn(const VL53L5CX_ResultsData &data, int width, int maxBound)
 {
   static int minValues[8]; // Static so the array persists after the function returns
   for (int printedCol = 0; printedCol < width; printedCol++)
   {
     int sensorCol = width - 1 - printedCol;  // Map printed column to sensor column
-    int minVal = 0xFFFF; // Start with a large number
-
+    //int minVal = 0xFFFF; // Start with a large number
+    int minVal = maxBound;
     // Loop over each row in this column
     for (int row = 0; row < width; row++)
     {
       int index = row * width + sensorCol; // Calculate the index in the 1D array
       int distance = data.distance_mm[index];
-      if (distance < minVal)
-      {
-        minVal = distance;
-      }
+      if (isGoodSample(distance, maxBound)) {
+        if (distance < minVal)
+        {
+         minVal = distance;
+        } 
+    }
     }
     minValues[printedCol] = minVal;
   }
@@ -82,20 +92,40 @@ int* getMinValuesPerColumn(const VL53L5CX_ResultsData &data, int width)
   Note: Printed column 0 corresponds to sensor column (width - 1)
         and printed column (width - 1) corresponds to sensor column 0.
 */
-int* getAvgValuesPerColumn(const VL53L5CX_ResultsData &data, int width)
+int* getAvgValuesPerColumn(const VL53L5CX_ResultsData &data, int width, int maxBound)
 {
-  static int avgValues[8]; // Static so the array persists after the function returns
+  static int avgValues[8];
   for (int printedCol = 0; printedCol < width; printedCol++)
   {
     int sensorCol = width - 1 - printedCol;
-    long sum = 0;
+    int sum = 0;
+    int divisor = 0; 
     // Loop over each row in this column
     for (int row = 0; row < width; row++)
     {
+
       int index = row * width + sensorCol;
+      if (isGoodSample( data.distance_mm[index], maxBound)) {
+      divisor++;
       sum += data.distance_mm[index];
+      }
     }
-    avgValues[printedCol] = (int)(sum / (float)width);
+    
+    
+    /*
+    for (int dis : data.distance_mm){
+      if (isGoodSample(dis, maxBound)){
+        divisor++;
+        sum += dis;
+      }
+    } */
+
+    if (divisor == 0) {
+      divisor = 1;
+    };
+    
+      avgValues[printedCol] = (int)(sum/ divisor) !=0 ? (int)(sum / divisor) : maxBound;
+    //avgValues[printedCol] = (int)(sum / divisor);
   }
   return avgValues;
 }
@@ -178,7 +208,7 @@ void setup(void) {
 
 void sendframe(uint32_t id, int* arr)
 {
-  Serial.println("sendFrame");
+  //Serial.println("sendFrame");
   CAN_message_t msg2;
   msg2.id = id;
   
@@ -192,7 +222,7 @@ void sendframe(uint32_t id, int* arr)
   //msg2.buf[0] = d++;
   msg2.len = 8;
   msg2.seq = 1;
-  Serial.println(can1.write(msg2)); // write to can1
+  //Serial.println(can1.write(msg2)); // write to can1
 
   // msg2.id = 0x402;
   // msg2.buf[1] = d++;
@@ -245,13 +275,24 @@ void canSniff20(const CAN_message_t &msg) { // global callback
 
 void loop() {
   int* minArray = NULL;
-  int* avgArray = NULL; 
+  int* avgArray = NULL;
+  //Serial.println("Looped");
   CAN_message_t msg;
   if (myImager.isDataReady()) {
+    measurementData = VL53L5CX_ResultsData();
     if (myImager.getRangingData(&measurementData)) {
       // Get the arrays from the two functions
-      minArray = getMinValuesPerColumn(measurementData, imageWidth);
-      avgArray = getAvgValuesPerColumn(measurementData, imageWidth);
+      Serial.print(measurementData.distance_mm[0]);
+      Serial.print(" ");
+      Serial.print(measurementData.distance_mm[1]);
+      Serial.print(" ");
+      Serial.print(measurementData.distance_mm[2]);
+      Serial.println();
+      Serial.print("Error: ");
+      Serial.println(myImager.lastError.lastErrorValue);
+      //Serial.println(measurementData.distance_mm[0],measurementData.distance_mm[1],measurementData.distance_mm[2],measurementData.distance_mm[3]);
+      minArray = getMinValuesPerColumn(measurementData, imageWidth, 300);
+      avgArray = getAvgValuesPerColumn(measurementData, imageWidth, 300);
 
       // Print the minimum distances per column
       Serial.print("M,");
@@ -302,5 +343,18 @@ void loop() {
   }
 }
 
+/*
+int* pruneDistanceArray(int* array, int maxValue) {
+  for (int i = 0; i < array.getLength(); i++){
+    if (array[i] > maxValue || array[i] == 0) array[i] = maxValue;
+  }
+}
+*/
+
+
+/*int angleFromCenter(int distance){
+  final int FOV = 48.4; // FOV calculated from the 65 degree diagonal square FOV
+  int columnFOV = 48.4 / 8; // FOV each segment has measure over
+} */
 
 
