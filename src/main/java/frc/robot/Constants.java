@@ -285,11 +285,11 @@ public final class Constants {
       return (!isTrue());
     }
   }
+
   public static class Climber {
     public static ConfigDouble WINCH_SPEED = new ConfigDouble("Climber/WINCH_SPEED", .5);
-
-
   }
+
   public static class Elevator {
     public static ConfigInt FOLLOW_DUALENABLE = new ConfigInt("Elevator/DUALENABLE", 0);
 
