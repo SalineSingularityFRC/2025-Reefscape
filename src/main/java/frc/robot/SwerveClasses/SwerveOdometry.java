@@ -162,21 +162,21 @@ public class SwerveOdometry {
           mt2_left.timestampSeconds);
     }
 
-    if(Math.abs(subsystem.getAngularChassisSpeed()) > 680) // if our angular velocity is greater than 680 degrees per second, ignore vision updates
-    {
-      doRejectUpdate = true;
-    }
-    if(mt2_right.tagCount == 0)
-    {
-      doRejectUpdate = true;
-    }
-    if(!doRejectUpdate)
-    {
-      swerveOdometry.setVisionMeasurementStdDevs(VecBuilder.fill(0.7,0.7,9999999));
-      swerveOdometry.addVisionMeasurement(
-          mt2_right.pose,
-          mt2_right.timestampSeconds);
-    }
+    // if(Math.abs(subsystem.getAngularChassisSpeed()) > 680) // if our angular velocity is greater than 680 degrees per second, ignore vision updates
+    // {
+    //   doRejectUpdate = true;
+    // }
+    // if(mt2_right.tagCount == 0)
+    // {
+    //   doRejectUpdate = true;
+    // }
+    // if(!doRejectUpdate)
+    // {
+    //   swerveOdometry.setVisionMeasurementStdDevs(VecBuilder.fill(0.7,0.7,9999999));
+    //   swerveOdometry.addVisionMeasurement(
+    //       mt2_right.pose,
+    //       mt2_right.timestampSeconds);
+    // }
 
     publisher_left_limelight.set(mt2_left.pose);
     publisher_right_limelight.set(mt2_right.pose);

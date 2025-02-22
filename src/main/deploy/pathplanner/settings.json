@@ -12,7 +12,7 @@
     "Test Autos",
     "Straight"
   ],
-  "defaultMaxVel": 4.35,
+  "defaultMaxVel": 1.0,
   "defaultMaxAccel": 3.7,
   "defaultMaxAngVel": 540.0,
   "defaultMaxAngAccel": 673.0,
