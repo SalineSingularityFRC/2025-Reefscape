@@ -123,7 +123,7 @@ int* getAvgValuesPerColumn(const VL53L5CX_ResultsData &data, int width, int maxB
     if (divisor == 0) {
       divisor = 1;
     };
-    
+
       avgValues[printedCol] = (int)(sum/ divisor) !=0 ? (int)(sum / divisor) : maxBound;
     //avgValues[printedCol] = (int)(sum / divisor);
   }
@@ -291,8 +291,8 @@ void loop() {
       Serial.print("Error: ");
       Serial.println(myImager.lastError.lastErrorValue);
       //Serial.println(measurementData.distance_mm[0],measurementData.distance_mm[1],measurementData.distance_mm[2],measurementData.distance_mm[3]);
-      minArray = getMinValuesPerColumn(measurementData, imageWidth, 300);
-      avgArray = getAvgValuesPerColumn(measurementData, imageWidth, 300);
+      minArray = getMinValuesPerColumn(measurementData, imageWidth, 1000);
+      avgArray = getAvgValuesPerColumn(measurementData, imageWidth, 1000);
 
       // Print the minimum distances per column
       Serial.print("M,");
