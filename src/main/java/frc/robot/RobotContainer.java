@@ -44,6 +44,7 @@ public class RobotContainer {
         configureBindings();
 
         NamedCommands.registerCommand("StopDriving", drive.stopDriving());
+        NamedCommands.registerCommand("L4", elevator.moveToTargetPosition(Setpoint.kLevel4));
         NamedCommands.registerCommand("RumbleCommantStart", new RumbleCommandStart(driveController));
         NamedCommands.registerCommand("RumbleCommantStop", new RumbleCommandStop(driveController));
 
@@ -71,10 +72,10 @@ public class RobotContainer {
         // driveController.povUp().whileTrue(intake.runMotors());
 
         // Elevator Position
-        driveController.a().whileTrue(elevator.moveToTargetPosition(Setpoint.kLevel1));
-        driveController.b().whileTrue(elevator.moveToTargetPosition(Setpoint.kLevel2));
-        driveController.x().whileTrue(elevator.moveToTargetPosition(Setpoint.kLevel3));
-        driveController.y().whileTrue(elevator.moveToTargetPosition(Setpoint.kLevel4));
+        driveController.a().onTrue(elevator.moveToTargetPosition(Setpoint.kLevel1));
+        driveController.b().onTrue(elevator.moveToTargetPosition(Setpoint.kLevel2));
+        driveController.x().onTrue(elevator.moveToTargetPosition(Setpoint.kLevel3));
+        driveController.y().onTrue(elevator.moveToTargetPosition(Setpoint.kLevel4));
 
         driveController.rightBumper().onTrue(drive.resetGyroCommand());
         
@@ -86,37 +87,10 @@ public class RobotContainer {
 
         // driveController.x().onTrue(drive.resetGyroCommand());
 
-        // driveController.povDown().whileTrue(intake.runMotorsBack());
-        // driveController.leftBumper().whileTrue(intake.intakeCoral());
-        // driveController.rightBumper().whileTrue(intake.shootCoral());
-
+        // Fancy Controller
         // elevatorController.button(1).whileTrue(elevator.moveToTargetPosition(Setpoint.kLevel1)); // Red
         // elevatorController.button(2).whileTrue(elevator.moveToTargetPosition(Setpoint.kLevel2)); // Blue
         // elevatorController.button(3).whileTrue(elevator.moveToTargetPosition(Setpoint.kLevel3)); // Yellow
-
-        // driveController.povUp().whileTrue(
-        //         new DriveController(drive, () -> {
-        //             return 0;
-        //         }, () -> {
-        //             return 1;
-        //         }, () -> {
-        //             return 0;
-        //         },
-        //                 2));
-
-        // driveController.povDown().whileTrue(
-        //     new DriveController(drive, () -> {
-        //         return 0;
-        //     }, () -> {
-        //         return -1;
-        //     }, () -> {
-        //         return 0;
-        //     },
-        //         2));
-
-        // driveController.povRight().onTrue(drive.xMode());
-
-        // driveController.povRight().onTrue(drive.xMode());
 
         drive.setDefaultCommand(
                 new DriveController(drive, () -> {

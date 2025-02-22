@@ -91,13 +91,7 @@ public class SwerveSubsystem extends SubsystemBase {
   public SwerveSubsystem() {
     log = DataLogManager.getLog();
 
-    var Alliance = DriverStation.getAlliance();
     BlueAlliance = true;
-    if (Alliance.isPresent()) {
-      if (Alliance.get() == DriverStation.Alliance.Red) {
-        BlueAlliance = false;
-      }
-    }
 
     inst = NetworkTableInstance.getDefault();
     table = inst.getTable("datatable");
@@ -304,6 +298,15 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   public void periodic() {
+
+    var Alliance = DriverStation.getAlliance();
+    if (Alliance.isPresent()) {
+      if (Alliance.get() == DriverStation.Alliance.Red) {
+        BlueAlliance = false;
+      }
+    }
+
+    SmartDashboard.putBoolean("Heading Issue/Is Blue", BlueAlliance);
     
     publisher.set(odometry.getEstimatedPosition());
 
@@ -384,7 +387,7 @@ public class SwerveSubsystem extends SubsystemBase {
    * from the pidgeon 2.0
    */
   public double getRobotAngle() {
-    return gyro.getRotation2d().plus(Rotation2d.fromDegrees(90.0)).getRadians() - gyroZero;
+    return gyro.getRotation2d().plus(Rotation2d.fromDegrees(180.0)).getRadians() - gyroZero;
   }
 
   // Accounts for where foward is for swerve pos estimation (red/blue alliance)
@@ -663,7 +666,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
   public void resetGyro() {
     // gyro.reset();
-    gyroZero = gyro.getRotation2d().plus(Rotation2d.fromDegrees(90.0)).getRadians();
+    gyroZero = gyro.getRotation2d().plus(Rotation2d.fromDegrees(180.0)).getRadians();
     // odometry.resetPosition();
   }
 

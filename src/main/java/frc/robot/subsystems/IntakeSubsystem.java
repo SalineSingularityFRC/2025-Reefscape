@@ -132,9 +132,9 @@ public class IntakeSubsystem extends SubsystemBase {
     public Command runMotors() {
         return runEnd(
                 () -> {
-                    // leftIntakeClosedLoopController.setReference(motorSpeed, ControlType.kVelocity);
-                    // rightIntakeClosedLoopController.setReference(motorSpeed, ControlType.kVelocity);
                     double speed = coralInShooter() ? motorSpeedSlow : motorSpeed;
+                    // leftIntakeClosedLoopController.setReference(speed, ControlType.kVelocity);
+                    // rightIntakeClosedLoopController.setReference(speed, ControlType.kVelocity);
                     leftMotor.set(speed);
                     rightMotor.set(speed);
                 },

@@ -156,9 +156,9 @@ public final class Constants {
     public static final double TOTAL_WIDTH = 0.6858;
 
     // Offest of limelight from robot center (inches)
-    public static final double LIMELIGHT_BOTTOM_FORWARD = 13.75; // 0.34925 meters
-    public static final double LIMELIGHT_BOTTOM_UP = 9; // 0.2286 meters
-    public static final double LIMELIGHT_BOTTOM_RIGHT = 8.125; // 0.206375 meters
+    public static final double LIMELIGHT_BOTTOM_FORWARD = 12; // 0.3048 meters
+    public static final double LIMELIGHT_BOTTOM_UP = 8.5; // 0.2159 meters
+    public static final double LIMELIGHT_BOTTOM_RIGHT = 6.5; // 0.1651 meters
   }
 
   public static final class AngleInaccuracy {
