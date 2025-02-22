@@ -86,7 +86,7 @@ public final class Constants {
     public static final class Controller {
       public static final int DRIVE = 0;
       public static final int ARM = 1;
-      public static final int ELEVATOR = 2;
+      public static final int BUTTON = 2;
     }
 
     public static final class Axis {

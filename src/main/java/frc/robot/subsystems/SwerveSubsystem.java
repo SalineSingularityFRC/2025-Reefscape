@@ -25,14 +25,19 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
+import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Limelight;
+import frc.robot.RobotContainer.AutoScoreTarget;
 import frc.robot.SwerveClasses.SwerveModule;
 import frc.robot.SwerveClasses.SwerveOdometry;
 
@@ -699,6 +704,12 @@ public class SwerveSubsystem extends SubsystemBase {
 
   public boolean isCoast() {
     return swerveModules[0].isCoast();
+  }
+
+  public Command driveToPoseTarget(AutoScoreTarget target) {
+    return new InstantCommand(() -> {
+      System.out.println("driveToPoseTarget: " + target);
+    });
   }
 
   // public Command goToLeftReef(Limelight lime){

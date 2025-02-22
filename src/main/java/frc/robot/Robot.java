@@ -60,9 +60,11 @@ public class Robot extends LoggedRobot {
     alerts = new HashMap<String, Alert>();
 
     CommandScheduler.getInstance().onCommandExecute((Command command) -> {
-      Alert alert = new Alert(command.getName(), Alert.AlertType.kInfo);
-      alert.set(true);
-      alerts.put(command.getName(), alert);
+      if (!command.getName().equals("DriveController")) {
+        Alert alert = new Alert(command.getName(), Alert.AlertType.kInfo);
+        alert.set(true);
+        alerts.put(command.getName(), alert);
+      }
     });
 
     CommandScheduler.getInstance().onCommandFinish((Command command) -> {

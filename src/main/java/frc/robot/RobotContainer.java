@@ -3,14 +3,19 @@
 // the WPILib BSD license file in the root directory of this project.
 package frc.robot;
 
+import java.io.BufferedOutputStream;
+
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.Climber;
+import frc.robot.Constants.Elevator;
 import frc.robot.commands.DriveController;
 import frc.robot.commands.RumbleCommandStart;
 import frc.robot.commands.RumbleCommandStop;
@@ -24,7 +29,7 @@ public class RobotContainer {
     private SwerveSubsystem drive;
     private Limelight lime;
     private CommandXboxController driveController;
-    private CommandXboxController elevatorController;
+    private CommandXboxController buttonController;
     private SendableChooser<String> pathAutonChooser;
     private IntakeSubsystem intake;
     // private CommandGenericHID simController;
@@ -39,7 +44,7 @@ public class RobotContainer {
         climber = new ClimberSubsystem();
 
         driveController = new CommandXboxController(Constants.Gamepad.Controller.DRIVE);
-        elevatorController = new CommandXboxController(Constants.Gamepad.Controller.ELEVATOR);
+        buttonController = new CommandXboxController(Constants.Gamepad.Controller.BUTTON);
 
         configureBindings();
 
@@ -77,12 +82,22 @@ public class RobotContainer {
         driveController.y().whileTrue(elevator.moveToTargetPosition(Setpoint.kLevel4));
 
         driveController.rightBumper().onTrue(drive.resetGyroCommand());
-        
+
         driveController.povDown().whileTrue(elevator.runMotors(true));
         driveController.povUp().whileTrue(elevator.runMotors(false));
 
         driveController.povLeft().whileTrue(intake.intakeCoral());
         driveController.povRight().whileTrue(intake.shootCoral());
+
+        buttonController.a().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L1_LEFT));
+        buttonController.b().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L2_LEFT));
+        buttonController.x().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L3_LEFT));
+        buttonController.y().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L4_LEFT));
+
+        buttonController.leftBumper().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L1_RIGHT));
+        buttonController.rightBumper().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L2_RIGHT));
+        buttonController.back().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L3_RIGHT));
+        buttonController.start().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L4_RIGHT));
 
         // driveController.x().onTrue(drive.resetGyroCommand());
 
@@ -90,29 +105,32 @@ public class RobotContainer {
         // driveController.leftBumper().whileTrue(intake.intakeCoral());
         // driveController.rightBumper().whileTrue(intake.shootCoral());
 
-        // elevatorController.button(1).whileTrue(elevator.moveToTargetPosition(Setpoint.kLevel1)); // Red
-        // elevatorController.button(2).whileTrue(elevator.moveToTargetPosition(Setpoint.kLevel2)); // Blue
-        // elevatorController.button(3).whileTrue(elevator.moveToTargetPosition(Setpoint.kLevel3)); // Yellow
+        // elevatorController.button(1).whileTrue(elevator.moveToTargetPosition(Setpoint.kLevel1));
+        // // Red
+        // elevatorController.button(2).whileTrue(elevator.moveToTargetPosition(Setpoint.kLevel2));
+        // // Blue
+        // elevatorController.button(3).whileTrue(elevator.moveToTargetPosition(Setpoint.kLevel3));
+        // // Yellow
 
         // driveController.povUp().whileTrue(
-        //         new DriveController(drive, () -> {
-        //             return 0;
-        //         }, () -> {
-        //             return 1;
-        //         }, () -> {
-        //             return 0;
-        //         },
-        //                 2));
+        // new DriveController(drive, () -> {
+        // return 0;
+        // }, () -> {
+        // return 1;
+        // }, () -> {
+        // return 0;
+        // },
+        // 2));
 
         // driveController.povDown().whileTrue(
-        //     new DriveController(drive, () -> {
-        //         return 0;
-        //     }, () -> {
-        //         return -1;
-        //     }, () -> {
-        //         return 0;
-        //     },
-        //         2));
+        // new DriveController(drive, () -> {
+        // return 0;
+        // }, () -> {
+        // return -1;
+        // }, () -> {
+        // return 0;
+        // },
+        // 2));
 
         // driveController.povRight().onTrue(drive.xMode());
 
@@ -138,7 +156,7 @@ public class RobotContainer {
 
                     return driveController.getLeftX() * driveController.getLeftX();
                 },
-                    Constants.SwerveModule.Speed.MAX_SPEED));
+                        Constants.SwerveModule.Speed.MAX_SPEED));
     }
 
     protected Command getAutonomousCommand() {
@@ -157,4 +175,40 @@ public class RobotContainer {
         this.drive.updateRotationPIDSetpoint();
     }
 
+    private Command makeAutoScoreCommand(AutoScoreTarget target) {
+        ParallelCommandGroup commandGroup = new ParallelCommandGroup();
+        commandGroup.addCommands(drive.driveToPoseTarget(target));
+        commandGroup.addCommands(elevator.moveToTargetPosition(targetToSetPoint(target)));
+        return commandGroup;
+    }
+
+    private Setpoint targetToSetPoint(AutoScoreTarget target) {
+        switch (target) {
+            case L4_LEFT:
+            case L4_RIGHT:
+                return Setpoint.kLevel4;
+            case L3_LEFT:
+            case L3_RIGHT:
+                return Setpoint.kLevel3;
+            case L2_LEFT:
+            case L2_RIGHT:
+                return Setpoint.kLevel2;
+            case L1_LEFT:
+            case L1_RIGHT:
+                return Setpoint.kLevel1;
+            default:
+                return Setpoint.kFeederStation;
+        }
+    }
+
+    public static enum AutoScoreTarget {
+        L4_LEFT,
+        L4_RIGHT,
+        L3_LEFT,
+        L3_RIGHT,
+        L2_LEFT,
+        L2_RIGHT,
+        L1_LEFT,
+        L1_RIGHT
+    }
 }
