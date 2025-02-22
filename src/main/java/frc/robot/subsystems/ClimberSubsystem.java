@@ -1,7 +1,9 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.hardware.TalonFX;
 
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -10,7 +12,8 @@ import frc.robot.Constants.Climber;
 public class ClimberSubsystem extends SubsystemBase {
     private TalonFX winchMotor;
     private double winchSpeed;
-   
+    private boolean isOverMax;
+    private boolean isUnderMin;
 
     public ClimberSubsystem() {
 
@@ -19,20 +22,31 @@ public class ClimberSubsystem extends SubsystemBase {
         // Winch Motor
 
         winchMotor = new TalonFX(Constants.CanId.Climber.MOTOR);
-        /*winchMotor.configure(
-                intakeLeftConfig,
-                ResetMode.kResetSafeParameters,
-                PersistMode.kPersistParameters);*/
+        winchMotor.setPosition(0);
+        winchMotor.setInverted(true);
+        /*
+         * winchMotor.configure(
+         * intakeLeftConfig,
+         * ResetMode.kResetSafeParameters,
+         * PersistMode.kPersistParameters);
+         */
     }
 
     public void periodic() {
-
+        StatusSignal<Angle> currentMotorPos = winchMotor.getPosition();
+        double actualMotorPos = currentMotorPos.getValueAsDouble();
+        isOverMax = actualMotorPos > Climber.ENCODER_MAX_POS.getValue();
+        isUnderMin = actualMotorPos < Climber.ENCODER_MIN_POS.getValue();
     }
 
     public Command moveWinchForward() {
         return runEnd(
                 () -> {
-                    winchMotor.set(-winchSpeed);
+                    if (!isUnderMin) {
+                        winchMotor.set(-winchSpeed);
+                    } else {
+                        winchMotor.stopMotor();
+                    }
                 },
                 () -> {
                     winchMotor.stopMotor();
@@ -43,7 +57,11 @@ public class ClimberSubsystem extends SubsystemBase {
     public Command moveWinchBack() {
         return runEnd(
                 () -> {
-                    winchMotor.set(winchSpeed);
+                    if (!isOverMax) {
+                        winchMotor.set(winchSpeed);
+                    } else {
+                        winchMotor.stopMotor();
+                    }
                 },
                 () -> {
                     winchMotor.stopMotor();
