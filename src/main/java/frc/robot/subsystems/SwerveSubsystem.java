@@ -1,6 +1,8 @@
 package frc.robot.subsystems;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -10,6 +12,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.util.DriveFeedforwards;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 import com.pathplanner.lib.pathfinding.Pathfinder;
@@ -18,6 +21,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -35,15 +39,14 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Limelight;
-import frc.robot.RobotContainer.AutoScoreTarget;
 import frc.robot.SwerveClasses.SwerveModule;
 import frc.robot.SwerveClasses.SwerveOdometry;
-
 
 /*
  * This class provides functions to drive at a given angle and direction,
@@ -72,7 +75,7 @@ public class SwerveSubsystem extends SubsystemBase {
   private double gyroZero = 0;
 
   private PIDController rotationController;
-  //private SimpleMotorFeedforward feedforwardRotation;
+  // private SimpleMotorFeedforward feedforwardRotation;
 
   private double pastRobotAngle;
   private double currentRobotAngle;
@@ -90,6 +93,7 @@ public class SwerveSubsystem extends SubsystemBase {
   private Boolean BlueAlliance;
 
   private DataLog log;
+
   /*
    * This constructor should create an instance of the pidgeon class, and should
    * construct four copies of the
@@ -106,10 +110,14 @@ public class SwerveSubsystem extends SubsystemBase {
 
     gyro = new Pigeon2(Constants.CanId.CanCoder.GYRO, Constants.Canbus.DRIVE_TRAIN);
 
-    vectorKinematics[FL] = new Translation2d(Constants.Measurement.WHEEL_BASE / 2, Constants.Measurement.TRACK_WIDTH / 2);
-    vectorKinematics[FR] = new Translation2d(Constants.Measurement.WHEEL_BASE / 2, -Constants.Measurement.TRACK_WIDTH / 2);
-    vectorKinematics[BL] = new Translation2d(-Constants.Measurement.WHEEL_BASE / 2, Constants.Measurement.TRACK_WIDTH / 2);
-    vectorKinematics[BR] = new Translation2d(-Constants.Measurement.WHEEL_BASE / 2, -Constants.Measurement.TRACK_WIDTH / 2);
+    vectorKinematics[FL] = new Translation2d(Constants.Measurement.WHEEL_BASE / 2,
+        Constants.Measurement.TRACK_WIDTH / 2);
+    vectorKinematics[FR] = new Translation2d(Constants.Measurement.WHEEL_BASE / 2,
+        -Constants.Measurement.TRACK_WIDTH / 2);
+    vectorKinematics[BL] = new Translation2d(-Constants.Measurement.WHEEL_BASE / 2,
+        Constants.Measurement.TRACK_WIDTH / 2);
+    vectorKinematics[BR] = new Translation2d(-Constants.Measurement.WHEEL_BASE / 2,
+        -Constants.Measurement.TRACK_WIDTH / 2);
 
     swerveDriveKinematics = new SwerveDriveKinematics(vectorKinematics);
 
@@ -176,7 +184,7 @@ public class SwerveSubsystem extends SubsystemBase {
     // Load the RobotConfig from the GUI settings. You should probably
     // store this in your Constants file
     RobotConfig config = null;
-    try{
+    try {
       config = RobotConfig.fromGUISettings();
     } catch (Exception e) {
       // Handle exception as needed
@@ -198,7 +206,8 @@ public class SwerveSubsystem extends SubsystemBase {
         ),
         config,
         () -> {
-          // Boolean supplier that controls when the path will be mirrored for the red alliance
+          // Boolean supplier that controls when the path will be mirrored for the red
+          // alliance
           // This will flip the path being followed to the red side of the field.
           // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
 
@@ -212,11 +221,11 @@ public class SwerveSubsystem extends SubsystemBase {
     );
 
     publisher = table.getStructTopic("Final Odometry Position", Pose2d.struct).publish();
-    rotationController = new PIDController(Constants.PidGains.rotationCorrection.rotation.P, 
-      Constants.PidGains.rotationCorrection.rotation.I, 
-      Constants.PidGains.rotationCorrection.rotation.D);
+    rotationController = new PIDController(Constants.PidGains.rotationCorrection.rotation.P,
+        Constants.PidGains.rotationCorrection.rotation.I,
+        Constants.PidGains.rotationCorrection.rotation.D);
     rotationController.setTolerance(0.5);
-    //feedforwardRotation = new SimpleMotorFeedforward(0.05, 0);
+    // feedforwardRotation = new SimpleMotorFeedforward(0.05, 0);
 
     pastRobotAngle = 0;
     currentRobotAngle = 0;
@@ -227,11 +236,11 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   public void drive(
-          double rotation,
-          double x,
-          double y,
-          boolean fieldCentric) { 
-    
+      double rotation,
+      double x,
+      double y,
+      boolean fieldCentric) {
+
     double currentRobotAngle = gyro.getYaw().getValueAsDouble();
     double currentRobotAngleRadians = getRobotAngle();
 
@@ -248,7 +257,7 @@ public class SwerveSubsystem extends SubsystemBase {
       return;
     }
 
-    double robotX = x; 
+    double robotX = x;
     double robotY = y;
     if (fieldCentric) {
       double difference = -(currentRobotAngleRadians % (2 * Math.PI));
@@ -258,14 +267,14 @@ public class SwerveSubsystem extends SubsystemBase {
           + x * Math.sin(difference);
     }
 
-    // The following is for heading correction 
+    // The following is for heading correction
     currentRobotAngleDerivative = currentRobotAngle - pastRobotAngle;
-    if(currentRobotAngleDerivative == 0) {
+    if (currentRobotAngleDerivative == 0) {
       currentRobotAngleDerivative = pastRobotAngleDerivative;
     }
 
-    if((pastRobotAngleDerivative > 0 && currentRobotAngleDerivative < 0) ||
-       (pastRobotAngleDerivative < 0 && currentRobotAngleDerivative > 0)) {
+    if ((pastRobotAngleDerivative > 0 && currentRobotAngleDerivative < 0) ||
+        (pastRobotAngleDerivative < 0 && currentRobotAngleDerivative > 0)) {
       isRotating = false;
     }
 
@@ -274,21 +283,21 @@ public class SwerveSubsystem extends SubsystemBase {
       isRotating = true;
       rotationController.setSetpoint(gyro.getYaw().getValueAsDouble());
       rotationController.reset();
-    }
-    else {
+    } else {
       rotation = rotationController.calculate(gyro.getYaw().getValueAsDouble());
     }
 
     SmartDashboard.putNumber("Rotation Correction/Setpoint: Robot Angle", rotationController.getSetpoint());
     SmartDashboard.putNumber("Rotation Correction/Plant state: Robot Angle", gyro.getYaw().getValueAsDouble());
-    // SmartDashboard.putNumber("Control Effort: Calculated Rotation Speed", rotation);
+    // SmartDashboard.putNumber("Control Effort: Calculated Rotation Speed",
+    // rotation);
     // SmartDashboard.putBoolean("Is bot turning", isRotating);
 
     this.chassisSpeeds = new ChassisSpeeds(robotX, robotY, rotation);
 
     SwerveModuleState[] modules = swerveDriveKinematics.toSwerveModuleStates(chassisSpeeds);
     setModuleStates(modules);
-    
+
     pastRobotAngle = currentRobotAngle;
     pastRobotAngleDerivative = currentRobotAngleDerivative;
   }
@@ -302,7 +311,7 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   public void initialize() {
-      // gyro.reset();
+    // gyro.reset();
   }
 
   public void periodic() {
@@ -315,7 +324,7 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     SmartDashboard.putBoolean("Heading Issue/Is Blue", BlueAlliance);
-    
+
     publisher.set(odometry.getEstimatedPosition());
 
     // Logging total speed
@@ -345,7 +354,8 @@ public class SwerveSubsystem extends SubsystemBase {
 
     DoubleLogEntry pidgeonTimeLog = new DoubleLogEntry(log, "Pidgeon Time");
 
-    // To log data into these entries, wherever you would have used SmartDashboard, use:
+    // To log data into these entries, wherever you would have used SmartDashboard,
+    // use:
     flEncoderPositionLog.append(swerveModules[FL].getEncoderPosition());
     frEncoderPositionLog.append(swerveModules[FR].getEncoderPosition());
     blEncoderPositionLog.append(swerveModules[BL].getEncoderPosition());
@@ -371,7 +381,7 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   public void updateOdometry() {
-      odometry.update();
+    odometry.update();
   }
 
   public void setModuleStates(SwerveModuleState[] desiredStates) {
@@ -402,8 +412,7 @@ public class SwerveSubsystem extends SubsystemBase {
   public Rotation2d getRobotRotation2dForOdometry() {
     if (BlueAlliance) {
       return new Rotation2d(getRobotAngle());
-    }
-    else {
+    } else {
       return new Rotation2d(getRobotAngle() + Math.PI);
     }
   }
@@ -420,25 +429,30 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   // public Command rotate90() {
-  //   return runOnce(
-  //       () -> {
+  // return runOnce(
+  // () -> {
 
-  //         ChassisSpeeds chassisSpeeds = new ChassisSpeeds(0, 0, 0);
+  // ChassisSpeeds chassisSpeeds = new ChassisSpeeds(0, 0, 0);
 
-  //         SwerveModuleState[] modules = swerveDriveKinematics.toSwerveModuleStates(chassisSpeeds);
-  //         modules[FL].angle = new Rotation2d(swerveModules[FL].getAngleClamped() + Math.PI / 8);
-  //         modules[FR].angle = new Rotation2d(swerveModules[FR].getAngleClamped() + Math.PI / 8);
-  //         modules[BR].angle = new Rotation2d(swerveModules[BR].getAngleClamped() + Math.PI / 8);
-  //         modules[BL].angle = new Rotation2d(swerveModules[BL].getAngleClamped() + Math.PI / 8);
-  //         modules[FL].speedMetersPerSecond = 0.02;
-  //         modules[FR].speedMetersPerSecond = 0.02;
-  //         modules[BR].speedMetersPerSecond = 0.02;
-  //         modules[BL].speedMetersPerSecond = 0.02;
-  //         setModuleStates(modules);
-  //       });
+  // SwerveModuleState[] modules =
+  // swerveDriveKinematics.toSwerveModuleStates(chassisSpeeds);
+  // modules[FL].angle = new Rotation2d(swerveModules[FL].getAngleClamped() +
+  // Math.PI / 8);
+  // modules[FR].angle = new Rotation2d(swerveModules[FR].getAngleClamped() +
+  // Math.PI / 8);
+  // modules[BR].angle = new Rotation2d(swerveModules[BR].getAngleClamped() +
+  // Math.PI / 8);
+  // modules[BL].angle = new Rotation2d(swerveModules[BL].getAngleClamped() +
+  // Math.PI / 8);
+  // modules[FL].speedMetersPerSecond = 0.02;
+  // modules[FR].speedMetersPerSecond = 0.02;
+  // modules[BR].speedMetersPerSecond = 0.02;
+  // modules[BL].speedMetersPerSecond = 0.02;
+  // setModuleStates(modules);
+  // });
   // }
 
-  //Aligns the limelight to have near 0 degrees horizontal offset (around 0 tx)
+  // Aligns the limelight to have near 0 degrees horizontal offset (around 0 tx)
   public Command alignToTagCommand(Limelight lime) {
 
     PIDController rotationController = new PIDController(0.025, 0, 0.000033);
@@ -468,7 +482,8 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   // Takes in a target distance to drive to away from the tag
-  //Not using this in RobotContainer.java, using this in alignAndDriveToTagCommand()
+  // Not using this in RobotContainer.java, using this in
+  // alignAndDriveToTagCommand()
   public Command driveToTagCommand(double targetDistance, Limelight lime) {
 
     PIDController driveController = new PIDController(0.395, 0, 0);
@@ -494,32 +509,34 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   // //Finds the Closest Distances That We have Calibrated Shooting From
-  // // Not using this in RobotContainer.java, using this in alignAndDriveToTagCommand
+  // // Not using this in RobotContainer.java, using this in
+  // alignAndDriveToTagCommand
   // public double[] findClosestDistance(double currentDistance){
-  //   double[] knownDistances = Constants.Limelight.knownDriveDistances;
+  // double[] knownDistances = Constants.Limelight.knownDriveDistances;
 
-  //   //Final Distance from Known Distances
-  //   double closestDistance = 0.0;
-    
-  //   /*
-  //    * Needs to be Maxiximum Value possible as it 
-  //    * gets compared to smaller numbers in the code
-  //    * below.
-  //    */
-  //   double closestDistanceFromKnownPoint = Double.MAX_VALUE;
-  //   int index = Integer.MAX_VALUE;
+  // //Final Distance from Known Distances
+  // double closestDistance = 0.0;
 
-  //   for(int i = 0; i < knownDistances.length; i++){
+  // /*
+  // * Needs to be Maxiximum Value possible as it
+  // * gets compared to smaller numbers in the code
+  // * below.
+  // */
+  // double closestDistanceFromKnownPoint = Double.MAX_VALUE;
+  // int index = Integer.MAX_VALUE;
 
-  //       double distanceFromKnownPoint = Math.abs(currentDistance - knownDistances[i]);
-  //       if(distanceFromKnownPoint < closestDistanceFromKnownPoint) {
-  //           closestDistanceFromKnownPoint = distanceFromKnownPoint;
-  //           closestDistance = knownDistances[i];
-  //           index = i;
-  //       }
-  //   }
-  //   double returnValues[] = {closestDistance, index};
-  //   return returnValues;
+  // for(int i = 0; i < knownDistances.length; i++){
+
+  // double distanceFromKnownPoint = Math.abs(currentDistance -
+  // knownDistances[i]);
+  // if(distanceFromKnownPoint < closestDistanceFromKnownPoint) {
+  // closestDistanceFromKnownPoint = distanceFromKnownPoint;
+  // closestDistance = knownDistances[i];
+  // index = i;
+  // }
+  // }
+  // double returnValues[] = {closestDistance, index};
+  // return returnValues;
   // }
 
   // For Speaker with various distances to shoot
@@ -533,13 +550,12 @@ public class SwerveSubsystem extends SubsystemBase {
 
     PIDController driveController = new PIDController(0.395, 0, 0);
     driveController.setTolerance(0.1);
-    
 
     SimpleMotorFeedforward driveFeedForward = new SimpleMotorFeedforward(0.01, 0);
 
     return new FunctionalCommand(
         () -> {
-          
+
         },
         () -> {
           double distance = lime.getDistanceToTagInFeet();
@@ -547,8 +563,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
           if (distance > 6) {
             toDriveDistance = 6;
-          }
-          else {
+          } else {
             toDriveDistance = distance;
           }
 
@@ -561,10 +576,9 @@ public class SwerveSubsystem extends SubsystemBase {
 
           double driveSpeed = driveController.calculate(distance);
 
-          if(driveSpeed >= 3.5) {
+          if (driveSpeed >= 3.5) {
             driveSpeed = 3.5;
-          }
-          else if (driveSpeed <= -3.5) {
+          } else if (driveSpeed <= -3.5) {
             driveSpeed = -3.5;
           }
 
@@ -585,7 +599,7 @@ public class SwerveSubsystem extends SubsystemBase {
         this);
   }
 
-  //Getting to the amp diagonally
+  // Getting to the amp diagonally
   public Command alignAndGetPerpendicularToTagCommand(Limelight lime) {
 
     PIDController rotationController = new PIDController(0.0315, 0, 0.000033);
@@ -609,16 +623,16 @@ public class SwerveSubsystem extends SubsystemBase {
 
           double driveSpeed = driveController.calculate(distance);
 
-          if(driveSpeed >= 3.5) {
+          if (driveSpeed >= 3.5) {
             driveSpeed = 3.5;
-          }
-          else if (driveSpeed <= -3.5) {
+          } else if (driveSpeed <= -3.5) {
             driveSpeed = -3.5;
           }
 
           if (lime.isTagFound()) {
             drive(
-                rotationFeedForward.calculate(gyro.getYaw().getValueAsDouble() - 270) - rotationController.calculate(gyro.getYaw().getValueAsDouble() - 270),
+                rotationFeedForward.calculate(gyro.getYaw().getValueAsDouble() - 270)
+                    - rotationController.calculate(gyro.getYaw().getValueAsDouble() - 270),
                 -driveFeedForward.calculate(distance) + driveSpeed,
                 0,
                 false);
@@ -632,8 +646,6 @@ public class SwerveSubsystem extends SubsystemBase {
         },
         this);
   }
-
-
 
   public Command xMode() {
     return runOnce(
@@ -653,12 +665,11 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   private void stop() {
-      swerveModules[FR].stopDriving();
-      swerveModules[FL].stopDriving();
-      swerveModules[BR].stopDriving();
-      swerveModules[BL].stopDriving();
+    swerveModules[FR].stopDriving();
+    swerveModules[FL].stopDriving();
+    swerveModules[BR].stopDriving();
+    swerveModules[BL].stopDriving();
   }
-      
 
   public Command stopDriving() {
     return runOnce(
@@ -712,71 +723,106 @@ public class SwerveSubsystem extends SubsystemBase {
     return swerveModules[0].isCoast();
   }
 
-  public Command testPath(){
-    return new InstantCommand(() -> {
-      Pathfinding.setGoalPosition(new Translation2d(1, 1));
-      Pathfinding.setStartPosition(new Translation2d(0, 0));
-      Pathfinding.setDynamicObstacles(null, new Translation2d(0, 0));
-    });
+  public Pose2d getClosestReef(AutoScoreTarget target){
+    List<ReefPose> posesForSide = reefPoses.stream().filter((p) -> p.side == target.side).toList();
+    SmartDashboard.putString("Chosen Reef", posesForSide.get(0).name);
+    return posesForSide.get(0).pose;
+    // return new Pose2d(14.43, 4.17, new Rotation2d(Math.toRadians(180)));
+    // return new Pose2d(14.43, 3.78, new Rotation2d(Math.toRadians(180)));
+  }
+
+  record ReefPose(String name, ReefFacetSide side, Pose2d pose) {};
+
+  static List<ReefPose> reefPoses = List.of(
+      new ReefPose("A", ReefFacetSide.RIGHT, new Pose2d(14.43, 4.17, new Rotation2d(Math.toRadians(180)))),
+      new ReefPose("B", ReefFacetSide.LEFT, new Pose2d(14.43, 3.78, new Rotation2d(Math.toRadians(180)))));
+
+  public Command testPath(AutoScoreTarget target) {
+    return new DeferredCommand(() -> {
+      Pose2d targetPose = getClosestReef(target);
+      PathConstraints constraints = new PathConstraints(1, 1, .5, .5);
+      return AutoBuilder.pathfindToPose(targetPose, constraints, 0);
+    }, Set.of());
   }
 
   public Command driveToPoseTarget(AutoScoreTarget target) {
     return new InstantCommand(() -> {
-    ArrayList<Translation2d> reefs = new ArrayList<>();
-    Translation2d pose = odometry.getEstimatedPosition().getTranslation();
-    int closestReef = -1;
-    double minDistance = 10;
+      ArrayList<Translation2d> reefs = new ArrayList<>();
+      Translation2d pose = odometry.getEstimatedPosition().getTranslation();
+      int closestReef = -1;
+      double minDistance = 10;
 
-    if(BlueAlliance){
-      if(target.equals(AutoScoreTarget.L4_LEFT) || target.equals(AutoScoreTarget.L3_LEFT) || target.equals(AutoScoreTarget.L2_LEFT)){
-       reefs.add(new Translation2d(5, 5));
-       reefs.add(new Translation2d(7.5, 8));
+      if (BlueAlliance) {
+        if (target.equals(AutoScoreTarget.L4_LEFT) || target.equals(AutoScoreTarget.L3_LEFT)
+            || target.equals(AutoScoreTarget.L2_LEFT)) {
+          reefs.add(new Translation2d(5, 5));
+          reefs.add(new Translation2d(7.5, 8));
+        } else if (target.equals(AutoScoreTarget.L4_RIGHT) || target.equals(AutoScoreTarget.L3_RIGHT)
+            || target.equals(AutoScoreTarget.L2_RIGHT)) {
+          reefs.add(new Translation2d(4.75, 4.75));
+          reefs.add(new Translation2d(7.75, 8.5));
+        }
+      } else {
+        if (target.equals(AutoScoreTarget.L4_LEFT) || target.equals(AutoScoreTarget.L3_LEFT)
+            || target.equals(AutoScoreTarget.L2_LEFT)) {
+          reefs.add(new Translation2d(22, 28));
+          reefs.add(new Translation2d(24.3, 30));
+        } else if (target.equals(AutoScoreTarget.L4_RIGHT) || target.equals(AutoScoreTarget.L3_RIGHT)
+            || target.equals(AutoScoreTarget.L2_RIGHT)) {
+          reefs.add(new Translation2d(22.32, 27.8));
+          reefs.add(new Translation2d(23.5, 29.6));
+        }
       }
-      else if(target.equals(AutoScoreTarget.L4_RIGHT) || target.equals(AutoScoreTarget.L3_RIGHT) || target.equals(AutoScoreTarget.L2_RIGHT)){
-        reefs.add(new Translation2d(4.75, 4.75));
-        reefs.add(new Translation2d(7.75, 8.5));
-      }
-    }
-    else{
-      if(target.equals(AutoScoreTarget.L4_LEFT) || target.equals(AutoScoreTarget.L3_LEFT) || target.equals(AutoScoreTarget.L2_LEFT)){
-        reefs.add(new Translation2d(22, 28));
-        reefs.add(new Translation2d(24.3, 30));
-       }
-       else if(target.equals(AutoScoreTarget.L4_RIGHT) || target.equals(AutoScoreTarget.L3_RIGHT) || target.equals(AutoScoreTarget.L2_RIGHT)){
-         reefs.add(new Translation2d(22.32, 27.8));
-         reefs.add(new Translation2d(23.5, 29.6));
-       }
-    }
 
-    for(int i = 0; i < reefs.size(); i++){
-      Translation2d reef = reefs.get(i);
-      double distance = pose.getDistance(reef);
-      if(distance < minDistance){
-        minDistance = distance;
-        closestReef = i;
+      for (int i = 0; i < reefs.size(); i++) {
+        Translation2d reef = reefs.get(i);
+        double distance = pose.getDistance(reef);
+        if (distance < minDistance) {
+          minDistance = distance;
+          closestReef = i;
+        }
       }
-    }
 
-    Translation2d targetReef = reefs.get(closestReef);
-    
-    Pathfinding.setGoalPosition(targetReef);
-    Pathfinding.setStartPosition(pose);
-    Pathfinding.setDynamicObstacles(null, pose);
+      Translation2d targetReef = reefs.get(closestReef);
+
+      Pathfinding.setGoalPosition(targetReef);
+      Pathfinding.setStartPosition(pose);
+      Pathfinding.setDynamicObstacles(null, pose);
     });
   }
 
   // public Command goToLeftReef(Limelight lime){
-  //   return run(() -> {
-  // 
-      
-  //   });
-  // }
-  
-  // public Command goToRightReef(Limelight lime){
-  //   return run(() -> {
+  // return run(() -> {
   //
 
-  //   });
+  // });
   // }
 
+  // public Command goToRightReef(Limelight lime){
+  // return run(() -> {
+  //
+
+  // });
+  // }
+
+  enum ReefFacetSide {
+    LEFT, RIGHT
+  }
+
+  public static enum AutoScoreTarget {
+    L4_LEFT(ReefFacetSide.LEFT),
+    L4_RIGHT(ReefFacetSide.RIGHT),
+    L3_LEFT(ReefFacetSide.LEFT),
+    L3_RIGHT(ReefFacetSide.RIGHT),
+    L2_LEFT(ReefFacetSide.LEFT),
+    L2_RIGHT(ReefFacetSide.RIGHT),
+    L1_LEFT(ReefFacetSide.LEFT),
+    L1_RIGHT(ReefFacetSide.RIGHT);
+
+    public final ReefFacetSide side;
+
+    AutoScoreTarget(ReefFacetSide side) {
+      this.side = side;
+    }
+  }
 }
