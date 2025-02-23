@@ -21,7 +21,6 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
   private RobotContainer m_robotContainer;
-  private HashMap<String, Alert> alerts;
 
   public Robot() {
     // CanBridge.runTCP();
@@ -57,30 +56,7 @@ public class Robot extends LoggedRobot {
 
     Logger.start();
 
-    alerts = new HashMap<String, Alert>();
-
-    CommandScheduler.getInstance().onCommandExecute((Command command) -> {
-      if (!command.getName().equals("DriveController")) {
-        Alert alert = new Alert(command.getName(), Alert.AlertType.kInfo);
-        alert.set(true);
-        alerts.put(command.getName(), alert);
-      }
-    });
-
-    CommandScheduler.getInstance().onCommandFinish((Command command) -> {
-      Alert alert = alerts.get(command.getName());
-      alert.set(false);
-      alerts.remove(command.getName());
-    });
-
-    CommandScheduler.getInstance().onCommandInterrupt((Command command) -> {
-      Alert alert = alerts.get(command.getName());
-      if (alert != null) {
-        alert.set(false);
-        alerts.remove(alert);
-      }
-    });
-
+    AlertManager.initialize();
     m_robotContainer = new RobotContainer();
   }
 

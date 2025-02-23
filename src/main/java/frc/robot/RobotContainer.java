@@ -81,18 +81,18 @@ public class RobotContainer {
         // driveController.povUp().whileTrue(intake.runMotors());
 
         // Elevator Position
-        driveController.a().onTrue(elevator.moveToTargetPosition(Setpoint.kLevel1));
-        driveController.b().onTrue(elevator.moveToTargetPosition(Setpoint.kLevel2));
-        driveController.x().onTrue(elevator.moveToTargetPosition(Setpoint.kLevel3));
-        driveController.y().onTrue(elevator.moveToTargetPosition(Setpoint.kLevel4));
+        driveController.a().onTrue(elevator.moveToTargetPosition(Setpoint.kLevel1).withName("kLevel1"));
+        driveController.b().onTrue(elevator.moveToTargetPosition(Setpoint.kLevel2).withName("kLevel2"));
+        driveController.x().onTrue(elevator.moveToTargetPosition(Setpoint.kLevel3).withName("kLevel3"));
+        driveController.y().onTrue(elevator.moveToTargetPosition(Setpoint.kLevel4).withName("kLevel4"));
 
-        driveController.rightBumper().onTrue(drive.resetGyroCommand());
+        driveController.rightBumper().onTrue(drive.resetGyroCommand().withName("resetGyroCommand"));
 
-        driveController.povDown().whileTrue(elevator.runMotors(true));
-        driveController.povUp().whileTrue(elevator.runMotors(false));
+        driveController.povDown().whileTrue(elevator.runMotors(true).withName("runMotorsReverseTrue"));
+        driveController.povUp().whileTrue(elevator.runMotors(false).withName("runMotorsReverseFalse"));
 
-        driveController.povLeft().whileTrue(intake.intakeCoral());
-        driveController.povRight().whileTrue(intake.shootCoral());
+        driveController.povLeft().whileTrue(intake.intakeCoral().withName("intakeCoral"));
+        driveController.povRight().whileTrue(intake.shootCoral().withName("shootCoral"));
 
         buttonController.a().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L1_LEFT));
         buttonController.b().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L2_LEFT));
@@ -182,7 +182,7 @@ public class RobotContainer {
 
     private Command makeAutoScoreCommand(AutoScoreTarget target) {
         ParallelCommandGroup commandGroup = new ParallelCommandGroup();
-        commandGroup.addCommands(drive.driveToPoseTarget(target));
+        // commandGroup.addCommands(drive.driveToPoseTarget(target));
         commandGroup.addCommands(elevator.moveToTargetPosition(targetToSetPoint(target)));
         return commandGroup;
     }
