@@ -49,13 +49,17 @@ public class RobotContainer {
         configureBindings();
 
         NamedCommands.registerCommand("StopDriving", drive.stopDriving());
-        NamedCommands.registerCommand("L4", elevator.moveToTargetPosition(Setpoint.kLevel4));
+        NamedCommands.registerCommand("Feeder Station", elevator.targetPosition(Setpoint.kFeederStation));
+        NamedCommands.registerCommand("L4", elevator.targetPosition(Setpoint.kLevel4));
+        NamedCommands.registerCommand("Intake Coral", intake.intakeCoral());
+        NamedCommands.registerCommand("Shoot Coral", intake.shootCoral());
         NamedCommands.registerCommand("RumbleCommantStart", new RumbleCommandStart(driveController));
         NamedCommands.registerCommand("RumbleCommantStop", new RumbleCommandStop(driveController));
 
         this.pathAutonChooser = new SendableChooser<String>();
 
-        this.pathAutonChooser.setDefaultOption("L Auto", "L Auto");
+        this.pathAutonChooser.setDefaultOption("Test Auto", "Test Auto");
+        this.pathAutonChooser.addOption("L Auto", "L Auto");
         this.pathAutonChooser.addOption("Fake Auto", "Fake Auto");
         this.pathAutonChooser.addOption("Reef", "Reef");
         this.pathAutonChooser.addOption("Modified Tag", "Modified Tag");

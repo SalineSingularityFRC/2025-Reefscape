@@ -721,6 +721,7 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   public Command driveToPoseTarget(AutoScoreTarget target) {
+    return new InstantCommand(() -> {
     ArrayList<Translation2d> reefs = new ArrayList<>();
     Translation2d pose = odometry.getEstimatedPosition().getTranslation();
     int closestReef = -1;
@@ -758,10 +759,9 @@ public class SwerveSubsystem extends SubsystemBase {
 
     Translation2d targetReef = reefs.get(closestReef);
     
-    return new InstantCommand(() -> {
-      Pathfinding.setGoalPosition(targetReef);
-      Pathfinding.setStartPosition(pose);
-      Pathfinding.setDynamicObstacles(null, pose);
+    Pathfinding.setGoalPosition(targetReef);
+    Pathfinding.setStartPosition(pose);
+    Pathfinding.setDynamicObstacles(null, pose);
     });
   }
 
