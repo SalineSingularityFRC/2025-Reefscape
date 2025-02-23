@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.Elevator;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -176,24 +177,49 @@ public class ElevatorSubsystem extends SubsystemBase {
     public Command moveToTargetPosition(Setpoint setpoint) {
         return this.runOnce(
                 () -> {
-                    switch (setpoint) {
-                        case kFeederStation:
-                            elevatorCurrentTarget = Elevator.Positions.FEED_STATION_COUNTS.getValue();
-                            break;
-                        case kLevel1:
-                            elevatorCurrentTarget = Elevator.Positions.L1_COUNTS.getValue();
-                            break;
-                        case kLevel2:
-                            elevatorCurrentTarget = Elevator.Positions.L2_COUNTS.getValue();
-                            break;
-                        case kLevel3:
-                            elevatorCurrentTarget = Elevator.Positions.L3_COUNTS.getValue();
-                            break;
-                        case kLevel4:
-                            elevatorCurrentTarget = Elevator.Positions.L4_COUNTS.getValue();
-                            break;
-                    }
+                    setTargetPosition(setpoint);
                 });
+    }
+
+    public void setTargetPosition(Setpoint setpoint) {
+        switch (setpoint) {
+            case kFeederStation:
+                elevatorCurrentTarget = Elevator.Positions.FEED_STATION_COUNTS.getValue();
+                break;
+            case kLevel1:
+                elevatorCurrentTarget = Elevator.Positions.L1_COUNTS.getValue();
+                break;
+            case kLevel2:
+                elevatorCurrentTarget = Elevator.Positions.L2_COUNTS.getValue();
+                break;
+            case kLevel3:
+                elevatorCurrentTarget = Elevator.Positions.L3_COUNTS.getValue();
+                break;
+            case kLevel4:
+                elevatorCurrentTarget = Elevator.Positions.L4_COUNTS.getValue();
+                break;
+        }
+    }
+
+    public Boolean isAtSetpoint() {
+        return Math.abs(elevatorCurrentTarget - elevatorEncoder.getPosition()) < Elevator.PrimaryMotor.MAX_CONTROL_ERROR_IN_COUNTS.getValue();
+    }
+
+    public Command targetPosition(Setpoint setpoint) {
+        return new FunctionalCommand(
+        () -> {
+
+        },
+        () -> {
+            setTargetPosition(setpoint);
+        },
+        (_unused) -> {
+
+        },
+        () -> {
+          return isAtSetpoint();
+        },
+        this);
     }
 
     /**
