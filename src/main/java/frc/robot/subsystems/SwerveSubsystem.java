@@ -712,49 +712,56 @@ public class SwerveSubsystem extends SubsystemBase {
     return swerveModules[0].isCoast();
   }
 
-  public Command driveToPoseTarget(AutoScoreTarget target) {
-    
+  public Command testPath(){
     return new InstantCommand(() -> {
-      ArrayList<Translation2d> reefs = new ArrayList<>();
-      Translation2d pose = odometry.getEstimatedPosition().getTranslation();
-      int closestReef = -1;
-      double minDistance = 10;
-  
-      if(BlueAlliance){
-        if(target.equals(AutoScoreTarget.L4_LEFT) || target.equals(AutoScoreTarget.L3_LEFT) || target.equals(AutoScoreTarget.L2_LEFT)){
-         reefs.add(new Translation2d(5, 5));
-         reefs.add(new Translation2d(7.5, 8));
-        }
-        else if(target.equals(AutoScoreTarget.L4_RIGHT) || target.equals(AutoScoreTarget.L3_RIGHT) || target.equals(AutoScoreTarget.L2_RIGHT)){
-          reefs.add(new Translation2d(4.75, 4.75));
-          reefs.add(new Translation2d(7.75, 8.5));
-        }
-      }
-      else{
-        if(target.equals(AutoScoreTarget.L4_LEFT) || target.equals(AutoScoreTarget.L3_LEFT) || target.equals(AutoScoreTarget.L2_LEFT)){
-          reefs.add(new Translation2d(22, 28));
-          reefs.add(new Translation2d(24.3, 30));
-         }
-         else if(target.equals(AutoScoreTarget.L4_RIGHT) || target.equals(AutoScoreTarget.L3_RIGHT) || target.equals(AutoScoreTarget.L2_RIGHT)){
-           reefs.add(new Translation2d(22.32, 27.8));
-           reefs.add(new Translation2d(23.5, 29.6));
-         }
-      }
-  
-      for(int i = 0; i < reefs.size(); i++){
-        Translation2d reef = reefs.get(i);
-        double distance = Math.sqrt(Math.abs(Math.pow(reef.getX() - pose.getX(), 2) + Math.pow(reef.getY() - pose.getY(), 2))); // Placeholder
-        if(distance < minDistance){
-          minDistance = distance;
-          closestReef = i;
-        }
-      }
-  
-      Translation2d targetReef = reefs.get(closestReef);
+      Pathfinding.setGoalPosition(new Translation2d(1, 1));
+      Pathfinding.setStartPosition(new Translation2d(0, 0));
+      Pathfinding.setDynamicObstacles(null, new Translation2d(0, 0));
+    });
+  }
 
-      Pathfinding.setGoalPosition(targetReef);
-      Pathfinding.setStartPosition(pose);
-      Pathfinding.setDynamicObstacles(null, pose);
+  public Command driveToPoseTarget(AutoScoreTarget target) {
+    return new InstantCommand(() -> {
+    ArrayList<Translation2d> reefs = new ArrayList<>();
+    Translation2d pose = odometry.getEstimatedPosition().getTranslation();
+    int closestReef = -1;
+    double minDistance = 10;
+
+    if(BlueAlliance){
+      if(target.equals(AutoScoreTarget.L4_LEFT) || target.equals(AutoScoreTarget.L3_LEFT) || target.equals(AutoScoreTarget.L2_LEFT)){
+       reefs.add(new Translation2d(5, 5));
+       reefs.add(new Translation2d(7.5, 8));
+      }
+      else if(target.equals(AutoScoreTarget.L4_RIGHT) || target.equals(AutoScoreTarget.L3_RIGHT) || target.equals(AutoScoreTarget.L2_RIGHT)){
+        reefs.add(new Translation2d(4.75, 4.75));
+        reefs.add(new Translation2d(7.75, 8.5));
+      }
+    }
+    else{
+      if(target.equals(AutoScoreTarget.L4_LEFT) || target.equals(AutoScoreTarget.L3_LEFT) || target.equals(AutoScoreTarget.L2_LEFT)){
+        reefs.add(new Translation2d(22, 28));
+        reefs.add(new Translation2d(24.3, 30));
+       }
+       else if(target.equals(AutoScoreTarget.L4_RIGHT) || target.equals(AutoScoreTarget.L3_RIGHT) || target.equals(AutoScoreTarget.L2_RIGHT)){
+         reefs.add(new Translation2d(22.32, 27.8));
+         reefs.add(new Translation2d(23.5, 29.6));
+       }
+    }
+
+    for(int i = 0; i < reefs.size(); i++){
+      Translation2d reef = reefs.get(i);
+      double distance = pose.getDistance(reef);
+      if(distance < minDistance){
+        minDistance = distance;
+        closestReef = i;
+      }
+    }
+
+    Translation2d targetReef = reefs.get(closestReef);
+    
+    Pathfinding.setGoalPosition(targetReef);
+    Pathfinding.setStartPosition(pose);
+    Pathfinding.setDynamicObstacles(null, pose);
     });
   }
 
