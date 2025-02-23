@@ -712,6 +712,14 @@ public class SwerveSubsystem extends SubsystemBase {
     return swerveModules[0].isCoast();
   }
 
+  public Command testPath(){
+    return new InstantCommand(() -> {
+      Pathfinding.setGoalPosition(new Translation2d(1, 1));
+      Pathfinding.setStartPosition(new Translation2d(0, 0));
+      Pathfinding.setDynamicObstacles(null, new Translation2d(0, 0));
+    });
+  }
+
   public Command driveToPoseTarget(AutoScoreTarget target) {
     ArrayList<Translation2d> reefs = new ArrayList<>();
     Translation2d pose = odometry.getEstimatedPosition().getTranslation();
@@ -741,7 +749,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
     for(int i = 0; i < reefs.size(); i++){
       Translation2d reef = reefs.get(i);
-      double distance = Math.sqrt(Math.abs(Math.pow(reef.getX() - pose.getX(), 2) + Math.pow(reef.getY() - pose.getY(), 2))); // Placeholder
+      double distance = pose.getDistance(reef);
       if(distance < minDistance){
         minDistance = distance;
         closestReef = i;

@@ -90,6 +90,8 @@ public class RobotContainer {
         driveController.povLeft().whileTrue(intake.intakeCoral().withName("intakeCoral"));
         driveController.povRight().whileTrue(intake.shootCoral().withName("shootCoral"));
 
+        driveController.leftBumper().onTrue(drive.testPath());
+
         buttonController.a().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L1_LEFT));
         buttonController.b().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L2_LEFT));
         buttonController.x().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L3_LEFT));
@@ -178,7 +180,7 @@ public class RobotContainer {
 
     private Command makeAutoScoreCommand(AutoScoreTarget target) {
         ParallelCommandGroup commandGroup = new ParallelCommandGroup();
-        // commandGroup.addCommands(drive.driveToPoseTarget(target));
+        commandGroup.addCommands(drive.driveToPoseTarget(target));
         commandGroup.addCommands(elevator.moveToTargetPosition(targetToSetPoint(target)));
         return commandGroup;
     }
