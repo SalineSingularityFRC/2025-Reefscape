@@ -158,6 +158,7 @@ public class IntakeSubsystem extends SubsystemBase {
     //             });
     // }
 
+
     public Command shootCoral() {
         return runMotors().until(() -> !coralInShooter() && !coralInIntake());
     }
