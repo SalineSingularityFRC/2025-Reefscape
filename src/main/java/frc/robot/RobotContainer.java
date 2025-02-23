@@ -23,6 +23,7 @@ import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem.Setpoint;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.LEDStatusSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.SwerveSubsystem.AutoScoreTarget;
 
@@ -36,6 +37,7 @@ public class RobotContainer {
     // private CommandGenericHID simController;
     private ElevatorSubsystem elevator;
     private ClimberSubsystem climber;
+    private LEDStatusSubsystem ledStatus;
 
     protected RobotContainer() {
         lime = new Limelight();
@@ -43,6 +45,7 @@ public class RobotContainer {
         intake = new IntakeSubsystem();
         elevator = new ElevatorSubsystem(intake);
         climber = new ClimberSubsystem();
+        ledStatus = new LEDStatusSubsystem();
 
         driveController = new CommandXboxController(Constants.Gamepad.Controller.DRIVE);
         buttonController = new CommandXboxController(Constants.Gamepad.Controller.BUTTON);
