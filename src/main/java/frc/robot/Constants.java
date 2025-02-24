@@ -25,6 +25,10 @@ public final class Constants {
       public static final int MOTOR = 60;
     }
 
+    public static final class Trougth{
+      public static final int TROUGTH_MOTOR = 70;
+    }
+
     public static final class Alge{
       public static final int LEFT_MOTOE = 50;
       public static final int RIGHT_MOTOR = 51;
@@ -293,6 +297,12 @@ public final class Constants {
 
 
 
+  }
+
+  public static class Trougth{
+    public static ConfigDouble TROUGTH_SPEED = new ConfigDouble("Trougth/TROUGTH_SPEED", .1);
+    public static final ConfigDouble ENCODER_MAX_POS = new ConfigDouble("Trougth/ENCODER_MAX_POS", 100);
+    public static final ConfigDouble ENCODER_MIN_POS = new ConfigDouble("Trougth/ENCODER_MIN_POS", 0);
   }
 
   public static class Elevator {
