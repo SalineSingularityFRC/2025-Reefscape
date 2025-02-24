@@ -727,15 +727,14 @@ public class SwerveSubsystem extends SubsystemBase {
     List<ReefPose> posesForSide = reefPoses.stream().filter((p) -> p.side == target.side).toList();
     SmartDashboard.putString("Chosen Reef", posesForSide.get(0).name);
     return posesForSide.get(0).pose;
-    // return new Pose2d(14.43, 4.17, new Rotation2d(Math.toRadians(180)));
-    // return new Pose2d(14.43, 3.78, new Rotation2d(Math.toRadians(180)));
   }
 
   record ReefPose(String name, ReefFacetSide side, Pose2d pose) {};
 
   static List<ReefPose> reefPoses = List.of(
       new ReefPose("A", ReefFacetSide.RIGHT, new Pose2d(14.43, 4.17, new Rotation2d(Math.toRadians(180)))),
-      new ReefPose("B", ReefFacetSide.LEFT, new Pose2d(14.43, 3.78, new Rotation2d(Math.toRadians(180)))));
+      new ReefPose("B", ReefFacetSide.LEFT, new Pose2d(14.43, 3.78, new Rotation2d(Math.toRadians(180))))
+  );
 
   public Command testPath(AutoScoreTarget target) {
     return new DeferredCommand(() -> {
