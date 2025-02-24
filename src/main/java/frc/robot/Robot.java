@@ -4,8 +4,6 @@
 
 package frc.robot;
 
-import java.util.HashMap;
-
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -13,8 +11,9 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
-import au.grapplerobotics.CanBridge;
-import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.UsbCamera;
+import edu.wpi.first.util.PixelFormat;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -24,8 +23,13 @@ public class Robot extends LoggedRobot {
   private RobotContainer m_robotContainer;
 
   public Robot() {
-    CanBridge.runTCP();
+    // CanBridge.runTCP();
     DataLogManager.start();
+    // Creates UsbCamera and MjpegServer [1] and connects them
+    UsbCamera cam = CameraServer.startAutomaticCapture();
+    cam.setFPS(15);
+    cam.setResolution(320, 240);
+    cam.setPixelFormat(PixelFormat.kGray);
     // addPeriodic(() -> {
     //   m_robotContainer.updateOdometry();
     // }, 0.01, 0.005);

@@ -741,7 +741,7 @@ public class SwerveSubsystem extends SubsystemBase {
       Pose2d targetPose = getClosestReef(target);
       PathConstraints constraints = new PathConstraints(1, 1, .5, .5);
       return AutoBuilder.pathfindToPose(targetPose, constraints, 0);
-    }, Set.of());
+    }, Set.of(this));
   }
 
   public Command driveToPoseTarget(AutoScoreTarget target) {
