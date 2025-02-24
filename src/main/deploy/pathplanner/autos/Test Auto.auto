@@ -26,6 +26,12 @@
         {
           "type": "named",
           "data": {
+            "name": "Stop Driving"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
             "name": "Shoot Coral"
           }
         },
@@ -46,6 +52,12 @@
                 }
               }
             ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Stop Driving"
           }
         },
         {
@@ -76,13 +88,13 @@
         {
           "type": "named",
           "data": {
-            "name": "Shoot Coral"
+            "name": "Stop Driving"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "Feeder Station"
+            "name": "Shoot Coral"
           }
         }
       ]

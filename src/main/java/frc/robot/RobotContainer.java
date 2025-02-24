@@ -52,7 +52,7 @@ public class RobotContainer {
 
         configureBindings();
 
-        NamedCommands.registerCommand("StopDriving", drive.stopDriving());
+        NamedCommands.registerCommand("Stop Driving", drive.stopDriving());
         NamedCommands.registerCommand("Feeder Station", elevator.targetPosition(Setpoint.kFeederStation));
         NamedCommands.registerCommand("L4", elevator.targetPosition(Setpoint.kLevel4));
         NamedCommands.registerCommand("Intake Coral", intake.intakeCoral());
@@ -85,15 +85,15 @@ public class RobotContainer {
         // driveController.povUp().whileTrue(intake.runMotors());
 
         // Elevator Position
-        // driveController.a().onTrue(elevator.moveToTargetPosition(Setpoint.kLevel1).withName("kLevel1"));
-        // driveController.b().onTrue(elevator.moveToTargetPosition(Setpoint.kLevel2).withName("kLevel2"));
-        // driveController.x().onTrue(elevator.moveToTargetPosition(Setpoint.kLevel3).withName("kLevel3"));
-        // driveController.y().onTrue(elevator.moveToTargetPosition(Setpoint.kLevel4).withName("kLevel4"));
+        driveController.a().onTrue(elevator.moveToTargetPosition(Setpoint.kLevel1).withName("kLevel1"));
+        driveController.b().onTrue(elevator.moveToTargetPosition(Setpoint.kLevel2).withName("kLevel2"));
+        driveController.x().onTrue(elevator.moveToTargetPosition(Setpoint.kLevel3).withName("kLevel3"));
+        driveController.y().onTrue(elevator.moveToTargetPosition(Setpoint.kLevel4).withName("kLevel4"));
 
         driveController.rightBumper().onTrue(drive.resetGyroCommand().withName("resetGyroCommand"));
 
-        // driveController.povDown().whileTrue(elevator.runMotors(true).withName("runMotorsReverseTrue"));
-        // driveController.povUp().whileTrue(elevator.runMotors(false).withName("runMotorsReverseFalse"));
+        driveController.povDown().whileTrue(elevator.runMotors(true).withName("runMotorsReverseTrue"));
+        driveController.povUp().whileTrue(elevator.runMotors(false).withName("runMotorsReverseFalse"));
 
         driveController.povLeft().whileTrue(intake.intakeCoral().withName("intakeCoral"));
         driveController.povRight().whileTrue(intake.shootCoral().withName("shootCoral"));
