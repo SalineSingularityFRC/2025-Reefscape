@@ -112,7 +112,7 @@ public class IntakeSubsystem extends SubsystemBase {
         return canSeeCoral(shooterSensor);
     }
 
-    public boolean readyToShoot(LaserCan intakeSensor, LaserCan shooterSensor) {
+    public boolean readyToShoot() {
         return canSeeCoral(shooterSensor) && !canSeeCoral(intakeSensor);
     }
 
@@ -121,7 +121,7 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     BooleanSupplier supplier_elevatar_move = () -> {
-        return readyToShoot(intakeSensor, shooterSensor) || noCoralDetected();
+        return readyToShoot() || noCoralDetected();
     };
 
     public int getSensorValue(LaserCan sensor) {

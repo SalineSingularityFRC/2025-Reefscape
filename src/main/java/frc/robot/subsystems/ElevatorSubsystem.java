@@ -217,7 +217,7 @@ public class ElevatorSubsystem extends SubsystemBase {
 
         },
         () -> {
-          return isAtSetpoint();
+          return isAtSetpoint() || !intake.supplier_elevatar_move.getAsBoolean();
         },
         this);
     }
