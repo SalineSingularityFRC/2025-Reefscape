@@ -39,7 +39,7 @@ public class ClimberSubsystem extends SubsystemBase {
         isOverMax = actualMotorPos > Climber.ENCODER_MAX_POS.getValue();
         isUnderMin = actualMotorPos < Climber.ENCODER_MIN_POS.getValue();
 
-        SmartDashboard.putNumber("Climber/Trougth Position", actualMotorPos);
+        SmartDashboard.putNumber("Climber/CLimber Position", actualMotorPos);
         SmartDashboard.putBoolean("Climber/Over Max", isOverMax);
         SmartDashboard.putBoolean("Climber/Under Min", isUnderMin);
     }
@@ -47,7 +47,7 @@ public class ClimberSubsystem extends SubsystemBase {
     public Command moveWinchForward() {
         return runEnd(
                 () -> {
-                    if (!isUnderMin) {
+                    if (!isOverMax) {
                         winchMotor.set(winchSpeed);
                     } else {
                         winchMotor.stopMotor();
@@ -62,7 +62,7 @@ public class ClimberSubsystem extends SubsystemBase {
     public Command moveWinchBack() {
         return runEnd(
                 () -> {
-                    if (!isOverMax) {
+                    if (!isUnderMin) {
                         winchMotor.set(-winchSpeed);
                     } else {
                         winchMotor.stopMotor();

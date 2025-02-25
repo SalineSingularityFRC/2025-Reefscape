@@ -38,7 +38,7 @@ public class RobotContainer {
     // private CommandGenericHID simController;
     private ElevatorSubsystem elevator;
     private ClimberSubsystem climber;
-    private TrougthSubsystem trougth;
+    // private TrougthSubsystem trougth;
     private LEDStatusSubsystem ledStatus;
 
     protected RobotContainer() {
@@ -48,7 +48,7 @@ public class RobotContainer {
         elevator = new ElevatorSubsystem(intake);
         climber = new ClimberSubsystem();
         ledStatus = new LEDStatusSubsystem();
-        trougth = new TrougthSubsystem();
+        // trougth = new TrougthSubsystem();
 
         driveController = new CommandXboxController(Constants.Gamepad.Controller.DRIVE);
         buttonController = new CommandXboxController(Constants.Gamepad.Controller.BUTTON);
@@ -100,6 +100,8 @@ public class RobotContainer {
 
         driveController.povLeft().whileTrue(intake.intakeCoral().withName("intakeCoral"));
         driveController.povRight().whileTrue(intake.shootCoral().withName("shootCoral"));
+        driveController.leftTrigger().whileTrue(climber.moveWinchForward());
+        driveController.rightTrigger().whileTrue(climber.moveWinchBack());
 
         buttonController.a().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L1_LEFT));
         buttonController.b().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L2_LEFT));

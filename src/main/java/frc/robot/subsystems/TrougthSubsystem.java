@@ -2,6 +2,8 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.revrobotics.spark.SparkFlex;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -11,7 +13,7 @@ import frc.robot.Constants;
 import frc.robot.Constants.Trougth;
 
 public class TrougthSubsystem extends SubsystemBase{
-    private TalonFX trougthMotor;
+    private SparkFlex trougthMotor;
     private double trougthSpeed;
     private boolean isOverMax;
     private boolean isUnderMin;
@@ -22,8 +24,7 @@ public class TrougthSubsystem extends SubsystemBase{
 
         // Trougth Motor
 
-        trougthMotor = new TalonFX(Constants.CanId.Trougth.TROUGTH_MOTOR);
-        trougthMotor.setPosition(0);
+        trougthMotor = new SparkFlex(Constants.CanId.Trougth.TROUGTH_MOTOR, MotorType.kBrushless);
         trougthMotor.setInverted(true);
         /*
          * trougthMotor.configure(
@@ -34,7 +35,7 @@ public class TrougthSubsystem extends SubsystemBase{
     }
 
     public void periodic() {
-        double actualMotorPos = trougthMotor.getPosition().getValueAsDouble();
+        double actualMotorPos = trougthMotor.getEncoder().getPosition();
         isOverMax = actualMotorPos > Trougth.ENCODER_MAX_POS.getValue();
         isUnderMin = actualMotorPos < Trougth.ENCODER_MIN_POS.getValue();
 
