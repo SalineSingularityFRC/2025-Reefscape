@@ -3,19 +3,14 @@
 // the WPILib BSD license file in the root directory of this project.
 package frc.robot;
 
-import java.io.BufferedOutputStream;
-
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
-import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.Constants.Climber;
-import frc.robot.Constants.Elevator;
 import frc.robot.commands.DriveController;
 import frc.robot.commands.RumbleCommandStart;
 import frc.robot.commands.RumbleCommandStop;
@@ -25,8 +20,8 @@ import frc.robot.subsystems.ElevatorSubsystem.Setpoint;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.LEDStatusSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
-import frc.robot.subsystems.TrougthSubsystem;
 import frc.robot.subsystems.SwerveSubsystem.AutoScoreTarget;
+import frc.robot.subsystems.TroughSubsystem;
 
 public class RobotContainer {
     private SwerveSubsystem drive;
@@ -38,7 +33,7 @@ public class RobotContainer {
     // private CommandGenericHID simController;
     private ElevatorSubsystem elevator;
     private ClimberSubsystem climber;
-    // private TrougthSubsystem trougth;
+    private TroughSubsystem trough;
     private LEDStatusSubsystem ledStatus;
 
     protected RobotContainer() {
@@ -48,7 +43,7 @@ public class RobotContainer {
         elevator = new ElevatorSubsystem(intake);
         climber = new ClimberSubsystem();
         ledStatus = new LEDStatusSubsystem(intake, lime, elevator);
-        // trougth = new TrougthSubsystem();
+        trough = new TroughSubsystem();
 
         driveController = new CommandXboxController(Constants.Gamepad.Controller.DRIVE);
         buttonController = new CommandXboxController(Constants.Gamepad.Controller.BUTTON);
@@ -80,20 +75,13 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
-        // driveController.a().whileTrue(intake.runMotors());
-
-        // driveController.b().whileTrue(elevator.moveToTargetPosition(Setpoint.kFeederStation));
-        // driveController.y().whileTrue(elevator.moveToTargetPosition(Setpoint.kLevel4));
-
-        // driveController.povUp().whileTrue(intake.runMotors());
-
         // Elevator Position
-        driveController.a().onTrue(elevator.moveToTargetPosition(Setpoint.kLevel1).withName("kLevel1"));
-        driveController.b().onTrue(elevator.moveToTargetPosition(Setpoint.kLevel2).withName("kLevel2"));
-        driveController.x().onTrue(elevator.moveToTargetPosition(Setpoint.kLevel3).withName("kLevel3"));
-        driveController.y().onTrue(elevator.moveToTargetPosition(Setpoint.kLevel4).withName("kLevel4"));
+        // driveController.a().onTrue(elevator.moveToTargetPosition(Setpoint.kLevel1).withName("kLevel1"));
+        // driveController.b().onTrue(elevator.moveToTargetPosition(Setpoint.kLevel2).withName("kLevel2"));
+        // driveController.x().onTrue(elevator.moveToTargetPosition(Setpoint.kLevel3).withName("kLevel3"));
+        // driveController.y().onTrue(elevator.moveToTargetPosition(Setpoint.kLevel4).withName("kLevel4"));
         
-        driveController.rightBumper().onTrue(drive.resetGyroCommand().withName("resetGyroCommand"));
+        // driveController.x().onTrue(drive.resetGyroCommand().withName("resetGyroCommand"));
 
         driveController.povDown().whileTrue(elevator.runMotors(true).withName("runMotorsReverseTrue"));
         driveController.povUp().whileTrue(elevator.runMotors(false).withName("runMotorsReverseFalse"));
@@ -102,6 +90,9 @@ public class RobotContainer {
         driveController.povRight().whileTrue(intake.shootCoral().withName("shootCoral"));
         driveController.leftTrigger().whileTrue(climber.moveWinchForward());
         driveController.rightTrigger().whileTrue(climber.moveWinchBack());
+
+        driveController.rightBumper().whileTrue(trough.moveTroughForward());
+        driveController.leftBumper().whileTrue(trough.moveTroughBack());
 
         buttonController.a().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L1_LEFT));
         buttonController.b().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L2_LEFT));
@@ -112,6 +103,9 @@ public class RobotContainer {
         buttonController.rightBumper().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L2_RIGHT));
         buttonController.back().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L3_RIGHT));
         buttonController.start().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L4_RIGHT));
+        
+        buttonController.rightStick().whileTrue(trough.moveToZeroPostion());
+        buttonController.leftStick().whileTrue(trough.moveToClimbPositon());
 
         // driveController.x().onTrue(drive.resetGyroCommand());
 
@@ -192,13 +186,14 @@ public class RobotContainer {
     private Command makeAutoScoreCommand(AutoScoreTarget target) {
         ParallelCommandGroup commandGroup = new ParallelCommandGroup();
         commandGroup.addCommands(drive.testPath(target));
-        // commandGroup.addCommands(elevator.moveToTargetPosition(targetToSetPoint(target)));
+        commandGroup.addCommands(elevator.moveToTargetPosition(targetToSetPoint(target)));
         return commandGroup;
     }
 
     private Setpoint targetToSetPoint(AutoScoreTarget target) {
         switch (target) {
             case L4_LEFT:
+                return Setpoint.kLevel4;
             case L4_RIGHT:
                 return Setpoint.kLevel4;
             case L3_LEFT:

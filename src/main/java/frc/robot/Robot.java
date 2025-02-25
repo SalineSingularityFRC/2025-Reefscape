@@ -29,7 +29,7 @@ public class Robot extends LoggedRobot {
     UsbCamera cam = CameraServer.startAutomaticCapture();
     cam.setFPS(15);
     cam.setResolution(320, 240);
-    cam.setPixelFormat(PixelFormat.kGray);
+    cam.setPixelFormat(PixelFormat.kMJPEG);
     // addPeriodic(() -> {
     //   m_robotContainer.updateOdometry();
     // }, 0.01, 0.005);

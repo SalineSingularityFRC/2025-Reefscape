@@ -96,7 +96,10 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public boolean canSeeCoral(LaserCan sensor) {
-        // TODO: Handle no sensor reading.
+        if (!intakeSensorIsFunctional()) {
+            return false;
+        }
+
         if (sensor.getMeasurement() != null && getSensorValue(sensor) <= sensingDistance) {
             return true;
         }
@@ -121,8 +124,12 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     BooleanSupplier elevator_can_move = () -> {
-        return readyToShoot() || noCoralDetected();
+        return (readyToShoot() || noCoralDetected()) && intakeSensorIsFunctional();
     };
+
+    public boolean intakeSensorIsFunctional() {
+        return getSensorValue(shooterSensor) != LASER_CAN_NO_MEASUREMENT;
+    }
 
     public int getSensorValue(LaserCan sensor) {
         Measurement measurement = sensor.getMeasurement();

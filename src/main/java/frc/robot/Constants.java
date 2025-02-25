@@ -26,7 +26,7 @@ public final class Constants {
     }
 
     public static final class Trougth{
-      public static final int TROUGTH_MOTOR = 62;
+      public static final int TROUGH_MOTOR = 62;
     }
 
     public static final class Alge{
@@ -296,10 +296,14 @@ public final class Constants {
     public static final ConfigDouble ENCODER_MIN_POS = new ConfigDouble("Climber/ENCODER_MIN_POS", -100);
   }
 
-  public static class Trougth{
-    public static ConfigDouble TROUGTH_SPEED = new ConfigDouble("Trougth/TROUGTH_SPEED", .1);
-    public static final ConfigDouble ENCODER_MAX_POS = new ConfigDouble("Trougth/ENCODER_MAX_POS", 100);
-    public static final ConfigDouble ENCODER_MIN_POS = new ConfigDouble("Trougth/ENCODER_MIN_POS", 0);
+  public static class Trough{
+    public static ConfigDouble TROUGH_SPEED = new ConfigDouble("Trough/TROUGH_SPEED", .05);
+    public static final ConfigDouble ENCODER_MAX_POS = new ConfigDouble("Trough/ENCODER_MAX_POS", 1.0);
+    public static final ConfigDouble ENCODER_MIN_POS = new ConfigDouble("Trough/ENCODER_MIN_POS", 0);
+    public static final ConfigDouble HOME_POSITION = new ConfigDouble("Trough/ENCODER_HOME_POS", 0);
+    public static final ConfigDouble CLIMB_POSITION = new ConfigDouble("Trough/ENCODER_CLIMB_POS", 1.0);
+    public static final ConfigDouble KP = new ConfigDouble("Trough/KP", 1.0);
+    public static final ConfigDouble KD = new ConfigDouble("Trough/KD", 0);
   }
 
   public static class Elevator {

@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -25,6 +26,8 @@ public class ClimberSubsystem extends SubsystemBase {
         winchMotor = new TalonFX(Constants.CanId.Climber.MOTOR);
         winchMotor.setPosition(0);
         winchMotor.setInverted(true);
+        winchMotor.setNeutralMode(NeutralModeValue.Brake);
+        
         /*
          * winchMotor.configure(
          * intakeLeftConfig,

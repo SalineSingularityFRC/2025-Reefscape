@@ -5,7 +5,6 @@ import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -44,7 +43,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     private boolean wasResetByLimit = false;
     private double elevatorCurrentTarget = Setpoint.kFeederStation.encoderPosition;
     private boolean manual = false;
-    private RumbleCommandStart rumbleStart = new RumbleCommandStart(new CommandXboxController(Constants.Gamepad.Controller.DRIVE));
+    private RumbleCommandStart rumbleStart;
 
     private IntakeSubsystem intake;
 
@@ -94,13 +93,16 @@ public class ElevatorSubsystem extends SubsystemBase {
                     kMinElevatorHeightMeters
                             * kPixelsPerMeter,
                     90));
+    private RumbleCommandStop rumbleEnd;
 
     public ElevatorSubsystem(IntakeSubsystem intake) {
         // elevatorSpeed = Preferences.getDouble("Elevator Motor Speed (rpm)", 1);
+        rumbleStart = new RumbleCommandStart(new CommandXboxController(Constants.Gamepad.Controller.DRIVE));
+        rumbleEnd = new RumbleCommandStop(new CommandXboxController(Constants.Gamepad.Controller.DRIVE));
 
         // Elevator Motor
         elevatorPrimaryMotorConfig.idleMode(IdleMode.kBrake)
-                //.smartCurrentLimit(Elevator.PrimaryMotor.MAX_CURRENT_IN_A.getValue());
+                // .smartCurrentLimit(Elevator.PrimaryMotor.MAX_CURRENT_IN_A.getValue());
                 .voltageCompensation(Elevator.PrimaryMotor.VOLTAGE_COMPENSATION_IN_V.getValue());
         elevatorPrimaryMotorConfig.closedLoop
                 .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
@@ -124,18 +126,18 @@ public class ElevatorSubsystem extends SubsystemBase {
 
         if (Elevator.FOLLOW_DUALENABLE.isTrue()) {
             elevatorSecondaryMotorConfig.idleMode(IdleMode.kBrake);
-                    // .smartCurrentLimit(Elevator.PrimaryMotor.MAX_CURRENT_IN_A.getValue())
-            //         .voltageCompensation(Elevator.PrimaryMotor.VOLTAGE_COMPENSATION_IN_V.getValue());
+            // .smartCurrentLimit(Elevator.PrimaryMotor.MAX_CURRENT_IN_A.getValue())
+            // .voltageCompensation(Elevator.PrimaryMotor.VOLTAGE_COMPENSATION_IN_V.getValue());
             // elevatorSecondaryMotorConfig.closedLoop
-            //         .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-            //         // Set PID values for position control
-            //         .p(Elevator.PrimaryMotor.KP.getValue())
-            //         .outputRange(Elevator.PrimaryMotor.MIN_POWER.getValue(),
-            //                 Elevator.PrimaryMotor.MAX_POWER.getValue()).maxMotion
-            //         // Set MAXMotion parameters for position control
-            //         .maxVelocity(Elevator.PrimaryMotor.MAX_VELOCITY_RPM.getValue())
-            //         .maxAcceleration(Elevator.PrimaryMotor.MAX_ACCEL_RPM_PER_S.getValue())
-            //         .allowedClosedLoopError(Elevator.PrimaryMotor.MAX_CONTROL_ERROR_IN_COUNTS.getValue());
+            // .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+            // // Set PID values for position control
+            // .p(Elevator.PrimaryMotor.KP.getValue())
+            // .outputRange(Elevator.PrimaryMotor.MIN_POWER.getValue(),
+            // Elevator.PrimaryMotor.MAX_POWER.getValue()).maxMotion
+            // // Set MAXMotion parameters for position control
+            // .maxVelocity(Elevator.PrimaryMotor.MAX_VELOCITY_RPM.getValue())
+            // .maxAcceleration(Elevator.PrimaryMotor.MAX_ACCEL_RPM_PER_S.getValue())
+            // .allowedClosedLoopError(Elevator.PrimaryMotor.MAX_CONTROL_ERROR_IN_COUNTS.getValue());
             elevatorSecondaryMotorConfig.follow(Elevator.PrimaryMotor.CAN_ID.getValue(), true);
 
             elevatorSecondaryMotor = new SparkFlex(Elevator.SecondaryMotor.CAN_ID.getValue(), MotorType.kBrushless);
@@ -156,13 +158,13 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     public void periodic() {
-        if(!manual){
+        if (!manual) {
             if (intake.elevator_can_move.getAsBoolean()) {
                 moveToSetpoint();
             } else {
                 elevatorPrimaryMotor.stopMotor();
             }
-        } 
+        }
         zeroElevatorOnLimitSwitch();
         zeroOnUserButton();
 
@@ -185,13 +187,16 @@ public class ElevatorSubsystem extends SubsystemBase {
      * positions for the given setpoint.
      */
     public Command moveToTargetPosition(Setpoint setpoint) {
-        return this.runOnce(
+        return this.runEnd(
                 () -> {
                     if (intake.elevator_can_move.getAsBoolean()) {
                         setTargetPosition(setpoint);
                     } else {
-                        rumbleStart.withTimeout(1).execute();
+                        rumbleStart.execute();
                     }
+                },
+                () -> {
+                    rumbleEnd.execute();
                 });
     }
 
@@ -216,24 +221,25 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     public Boolean isAtSetpoint() {
-        return Math.abs(elevatorCurrentTarget - elevatorEncoder.getPosition()) < Elevator.PrimaryMotor.MAX_CONTROL_ERROR_IN_COUNTS.getValue();
+        return Math.abs(elevatorCurrentTarget
+                - elevatorEncoder.getPosition()) < Elevator.PrimaryMotor.MAX_CONTROL_ERROR_IN_COUNTS.getValue();
     }
 
     public Command targetPosition(Setpoint setpoint) {
         return new FunctionalCommand(
-        () -> {
+                () -> {
 
-        },
-        () -> {
-            setTargetPosition(setpoint);
-        },
-        (_unused) -> {
+                },
+                () -> {
+                    setTargetPosition(setpoint);
+                },
+                (_unused) -> {
 
-        },
-        () -> {
-          return isAtSetpoint() || !intake.elevator_can_move.getAsBoolean();
-        },
-        this);
+                },
+                () -> {
+                    return isAtSetpoint() || !intake.elevator_can_move.getAsBoolean();
+                },
+                this);
     }
 
     /**
@@ -303,7 +309,8 @@ public class ElevatorSubsystem extends SubsystemBase {
     public Command runMotors(boolean reverse) {
         return runEnd(
                 () -> {
-                    double speed = reverse ? Elevator.PrimaryMotor.LOWER_SPEED.getValue() * -1: Elevator.PrimaryMotor.RAISE_SPEED.getValue() * 1;
+                    double speed = reverse ? Elevator.PrimaryMotor.LOWER_SPEED.getValue() * -1
+                            : Elevator.PrimaryMotor.RAISE_SPEED.getValue() * 1;
                     elevatorPrimaryMotor.set(speed);
                     manual = true;
                 },
@@ -317,7 +324,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     public Command runMotorsJoystick(boolean reverse, DoubleSupplier joyStickSpeed) {
         return runEnd(
                 () -> {
-                    double speed = reverse ? joyStickSpeed.getAsDouble() * -1: joyStickSpeed.getAsDouble() * 1;
+                    double speed = reverse ? joyStickSpeed.getAsDouble() * -1 : joyStickSpeed.getAsDouble() * 1;
                     elevatorPrimaryMotor.set(speed);
                     manual = true;
                 },
