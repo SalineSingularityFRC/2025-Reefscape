@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 6.0,
-        "y": 4.191
+        "x": 5.961926020408164,
+        "y": 4.192889030612244
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.0365433673469395,
-        "y": 6.207557397959183
+        "x": 5.998469387755104,
+        "y": 6.209446428571428
       },
       "isLocked": false,
       "linkedName": "H"
@@ -67,7 +67,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -55.0
+    "rotation": -54.0
   },
   "reversed": false,
   "folder": "To CS_1",
