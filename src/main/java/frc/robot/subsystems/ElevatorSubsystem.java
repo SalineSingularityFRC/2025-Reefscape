@@ -5,9 +5,14 @@ import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.Constants;
 import frc.robot.Constants.Elevator;
+import frc.robot.commands.RumbleCommandStart;
+import frc.robot.commands.RumbleCommandStop;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
@@ -39,6 +44,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     private boolean wasResetByLimit = false;
     private double elevatorCurrentTarget = Setpoint.kFeederStation.encoderPosition;
     private boolean manual = false;
+    private RumbleCommandStart rumbleStart = new RumbleCommandStart(new CommandXboxController(Constants.Gamepad.Controller.DRIVE));
 
     private IntakeSubsystem intake;
 
@@ -150,9 +156,13 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     public void periodic() {
-        if(!manual && intake.supplier_elevatar_move.getAsBoolean()){
-            moveToSetpoint();
-        }
+        if(!manual){
+            if (intake.elevator_can_move.getAsBoolean()) {
+                moveToSetpoint();
+            } else {
+                elevatorPrimaryMotor.stopMotor();
+            }
+        } 
         zeroElevatorOnLimitSwitch();
         zeroOnUserButton();
 
@@ -177,7 +187,11 @@ public class ElevatorSubsystem extends SubsystemBase {
     public Command moveToTargetPosition(Setpoint setpoint) {
         return this.runOnce(
                 () -> {
-                    setTargetPosition(setpoint);
+                    if (intake.elevator_can_move.getAsBoolean()) {
+                        setTargetPosition(setpoint);
+                    } else {
+                        rumbleStart.withTimeout(1).execute();
+                    }
                 });
     }
 
@@ -217,7 +231,7 @@ public class ElevatorSubsystem extends SubsystemBase {
 
         },
         () -> {
-          return isAtSetpoint() || !intake.supplier_elevatar_move.getAsBoolean();
+          return isAtSetpoint() || !intake.elevator_can_move.getAsBoolean();
         },
         this);
     }
@@ -297,7 +311,7 @@ public class ElevatorSubsystem extends SubsystemBase {
                     elevatorPrimaryMotor.stopMotor();
                     manual = false;
                     elevatorCurrentTarget = elevatorEncoder.getPosition();
-                }).onlyWhile(intake.supplier_elevatar_move);
+                }).onlyWhile(intake.elevator_can_move);
     }
 
     public Command runMotorsJoystick(boolean reverse, DoubleSupplier joyStickSpeed) {
@@ -311,6 +325,6 @@ public class ElevatorSubsystem extends SubsystemBase {
                     elevatorPrimaryMotor.stopMotor();
                     manual = false;
                     elevatorCurrentTarget = elevatorEncoder.getPosition();
-                }).onlyWhile(intake.supplier_elevatar_move);
+                }).onlyWhile(intake.elevator_can_move);
     }
 }
