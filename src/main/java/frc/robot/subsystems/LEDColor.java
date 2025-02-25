@@ -1,7 +1,7 @@
 package frc.robot.subsystems;
 
 public enum LEDColor {
-    ORANGE, YELLOW, RED, GREEN, BLUE, VIOLET;
+    ORANGE, GOLD, RED, GREEN, BLUE, VIOLET;
 
     @Override
     public String toString() {
