@@ -8,40 +8,34 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.7375775021555764,
-        "y": 6.813995584125985
+        "x": 2.850382653061225,
+        "y": 6.804496173469388
       },
       "isLocked": false,
       "linkedName": "CS_1"
     },
     {
       "anchor": {
-        "x": 3.4547831632653065,
-        "y": 5.506154336734694
+        "x": 3.6040178571428574,
+        "y": 5.2076849489795904
       },
       "prevControl": {
-        "x": 2.7560756486364175,
-        "y": 6.491961128917002
+        "x": 2.999864064116683,
+        "y": 6.2541100140863755
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": "L"
     }
   ],
-  "rotationTargets": [],
-  "constraintZones": [],
-  "pointTowardsZones": [
+  "rotationTargets": [
     {
-      "fieldPosition": {
-        "x": 4.073906,
-        "y": 4.745482
-      },
-      "rotationOffset": 0.0,
-      "minWaypointRelativePos": 0.31120943952802366,
-      "maxWaypointRelativePos": 0.8657817109144537,
-      "name": "Point Towards Zone"
+      "waypointRelativePos": 0.619617224880383,
+      "rotationDegrees": -59.99999999999999
     }
   ],
+  "constraintZones": [],
+  "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 1.5,
@@ -59,7 +53,7 @@
   "folder": "To Reef",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -55.0
+    "rotation": -54.0
   },
   "useDefaultConstraints": true
 }
