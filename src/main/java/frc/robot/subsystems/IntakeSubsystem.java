@@ -120,7 +120,7 @@ public class IntakeSubsystem extends SubsystemBase {
         return !coralInShooter() && !coralInIntake();
     }
 
-    BooleanSupplier supplier_elevatar_move = () -> {
+    BooleanSupplier elevator_can_move = () -> {
         return readyToShoot() || noCoralDetected();
     };
 

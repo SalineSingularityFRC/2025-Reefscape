@@ -4,6 +4,7 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -37,13 +38,17 @@ public class ClimberSubsystem extends SubsystemBase {
         double actualMotorPos = currentMotorPos.getValueAsDouble();
         isOverMax = actualMotorPos > Climber.ENCODER_MAX_POS.getValue();
         isUnderMin = actualMotorPos < Climber.ENCODER_MIN_POS.getValue();
+
+        SmartDashboard.putNumber("Climber/Trougth Position", actualMotorPos);
+        SmartDashboard.putBoolean("Climber/Over Max", isOverMax);
+        SmartDashboard.putBoolean("Climber/Under Min", isUnderMin);
     }
 
     public Command moveWinchForward() {
         return runEnd(
                 () -> {
                     if (!isUnderMin) {
-                        winchMotor.set(-winchSpeed);
+                        winchMotor.set(winchSpeed);
                     } else {
                         winchMotor.stopMotor();
                     }
@@ -58,7 +63,7 @@ public class ClimberSubsystem extends SubsystemBase {
         return runEnd(
                 () -> {
                     if (!isOverMax) {
-                        winchMotor.set(winchSpeed);
+                        winchMotor.set(-winchSpeed);
                     } else {
                         winchMotor.stopMotor();
                     }
