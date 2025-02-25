@@ -727,6 +727,11 @@ public class SwerveSubsystem extends SubsystemBase {
     List<ReefPose> posesForSide = reefPoses.stream().filter((p) -> p.side == target.side).toList();
     SmartDashboard.putString("Chosen Reef", posesForSide.get(0).name);
     return posesForSide.get(0).pose;
+    // List<Pose2d> poses = new ArrayList<>();
+    // for(ReefPose reef : posesForSide){
+    //   poses.add(reef.pose);
+    // }
+    // return odometry.getEstimatedPosition().nearest(poses);
   }
 
   record ReefPose(String name, ReefFacetSide side, Pose2d pose) {};
@@ -773,6 +778,8 @@ public class SwerveSubsystem extends SubsystemBase {
         }
       }
 
+
+
       for (int i = 0; i < reefs.size(); i++) {
         Translation2d reef = reefs.get(i);
         double distance = pose.getDistance(reef);
@@ -789,20 +796,6 @@ public class SwerveSubsystem extends SubsystemBase {
       Pathfinding.setDynamicObstacles(null, pose);
     });
   }
-
-  // public Command goToLeftReef(Limelight lime){
-  // return run(() -> {
-  //
-
-  // });
-  // }
-
-  // public Command goToRightReef(Limelight lime){
-  // return run(() -> {
-  //
-
-  // });
-  // }
 
   enum ReefFacetSide {
     LEFT, RIGHT

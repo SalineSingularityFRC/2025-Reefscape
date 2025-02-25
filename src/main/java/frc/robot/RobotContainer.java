@@ -92,7 +92,7 @@ public class RobotContainer {
         driveController.b().onTrue(elevator.moveToTargetPosition(Setpoint.kLevel2).withName("kLevel2"));
         driveController.x().onTrue(elevator.moveToTargetPosition(Setpoint.kLevel3).withName("kLevel3"));
         driveController.y().onTrue(elevator.moveToTargetPosition(Setpoint.kLevel4).withName("kLevel4"));
-
+        
         driveController.rightBumper().onTrue(drive.resetGyroCommand().withName("resetGyroCommand"));
 
         driveController.povDown().whileTrue(elevator.runMotors(true).withName("runMotorsReverseTrue"));
@@ -100,8 +100,6 @@ public class RobotContainer {
 
         driveController.povLeft().whileTrue(intake.intakeCoral().withName("intakeCoral"));
         driveController.povRight().whileTrue(intake.shootCoral().withName("shootCoral"));
-
-        // buttonController.y().whileTrue(drive.testPath(AutoScoreTarget.L1_LEFT));
 
         buttonController.a().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L1_LEFT));
         buttonController.b().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L2_LEFT));

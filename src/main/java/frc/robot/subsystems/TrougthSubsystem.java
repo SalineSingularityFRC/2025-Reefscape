@@ -4,6 +4,7 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -33,17 +34,20 @@ public class TrougthSubsystem extends SubsystemBase{
     }
 
     public void periodic() {
-        StatusSignal<Angle> currentMotorPos = trougthMotor.getPosition();
-        double actualMotorPos = currentMotorPos.getValueAsDouble();
+        double actualMotorPos = trougthMotor.getPosition().getValueAsDouble();
         isOverMax = actualMotorPos > Trougth.ENCODER_MAX_POS.getValue();
         isUnderMin = actualMotorPos < Trougth.ENCODER_MIN_POS.getValue();
+
+        SmartDashboard.putNumber("Trougth/Trougth Position", actualMotorPos);
+        SmartDashboard.putBoolean("Trougth/Over Max", isOverMax);
+        SmartDashboard.putBoolean("Trougth/Under Min", isUnderMin);
     }
 
     public Command moveTrougthForward() {
         return runEnd(
                 () -> {
                     if (!isUnderMin) {
-                        trougthMotor.set(-trougthSpeed);
+                        trougthMotor.set(trougthSpeed);
                     } else {
                         trougthMotor.stopMotor();
                     }
@@ -58,7 +62,7 @@ public class TrougthSubsystem extends SubsystemBase{
         return runEnd(
                 () -> {
                     if (!isOverMax) {
-                        trougthMotor.set(trougthSpeed);
+                        trougthMotor.set(-trougthSpeed);
                     } else {
                         trougthMotor.stopMotor();
                     }
@@ -71,11 +75,11 @@ public class TrougthSubsystem extends SubsystemBase{
 
     // Runs the trougth to the intake position
     public Command moveToReady(){
-        return moveTrougthForward().until(() -> isOverMax);
+        return moveTrougthForward().until(() -> isUnderMin);
     }
 
     // Runs the trougth up for climber
     public Command moveUp(){
-        return moveTrougthBack().until(() -> isUnderMin);
+        return moveTrougthBack().until(() -> isOverMax);
     }
 }
