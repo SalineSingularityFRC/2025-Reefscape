@@ -76,23 +76,22 @@ public class RobotContainer {
 
     private void configureBindings() {
         // Elevator Position
-        // driveController.a().onTrue(elevator.moveToTargetPosition(Setpoint.kLevel1).withName("kLevel1"));
-        // driveController.b().onTrue(elevator.moveToTargetPosition(Setpoint.kLevel2).withName("kLevel2"));
-        // driveController.x().onTrue(elevator.moveToTargetPosition(Setpoint.kLevel3).withName("kLevel3"));
-        // driveController.y().onTrue(elevator.moveToTargetPosition(Setpoint.kLevel4).withName("kLevel4"));
-        
-        // driveController.x().onTrue(drive.resetGyroCommand().withName("resetGyroCommand"));
+        driveController.a().onTrue(elevator.moveToTargetPosition(Setpoint.kLevel1).withName("kLevel1"));
+        driveController.b().onTrue(elevator.moveToTargetPosition(Setpoint.kLevel2).withName("kLevel2"));
+        driveController.x().onTrue(elevator.moveToTargetPosition(Setpoint.kLevel3).withName("kLevel3"));
+        driveController.y().onTrue(elevator.moveToTargetPosition(Setpoint.kLevel4).withName("kLevel4"));
 
         driveController.povDown().whileTrue(elevator.runMotors(true).withName("runMotorsReverseTrue"));
         driveController.povUp().whileTrue(elevator.runMotors(false).withName("runMotorsReverseFalse"));
-
         driveController.povLeft().whileTrue(intake.intakeCoral().withName("intakeCoral"));
         driveController.povRight().whileTrue(intake.shootCoral().withName("shootCoral"));
-        driveController.leftTrigger().whileTrue(climber.moveWinchForward());
-        driveController.rightTrigger().whileTrue(climber.moveWinchBack());
+        // driveController.leftTrigger().whileTrue(climber.moveWinchForward());
+        // driveController.rightTrigger().whileTrue(climber.moveWinchBack());
 
-        driveController.rightBumper().whileTrue(trough.moveTroughForward());
-        driveController.leftBumper().whileTrue(trough.moveTroughBack());
+        // driveController.rightBumper().whileTrue(trough.moveTroughForward());
+        // driveController.leftBumper().whileTrue(trough.moveTroughBack());
+
+        driveController.rightBumper().onTrue(drive.resetGyroCommand());
 
         buttonController.a().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L1_LEFT));
         buttonController.b().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L2_LEFT));
@@ -103,11 +102,9 @@ public class RobotContainer {
         buttonController.rightBumper().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L2_RIGHT));
         buttonController.back().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L3_RIGHT));
         buttonController.start().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L4_RIGHT));
-        
+
         buttonController.rightStick().whileTrue(trough.moveToZeroPostion());
         buttonController.leftStick().whileTrue(trough.moveToClimbPositon());
-
-        // driveController.x().onTrue(drive.resetGyroCommand());
 
         // driveController.povDown().whileTrue(intake.runMotorsBack());
         // driveController.leftBumper().whileTrue(intake.intakeCoral());
@@ -165,6 +162,34 @@ public class RobotContainer {
                     return driveController.getLeftX() * driveController.getLeftX();
                 },
                         Constants.SwerveModule.Speed.MAX_SPEED));
+
+        buttonController.axisGreaterThan(0, 0.1).whileTrue(
+                new DriveController(drive, () -> {
+                    return 0;
+                }, () -> {
+                    return 0;
+                }, () -> {
+                    return 1;
+                },
+                        0.1));
+
+        buttonController.axisLessThan(0, -0.1).whileTrue(
+                new DriveController(drive, () -> {
+                    return 0;
+                }, () -> {
+                    return 0;
+                }, () -> {
+                    return -1;
+                },
+                        0.1));
+
+        buttonController.axisGreaterThan(1, 0.1).whileTrue(elevator.runMotors(true)
+        .withName("runMotorsReverseTrue"));
+
+        buttonController.axisLessThan(1, -0.1).whileTrue(elevator.runMotors(false)
+        .withName("runMotorsReverseFalse"));
+
+                
     }
 
     protected Command getAutonomousCommand() {
@@ -185,15 +210,14 @@ public class RobotContainer {
 
     private Command makeAutoScoreCommand(AutoScoreTarget target) {
         ParallelCommandGroup commandGroup = new ParallelCommandGroup();
-        commandGroup.addCommands(drive.testPath(target));
+        commandGroup.addCommands(drive.testPath(target).andThen(drive.updateRotationPIDSetpointCommand()));
         commandGroup.addCommands(elevator.moveToTargetPosition(targetToSetPoint(target)));
-        return commandGroup;
+        return commandGroup.andThen(drive.stopDriving());
     }
 
     private Setpoint targetToSetPoint(AutoScoreTarget target) {
         switch (target) {
             case L4_LEFT:
-                return Setpoint.kLevel4;
             case L4_RIGHT:
                 return Setpoint.kLevel4;
             case L3_LEFT:

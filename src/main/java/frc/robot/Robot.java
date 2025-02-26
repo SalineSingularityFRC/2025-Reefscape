@@ -11,6 +11,8 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
+import com.pathplanner.lib.commands.PathfindingCommand;
+
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.util.PixelFormat;
@@ -26,10 +28,10 @@ public class Robot extends LoggedRobot {
     // CanBridge.runTCP();
     DataLogManager.start();
     // Creates UsbCamera and MjpegServer [1] and connects them
-    UsbCamera cam = CameraServer.startAutomaticCapture();
-    cam.setFPS(15);
-    cam.setResolution(320, 240);
-    cam.setPixelFormat(PixelFormat.kMJPEG);
+    // UsbCamera cam = CameraServer.startAutomaticCapture();
+    // cam.setFPS(15);
+    // cam.setResolution(320, 240);
+    // cam.setPixelFormat(PixelFormat.kMJPEG);
     // addPeriodic(() -> {
     //   m_robotContainer.updateOdometry();
     // }, 0.01, 0.005);
@@ -63,6 +65,7 @@ public class Robot extends LoggedRobot {
 
     AlertManager.initialize();
     m_robotContainer = new RobotContainer();
+    PathfindingCommand.warmupCommand().schedule();
   }
 
   @Override
