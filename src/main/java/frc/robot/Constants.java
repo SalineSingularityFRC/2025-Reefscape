@@ -293,6 +293,10 @@ public final class Constants {
     }
   }
 
+  public static class LED {
+    public static ConfigDouble PWM_VALUE = new ConfigDouble("LED/PWM_VALUE", 0);
+  }
+
   public static class Climber {
     public static ConfigDouble WINCH_SPEED = new ConfigDouble("Climber/WINCH_SPEED", .5);
     public static final ConfigDouble ENCODER_MAX_POS = new ConfigDouble("Climber/ENCODER_MAX_POS", 100);
