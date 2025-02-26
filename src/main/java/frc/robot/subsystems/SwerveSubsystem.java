@@ -768,15 +768,20 @@ public class SwerveSubsystem extends SubsystemBase {
     public ReefPose reefPose;
   }
 
+  // Blue alliance only since we flip if red alliance (from pathplanner)
   static List<ReefPose> reefPoses = List.of(
-      // new ReefPose("A", ReefFacetSide.RIGHT, new Pose2d(14.43, 4.17, new
-      // Rotation2d(Math.toRadians(180)))),
-      // new ReefPose("B", ReefFacetSide.LEFT, new Pose2d(14.43, 3.78, new
-      // Rotation2d(Math.toRadians(180))))
-      new ReefPose("A", ReefFacetSide.LEFT, new Pose2d(3.100, 4.193, new Rotation2d(Math.toRadians(0)))),
-      new ReefPose("B", ReefFacetSide.RIGHT, new Pose2d(3.100, 3.863, new Rotation2d(Math.toRadians(0)))),
-      new ReefPose("J", ReefFacetSide.RIGHT, new Pose2d(5.059, 5.335, new Rotation2d(Math.toRadians(-120.0)))),
-      new ReefPose("H", ReefFacetSide.RIGHT, new Pose2d(5.900, 4.193, new Rotation2d(Math.toRadians(180.0)))));
+      new ReefPose("A", ReefFacetSide.LEFT, new Pose2d(3.100, 4.190, new Rotation2d(Math.toRadians(0)))),
+      new ReefPose("B", ReefFacetSide.RIGHT, new Pose2d(3.100, 3.860, new Rotation2d(Math.toRadians(0)))),
+      new ReefPose("C", ReefFacetSide.LEFT, new Pose2d(3.657, 2.917, new Rotation2d(Math.toRadians(60.0)))),
+      new ReefPose("D", ReefFacetSide.RIGHT, new Pose2d(3.934, 2.738, new Rotation2d(Math.toRadians(60.0)))),
+      new ReefPose("E", ReefFacetSide.LEFT, new Pose2d(5.037, 2.745, new Rotation2d(Math.toRadians(120.0)))),
+      new ReefPose("F", ReefFacetSide.RIGHT, new Pose2d(5.320, 2.909, new Rotation2d(Math.toRadians(120.0)))),
+      new ReefPose("G", ReefFacetSide.LEFT, new Pose2d(5.900, 3.860, new Rotation2d(Math.toRadians(180.0)))),
+      new ReefPose("H", ReefFacetSide.RIGHT, new Pose2d(5.900, 4.190, new Rotation2d(Math.toRadians(180.0)))),
+      new ReefPose("I", ReefFacetSide.LEFT, new Pose2d(5.326, 5.148, new Rotation2d(Math.toRadians(-120.0)))),
+      new ReefPose("J", ReefFacetSide.RIGHT, new Pose2d(5.035, 5.305, new Rotation2d(Math.toRadians(-120.0)))),
+      new ReefPose("K", ReefFacetSide.LEFT, new Pose2d(3.936, 5.312, new Rotation2d(Math.toRadians(-60.0)))),
+      new ReefPose("L", ReefFacetSide.RIGHT, new Pose2d(3.648, 5.148, new Rotation2d(Math.toRadians(-60.0)))));      
 
   public Command testPath(AutoScoreTarget target) {
     return new DeferredCommand(() -> {
