@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.85,
-        "y": 4.193
+        "x": 5.037,
+        "y": 2.745
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.677272832037639,
-        "y": 4.373735512414418
+        "x": 6.037,
+        "y": 2.745
       },
       "isLocked": false,
-      "linkedName": "H"
+      "linkedName": "E"
     },
     {
       "anchor": {
-        "x": 5.8,
-        "y": 4.193
+        "x": 4.0,
+        "y": 6.0
       },
       "prevControl": {
-        "x": 6.031241945763,
-        "y": 3.989940193194402
+        "x": 3.0,
+        "y": 6.0
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "H Forward"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": 0.0
   },
   "reversed": false,
-  "folder": "Path Adjustments",
+  "folder": "To CS_2",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": 119.99999999999999
   },
   "useDefaultConstraints": true
 }

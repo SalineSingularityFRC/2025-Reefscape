@@ -3,10 +3,12 @@
   "robotLength": 0.8763,
   "holonomicMode": true,
   "pathFolders": [
-    "To Reef",
+    "To CS_2",
+    "Path Adjustments",
     "Start",
-    "Straight",
-    "To CS_1"
+    "Straight Tests",
+    "To CS_1",
+    "To Reef"
   ],
   "autoFolders": [
     "Test Autos",

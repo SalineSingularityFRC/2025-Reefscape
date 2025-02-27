@@ -11,7 +11,8 @@ public class DriveController extends Command {
     private final DoubleSupplier m_rotation, m_x, m_y;
     private double multiplier;
 
-    public DriveController(SwerveSubsystem swerve, DoubleSupplier rotation, DoubleSupplier x, DoubleSupplier y, double multiplier) {
+    public DriveController(SwerveSubsystem swerve, DoubleSupplier rotation, DoubleSupplier x, DoubleSupplier y,
+            double multiplier) {
         this.multiplier = multiplier;
         m_swerve = swerve;
         m_rotation = rotation;
@@ -20,7 +21,7 @@ public class DriveController extends Command {
         addRequirements(swerve);
     }
 
-    private double fixDecimalTo2Places(double number){
+    private double fixDecimalTo2Places(double number) {
         return Math.round(number * 100.0) / 100.0;
     }
 
@@ -34,7 +35,6 @@ public class DriveController extends Command {
                 -m_y.getAsDouble() * multiplier,
                 true);
     }
-  
 
     public boolean isFinished() {
         return false;

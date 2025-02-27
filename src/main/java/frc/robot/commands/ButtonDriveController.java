@@ -39,4 +39,9 @@ public class ButtonDriveController extends Command {
     public boolean isFinished() {
         return false;
     }
+
+    @Override
+    public Command.InterruptionBehavior getInterruptionBehavior() {
+        return Command.InterruptionBehavior.kCancelIncoming;
+    }
 }
