@@ -1,4 +1,7 @@
 package frc.robot;
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.RobotConfig;
 
@@ -89,8 +92,7 @@ public final class Constants {
 
     public static final class Controller {
       public static final int DRIVE = 0;
-      public static final int ARM = 1;
-      public static final int BUTTON = 2;
+      public static final int BUTTON = 1;
     }
 
     public static final class Axis {
@@ -222,14 +224,15 @@ public final class Constants {
       new RobotConfig(23.350, 1.705, ChassisModuleConfig, ChassisModuleOffsets);
   }
 
-  // public static final class Limelight {
-  //   public static final double[] knownDriveDistances = {3, 6, 8};
-  //   public static final double[] knownShootingPositions = {
-  //     Constants.Position.MainArm.Speaker.FEET3, 
-  //     Constants.Position.MainArm.Speaker.FEET6, 
-  //     Constants.Position.MainArm.Speaker.FEET7_4
-  //   };
-  // }
+  public final static class ReefPoses {
+    ArrayList<Translation2d> BluePoses = new ArrayList<>(
+    Arrays.asList(
+        new Translation2d(1.0, 2.0),
+        new Translation2d(3.0, 4.0),
+        new Translation2d(5.0, 6.0)
+    )
+);
+  }
 
   public static final class Modes {
     /*

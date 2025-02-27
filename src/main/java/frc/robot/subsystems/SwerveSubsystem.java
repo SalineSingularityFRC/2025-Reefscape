@@ -14,6 +14,7 @@ import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.util.DriveFeedforwards;
+import com.pathplanner.lib.util.FlippingUtil;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 import com.pathplanner.lib.pathfinding.Pathfinder;
 
@@ -304,6 +305,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
   public void updateRotationPIDSetpoint() {
     rotationController.setSetpoint(gyro.getYaw().getValueAsDouble());
+    rotationController.reset();
   }
 
   public ChassisSpeeds getChassisSpeed() {
@@ -427,6 +429,13 @@ public class SwerveSubsystem extends SubsystemBase {
           resetGyro();
         });
   }
+
+  public Command updateRotationPIDSetpointCommand() {
+    return runOnce(
+        () -> {
+            updateRotationPIDSetpoint();
+        });
+}
 
   // public Command rotate90() {
   // return runOnce(
@@ -723,78 +732,69 @@ public class SwerveSubsystem extends SubsystemBase {
     return swerveModules[0].isCoast();
   }
 
-  public Pose2d getClosestReef(AutoScoreTarget target){
+  public Pose2d getClosestReef(AutoScoreTarget target) {
     List<ReefPose> posesForSide = reefPoses.stream().filter((p) -> p.side == target.side).toList();
-    SmartDashboard.putString("Chosen Reef", posesForSide.get(0).name);
-    return posesForSide.get(0).pose;
-    // List<Pose2d> poses = new ArrayList<>();
-    // for(ReefPose reef : posesForSide){
-    //   poses.add(reef.pose);
-    // }
-    // return odometry.getEstimatedPosition().nearest(poses);
+    // return posesForSide.get(0).pose;
+
+    List<Pose2d> poses = posesForSide.stream().map((rp) -> {
+      WrappedPose2d np = new WrappedPose2d(rp.pose.getX(), rp.pose.getY(), rp.pose.getRotation());
+      np.reefPose = rp;
+      return (Pose2d) np;
+    }).toList();
+
+    Pose2d ourPose = odometry.getEstimatedPosition();
+
+    Pose2d fieldAdjustedPose = BlueAlliance ? ourPose : FlippingUtil.flipFieldPose(ourPose);
+    Pose2d nearest = fieldAdjustedPose.nearest(poses);
+    if (nearest == null) {
+      return ourPose;
+    }
+
+    SmartDashboard.putString("AutoScore/Chosen Reef", ((WrappedPose2d) nearest).reefPose.name);
+    SmartDashboard.putNumber("AutoScore/Chosen Reef/X", nearest.getX());
+    SmartDashboard.putNumber("AutoScore/Chosen Reef/Y", nearest.getY());
+
+    return nearest;
   }
 
-  record ReefPose(String name, ReefFacetSide side, Pose2d pose) {};
+  record ReefPose(String name, ReefFacetSide side, Pose2d pose) {
+  };
 
+  public class WrappedPose2d extends Pose2d {
+    public WrappedPose2d(double x, double y, Rotation2d rotation) {
+      super(x, y, rotation);
+    }
+
+    public ReefPose reefPose;
+  }
+
+  // Blue alliance only since we flip if red alliance (from pathplanner)
   static List<ReefPose> reefPoses = List.of(
-      new ReefPose("A", ReefFacetSide.RIGHT, new Pose2d(14.43, 4.17, new Rotation2d(Math.toRadians(180)))),
-      new ReefPose("B", ReefFacetSide.LEFT, new Pose2d(14.43, 3.78, new Rotation2d(Math.toRadians(180))))
-  );
+      new ReefPose("A", ReefFacetSide.LEFT, new Pose2d(3.100, 4.190, new Rotation2d(Math.toRadians(0)))),
+      new ReefPose("B", ReefFacetSide.RIGHT, new Pose2d(3.100, 3.860, new Rotation2d(Math.toRadians(0)))),
+      new ReefPose("C", ReefFacetSide.LEFT, new Pose2d(3.657, 2.917, new Rotation2d(Math.toRadians(60.0)))),
+      new ReefPose("D", ReefFacetSide.RIGHT, new Pose2d(3.934, 2.738, new Rotation2d(Math.toRadians(60.0)))),
+      new ReefPose("E", ReefFacetSide.LEFT, new Pose2d(5.037, 2.745, new Rotation2d(Math.toRadians(120.0)))),
+      new ReefPose("F", ReefFacetSide.RIGHT, new Pose2d(5.320, 2.909, new Rotation2d(Math.toRadians(120.0)))),
+      new ReefPose("G", ReefFacetSide.LEFT, new Pose2d(5.900, 3.860, new Rotation2d(Math.toRadians(180.0)))),
+      new ReefPose("H", ReefFacetSide.RIGHT, new Pose2d(5.900, 4.190, new Rotation2d(Math.toRadians(180.0)))),
+      new ReefPose("I", ReefFacetSide.LEFT, new Pose2d(5.326, 5.148, new Rotation2d(Math.toRadians(-120.0)))),
+      new ReefPose("J", ReefFacetSide.RIGHT, new Pose2d(5.035, 5.305, new Rotation2d(Math.toRadians(-120.0)))),
+      new ReefPose("K", ReefFacetSide.LEFT, new Pose2d(3.936, 5.312, new Rotation2d(Math.toRadians(-60.0)))),
+      new ReefPose("L", ReefFacetSide.RIGHT, new Pose2d(3.648, 5.148, new Rotation2d(Math.toRadians(-60.0)))));      
 
   public Command testPath(AutoScoreTarget target) {
     return new DeferredCommand(() -> {
       Pose2d targetPose = getClosestReef(target);
       PathConstraints constraints = new PathConstraints(1, 1, .5, .5);
-      return AutoBuilder.pathfindToPose(targetPose, constraints, 0);
-    }, Set.of(this));
-  }
-
-  public Command driveToPoseTarget(AutoScoreTarget target) {
-    return new InstantCommand(() -> {
-      ArrayList<Translation2d> reefs = new ArrayList<>();
-      Translation2d pose = odometry.getEstimatedPosition().getTranslation();
-      int closestReef = -1;
-      double minDistance = 10;
 
       if (BlueAlliance) {
-        if (target.equals(AutoScoreTarget.L4_LEFT) || target.equals(AutoScoreTarget.L3_LEFT)
-            || target.equals(AutoScoreTarget.L2_LEFT)) {
-          reefs.add(new Translation2d(5, 5));
-          reefs.add(new Translation2d(7.5, 8));
-        } else if (target.equals(AutoScoreTarget.L4_RIGHT) || target.equals(AutoScoreTarget.L3_RIGHT)
-            || target.equals(AutoScoreTarget.L2_RIGHT)) {
-          reefs.add(new Translation2d(4.75, 4.75));
-          reefs.add(new Translation2d(7.75, 8.5));
-        }
+        return AutoBuilder.pathfindToPose(targetPose, constraints, 0);
       } else {
-        if (target.equals(AutoScoreTarget.L4_LEFT) || target.equals(AutoScoreTarget.L3_LEFT)
-            || target.equals(AutoScoreTarget.L2_LEFT)) {
-          reefs.add(new Translation2d(22, 28));
-          reefs.add(new Translation2d(24.3, 30));
-        } else if (target.equals(AutoScoreTarget.L4_RIGHT) || target.equals(AutoScoreTarget.L3_RIGHT)
-            || target.equals(AutoScoreTarget.L2_RIGHT)) {
-          reefs.add(new Translation2d(22.32, 27.8));
-          reefs.add(new Translation2d(23.5, 29.6));
-        }
+        return AutoBuilder.pathfindToPoseFlipped(targetPose, constraints, 0);
       }
 
-
-
-      for (int i = 0; i < reefs.size(); i++) {
-        Translation2d reef = reefs.get(i);
-        double distance = pose.getDistance(reef);
-        if (distance < minDistance) {
-          minDistance = distance;
-          closestReef = i;
-        }
-      }
-
-      Translation2d targetReef = reefs.get(closestReef);
-
-      Pathfinding.setGoalPosition(targetReef);
-      Pathfinding.setStartPosition(pose);
-      Pathfinding.setDynamicObstacles(null, pose);
-    });
+    }, Set.of(this));
   }
 
   enum ReefFacetSide {
