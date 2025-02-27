@@ -45,7 +45,8 @@ public class LEDStatusSubsystem extends SubsystemBase {
       LEDColor.RED, 0.61,// unfinished orange ish
       LEDColor.GREEN, 0.87, // good 
       LEDColor.BLUE, 0.75, // good
-      LEDColor.VIOLET, 0.71); // good
+      LEDColor.VIOLET, 0.71, // good
+      LEDColor.WHITE, 0.93); //GREAT
 
   public void setColor(LEDColor color) {
     SmartDashboard.putString("LED/colorName", color.name());
@@ -58,22 +59,28 @@ public class LEDStatusSubsystem extends SubsystemBase {
   private void checkStatus() {
 
     //Orange for LOADING(Coral in intake, not in position and ready), Violet for LOADED(all variables true)
-    boolean commErrors = false;
-    boolean isLoading = false;
     boolean isLoaded = false;
+    boolean isLoading = false;
+    boolean isReadyToShoot = false;
 
     if (intake.coralInIntake()) {
       isLoading = true;
     }
 
     if (elevator.isAtSetpoint() && intake.readyToShoot()) {
+      isReadyToShoot = true;
+    }
+
+    if (elevator.isElevatorAtSetpoint() && intake.readyToShoot()) {
       isLoaded = true;
     }
 
     if (isLoading) {
       setColor(LEDColor.ORANGE);
-    } else if (isLoaded) {
+    } else if (isReadyToShoot) {
       setColor(LEDColor.VIOLET);
+    } else if (isLoaded) {
+      setColor(LEDColor.WHITE);
     } else {
       setColor(LEDColor.GREEN);
     }

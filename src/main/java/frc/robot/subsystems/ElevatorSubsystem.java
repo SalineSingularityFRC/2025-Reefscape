@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 import com.revrobotics.spark.SparkFlex;
 
 import java.util.function.DoubleSupplier;
+import java.util.function.IntFunction;
 
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.sim.SparkFlexSim;
@@ -223,6 +224,17 @@ public class ElevatorSubsystem extends SubsystemBase {
     public Boolean isAtSetpoint() {
         return Math.abs(elevatorCurrentTarget
                 - elevatorEncoder.getPosition()) < Elevator.PrimaryMotor.MAX_CONTROL_ERROR_IN_COUNTS.getValue();
+    }
+
+    public boolean isElevatorAtSetpoint() {
+
+        if (elevatorCurrentTarget == Elevator.Positions.L1_COUNTS.getValue()
+                || elevatorCurrentTarget == Elevator.Positions.L2_COUNTS.getValue()
+                || elevatorCurrentTarget == Elevator.Positions.L3_COUNTS.getValue()
+                || elevatorCurrentTarget == Elevator.Positions.L4_COUNTS.getValue()) {
+            return true;
+        }
+        return false;
     }
 
     public Command targetPosition(Setpoint setpoint) {
