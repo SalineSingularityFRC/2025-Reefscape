@@ -46,7 +46,7 @@ public class LEDStatusSubsystem extends SubsystemBase {
       LEDColor.GREEN, 0.87, // good 
       LEDColor.BLUE, 0.75, // good
       LEDColor.VIOLET, 0.71, // good
-      LEDColor.WHITE, 0.93); //GREAT
+      LEDColor.WHITE, 0.91); // Unfinished White
 
   public void setColor(LEDColor color) {
     SmartDashboard.putString("LED/colorName", color.name());
