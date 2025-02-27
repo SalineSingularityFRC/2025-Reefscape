@@ -19,6 +19,12 @@
                 "data": {
                   "name": "L4"
                 }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Trough Down"
+                }
               }
             ]
           }
@@ -36,13 +42,19 @@
           }
         },
         {
+          "type": "path",
+          "data": {
+            "pathName": "H Forward"
+          }
+        },
+        {
           "type": "parallel",
           "data": {
             "commands": [
               {
                 "type": "path",
                 "data": {
-                  "pathName": "H - CS_1"
+                  "pathName": "H Forward - CS_1"
                 }
               },
               {

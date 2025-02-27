@@ -770,8 +770,8 @@ public class SwerveSubsystem extends SubsystemBase {
 
   // Blue alliance only since we flip if red alliance (from pathplanner)
   static List<ReefPose> reefPoses = List.of(
-      new ReefPose("A", ReefFacetSide.LEFT, new Pose2d(3.100, 4.190, new Rotation2d(Math.toRadians(0)))),
-      new ReefPose("B", ReefFacetSide.RIGHT, new Pose2d(3.100, 3.860, new Rotation2d(Math.toRadians(0)))),
+      new ReefPose("A", ReefFacetSide.LEFT, new Pose2d(3.049, 4.190, new Rotation2d(Math.toRadians(0)))),
+      new ReefPose("B", ReefFacetSide.RIGHT, new Pose2d(3.049, 3.860, new Rotation2d(Math.toRadians(0)))),
       new ReefPose("C", ReefFacetSide.LEFT, new Pose2d(3.657, 2.917, new Rotation2d(Math.toRadians(60.0)))),
       new ReefPose("D", ReefFacetSide.RIGHT, new Pose2d(3.934, 2.738, new Rotation2d(Math.toRadians(60.0)))),
       new ReefPose("E", ReefFacetSide.LEFT, new Pose2d(5.037, 2.745, new Rotation2d(Math.toRadians(120.0)))),
@@ -786,7 +786,7 @@ public class SwerveSubsystem extends SubsystemBase {
   public Command testPath(AutoScoreTarget target) {
     return new DeferredCommand(() -> {
       Pose2d targetPose = getClosestReef(target);
-      PathConstraints constraints = new PathConstraints(1, 1, .5, .5);
+      PathConstraints constraints = new PathConstraints(2, 2, .5, .5);
 
       if (BlueAlliance) {
         return AutoBuilder.pathfindToPose(targetPose, constraints, 0);

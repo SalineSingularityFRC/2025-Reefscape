@@ -19,6 +19,12 @@
                 "data": {
                   "name": "L4"
                 }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Trough Down"
+                }
               }
             ]
           }

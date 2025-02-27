@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.commands.ButtonDriveController;
 import frc.robot.commands.DriveController;
 import frc.robot.commands.RumbleCommandStart;
 import frc.robot.commands.RumbleCommandStop;
@@ -54,6 +55,7 @@ public class RobotContainer {
         NamedCommands.registerCommand("Feeder Station", elevator.targetPosition(Setpoint.kFeederStation));
         NamedCommands.registerCommand("L4", elevator.targetPosition(Setpoint.kLevel4));
         NamedCommands.registerCommand("Intake Coral", intake.intakeCoral());
+        NamedCommands.registerCommand("Trough Down", trough.moveToZeroPostion());
         NamedCommands.registerCommand("Shoot Coral", intake.shootCoral());
         NamedCommands.registerCommand("RumbleCommantStart", new RumbleCommandStart(driveController));
         NamedCommands.registerCommand("RumbleCommantStop", new RumbleCommandStop(driveController));
@@ -99,8 +101,10 @@ public class RobotContainer {
         buttonController.back().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L3_RIGHT));
         buttonController.start().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L4_RIGHT));
 
-        buttonController.rightStick().whileTrue(trough.moveToZeroPostion());
-        buttonController.leftStick().whileTrue(trough.moveToClimbPositon());
+        // buttonController.rightStick().whileTrue(trough.moveToZeroPostion());
+        // buttonController.leftStick().whileTrue(trough.moveToClimbPositon());
+        buttonController.rightStick().whileTrue(intake.intakeCoral().withName("intakeCoral"));
+        buttonController.leftStick().whileTrue(intake.shootCoral().withName("shootCoral"));
 
         // driveController.povDown().whileTrue(intake.runMotorsBack());
         // driveController.leftBumper().whileTrue(intake.intakeCoral());
@@ -160,17 +164,17 @@ public class RobotContainer {
                         Constants.SwerveModule.Speed.MAX_SPEED));
 
         buttonController.axisGreaterThan(0, 0.1).whileTrue(
-                new DriveController(drive, () -> {
-                    return 0;
+                new ButtonDriveController(drive, () -> {
+                    return 0.0;
                 }, () -> {
-                    return 0;
+                    return 0.0;
                 }, () -> {
-                    return 1;
+                    return 1.0;
                 },
                         0.1));
 
         buttonController.axisLessThan(0, -0.1).whileTrue(
-                new DriveController(drive, () -> {
+                new ButtonDriveController(drive, () -> {
                     return 0;
                 }, () -> {
                     return 0;
