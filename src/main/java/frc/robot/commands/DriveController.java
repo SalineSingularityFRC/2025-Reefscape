@@ -39,10 +39,4 @@ public class DriveController extends Command {
     public boolean isFinished() {
         return false;
     }
-
-    @Override
-    public Command.InterruptionBehavior getInterruptionBehavior() {
-        return Command.InterruptionBehavior.kCancelIncoming;
-    }
-
 }

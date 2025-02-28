@@ -9,9 +9,22 @@
           "data": {
             "commands": [
               {
-                "type": "path",
+                "type": "sequential",
                 "data": {
-                  "pathName": "Q_2 - E"
+                  "commands": [
+                    {
+                      "type": "path",
+                      "data": {
+                        "pathName": "Q_2 - E"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "Stop Driving"
+                      }
+                    }
+                  ]
                 }
               },
               {
@@ -36,13 +49,32 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "Stop Driving"
+          }
+        },
+        {
           "type": "parallel",
           "data": {
             "commands": [
               {
-                "type": "path",
+                "type": "sequential",
                 "data": {
-                  "pathName": "E - CS_2"
+                  "commands": [
+                    {
+                      "type": "path",
+                      "data": {
+                        "pathName": "E - CS_2"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "Stop Driving"
+                      }
+                    }
+                  ]
                 }
               },
               {
@@ -71,9 +103,22 @@
           "data": {
             "commands": [
               {
-                "type": "path",
+                "type": "sequential",
                 "data": {
-                  "pathName": "CS_2 - C"
+                  "commands": [
+                    {
+                      "type": "path",
+                      "data": {
+                        "pathName": "CS_2 - C"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "Stop Driving"
+                      }
+                    }
+                  ]
                 }
               },
               {
@@ -102,9 +147,22 @@
           "data": {
             "commands": [
               {
-                "type": "path",
+                "type": "sequential",
                 "data": {
-                  "pathName": "C - CS_2"
+                  "commands": [
+                    {
+                      "type": "path",
+                      "data": {
+                        "pathName": "C - CS_2"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "Stop Driving"
+                      }
+                    }
+                  ]
                 }
               },
               {
@@ -133,9 +191,22 @@
           "data": {
             "commands": [
               {
-                "type": "path",
+                "type": "sequential",
                 "data": {
-                  "pathName": "CS_2 - D"
+                  "commands": [
+                    {
+                      "type": "path",
+                      "data": {
+                        "pathName": "CS_2 - D"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "Stop Driving"
+                      }
+                    }
+                  ]
                 }
               },
               {
