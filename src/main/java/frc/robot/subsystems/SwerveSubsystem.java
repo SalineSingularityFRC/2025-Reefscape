@@ -377,7 +377,7 @@ public class SwerveSubsystem extends SubsystemBase {
       }
     }
 
-    SmartDashboard.putBoolean("Heading Issue/Is Blue", BlueAlliance);
+    // SmartDashboard.putBoolean("Heading Issue/Is Blue", BlueAlliance);
 
     publisher.set(odometry.getEstimatedPosition());
 

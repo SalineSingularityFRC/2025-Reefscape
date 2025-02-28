@@ -37,14 +37,14 @@ public class ClimberSubsystem extends SubsystemBase {
     }
 
     public void periodic() {
-        StatusSignal<Angle> currentMotorPos = winchMotor.getPosition();
-        double actualMotorPos = currentMotorPos.getValueAsDouble();
-        isOverMax = actualMotorPos > Climber.ENCODER_MAX_POS.getValue();
-        isUnderMin = actualMotorPos < Climber.ENCODER_MIN_POS.getValue();
+        // StatusSignal<Angle> currentMotorPos = winchMotor.getPosition();
+        // double actualMotorPos = currentMotorPos.getValueAsDouble();
+        // isOverMax = actualMotorPos > Climber.ENCODER_MAX_POS.getValue();
+        // isUnderMin = actualMotorPos < Climber.ENCODER_MIN_POS.getValue();
 
-        SmartDashboard.putNumber("Climber/CLimber Position", actualMotorPos);
-        SmartDashboard.putBoolean("Climber/Over Max", isOverMax);
-        SmartDashboard.putBoolean("Climber/Under Min", isUnderMin);
+        // SmartDashboard.putNumber("Climber/CLimber Position", actualMotorPos);
+        // SmartDashboard.putBoolean("Climber/Over Max", isOverMax);
+        // SmartDashboard.putBoolean("Climber/Under Min", isUnderMin);
     }
 
     public Command moveWinchForward() {

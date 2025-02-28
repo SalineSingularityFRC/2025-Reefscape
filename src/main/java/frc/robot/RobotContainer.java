@@ -55,7 +55,6 @@ public class RobotContainer {
         NamedCommands.registerCommand("Feeder Station", elevator.targetPosition(Setpoint.kFeederStation));
         NamedCommands.registerCommand("L4", elevator.targetPosition(Setpoint.kLevel4));
         NamedCommands.registerCommand("Intake Coral", intake.intakeCoral());
-        NamedCommands.registerCommand("Trough Down", trough.moveToZeroPostion());
         NamedCommands.registerCommand("Shoot Coral", intake.shootCoral());
         NamedCommands.registerCommand("RumbleCommantStart", new RumbleCommandStart(driveController));
         NamedCommands.registerCommand("RumbleCommantStop", new RumbleCommandStop(driveController));
@@ -74,7 +73,7 @@ public class RobotContainer {
         this.pathAutonChooser.addOption("Top/ J - I", "Top - J - I");
         this.pathAutonChooser.addOption("Top/ J - L", "Top - J - L");
         this.pathAutonChooser.addOption("Top/ J - K", "Top - J - K");
-        this.pathAutonChooser.addOption("Bottom/ E - C", "Bottom - E - C");
+        this.pathAutonChooser.addOption("Bottom/ E - C - D", "Bottom - E - C - D");
         this.pathAutonChooser.addOption("Bottom/ G - F", "Bottom - G - F");
         this.pathAutonChooser.addOption("Bottom/ E - B", "Bottom - E - B");
         this.pathAutonChooser.addOption("Bottom/ G - C", "Bottom - G - C");
@@ -186,7 +185,7 @@ public class RobotContainer {
                 }, () -> {
                     return 1.0;
                 },
-                        0.1));
+                        0.2));
 
         buttonController.axisLessThan(0, -0.1).whileTrue(
                 new ButtonDriveController(drive, () -> {
@@ -196,7 +195,7 @@ public class RobotContainer {
                 }, () -> {
                     return -1;
                 },
-                        0.1));
+                        0.2));
 
         buttonController.axisGreaterThan(1, 0.1).whileTrue(elevator.runMotors(true)
         .withName("runMotorsReverseTrue"));

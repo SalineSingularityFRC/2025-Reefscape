@@ -26,9 +26,9 @@ public class DriveController extends Command {
     }
 
     public void execute() {
-        SmartDashboard.putNumber("Input X", fixDecimalTo2Places(-m_x.getAsDouble()));
-        SmartDashboard.putNumber("Input Y", fixDecimalTo2Places(-m_y.getAsDouble()));
-        SmartDashboard.putNumber("Input Rotation", fixDecimalTo2Places(-m_rotation.getAsDouble()));
+        // SmartDashboard.putNumber("Input X", fixDecimalTo2Places(-m_x.getAsDouble()));
+        // SmartDashboard.putNumber("Input Y", fixDecimalTo2Places(-m_y.getAsDouble()));
+        // SmartDashboard.putNumber("Input Rotation", fixDecimalTo2Places(-m_rotation.getAsDouble()));
         m_swerve.drive(
                 -m_rotation.getAsDouble() * multiplier,
                 -m_x.getAsDouble() * multiplier,
@@ -39,4 +39,10 @@ public class DriveController extends Command {
     public boolean isFinished() {
         return false;
     }
+
+    @Override
+    public Command.InterruptionBehavior getInterruptionBehavior() {
+        return Command.InterruptionBehavior.kCancelIncoming;
+    }
+
 }

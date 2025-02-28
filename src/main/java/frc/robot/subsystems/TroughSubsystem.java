@@ -53,14 +53,14 @@ public class TroughSubsystem extends SubsystemBase {
     }
 
     public void periodic() {
-        double actualMotorPos = troughEncoder.getPosition();
-        troughSpeed = Trough.TROUGH_SPEED.getValue();
-        isOverMax = actualMotorPos > Trough.ENCODER_MAX_POS.getValue();
-        isUnderMin = actualMotorPos < Trough.ENCODER_MIN_POS.getValue();
+        // double actualMotorPos = troughEncoder.getPosition();
+        // troughSpeed = Trough.TROUGH_SPEED.getValue();
+        // isOverMax = actualMotorPos > Trough.ENCODER_MAX_POS.getValue();
+        // isUnderMin = actualMotorPos < Trough.ENCODER_MIN_POS.getValue();
 
-        SmartDashboard.putNumber("Trough/Position", actualMotorPos);
-        SmartDashboard.putBoolean("Trough/Over Max", isOverMax);
-        SmartDashboard.putBoolean("Trough/Under Min", isUnderMin);
+        // SmartDashboard.putNumber("Trough/Position", actualMotorPos);
+        // SmartDashboard.putBoolean("Trough/Over Max", isOverMax);
+        // SmartDashboard.putBoolean("Trough/Under Min", isUnderMin);
     }
 
     public Command moveTroughForward() {

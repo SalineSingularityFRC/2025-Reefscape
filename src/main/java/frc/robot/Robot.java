@@ -63,7 +63,7 @@ public class Robot extends LoggedRobot {
 
     Logger.start();
 
-    AlertManager.initialize();
+    // AlertManager.initialize();
     m_robotContainer = new RobotContainer();
     PathfindingCommand.warmupCommand().schedule();
   }

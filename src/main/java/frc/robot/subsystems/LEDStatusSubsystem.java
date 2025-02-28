@@ -35,7 +35,7 @@ public class LEDStatusSubsystem extends SubsystemBase {
   public void periodic() {
     checkStatus();
     ledController.set(currentColorPWMValue);
-    SmartDashboard.putNumber("LED/colorValue", currentColorPWMValue);
+    // SmartDashboard.putNumber("LED/colorValue", currentColorPWMValue);
     // ledController.set(frc.robot.Constants.LED.PWM_VALUE.getValue());
   }
 

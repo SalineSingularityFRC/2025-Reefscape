@@ -89,8 +89,8 @@ public class IntakeSubsystem extends SubsystemBase {
             motorSpeed = Intake.Nums.motorSpeed.getValue();
             motorSpeedSlow = Intake.Nums.motorSpeedSlow.getValue();
 
-        SmartDashboard.putNumber("Intake Sensor", getSensorValue(intakeSensor));
-        SmartDashboard.putNumber("Shooter Sensor", getSensorValue(shooterSensor));
+        // SmartDashboard.putNumber("Intake Sensor", getSensorValue(intakeSensor));
+        // SmartDashboard.putNumber("Shooter Sensor", getSensorValue(shooterSensor));
         SmartDashboard.putBoolean("Coral in intake", coralInIntake());
         SmartDashboard.putBoolean("Coral in shooter", coralInShooter());
     }
