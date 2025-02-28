@@ -185,7 +185,7 @@ public class RobotContainer {
                 }, () -> {
                     return 1.0;
                 },
-                        0.2));
+                        0.4));
 
         buttonController.axisLessThan(0, -0.1).whileTrue(
                 new ButtonDriveController(drive, () -> {
@@ -195,7 +195,7 @@ public class RobotContainer {
                 }, () -> {
                     return -1;
                 },
-                        0.2));
+                        0.4));
 
         buttonController.axisGreaterThan(1, 0.1).whileTrue(elevator.runMotors(true)
         .withName("runMotorsReverseTrue"));
