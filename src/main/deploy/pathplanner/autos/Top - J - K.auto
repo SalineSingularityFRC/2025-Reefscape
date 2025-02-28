@@ -1,106 +1,145 @@
 {
-  "version": "2025.0",
-  "command": {
-    "type": "sequential",
-    "data": {
-      "commands": [
-        {
-          "type": "parallel",
-          "data": {
+    "version": "2025.0",
+    "command": {
+        "type": "sequential",
+        "data": {
             "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "S_Top - J"
+                {
+                    "type": "parallel",
+                    "data": {
+                        "commands": [
+                            {
+                                "type": "sequential",
+                                "data": {
+                                    "commands": [
+                                        {
+                                            "type": "path",
+                                            "data": {
+                                                "pathName": "S_Top - J"
+                                            }
+                                        },
+                                        {
+                                            "type": "named",
+                                            "data": {
+                                                "name": "Stop Driving"
+                                            }
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "type": "named",
+                                "data": {
+                                    "name": "L4"
+                                }
+                            }
+                        ]
+                    }
+                },
+                {
+                    "type": "named",
+                    "data": {
+                        "name": "Stop Driving"
+                    }
+                },
+                {
+                    "type": "named",
+                    "data": {
+                        "name": "Shoot Coral"
+                    }
+                },
+                {
+                    "type": "parallel",
+                    "data": {
+                        "commands": [
+                            {
+                                "type": "sequential",
+                                "data": {
+                                    "commands": [
+                                        {
+                                            "type": "path",
+                                            "data": {
+                                                "pathName": "J - CS_1"
+                                            }
+                                        },
+                                        {
+                                            "type": "named",
+                                            "data": {
+                                                "name": "Stop Driving"
+                                            }
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "type": "named",
+                                "data": {
+                                    "name": "Feeder Station"
+                                }
+                            }
+                        ]
+                    }
+                },
+                {
+                    "type": "named",
+                    "data": {
+                        "name": "Stop Driving"
+                    }
+                },
+                {
+                    "type": "named",
+                    "data": {
+                        "name": "Intake Coral"
+                    }
+                },
+                {
+                    "type": "parallel",
+                    "data": {
+                        "commands": [
+                            {
+                                "type": "sequential",
+                                "data": {
+                                    "commands": [
+                                        {
+                                            "type": "path",
+                                            "data": {
+                                                "pathName": "CS_1 - K"
+                                            }
+                                        },
+                                        {
+                                            "type": "named",
+                                            "data": {
+                                                "name": "Stop Driving"
+                                            }
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "type": "named",
+                                "data": {
+                                    "name": "L4"
+                                }
+                            }
+                        ]
+                    }
+                },
+                {
+                    "type": "named",
+                    "data": {
+                        "name": "Stop Driving"
+                    }
+                },
+                {
+                    "type": "named",
+                    "data": {
+                        "name": "Shoot Coral"
+                    }
                 }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "L4"
-                }
-              }
             ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Stop Driving"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Shoot Coral"
-          }
-        },
-        {
-          "type": "parallel",
-          "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "J - CS_1"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Feeder Station"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Stop Driving"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Intake Coral"
-          }
-        },
-        {
-          "type": "parallel",
-          "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "CS_1 - K"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "L4"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Stop Driving"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Shoot Coral"
-          }
         }
-      ]
-    }
-  },
-  "resetOdom": true,
-  "folder": "Top",
-  "choreoAuto": false
+    },
+    "resetOdom": true,
+    "folder": "Top",
+    "choreoAuto": false
 }
