@@ -62,8 +62,9 @@ public class RobotContainer {
 
         this.pathAutonChooser = new SendableChooser<String>();
 
-        this.pathAutonChooser.setDefaultOption("Center H A", "Center H A");
-        this.pathAutonChooser.addOption("Top J L", "Top J L");
+        this.pathAutonChooser.setDefaultOption("Center - H - A", "Center - H - A");
+        this.pathAutonChooser.addOption("Top - J - L", "Top - J - L");
+        this.pathAutonChooser.addOption("Q_2 - E - C", "Q_2 - E - C");
 
         SmartDashboard.putData("Auton Choices", pathAutonChooser);
     }

@@ -3,40 +3,40 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.6,
-        "y": 4.0259
+        "x": 1.014795918367347,
+        "y": 0.8201849489795905
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.570863611578779,
-        "y": 4.12127153372104
+        "x": 2.7832270408163264,
+        "y": 0.9544961734693868
       },
       "isLocked": false,
-      "linkedName": "S_Middle"
+      "linkedName": "CS_2"
     },
     {
       "anchor": {
-        "x": 5.85,
-        "y": 4.193
+        "x": 3.657,
+        "y": 2.917
       },
       "prevControl": {
-        "x": 6.197361550177926,
-        "y": 4.157300212480955
+        "x": 2.7683035714285715,
+        "y": 1.454432397959183
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "H"
+      "linkedName": "C"
     }
   ],
   "rotationTargets": [],
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 0.0,
+      "minWaypointRelativePos": 0.5029850746268658,
       "maxWaypointRelativePos": 1.0,
       "constraints": {
-        "maxVelocity": 1.0,
-        "maxAcceleration": 1.0,
+        "maxVelocity": 2.0,
+        "maxAcceleration": 2.5,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 673.0,
         "nominalVoltage": 12.0,
@@ -56,13 +56,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": 59.99999999999999
   },
   "reversed": false,
-  "folder": "Start",
+  "folder": "To Reef From CS_2",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": 54.0
   },
   "useDefaultConstraints": true
 }

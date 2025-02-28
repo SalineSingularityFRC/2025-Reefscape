@@ -3,40 +3,40 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.6,
-        "y": 4.0259
+        "x": 5.85,
+        "y": 3.863
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.570863611578779,
-        "y": 4.12127153372104
+        "x": 6.514094387755103,
+        "y": 2.939317602040816
       },
       "isLocked": false,
-      "linkedName": "S_Middle"
+      "linkedName": "G"
     },
     {
       "anchor": {
-        "x": 5.85,
-        "y": 4.193
+        "x": 1.014795918367347,
+        "y": 0.8201849489795905
       },
       "prevControl": {
-        "x": 6.197361550177926,
-        "y": 4.157300212480955
+        "x": 4.365114795918368,
+        "y": 1.1932716836734687
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "H"
+      "linkedName": "CS_2"
     }
   ],
   "rotationTargets": [],
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 0.0,
-      "maxWaypointRelativePos": 1.0,
+      "minWaypointRelativePos": 0,
+      "maxWaypointRelativePos": 0.29646017699115057,
       "constraints": {
-        "maxVelocity": 1.0,
-        "maxAcceleration": 1.0,
+        "maxVelocity": 1.5,
+        "maxAcceleration": 2.5,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 673.0,
         "nominalVoltage": 12.0,
@@ -44,7 +44,18 @@
       }
     }
   ],
-  "pointTowardsZones": [],
+  "pointTowardsZones": [
+    {
+      "fieldPosition": {
+        "x": 4.5,
+        "y": 4.026
+      },
+      "rotationOffset": 0.0,
+      "minWaypointRelativePos": 0.0,
+      "maxWaypointRelativePos": 0.8569321533923298,
+      "name": "Point Towards Zone"
+    }
+  ],
   "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 3.5,
@@ -56,10 +67,10 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": 54.0
   },
   "reversed": false,
-  "folder": "Start",
+  "folder": "To CS_2",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 180.0

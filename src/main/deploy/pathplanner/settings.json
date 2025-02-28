@@ -1,26 +1,27 @@
 {
   "robotWidth": 0.868,
-  "robotLength": 0.8763,
+  "robotLength": 0.876,
   "holonomicMode": true,
   "pathFolders": [
-    "To CS_2",
+    "To Reef From CS_2",
     "Path Adjustments",
     "Start",
     "Straight Tests",
     "To CS_1",
-    "To Reef"
+    "To CS_2",
+    "To Reef From CS_1"
   ],
   "autoFolders": [
     "Test Autos",
     "Straight"
   ],
-  "defaultMaxVel": 1.5,
-  "defaultMaxAccel": 2.0,
+  "defaultMaxVel": 3.5,
+  "defaultMaxAccel": 2.5,
   "defaultMaxAngVel": 540.0,
   "defaultMaxAngAccel": 673.0,
   "defaultNominalVoltage": 12.0,
-  "robotMass": 52.6167,
-  "robotMOI": 6.486762165,
+  "robotMass": 64.4101,
+  "robotMOI": 8.16290667333,
   "robotTrackwidth": 0.546,
   "driveWheelRadius": 0.048,
   "driveGearing": 5.9,
