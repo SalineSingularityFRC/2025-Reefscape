@@ -19,12 +19,6 @@
                 "data": {
                   "name": "L4"
                 }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Trough Down"
-                }
               }
             ]
           }
@@ -113,6 +107,6 @@
     }
   },
   "resetOdom": true,
-  "folder": null,
+  "folder": "Center",
   "choreoAuto": false
 }

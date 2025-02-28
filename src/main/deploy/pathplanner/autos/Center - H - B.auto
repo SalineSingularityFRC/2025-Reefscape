@@ -11,7 +11,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "S_Top - J"
+                  "pathName": "S_Middle - H"
                 }
               },
               {
@@ -36,13 +36,19 @@
           }
         },
         {
+          "type": "path",
+          "data": {
+            "pathName": "H Forward"
+          }
+        },
+        {
           "type": "parallel",
           "data": {
             "commands": [
               {
                 "type": "path",
                 "data": {
-                  "pathName": "J - CS_1"
+                  "pathName": "H Forward - CS_1"
                 }
               },
               {
@@ -73,7 +79,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "CS_1 - L"
+                  "pathName": "CS_1 - B"
                 }
               },
               {
@@ -101,6 +107,6 @@
     }
   },
   "resetOdom": true,
-  "folder": "Top",
+  "folder": "Center",
   "choreoAuto": false
 }

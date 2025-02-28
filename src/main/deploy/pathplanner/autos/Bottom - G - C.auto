@@ -11,7 +11,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "S_Top - J"
+                  "pathName": "Q_2 - G"
                 }
               },
               {
@@ -42,7 +42,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "J - CS_1"
+                  "pathName": "G - CS_2"
                 }
               },
               {
@@ -73,7 +73,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "CS_1 - L"
+                  "pathName": "CS_2 - C"
                 }
               },
               {
@@ -101,6 +101,6 @@
     }
   },
   "resetOdom": true,
-  "folder": "Top",
+  "folder": "Bottom",
   "choreoAuto": false
 }

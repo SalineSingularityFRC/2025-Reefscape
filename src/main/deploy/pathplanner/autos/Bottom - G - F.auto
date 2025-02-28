@@ -11,19 +11,13 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Q_2 - E"
+                  "pathName": "Q_2 - G"
                 }
               },
               {
                 "type": "named",
                 "data": {
                   "name": "L4"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Trough Down"
                 }
               }
             ]
@@ -48,7 +42,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "E - CS_2"
+                  "pathName": "G - CS_2"
                 }
               },
               {
@@ -79,7 +73,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "CS_2 - C"
+                  "pathName": "CS_2 - F"
                 }
               },
               {
@@ -107,6 +101,6 @@
     }
   },
   "resetOdom": true,
-  "folder": null,
+  "folder": "Bottom",
   "choreoAuto": false
 }

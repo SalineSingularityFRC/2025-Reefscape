@@ -316,18 +316,7 @@ public class SwerveSubsystem extends SubsystemBase {
     // gyro.reset();
   }
 
-  public void periodic() {
-
-    var Alliance = DriverStation.getAlliance();
-    if (Alliance.isPresent()) {
-      if (Alliance.get() == DriverStation.Alliance.Red) {
-        BlueAlliance = false;
-      }
-    }
-
-    SmartDashboard.putBoolean("Heading Issue/Is Blue", BlueAlliance);
-
-    publisher.set(odometry.getEstimatedPosition());
+  public void logData() {
 
     // Logging total speed
     ChassisSpeeds speeds = getChassisSpeed();
@@ -377,6 +366,23 @@ public class SwerveSubsystem extends SubsystemBase {
     pidgeonAngularVelocityZLog.append(gyro.getAngularVelocityZDevice().getValueAsDouble());
 
     pidgeonTimeLog.append(gyro.getUpTime().getValueAsDouble());
+  }
+
+  public void periodic() {
+
+    var Alliance = DriverStation.getAlliance();
+    if (Alliance.isPresent()) {
+      if (Alliance.get() == DriverStation.Alliance.Red) {
+        BlueAlliance = false;
+      }
+    }
+
+    SmartDashboard.putBoolean("Heading Issue/Is Blue", BlueAlliance);
+
+    publisher.set(odometry.getEstimatedPosition());
+
+    // logData();
+
   }
 
   public void disabledPeriodic() {
@@ -433,9 +439,9 @@ public class SwerveSubsystem extends SubsystemBase {
   public Command updateRotationPIDSetpointCommand() {
     return runOnce(
         () -> {
-            updateRotationPIDSetpoint();
+          updateRotationPIDSetpoint();
         });
-}
+  }
 
   // public Command rotate90() {
   // return runOnce(
@@ -733,6 +739,17 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   public Pose2d getClosestReef(AutoScoreTarget target) {
+
+    if (target.side == ReefFacetSide.LEFT) {
+      if (!BlueAlliance) {
+        target.side = ReefFacetSide.RIGHT;
+      }
+    } else {
+      if (!BlueAlliance) {
+        target.side = ReefFacetSide.LEFT;
+      }
+    }
+
     List<ReefPose> posesForSide = reefPoses.stream().filter((p) -> p.side == target.side).toList();
     // return posesForSide.get(0).pose;
 
@@ -781,7 +798,7 @@ public class SwerveSubsystem extends SubsystemBase {
       new ReefPose("I", ReefFacetSide.LEFT, new Pose2d(5.326, 5.148, new Rotation2d(Math.toRadians(240.0)))),
       new ReefPose("J", ReefFacetSide.RIGHT, new Pose2d(5.035, 5.305, new Rotation2d(Math.toRadians(240.0)))),
       new ReefPose("K", ReefFacetSide.LEFT, new Pose2d(3.936, 5.312, new Rotation2d(Math.toRadians(300.0)))),
-      new ReefPose("L", ReefFacetSide.RIGHT, new Pose2d(3.648, 5.148, new Rotation2d(Math.toRadians(300.0)))));      
+      new ReefPose("L", ReefFacetSide.RIGHT, new Pose2d(3.648, 5.148, new Rotation2d(Math.toRadians(300.0)))));
 
   public Command testPath(AutoScoreTarget target) {
     return new DeferredCommand(() -> {
@@ -811,7 +828,7 @@ public class SwerveSubsystem extends SubsystemBase {
     L1_LEFT(ReefFacetSide.LEFT),
     L1_RIGHT(ReefFacetSide.RIGHT);
 
-    public final ReefFacetSide side;
+    public ReefFacetSide side;
 
     AutoScoreTarget(ReefFacetSide side) {
       this.side = side;

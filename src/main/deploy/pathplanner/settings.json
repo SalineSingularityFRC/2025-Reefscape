@@ -12,8 +12,11 @@
     "To Reef From CS_1"
   ],
   "autoFolders": [
+    "Center",
+    "Bottom",
+    "Straight",
     "Test Autos",
-    "Straight"
+    "Top"
   ],
   "defaultMaxVel": 3.5,
   "defaultMaxAccel": 2.5,

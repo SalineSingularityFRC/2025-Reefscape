@@ -3,52 +3,44 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.037,
-        "y": 2.745
-      },
-      "prevControl": null,
-      "nextControl": {
-        "x": 5.021747448979593,
-        "y": 2.0140624999999988
-      },
-      "isLocked": false,
-      "linkedName": "E"
-    },
-    {
-      "anchor": {
         "x": 1.014795918367347,
         "y": 0.8201849489795905
       },
+      "prevControl": null,
+      "nextControl": {
+        "x": 5.581377551020409,
+        "y": 0.9022640306122446
+      },
+      "isLocked": false,
+      "linkedName": "CS_2"
+    },
+    {
+      "anchor": {
+        "x": 5.32,
+        "y": 2.909
+      },
       "prevControl": {
-        "x": 3.9024872448979595,
-        "y": 1.9916772959183664
+        "x": 6.7976403061224495,
+        "y": 0.8127232142857133
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "CS_2"
+      "linkedName": "F"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.8538647342995184,
+      "rotationDegrees": 119.99999999999999
+    }
+  ],
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 0,
-      "maxWaypointRelativePos": 0.2567164179104473,
-      "constraints": {
-        "maxVelocity": 1.5,
-        "maxAcceleration": 2.0,
-        "maxAngularVelocity": 540.0,
-        "maxAngularAcceleration": 673.0,
-        "nominalVoltage": 12.0,
-        "unlimited": false
-      }
-    },
-    {
-      "name": "Constraints Zone",
-      "minWaypointRelativePos": 0.8552238805970133,
+      "minWaypointRelativePos": 0.5029850746268658,
       "maxWaypointRelativePos": 1.0,
       "constraints": {
-        "maxVelocity": 2.0,
+        "maxVelocity": 1.5,
         "maxAcceleration": 2.5,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 673.0,
@@ -64,8 +56,8 @@
         "y": 4.026
       },
       "rotationOffset": 0.0,
-      "minWaypointRelativePos": 0.25,
-      "maxWaypointRelativePos": 0.75,
+      "minWaypointRelativePos": 0.12089552238805983,
+      "maxWaypointRelativePos": 0.6522388059701504,
       "name": "Point Towards Zone"
     }
   ],
@@ -80,13 +72,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 54.0
+    "rotation": 119.99999999999999
   },
   "reversed": false,
-  "folder": "To CS_2",
+  "folder": "To Reef From CS_2",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 119.99999999999999
+    "rotation": 54.0
   },
   "useDefaultConstraints": true
 }

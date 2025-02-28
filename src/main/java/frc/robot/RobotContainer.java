@@ -62,9 +62,23 @@ public class RobotContainer {
 
         this.pathAutonChooser = new SendableChooser<String>();
 
-        this.pathAutonChooser.setDefaultOption("Center - H - A", "Center - H - A");
-        this.pathAutonChooser.addOption("Top - J - L", "Top - J - L");
-        this.pathAutonChooser.addOption("Q_2 - E - C", "Q_2 - E - C");
+        this.pathAutonChooser.setDefaultOption("Center/ H - A", "Center - H - A");
+        this.pathAutonChooser.addOption("Center/ H - B", "Center - H - B");
+        this.pathAutonChooser.addOption("Center/ H - I", "Center - H - I");
+        this.pathAutonChooser.addOption("Center/ H - J", "Center - H - J");
+        this.pathAutonChooser.addOption("Center/ H - K", "Center - H - K");
+        this.pathAutonChooser.addOption("Center/ H - L", "Center - H - L");
+        this.pathAutonChooser.addOption("Top/ K - A", "TopTop - K - A");
+        this.pathAutonChooser.addOption("Top/ K - L", "TopTop - K - L");
+        this.pathAutonChooser.addOption("Top/ J - B", "Top - J - B");
+        this.pathAutonChooser.addOption("Top/ J - I", "Top - J - I");
+        this.pathAutonChooser.addOption("Top/ J - L", "Top - J - L");
+        this.pathAutonChooser.addOption("Top/ J - K", "Top - J - K");
+        this.pathAutonChooser.addOption("Bottom/ E - C", "Bottom - E - C");
+        this.pathAutonChooser.addOption("Bottom/ G - F", "Bottom - G - F");
+        this.pathAutonChooser.addOption("Bottom/ E - B", "Bottom - E - B");
+        this.pathAutonChooser.addOption("Bottom/ G - C", "Bottom - G - C");
+        this.pathAutonChooser.addOption("Bottom/ G - B", "Bottom - G - B");
 
         SmartDashboard.putData("Auton Choices", pathAutonChooser);
     }
