@@ -46,7 +46,8 @@ public class LEDStatusSubsystem extends SubsystemBase {
       LEDColor.GREEN, 0.87, // good 
       LEDColor.BLUE, 0.75, // good
       LEDColor.VIOLET, 0.71, // good
-      LEDColor.WHITE, 0.91); // Unfinished White
+      LEDColor.WHITE, 0.91,
+      LEDColor.FLASHBLUE, 0.15); // Unfinished White
 
   public void setColor(LEDColor color) {
     SmartDashboard.putString("LED/colorName", color.name());
@@ -62,9 +63,14 @@ public class LEDStatusSubsystem extends SubsystemBase {
     boolean isLoaded = false;
     boolean isLoading = false;
     boolean isReadyToShoot = false;
+    boolean isIntaking = false;
 
     if (intake.coralInIntake()) {
       isLoading = true;
+    }
+
+    if (intake.isMotorRunning() && intake.noCoralDetected()) {
+      isIntaking = true;
     }
 
     if (elevator.isAtSetpoint() && intake.readyToShoot()) {
@@ -81,6 +87,8 @@ public class LEDStatusSubsystem extends SubsystemBase {
       setColor(LEDColor.VIOLET);
     } else if (isLoaded) {
       setColor(LEDColor.WHITE);
+    } else if (isIntaking) {
+      setColor(LEDColor.FLASHBLUE);
     } else {
       setColor(LEDColor.GREEN);
     }

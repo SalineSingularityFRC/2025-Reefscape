@@ -151,6 +151,10 @@ public class IntakeSubsystem extends SubsystemBase {
                 });
     }
 
+    public boolean isMotorRunning() {
+        return Math.abs(rightMotor.get()) > 0.01;
+    }
+
     // public Command runMotorsBack() {
     //     return runEnd(
     //             () -> {
