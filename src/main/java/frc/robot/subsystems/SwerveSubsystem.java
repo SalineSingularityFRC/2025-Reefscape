@@ -740,16 +740,6 @@ public class SwerveSubsystem extends SubsystemBase {
 
   public Pose2d getClosestReef(AutoScoreTarget target) {
 
-    if (target.side == ReefFacetSide.LEFT) {
-      if (!BlueAlliance) {
-        target.side = ReefFacetSide.RIGHT;
-      }
-    } else {
-      if (!BlueAlliance) {
-        target.side = ReefFacetSide.LEFT;
-      }
-    }
-
     List<ReefPose> posesForSide = reefPoses.stream().filter((p) -> p.side == target.side).toList();
     // return posesForSide.get(0).pose;
 
@@ -787,8 +777,8 @@ public class SwerveSubsystem extends SubsystemBase {
 
   // Blue alliance only since we flip if red alliance (from pathplanner)
   static List<ReefPose> reefPoses = List.of(
-      new ReefPose("A", ReefFacetSide.LEFT, new Pose2d(3.049, 4.193, new Rotation2d(Math.toRadians(0)))),
-      new ReefPose("B", ReefFacetSide.RIGHT, new Pose2d(3.049, 3.863, new Rotation2d(Math.toRadians(0)))),
+      new ReefPose("A", ReefFacetSide.LEFT, new Pose2d(3.100, 4.193, new Rotation2d(Math.toRadians(0)))),
+      new ReefPose("B", ReefFacetSide.RIGHT, new Pose2d(3.100, 3.863, new Rotation2d(Math.toRadians(0)))),
       new ReefPose("C", ReefFacetSide.LEFT, new Pose2d(3.657, 2.917, new Rotation2d(Math.toRadians(60.0)))),
       new ReefPose("D", ReefFacetSide.RIGHT, new Pose2d(3.934, 2.738, new Rotation2d(Math.toRadians(60.0)))),
       new ReefPose("E", ReefFacetSide.LEFT, new Pose2d(5.037, 2.745, new Rotation2d(Math.toRadians(120.0)))),
