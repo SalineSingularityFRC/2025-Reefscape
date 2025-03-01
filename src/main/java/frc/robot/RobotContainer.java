@@ -72,7 +72,7 @@ public class RobotContainer {
         this.pathAutonChooser.addOption("Top/ J - B", "Top - J - B");
         this.pathAutonChooser.addOption("Top/ J - I", "Top - J - I");
         this.pathAutonChooser.addOption("Top/ J - L - K", "Top - J - L - K");
-        this.pathAutonChooser.addOption("Top/ J - K", "Top - J - K");
+        this.pathAutonChooser.addOption("Top/ J - K - L", "Top - J - K - L");
         this.pathAutonChooser.addOption("Bottom/ E - C - D", "Bottom - E - C - D");
         this.pathAutonChooser.addOption("Bottom/ G - F", "Bottom - G - F");
         this.pathAutonChooser.addOption("Bottom/ E - B", "Bottom - E - B");
