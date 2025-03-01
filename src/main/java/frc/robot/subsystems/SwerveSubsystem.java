@@ -803,7 +803,7 @@ public class SwerveSubsystem extends SubsystemBase {
   public Command testPath(AutoScoreTarget target) {
     return new DeferredCommand(() -> {
       Pose2d targetPose = getClosestReef(target);
-      PathConstraints constraints = new PathConstraints(2, 2, .5, .5);
+      PathConstraints constraints = new PathConstraints(1.5, 1.5, .5, .5);
 
       if (BlueAlliance) {
         return AutoBuilder.pathfindToPose(targetPose, constraints, 0);

@@ -71,7 +71,7 @@ public class RobotContainer {
         this.pathAutonChooser.addOption("Top/ K - L", "TopTop - K - L");
         this.pathAutonChooser.addOption("Top/ J - B", "Top - J - B");
         this.pathAutonChooser.addOption("Top/ J - I", "Top - J - I");
-        this.pathAutonChooser.addOption("Top/ J - L", "Top - J - L");
+        this.pathAutonChooser.addOption("Top/ J - L - K", "Top - J - L - K");
         this.pathAutonChooser.addOption("Top/ J - K", "Top - J - K");
         this.pathAutonChooser.addOption("Bottom/ E - C - D", "Bottom - E - C - D");
         this.pathAutonChooser.addOption("Bottom/ G - F", "Bottom - G - F");
@@ -185,7 +185,7 @@ public class RobotContainer {
                 }, () -> {
                     return 1.0;
                 },
-                        0.4));
+                        0.2));
 
         buttonController.axisLessThan(0, -0.1).whileTrue(
                 new ButtonDriveController(drive, () -> {
@@ -195,7 +195,7 @@ public class RobotContainer {
                 }, () -> {
                     return -1;
                 },
-                        0.4));
+                        0.2));
 
         buttonController.axisGreaterThan(1, 0.1).whileTrue(elevator.runMotors(true)
         .withName("runMotorsReverseTrue"));
