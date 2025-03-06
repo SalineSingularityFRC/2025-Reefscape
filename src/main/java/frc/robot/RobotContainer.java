@@ -158,22 +158,22 @@ public class RobotContainer {
         drive.setDefaultCommand(
                 new DriveController(drive, () -> {
                     if (driveController.getRightX() < 0) {
-                        return -1.0 * driveController.getRightX() * driveController.getRightX();
+                        return driveController.getRightX();
                     }
 
-                    return driveController.getRightX() * driveController.getRightX();
+                    return driveController.getRightX();
                 }, () -> {
                     if (driveController.getLeftY() < 0) {
-                        return -1.0 * driveController.getLeftY() * driveController.getLeftY();
+                        return driveController.getLeftY();
                     }
 
-                    return driveController.getLeftY() * driveController.getLeftY();
+                    return driveController.getLeftY();
                 }, () -> {
                     if (driveController.getLeftX() < 0) {
-                        return -1.0 * driveController.getLeftX() * driveController.getLeftX();
+                        return driveController.getLeftX();
                     }
 
-                    return driveController.getLeftX() * driveController.getLeftX();
+                    return driveController.getLeftX();
                 },
                         Constants.SwerveModule.Speed.MAX_SPEED));
 
