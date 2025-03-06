@@ -9,6 +9,13 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.Odometry;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.util.datalog.DataLog;
+import edu.wpi.first.util.datalog.DoubleLogEntry;
+import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.LimelightHelpers;
@@ -27,8 +34,33 @@ public class SwerveOdometry {
 
   private SwerveSubsystem subsystem;
 
+  private DataLog log;
+
+  private StructPublisher<Pose2d> publisher_left_limelight;
+  private StructPublisher<Pose2d> publisher_right_limelight;
+
+  private NetworkTableInstance inst;
+  private NetworkTable table;
+
+  private Boolean BlueAlliance;
+
   public SwerveOdometry(SwerveSubsystem subsystem, Translation2d[] vectorKinematics) {
     this.subsystem = subsystem;
+
+    log = DataLogManager.getLog();
+
+    var Alliance = DriverStation.getAlliance();
+    BlueAlliance = true;
+    if (Alliance.isPresent()) {
+      if (Alliance.get() == DriverStation.Alliance.Red) {
+        BlueAlliance = false;
+      }
+    }
+
+    inst = NetworkTableInstance.getDefault();
+    table = inst.getTable("datatable");
+    publisher_left_limelight = table.getStructTopic("Limelight MegaTag2 Pos Left", Pose2d.struct).publish();
+    publisher_right_limelight = table.getStructTopic("Limelight MegaTag2 Pos Right", Pose2d.struct).publish();
 
     swerveKinematics =
         new SwerveDriveKinematics(
@@ -37,7 +69,7 @@ public class SwerveOdometry {
     swerveOdometry =
         new SwerveDrivePoseEstimator(
             swerveKinematics,
-            new Rotation2d(subsystem.getRobotAngle()),
+            subsystem.getRobotRotation2dForOdometry(),
             new SwerveModulePosition[] {
               new SwerveModulePosition(
                   subsystem.getSwerveModule(FL).getPosition(),
@@ -52,12 +84,16 @@ public class SwerveOdometry {
                   subsystem.getSwerveModule(BR).getPosition(),
                   new Rotation2d(subsystem.getSwerveModule(BR).getEncoderPosition())),
             },
-            new Pose2d(0, 0, new Rotation2d()));
+            new Pose2d(0, 0, subsystem.getRobotRotation2dForOdometry()));
+
+    // int[] validIDs = {18};
+    // LimelightHelpers.SetFiducialIDFiltersOverride("limelight", validIDs);
+
   }
 
   public void update() {
     swerveOdometry.update(
-        new Rotation2d(subsystem.getRobotAngle()),
+        subsystem.getRobotRotation2dForOdometry(),
         new SwerveModulePosition[] {
           new SwerveModulePosition(
               subsystem.getSwerveModule(FL).getPosition(),
@@ -75,51 +111,98 @@ public class SwerveOdometry {
 
     boolean doRejectUpdate = false;
 
-    // MegaTag 1
-    LimelightHelpers.PoseEstimate mt1 = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight");
+    // // MegaTag 1
+    // LimelightHelpers.PoseEstimate mt1 = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight");
       
-      if(mt1.tagCount == 1 && mt1.rawFiducials.length == 1)
-      {
-        if(mt1.rawFiducials[0].ambiguity > .7)
-        {
-          doRejectUpdate = true;
-        }
-        if(mt1.rawFiducials[0].distToCamera > 3)
-        {
-          doRejectUpdate = true;
-        }
-      }
-      if(mt1.tagCount == 0)
-      {
-        doRejectUpdate = true;
-      }
+    //   if(mt1.tagCount == 1 && mt1.rawFiducials.length == 1)
+    //   {
+    //     if(mt1.rawFiducials[0].ambiguity > .7)
+    //     {
+    //       doRejectUpdate = true;
+    //     }
+    //     if(mt1.rawFiducials[0].distToCamera > 3)
+    //     {
+    //       doRejectUpdate = true;
+    //     }
+    //   }
+    //   if(mt1.tagCount == 0)
+    //   {
+    //     doRejectUpdate = true;
+    //   }
 
-      if(!doRejectUpdate)
-      {
-        swerveOdometry.setVisionMeasurementStdDevs(VecBuilder.fill(.5,.5,9999999));
-        swerveOdometry.addVisionMeasurement(
-            mt1.pose,
-            mt1.timestampSeconds);
-      }
+    //   if(!doRejectUpdate)
+    //   {
+    //     swerveOdometry.setVisionMeasurementStdDevs(VecBuilder.fill(1.5,1.5,5));
+    //     swerveOdometry.addVisionMeasurement(
+    //         mt1.pose,
+    //         mt1.timestampSeconds);
+    //   }
     
-    // // MegaTag 2
-    // LimelightHelpers.SetRobotOrientation("limelight", swerveOdometry.getEstimatedPosition().getRotation().getDegrees(), 0, 0, 0, 0, 0);
-    // LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
-    // if(Math.abs(subsystem.getAngularChassisSpeed()) > 360) // if our angular velocity is greater than 720 degrees per second, ignore vision updates
-    // {
-    //   doRejectUpdate = true;
-    // }
-    // if(mt2.tagCount == 0)
-    // {
-    //   doRejectUpdate = true;
-    // }
-    // if(!doRejectUpdate)
-    // {
-    //   swerveOdometry.setVisionMeasurementStdDevs(VecBuilder.fill(1.5,1.5,9999999));
-    //   swerveOdometry.addVisionMeasurement(
-    //       mt2.pose,
-    //       mt2.timestampSeconds);
-    // }
+    // MegaTag 2
+    LimelightHelpers.SetRobotOrientation("limelight-right", swerveOdometry.getEstimatedPosition().getRotation().getDegrees(), 0, 0, 0, 0, 0);
+    LimelightHelpers.SetRobotOrientation("limelight-left", swerveOdometry.getEstimatedPosition().getRotation().getDegrees(), 0, 0, 0, 0, 0);
+
+    // Always wpiBlue no matter what since we are always using blue origin
+    LimelightHelpers.PoseEstimate mt2_right = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-right");
+    LimelightHelpers.PoseEstimate mt2_left = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-left");
+    
+    if(Math.abs(subsystem.getAngularChassisSpeed()) > 680) // if our angular velocity is greater than 680 degrees per second, ignore vision updates
+    {
+      doRejectUpdate = true;
+    }
+    if(mt2_left.tagCount == 0)
+    {
+      doRejectUpdate = true;
+    }
+    if(!doRejectUpdate)
+    {
+      swerveOdometry.setVisionMeasurementStdDevs(VecBuilder.fill(0.7,0.7,9999999));
+      swerveOdometry.addVisionMeasurement(
+          mt2_left.pose,
+          mt2_left.timestampSeconds);
+    }
+
+    if(Math.abs(subsystem.getAngularChassisSpeed()) > 680) // if our angular velocity is greater than 680 degrees per second, ignore vision updates
+    {
+      doRejectUpdate = true;
+    }
+    if(mt2_right.tagCount == 0)
+    {
+      doRejectUpdate = true;
+    }
+    if(!doRejectUpdate)
+    {
+      swerveOdometry.setVisionMeasurementStdDevs(VecBuilder.fill(0.7,0.7,9999999));
+      swerveOdometry.addVisionMeasurement(
+          mt2_right.pose,
+          mt2_right.timestampSeconds);
+    }
+
+    publisher_left_limelight.set(mt2_left.pose);
+    publisher_right_limelight.set(mt2_right.pose);
+
+    // Assuming DataLogManager has already been started and log initialized
+    DoubleLogEntry targetXLog = new DoubleLogEntry(log, "Target X");
+    DoubleLogEntry targetYLog = new DoubleLogEntry(log, "Target Y");
+    DoubleLogEntry targetZLog = new DoubleLogEntry(log, "Target Z");
+    DoubleLogEntry targetPitchLog = new DoubleLogEntry(log, "Target Pitch");
+    DoubleLogEntry targetYawLog = new DoubleLogEntry(log, "Target Yaw");
+    DoubleLogEntry targetRollLog = new DoubleLogEntry(log, "Target Roll");
+
+    // double[] botPose = LimelightHelpers.getBotPose_TargetSpace("limelight");
+    // targetXLog.append(botPose[0]);
+    // targetYLog.append(botPose[1]);
+    // targetZLog.append(botPose[2]);
+    // targetPitchLog.append(botPose[3]);
+    // targetYawLog.append(botPose[4]);
+    // targetRollLog.append(botPose[5]);
+    
+    // SmartDashboard.putNumber("Target X", LimelightHelpers.getBotPose_TargetSpace("limelight")[0]);
+    // SmartDashboard.putNumber("Target Y", LimelightHelpers.getBotPose_TargetSpace("limelight")[1]);
+    // SmartDashboard.putNumber("Target Z", LimelightHelpers.getBotPose_TargetSpace("limelight")[2]);
+    // SmartDashboard.putNumber("Target Pitch", LimelightHelpers.getBotPose_TargetSpace("limelight")[3]);
+    // SmartDashboard.putNumber("Target Yaw", LimelightHelpers.getBotPose_TargetSpace("limelight")[4]);
+    // SmartDashboard.putNumber("Target Roll", LimelightHelpers.getBotPose_TargetSpace("limelight")[5]);
   }
 
   public Pose2d getEstimatedPosition() {
@@ -128,7 +211,7 @@ public class SwerveOdometry {
 
   public void resetPosition() {
     swerveOdometry.resetPosition(
-        new Rotation2d(subsystem.getRobotAngle()),
+        subsystem.getRobotRotation2dForOdometry(),
         new SwerveModulePosition[] {
           new SwerveModulePosition(
               subsystem.getSwerveModule(FL).getPosition(),
@@ -143,12 +226,16 @@ public class SwerveOdometry {
               subsystem.getSwerveModule(BR).getPosition(),
               new Rotation2d(subsystem.getSwerveModule(BR).getEncoderPosition())),
         },
-        new Pose2d(0, 0, new Rotation2d()));
+        new Pose2d(0, 0, subsystem.getRobotRotation2dForOdometry()));
   }
 
-    public void setPosition(Pose2d pos) {
+  public void setPosition(Pose2d pos) {
+
+    SmartDashboard.putNumber("Pathplanner Angle", pos.getRotation().getRadians());
+    SmartDashboard.putNumber("Setting Angle", subsystem.getRobotRotation2dForOdometry().getRadians());
+
     swerveOdometry.resetPosition(
-        new Rotation2d(subsystem.getRobotAngle()),
+        subsystem.getRobotRotation2dForOdometry(),
         new SwerveModulePosition[] {
           new SwerveModulePosition(
               subsystem.getSwerveModule(FL).getPosition(),

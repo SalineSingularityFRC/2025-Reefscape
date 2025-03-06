@@ -4,8 +4,6 @@
 
 package frc.robot;
 
-import java.util.HashMap;
-
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -13,7 +11,12 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
-import edu.wpi.first.wpilibj.Alert;
+import com.pathplanner.lib.commands.PathfindingCommand;
+
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.UsbCamera;
+import edu.wpi.first.util.PixelFormat;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
@@ -21,7 +24,18 @@ public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
   private RobotContainer m_robotContainer;
 
-  private HashMap<String, Alert> alerts;
+  public Robot() {
+    // CanBridge.runTCP();
+    DataLogManager.start();
+    // Creates UsbCamera and MjpegServer [1] and connects them
+    // UsbCamera cam = CameraServer.startAutomaticCapture();
+    // cam.setFPS(15);
+    // cam.setResolution(320, 240);
+    // cam.setPixelFormat(PixelFormat.kMJPEG);
+    // addPeriodic(() -> {
+    //   m_robotContainer.updateOdometry();
+    // }, 0.01, 0.005);
+  }
 
   @Override
   public void robotInit() {
@@ -40,7 +54,7 @@ public class Robot extends LoggedRobot {
         break;
       case REPLAY:
         System.out.println("REPLAY!");
-        setUseTiming(false);
+        // setUseTiming(false);
         String logPath = LogFileUtil.findReplayLog();
         Logger.setReplaySource(new WPILOGReader(logPath));
         Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim")));
@@ -49,46 +63,36 @@ public class Robot extends LoggedRobot {
 
     Logger.start();
 
-    alerts = new HashMap<String, Alert>();
-
-    CommandScheduler.getInstance().onCommandExecute((Command command) -> {
-      Alert alert = new Alert(command.getName(), Alert.AlertType.kInfo);
-      alert.set(true);
-      alerts.put(command.getName(), alert);
-    });
-
-    CommandScheduler.getInstance().onCommandFinish((Command command) -> {
-      Alert alert = alerts.get(command.getName());
-      alert.set(false);
-      alerts.remove(command.getName());
-    });
-
-    CommandScheduler.getInstance().onCommandInterrupt((Command command) -> {
-      Alert alert = alerts.get(command.getName());
-      alert.set(false);
-      alerts.remove(command.getName());
-    });
-
+    // AlertManager.initialize();
     m_robotContainer = new RobotContainer();
+    PathfindingCommand.warmupCommand().schedule();
   }
 
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
+    m_robotContainer.updateOdometry();
   }
 
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+  }
 
   @Override
-  public void disabledPeriodic() {}
+  public void disabledPeriodic() {
+  }
 
   @Override
-  public void disabledExit() {}
+  public void disabledExit() {
+  }
 
   @Override
   public void autonomousInit() {
+
     m_robotContainer.updateOdometry();
+
+    m_robotContainer.updateRotationPIDSetpoint();
+
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
     if (m_autonomousCommand != null) {
@@ -102,11 +106,15 @@ public class Robot extends LoggedRobot {
   }
 
   @Override
-  public void autonomousExit() {}
+  public void autonomousExit() {
+  }
 
   @Override
   public void teleopInit() {
+
     m_robotContainer.updateOdometry();
+
+    m_robotContainer.updateRotationPIDSetpoint();
 
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
@@ -119,7 +127,8 @@ public class Robot extends LoggedRobot {
   }
 
   @Override
-  public void teleopExit() {}
+  public void teleopExit() {
+  }
 
   @Override
   public void testInit() {
@@ -127,8 +136,10 @@ public class Robot extends LoggedRobot {
   }
 
   @Override
-  public void testPeriodic() {}
+  public void testPeriodic() {
+  }
 
   @Override
-  public void testExit() {}
+  public void testExit() {
+  }
 }
