@@ -240,7 +240,8 @@ public class SwerveSubsystem extends SubsystemBase {
       double rotation,
       double x,
       double y,
-      boolean fieldCentric) {
+      boolean fieldCentric,
+      double mulitplier) {
 
     double currentRobotAngle = gyro.getYaw().getValueAsDouble();
     double currentRobotAngleRadians = getRobotAngle();
@@ -248,15 +249,19 @@ public class SwerveSubsystem extends SubsystemBase {
     // this is to make sure if both the joysticks are at neutral position, the robot
     // and wheels
     // don't move or turn at all
-    // 0.05 value can be increased if the joystick is increasingly inaccurate at
+    // 0.08 value can be increased if the joystick is increasingly inaccurate at
     // neutral position
     if (Math.abs(x) < 0.07
         && Math.abs(y) < 0.07
-        && Math.abs(rotation) < 0.05) {
+        && Math.abs(rotation) < 0.08) {
 
       this.stop();
       return;
     }
+
+    x = x * mulitplier;
+    y = y * mulitplier;
+    rotation = rotation * mulitplier;
 
     double robotX = x;
     double robotY = y;
@@ -280,7 +285,7 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     // For correcting angular position when not rotating manually
-    if (Math.abs(rotation) > 0.05 || isRotating) {
+    if (Math.abs(rotation) > 0.08 * mulitplier || isRotating) {
       isRotating = true;
       rotationController.setSetpoint(gyro.getYaw().getValueAsDouble());
       rotationController.reset();
@@ -467,61 +472,61 @@ public class SwerveSubsystem extends SubsystemBase {
   // });
   // }
 
-  // Aligns the limelight to have near 0 degrees horizontal offset (around 0 tx)
-  public Command alignToTagCommand(Limelight lime) {
+  // // Aligns the limelight to have near 0 degrees horizontal offset (around 0 tx)
+  // public Command alignToTagCommand(Limelight lime) {
 
-    PIDController rotationController = new PIDController(0.025, 0, 0.000033);
-    rotationController.setSetpoint(0);
-    rotationController.setTolerance(1);
+  //   PIDController rotationController = new PIDController(0.025, 0, 0.000033);
+  //   rotationController.setSetpoint(0);
+  //   rotationController.setTolerance(1);
 
-    SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(0.1, 0);
+  //   SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(0.1, 0);
 
-    return new FunctionalCommand(
-        () -> {
+  //   return new FunctionalCommand(
+  //       () -> {
 
-        },
-        () -> {
-          if (lime.isTagFound()) {
-            double tx = lime.getTX();
+  //       },
+  //       () -> {
+  //         if (lime.isTagFound()) {
+  //           double tx = lime.getTX();
 
-            SmartDashboard.putNumber("tx in alignToTagCommand", tx);
+  //           SmartDashboard.putNumber("tx in alignToTagCommand", tx);
 
-            drive(-feedforward.calculate(tx) + rotationController.calculate(tx), 0, 0, true);
-          }
-        },
-        (_unused) -> {
+  //           drive(-feedforward.calculate(tx) + rotationController.calculate(tx), 0, 0, true);
+  //         }
+  //       },
+  //       (_unused) -> {
 
-        },
-        rotationController::atSetpoint,
-        this);
-  }
+  //       },
+  //       rotationController::atSetpoint,
+  //       this);
+  // }
 
   // Takes in a target distance to drive to away from the tag
   // Not using this in RobotContainer.java, using this in
   // alignAndDriveToTagCommand()
-  public Command driveToTagCommand(double targetDistance, Limelight lime) {
+  // public Command driveToTagCommand(double targetDistance, Limelight lime) {
 
-    PIDController driveController = new PIDController(0.395, 0, 0);
-    driveController.setSetpoint(targetDistance);
-    driveController.setTolerance(0.1);
+  //   PIDController driveController = new PIDController(0.395, 0, 0);
+  //   driveController.setSetpoint(targetDistance);
+  //   driveController.setTolerance(0.1);
 
-    SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(0.05, 0);
+  //   SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(0.05, 0);
 
-    return new FunctionalCommand(
-        () -> {
+  //   return new FunctionalCommand(
+  //       () -> {
 
-        },
-        () -> {
-          double distance = lime.getDistanceToTagInFeet();
+  //       },
+  //       () -> {
+  //         double distance = lime.getDistanceToTagInFeet();
 
-          drive(0, -feedforward.calculate(distance) + driveController.calculate(distance), 0, false);
-        },
-        (_unused) -> {
+  //         drive(0, -feedforward.calculate(distance) + driveController.calculate(distance), 0, false);
+  //       },
+  //       (_unused) -> {
 
-        },
-        driveController::atSetpoint,
-        this);
-  }
+  //       },
+  //       driveController::atSetpoint,
+  //       this);
+  // }
 
   // //Finds the Closest Distances That We have Calibrated Shooting From
   // // Not using this in RobotContainer.java, using this in
@@ -555,112 +560,112 @@ public class SwerveSubsystem extends SubsystemBase {
   // }
 
   // For Speaker with various distances to shoot
-  public Command alignAndDriveToTagCommand(Limelight lime) {
+  // public Command alignAndDriveToTagCommand(Limelight lime) {
 
-    PIDController rotationController = new PIDController(0.025, 0, 0.000033);
-    rotationController.setSetpoint(0);
-    rotationController.setTolerance(1);
+  //   PIDController rotationController = new PIDController(0.025, 0, 0.000033);
+  //   rotationController.setSetpoint(0);
+  //   rotationController.setTolerance(1);
 
-    SimpleMotorFeedforward rotationFeedForward = new SimpleMotorFeedforward(0, 0);
+  //   SimpleMotorFeedforward rotationFeedForward = new SimpleMotorFeedforward(0, 0);
 
-    PIDController driveController = new PIDController(0.395, 0, 0);
-    driveController.setTolerance(0.1);
+  //   PIDController driveController = new PIDController(0.395, 0, 0);
+  //   driveController.setTolerance(0.1);
 
-    SimpleMotorFeedforward driveFeedForward = new SimpleMotorFeedforward(0.01, 0);
+  //   SimpleMotorFeedforward driveFeedForward = new SimpleMotorFeedforward(0.01, 0);
 
-    return new FunctionalCommand(
-        () -> {
+  //   return new FunctionalCommand(
+  //       () -> {
 
-        },
-        () -> {
-          double distance = lime.getDistanceToTagInFeet();
-          double toDriveDistance = 0;
+  //       },
+  //       () -> {
+  //         double distance = lime.getDistanceToTagInFeet();
+  //         double toDriveDistance = 0;
 
-          if (distance > 6) {
-            toDriveDistance = 6;
-          } else {
-            toDriveDistance = distance;
-          }
+  //         if (distance > 6) {
+  //           toDriveDistance = 6;
+  //         } else {
+  //           toDriveDistance = distance;
+  //         }
 
-          driveController.setSetpoint(toDriveDistance);
+  //         driveController.setSetpoint(toDriveDistance);
 
-          SmartDashboard.putNumber("finding closest distance", toDriveDistance);
-          SmartDashboard.putNumber("distance", distance);
+  //         SmartDashboard.putNumber("finding closest distance", toDriveDistance);
+  //         SmartDashboard.putNumber("distance", distance);
 
-          double tx = lime.getTX();
+  //         double tx = lime.getTX();
 
-          double driveSpeed = driveController.calculate(distance);
+  //         double driveSpeed = driveController.calculate(distance);
 
-          if (driveSpeed >= 3.5) {
-            driveSpeed = 3.5;
-          } else if (driveSpeed <= -3.5) {
-            driveSpeed = -3.5;
-          }
+  //         if (driveSpeed >= 3.5) {
+  //           driveSpeed = 3.5;
+  //         } else if (driveSpeed <= -3.5) {
+  //           driveSpeed = -3.5;
+  //         }
 
-          if (lime.isTagFound()) {
-            drive(
-                -rotationFeedForward.calculate(tx) + rotationController.calculate(tx),
-                -driveFeedForward.calculate(distance) + driveSpeed,
-                0,
-                false);
-          }
-        },
-        (_unused) -> {
+  //         if (lime.isTagFound()) {
+  //           drive(
+  //               -rotationFeedForward.calculate(tx) + rotationController.calculate(tx),
+  //               -driveFeedForward.calculate(distance) + driveSpeed,
+  //               0,
+  //               false);
+  //         }
+  //       },
+  //       (_unused) -> {
 
-        },
-        () -> {
-          return driveController.atSetpoint() && rotationController.atSetpoint();
-        },
-        this);
-  }
+  //       },
+  //       () -> {
+  //         return driveController.atSetpoint() && rotationController.atSetpoint();
+  //       },
+  //       this);
+  // }
 
   // Getting to the amp diagonally
-  public Command alignAndGetPerpendicularToTagCommand(Limelight lime) {
+  // public Command alignAndGetPerpendicularToTagCommand(Limelight lime) {
 
-    PIDController rotationController = new PIDController(0.0315, 0, 0.000033);
-    rotationController.setSetpoint(0);
-    rotationController.setTolerance(1);
+  //   PIDController rotationController = new PIDController(0.0315, 0, 0.000033);
+  //   rotationController.setSetpoint(0);
+  //   rotationController.setTolerance(1);
 
-    SimpleMotorFeedforward rotationFeedForward = new SimpleMotorFeedforward(0, 0);
+  //   SimpleMotorFeedforward rotationFeedForward = new SimpleMotorFeedforward(0, 0);
 
-    PIDController driveController = new PIDController(0.395, 0, 0);
-    driveController.setSetpoint(0);
-    driveController.setTolerance(0.1);
+  //   PIDController driveController = new PIDController(0.395, 0, 0);
+  //   driveController.setSetpoint(0);
+  //   driveController.setTolerance(0.1);
 
-    SimpleMotorFeedforward driveFeedForward = new SimpleMotorFeedforward(0.01, 0);
+  //   SimpleMotorFeedforward driveFeedForward = new SimpleMotorFeedforward(0.01, 0);
 
-    return new FunctionalCommand(
-        () -> {
+  //   return new FunctionalCommand(
+  //       () -> {
 
-        },
-        () -> {
-          double distance = lime.getDistanceToTagInFeet();
+  //       },
+  //       () -> {
+  //         double distance = lime.getDistanceToTagInFeet();
 
-          double driveSpeed = driveController.calculate(distance);
+  //         double driveSpeed = driveController.calculate(distance);
 
-          if (driveSpeed >= 3.5) {
-            driveSpeed = 3.5;
-          } else if (driveSpeed <= -3.5) {
-            driveSpeed = -3.5;
-          }
+  //         if (driveSpeed >= 3.5) {
+  //           driveSpeed = 3.5;
+  //         } else if (driveSpeed <= -3.5) {
+  //           driveSpeed = -3.5;
+  //         }
 
-          if (lime.isTagFound()) {
-            drive(
-                rotationFeedForward.calculate(gyro.getYaw().getValueAsDouble() - 270)
-                    - rotationController.calculate(gyro.getYaw().getValueAsDouble() - 270),
-                -driveFeedForward.calculate(distance) + driveSpeed,
-                0,
-                false);
-          }
-        },
-        (_unused) -> {
+  //         if (lime.isTagFound()) {
+  //           drive(
+  //               rotationFeedForward.calculate(gyro.getYaw().getValueAsDouble() - 270)
+  //                   - rotationController.calculate(gyro.getYaw().getValueAsDouble() - 270),
+  //               -driveFeedForward.calculate(distance) + driveSpeed,
+  //               0,
+  //               false);
+  //         }
+  //       },
+  //       (_unused) -> {
 
-        },
-        () -> {
-          return driveController.atSetpoint() && rotationController.atSetpoint();
-        },
-        this);
-  }
+  //       },
+  //       () -> {
+  //         return driveController.atSetpoint() && rotationController.atSetpoint();
+  //       },
+  //       this);
+  // }
 
   public Command xMode() {
     return runOnce(

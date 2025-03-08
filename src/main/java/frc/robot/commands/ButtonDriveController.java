@@ -29,10 +29,11 @@ public class ButtonDriveController extends Command {
         // SmartDashboard.putNumber("Input Y", fixDecimalTo2Places(-m_y.getAsDouble()));
         // SmartDashboard.putNumber("Input Rotation", fixDecimalTo2Places(-m_rotation.getAsDouble()));
         m_swerve.drive(
-                -m_rotation.getAsDouble() * multiplier,
-                -m_x.getAsDouble() * multiplier,
-                -m_y.getAsDouble() * multiplier,
-                false);
+                -m_rotation.getAsDouble(),
+                -m_x.getAsDouble(),
+                -m_y.getAsDouble(),
+                false,
+                multiplier);
     }
   
 
