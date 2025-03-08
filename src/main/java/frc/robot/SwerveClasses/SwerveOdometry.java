@@ -140,11 +140,11 @@ public class SwerveOdometry {
     
     // MegaTag 2
     LimelightHelpers.SetRobotOrientation("limelight-right", swerveOdometry.getEstimatedPosition().getRotation().getDegrees(), 0, 0, 0, 0, 0);
-    LimelightHelpers.SetRobotOrientation("limelight-left", swerveOdometry.getEstimatedPosition().getRotation().getDegrees(), 0, 0, 0, 0, 0);
+    LimelightHelpers.SetRobotOrientation("limelight-top", swerveOdometry.getEstimatedPosition().getRotation().getDegrees(), 0, 0, 0, 0, 0);
 
     // Always wpiBlue no matter what since we are always using blue origin
     LimelightHelpers.PoseEstimate mt2_right = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-right");
-    LimelightHelpers.PoseEstimate mt2_left = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-left");
+    LimelightHelpers.PoseEstimate mt2_left = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-top");
     
     if(Math.abs(subsystem.getAngularChassisSpeed()) > 680) // if our angular velocity is greater than 680 degrees per second, ignore vision updates
     {

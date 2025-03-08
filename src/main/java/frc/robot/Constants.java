@@ -314,7 +314,17 @@ public final class Constants {
   }
 
   public static class Elevator {
+
     public static ConfigInt FOLLOW_DUALENABLE = new ConfigInt("Elevator/DUALENABLE", 0);
+
+    public static class Heights {
+
+      // From the ground (in)
+      public static ConfigDouble LOWEST_HEIGHT = new ConfigDouble("Elevator/Heights/Lowest Height", 12);
+      public static ConfigDouble HIGHEST_HEIGHT = new ConfigDouble("Elevator/Positions/Highest Height", 72);
+      public static ConfigDouble CAMERA_LOWEST_HEIGHT = new ConfigDouble("Elevator/Positions/Camera Lowest Height", 10);
+      public static ConfigDouble DEADZONE = new ConfigDouble("Elevator/Positions/Deadzone Intake See Elevator", 10);
+    }
 
     public static class Positions {
       public static ConfigInt FEED_STATION_COUNTS = new ConfigInt("Elevator/Positions/Feed Station in counts", 0);

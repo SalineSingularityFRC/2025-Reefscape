@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 
 import com.revrobotics.spark.SparkFlex;
 
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.IntFunction;
 
@@ -160,7 +161,7 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     public void periodic() {
         if (!manual) {
-            if (intake.elevator_can_move.getAsBoolean()) {
+            if (intake.elevator_can_move.getAsBoolean() || ifElevatorNearIntakeSensor.getAsBoolean()) {
                 moveToSetpoint();
             } else {
                 elevatorPrimaryMotor.stopMotor();
@@ -180,7 +181,14 @@ public class ElevatorSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("Elevator/Actual Position", elevatorEncoder.getPosition());
         SmartDashboard.putData("Elevator/Model", mech2d);
         SmartDashboard.putNumber("Elevator/Amp", elevatorPrimaryMotor.getOutputCurrent());
+        SmartDashboard.putNumber("Elevator/Camera Height", getCurrentCameraHeight());
+        SmartDashboard.putBoolean("Elevator/Is Near Intake Sensor", ifElevatorNearIntakeSensor.getAsBoolean());
     }
+
+    // Sometimes intake sensor sees top of elevator
+    public BooleanSupplier ifElevatorNearIntakeSensor = () -> {
+        return Math.abs(elevatorEncoder.getPosition() - 53.0) < Constants.Elevator.Heights.DEADZONE.getValue();
+    };
 
     /**
      * Command to set the subsystem setpoint. This will set the arm and elevator to
@@ -224,6 +232,16 @@ public class ElevatorSubsystem extends SubsystemBase {
     public Boolean isAtSetpoint() {
         return Math.abs(elevatorCurrentTarget
                 - elevatorEncoder.getPosition()) < Elevator.PrimaryMotor.MAX_CONTROL_ERROR_IN_COUNTS.getValue();
+    }
+
+    public double getCurrentCameraHeight() {
+
+        double currentPercentage = elevatorEncoder.getPosition()
+                / (Elevator.Positions.L4_COUNTS.getValue() - Elevator.Positions.FEED_STATION_COUNTS.getValue());
+        
+        double totalTravelHeight = Elevator.Heights.HIGHEST_HEIGHT.getValue() - Elevator.Heights.LOWEST_HEIGHT.getValue();
+
+        return currentPercentage * totalTravelHeight + Elevator.Heights.CAMERA_LOWEST_HEIGHT.getValue();
     }
 
     public boolean isElevatorAtSetpoint() {
@@ -330,7 +348,7 @@ public class ElevatorSubsystem extends SubsystemBase {
                     elevatorPrimaryMotor.stopMotor();
                     manual = false;
                     elevatorCurrentTarget = elevatorEncoder.getPosition();
-                }).onlyWhile(intake.elevator_can_move);
+                }).onlyWhile(() -> intake.elevator_can_move.getAsBoolean() || ifElevatorNearIntakeSensor.getAsBoolean());
     }
 
     public Command runMotorsJoystick(boolean reverse, DoubleSupplier joyStickSpeed) {
@@ -344,6 +362,6 @@ public class ElevatorSubsystem extends SubsystemBase {
                     elevatorPrimaryMotor.stopMotor();
                     manual = false;
                     elevatorCurrentTarget = elevatorEncoder.getPosition();
-                }).onlyWhile(intake.elevator_can_move);
+                }).onlyWhile(() -> intake.elevator_can_move.getAsBoolean() || ifElevatorNearIntakeSensor.getAsBoolean());
     }
 }

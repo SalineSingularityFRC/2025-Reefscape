@@ -3,6 +3,7 @@
 // the WPILib BSD license file in the root directory of this project.
 package frc.robot;
 
+import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
@@ -29,7 +30,7 @@ public class RobotContainer {
     private Limelight lime;
     private CommandXboxController driveController;
     private CommandXboxController buttonController;
-    private SendableChooser<String> pathAutonChooser;
+    private SendableChooser<Command> autoChooser;
     private IntakeSubsystem intake;
     // private CommandGenericHID simController;
     private ElevatorSubsystem elevator;
@@ -59,27 +60,37 @@ public class RobotContainer {
         NamedCommands.registerCommand("RumbleCommantStart", new RumbleCommandStart(driveController));
         NamedCommands.registerCommand("RumbleCommantStop", new RumbleCommandStop(driveController));
 
-        this.pathAutonChooser = new SendableChooser<String>();
+        // For convenience a programmer could change this when going to competition.
+        boolean isCompetition = true;
 
-        this.pathAutonChooser.setDefaultOption("Center/ H - A", "Center - H - A");
-        this.pathAutonChooser.addOption("Center/ H - B", "Center - H - B");
-        this.pathAutonChooser.addOption("Center/ H - I", "Center - H - I");
-        this.pathAutonChooser.addOption("Center/ H - J", "Center - H - J");
-        this.pathAutonChooser.addOption("Center/ H - K", "Center - H - K");
-        this.pathAutonChooser.addOption("Center/ H - L", "Center - H - L");
-        this.pathAutonChooser.addOption("Top/ K - A", "TopTop - K - A");
-        this.pathAutonChooser.addOption("Top/ K - L", "TopTop - K - L");
-        this.pathAutonChooser.addOption("Top/ J - B", "Top - J - B");
-        this.pathAutonChooser.addOption("Top/ J - I", "Top - J - I");
-        this.pathAutonChooser.addOption("Top/ J - L - K", "Top - J - L - K");
-        this.pathAutonChooser.addOption("Top/ J - K - L", "Top - J - K - L");
-        this.pathAutonChooser.addOption("Bottom/ E - C - D", "Bottom - E - C - D");
-        this.pathAutonChooser.addOption("Bottom/ G - F", "Bottom - G - F");
-        this.pathAutonChooser.addOption("Bottom/ E - B", "Bottom - E - B");
-        this.pathAutonChooser.addOption("Bottom/ G - C", "Bottom - G - C");
-        this.pathAutonChooser.addOption("Bottom/ G - B", "Bottom - G - B");
+        // Build an auto chooser. This will use Commands.none() as the default option.
+        // As an example, this will only show autos that start with "comp" while at
+        // competition as defined by the programmer
+        autoChooser = AutoBuilder.buildAutoChooserWithOptionsModifier(
+                (stream) -> isCompetition
+                        ? stream.filter(auto -> (auto.getName().startsWith("Bottom") || auto.getName().startsWith("Top")
+                                || auto.getName().startsWith("Center")))
+                        : stream);
 
-        SmartDashboard.putData("Auton Choices", pathAutonChooser);
+        // this.autoChooser.setDefaultOption("Center/ H - A", "Center - H - A");
+        // this.autoChooser.addOption("Center/ H - B", "Center - H - B");
+        // this.autoChooser.addOption("Center/ H - I", "Center - H - I");
+        // this.autoChooser.addOption("Center/ H - J", "Center - H - J");
+        // this.autoChooser.addOption("Center/ H - K", "Center - H - K");
+        // this.autoChooser.addOption("Center/ H - L", "Center - H - L");
+        // this.autoChooser.addOption("Top/ K - A", "TopTop - K - A");
+        // this.autoChooser.addOption("Top/ K - L", "TopTop - K - L");
+        // this.autoChooser.addOption("Top/ J - B", "Top - J - B");
+        // this.autoChooser.addOption("Top/ J - I", "Top - J - I");
+        // this.autoChooser.addOption("Top/ J - L - K", "Top - J - L - K");
+        // this.autoChooser.addOption("Top/ J - K - L", "Top - J - K - L");
+        // this.autoChooser.addOption("Bottom/ E - C - D", "Bottom - E - C - D");
+        // this.autoChooser.addOption("Bottom/ G - F", "Bottom - G - F");
+        // this.autoChooser.addOption("Bottom/ E - B", "Bottom - E - B");
+        // this.autoChooser.addOption("Bottom/ G - C", "Bottom - G - C");
+        // this.autoChooser.addOption("Bottom/ G - B", "Bottom - G - B");
+
+        SmartDashboard.putData("Auto Chooser", autoChooser);
     }
 
     public void initialize() {
@@ -157,22 +168,10 @@ public class RobotContainer {
 
         drive.setDefaultCommand(
                 new DriveController(drive, () -> {
-                    if (driveController.getRightX() < 0) {
-                        return driveController.getRightX();
-                    }
-
                     return driveController.getRightX();
                 }, () -> {
-                    if (driveController.getLeftY() < 0) {
-                        return driveController.getLeftY();
-                    }
-
                     return driveController.getLeftY();
                 }, () -> {
-                    if (driveController.getLeftX() < 0) {
-                        return driveController.getLeftX();
-                    }
-
                     return driveController.getLeftX();
                 },
                         Constants.SwerveModule.Speed.MAX_SPEED));
@@ -198,16 +197,15 @@ public class RobotContainer {
                         0.2));
 
         buttonController.axisGreaterThan(1, 0.1).whileTrue(elevator.runMotors(true)
-        .withName("runMotorsReverseTrue"));
+                .withName("runMotorsReverseTrue"));
 
         buttonController.axisLessThan(1, -0.1).whileTrue(elevator.runMotors(false)
-        .withName("runMotorsReverseFalse"));
+                .withName("runMotorsReverseFalse"));
 
-                
     }
 
     protected Command getAutonomousCommand() {
-        return new PathPlannerAuto(this.pathAutonChooser.getSelected());
+        return autoChooser.getSelected();
     }
 
     protected void updateOdometry() {

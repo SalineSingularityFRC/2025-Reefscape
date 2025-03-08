@@ -30,10 +30,11 @@ public class DriveController extends Command {
         // SmartDashboard.putNumber("Input Y", fixDecimalTo2Places(-m_y.getAsDouble()));
         // SmartDashboard.putNumber("Input Rotation", fixDecimalTo2Places(-m_rotation.getAsDouble()));
         m_swerve.drive(
-                -m_rotation.getAsDouble() * multiplier,
-                -m_x.getAsDouble() * multiplier,
-                -m_y.getAsDouble() * multiplier,
-                true);
+                -m_rotation.getAsDouble(),
+                -m_x.getAsDouble(),
+                -m_y.getAsDouble(),
+                true,
+                multiplier);
     }
 
     public boolean isFinished() {

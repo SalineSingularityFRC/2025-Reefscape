@@ -177,42 +177,4 @@ public class Limelight extends SubsystemBase{
     }
   }
 
-
-  public Command scoreRight(SwerveSubsystem d) {
-    return run(
-    () -> {
-      turnRobot(d);
-    });
-  }
-  public Pose2d getPosition() {
-      Pose2d T_robot_to_tag = new Pose2d(targetPoseZ, -targetPoseX, new Rotation2d(-Math.atan2(targetPoseX, targetPoseZ)));
-      Pose2d T_field_to_tag = new Pose2d(-.04, 5.56, new Rotation2d(0));
-
-      //Pose2d T_field_to_robot = T_field_to_tag.transformBy(T_robot_to_tag);
-
-      return null;
-  }
-
-
-  public Command turnRobot(SwerveSubsystem d){
-    return new FunctionalCommand(
-    () -> {
-
-    }, 
-    () -> {
-      setpipeline(0);
-      //YAW
-      double pos = targetPoseYaw;
-      System.out.println(pos);
-      double rotation = turnController.calculate(pos);
-      d.drive(rotation, 0, 0, false);
-    },
-    (_unused) -> {
-
-    },
-    turnController::atSetpoint,
-    this, d
-    );
-  }
-
 }
