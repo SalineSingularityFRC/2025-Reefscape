@@ -25,10 +25,12 @@ import frc.robot.Constants.Intake;
 public class IntakeSubsystem extends SubsystemBase {
     private SparkFlex rightMotor;
     private SparkFlex leftMotor;
+    private LaserCan troughSensor;
     private LaserCan intakeSensor;
     private LaserCan shooterSensor;
     private double motorSpeed;
     private double sensingDistance;
+    private double troughSenserDistance;
     private SparkClosedLoopController leftIntakeClosedLoopController;
     private SparkClosedLoopController rightIntakeClosedLoopController;
         private Double motorSpeedSlow;
@@ -38,10 +40,12 @@ public class IntakeSubsystem extends SubsystemBase {
         private static final int LASER_CAN_NO_MEASUREMENT = -1;
     
         public IntakeSubsystem() {
+            troughSensor = new LaserCan(Constants.CanId.Intake.TROUGH_LASER);
             intakeSensor = new LaserCan(Constants.CanId.Intake.INTAKE_LASER);
             shooterSensor = new LaserCan(Constants.CanId.Intake.SHOOTER_LASER);
     
             sensingDistance = Intake.Nums.sensingDistance.getValue();
+            troughSenserDistance = Intake.Nums.troughSenserDistance.getValue();
             motorSpeed = Intake.Nums.motorSpeed.getValue();
             motorSpeedSlow = Intake.Nums.motorSpeedSlow.getValue();
 
@@ -86,6 +90,7 @@ public class IntakeSubsystem extends SubsystemBase {
     
         public void periodic() {
             sensingDistance = Intake.Nums.sensingDistance.getValue();
+            troughSenserDistance = Intake.Nums.troughSenserDistance.getValue();
             motorSpeed = Intake.Nums.motorSpeed.getValue();
             motorSpeedSlow = Intake.Nums.motorSpeedSlow.getValue();
 
@@ -93,6 +98,7 @@ public class IntakeSubsystem extends SubsystemBase {
         // SmartDashboard.putNumber("Shooter Sensor", getSensorValue(shooterSensor));
         SmartDashboard.putBoolean("Coral in intake", coralInIntake());
         SmartDashboard.putBoolean("Coral in shooter", coralInShooter());
+        SmartDashboard.putBoolean("Coral In Trough", coralInTrough());
     }
 
     public boolean canSeeCoral(LaserCan sensor) {
@@ -115,6 +121,10 @@ public class IntakeSubsystem extends SubsystemBase {
         return canSeeCoral(shooterSensor);
     }
 
+    public boolean coralInTrough(){
+        return troughSensor.getMeasurement() != null && getSensorValue(troughSensor) <= troughSenserDistance;
+    }
+
     public boolean readyToShoot() {
         return canSeeCoral(shooterSensor) && !canSeeCoral(intakeSensor);
     }
@@ -134,6 +144,13 @@ public class IntakeSubsystem extends SubsystemBase {
     public int getSensorValue(LaserCan sensor) {
         Measurement measurement = sensor.getMeasurement();
         return measurement == null ? LASER_CAN_NO_MEASUREMENT : measurement.distance_mm;
+    }
+
+    //This Command is for driving away from the coral station when the coral enters the trough
+    public Command waitUntilCoral(){
+        return run(() -> {
+
+        }).until(() -> coralInTrough() || readyToShoot());
     }
 
     public Command runMotors() {
