@@ -43,9 +43,9 @@ public class RobotContainer {
         drive = new SwerveSubsystem();
         intake = new IntakeSubsystem();
         elevator = new ElevatorSubsystem(intake);
-        climber = new ClimberSubsystem();
+        // climber = new ClimberSubsystem();
         ledStatus = new LEDStatusSubsystem(intake, lime, elevator);
-        trough = new TroughSubsystem();
+        // trough = new TroughSubsystem();
 
         driveController = new CommandXboxController(Constants.Gamepad.Controller.DRIVE);
         buttonController = new CommandXboxController(Constants.Gamepad.Controller.BUTTON);

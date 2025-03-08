@@ -109,8 +109,8 @@ public class ElevatorSubsystem extends SubsystemBase {
         elevatorPrimaryMotorConfig.closedLoop
                 .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
                 // Set PID values for position control
-                .p(Elevator.PrimaryMotor.KP.getValue())
-                .d(Elevator.PrimaryMotor.KD.getValue())
+                .pidf(Elevator.PrimaryMotor.KP.getValue(), Elevator.PrimaryMotor.KI.getValue(),
+                        Elevator.PrimaryMotor.KD.getValue(), Elevator.PrimaryMotor.KF.getValue())
                 .outputRange(Elevator.PrimaryMotor.MIN_POWER.getValue(),
                         Elevator.PrimaryMotor.MAX_POWER.getValue()).maxMotion
                 // Set MAXMotion parameters for position control
@@ -151,7 +151,6 @@ public class ElevatorSubsystem extends SubsystemBase {
 
         elevatorClosedLoopController = elevatorPrimaryMotor.getClosedLoopController();
         elevatorEncoder = elevatorPrimaryMotor.getEncoder();
-
         this.intake = intake;
 
         // Simulation stuff
@@ -161,7 +160,7 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     public void periodic() {
         if (!manual) {
-            if (intake.elevator_can_move.getAsBoolean() || ifElevatorNearIntakeSensor.getAsBoolean()) {
+            if (intake.elevator_can_move.getAsBoolean()) {
                 moveToSetpoint();
             } else {
                 elevatorPrimaryMotor.stopMotor();
@@ -182,7 +181,6 @@ public class ElevatorSubsystem extends SubsystemBase {
         SmartDashboard.putData("Elevator/Model", mech2d);
         SmartDashboard.putNumber("Elevator/Amp", elevatorPrimaryMotor.getOutputCurrent());
         SmartDashboard.putNumber("Elevator/Camera Height", getCurrentCameraHeight());
-        SmartDashboard.putBoolean("Elevator/Is Near Intake Sensor", ifElevatorNearIntakeSensor.getAsBoolean());
     }
 
     // Sometimes intake sensor sees top of elevator
@@ -238,10 +236,11 @@ public class ElevatorSubsystem extends SubsystemBase {
 
         double currentPercentage = elevatorEncoder.getPosition()
                 / (Elevator.Positions.L4_COUNTS.getValue() - Elevator.Positions.FEED_STATION_COUNTS.getValue());
-        
-        double totalTravelHeight = Elevator.Heights.HIGHEST_HEIGHT.getValue() - Elevator.Heights.LOWEST_HEIGHT.getValue();
 
-        return currentPercentage * totalTravelHeight + Elevator.Heights.CAMERA_LOWEST_HEIGHT.getValue();
+        double totalTravelHeight = Elevator.Heights.HIGHEST_HEIGHT.getValue()
+                - Elevator.Heights.LOWEST_HEIGHT.getValue();
+
+        return currentPercentage * totalTravelHeight + Elevator.Heights.LOWEST_HEIGHT.getValue();
     }
 
     public boolean isElevatorAtSetpoint() {
@@ -348,7 +347,7 @@ public class ElevatorSubsystem extends SubsystemBase {
                     elevatorPrimaryMotor.stopMotor();
                     manual = false;
                     elevatorCurrentTarget = elevatorEncoder.getPosition();
-                }).onlyWhile(() -> intake.elevator_can_move.getAsBoolean() || ifElevatorNearIntakeSensor.getAsBoolean());
+                }).onlyWhile(() -> intake.elevator_can_move.getAsBoolean());
     }
 
     public Command runMotorsJoystick(boolean reverse, DoubleSupplier joyStickSpeed) {
@@ -362,6 +361,6 @@ public class ElevatorSubsystem extends SubsystemBase {
                     elevatorPrimaryMotor.stopMotor();
                     manual = false;
                     elevatorCurrentTarget = elevatorEncoder.getPosition();
-                }).onlyWhile(() -> intake.elevator_can_move.getAsBoolean() || ifElevatorNearIntakeSensor.getAsBoolean());
+                }).onlyWhile(() -> intake.elevator_can_move.getAsBoolean());
     }
 }
