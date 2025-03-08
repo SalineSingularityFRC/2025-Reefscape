@@ -57,6 +57,7 @@ public class RobotContainer {
         NamedCommands.registerCommand("L4", elevator.targetPosition(Setpoint.kLevel4));
         NamedCommands.registerCommand("Intake Coral", intake.intakeCoral());
         NamedCommands.registerCommand("Shoot Coral", intake.shootCoral());
+        NamedCommands.registerCommand("Wait For Coral", intake.waitUntilCoral());
         NamedCommands.registerCommand("RumbleCommantStart", new RumbleCommandStart(driveController));
         NamedCommands.registerCommand("RumbleCommantStop", new RumbleCommandStop(driveController));
 

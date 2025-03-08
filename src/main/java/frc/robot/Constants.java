@@ -22,6 +22,7 @@ public final class Constants {
       public static final int RIGHT_MOTOR = 31;
       public static final int INTAKE_LASER = 32;
       public static final int SHOOTER_LASER = 33;
+      public static final int TROUGH_LASER = 34;
     }
 
     public static final class Climber {
@@ -362,6 +363,7 @@ public final class Constants {
       public static ConfigDouble motorSpeed = new ConfigDouble("Intake Motor Speed", .1);
       public static ConfigDouble motorSpeedSlow = new ConfigDouble("Intake Motor Speed Slow", .1);
       public static ConfigDouble sensingDistance = new ConfigDouble("Sensor Max Distance", 100);
+      public static ConfigDouble troughSenserDistance = new ConfigDouble("Trough Sensor Max Distance", 200);
     }
     public static class LeftMotor{
       public static ConfigDouble KP = new ConfigDouble("Intake Left P", .1);
