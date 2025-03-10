@@ -13,9 +13,6 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 import com.pathplanner.lib.commands.PathfindingCommand;
 
-import edu.wpi.first.cameraserver.CameraServer;
-import edu.wpi.first.cscore.UsbCamera;
-import edu.wpi.first.util.PixelFormat;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -35,7 +32,7 @@ public class Robot extends LoggedRobot {
     // cam.setResolution(320, 240);
     // cam.setPixelFormat(PixelFormat.kMJPEG);
     // addPeriodic(() -> {
-    //   m_robotContainer.updateOdometry();
+    // m_robotContainer.updateOdometry();
     // }, 0.01, 0.005);
   }
 
