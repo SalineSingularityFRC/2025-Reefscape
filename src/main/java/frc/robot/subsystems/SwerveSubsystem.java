@@ -49,7 +49,7 @@ import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.Limelight;
+import lib.vision.Limelight;
 import frc.robot.SwerveClasses.SwerveModule;
 import frc.robot.SwerveClasses.SwerveOdometry;
 
@@ -105,7 +105,7 @@ public class SwerveSubsystem extends SubsystemBase {
    * SwerveModule class and add them to our SwerveModule dictionary
    * Use values from the Constants.java class
    */
-  public SwerveSubsystem() {
+  public SwerveSubsystem(Limelight leftLL, Limelight rightLL) {
     log = DataLogManager.getLog();
 
     BlueAlliance = true;
@@ -164,7 +164,7 @@ public class SwerveSubsystem extends SubsystemBase {
         Constants.Inverted.ANGLE,
         "BR");
 
-    odometry = new SwerveOdometry(this, vectorKinematics);
+    odometry = new SwerveOdometry(this, vectorKinematics, leftLL, rightLL);
     odometry.resetPosition();
 
     Supplier<ChassisSpeeds> supplier_chasis = () -> {
@@ -476,7 +476,7 @@ public class SwerveSubsystem extends SubsystemBase {
   // });
   // }
 
-  public Command cameraDriveToPose(Pose3d reefPose, Pose3d cameraPose, Matrix<N3, N1> normalVector) {
+  public Command cameraDriveToPose(Pose3d cameraReefPose, Pose3d cameraPose, Matrix<N3, N1> normalVector, double LiDARAngle, double targetAngle) {
 
     PIDController rotationController = new PIDController(0.025, 0, 0.000033);
     rotationController.setSetpoint(0);

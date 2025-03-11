@@ -1,12 +1,15 @@
 package frc.robot;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.RobotConfig;
 
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
@@ -228,16 +231,6 @@ public final class Constants {
       new RobotConfig(23.350, 1.705, ChassisModuleConfig, ChassisModuleOffsets);
   }
 
-  public final static class ReefPoses {
-    ArrayList<Translation2d> BluePoses = new ArrayList<>(
-    Arrays.asList(
-        new Translation2d(1.0, 2.0),
-        new Translation2d(3.0, 4.0),
-        new Translation2d(5.0, 6.0)
-    )
-);
-  }
-
   public static final class Modes {
     /*
      * Mode.REAL - if on a real robot
@@ -298,8 +291,14 @@ public final class Constants {
   }
 
   public static class Vision {
-    public static final Vector<N3> kDefaultSingleTagStdDevs = VecBuilder.fill(1, 1, 1);
-    public static final Vector<N3> kDefaultMultiTagStdDevs = VecBuilder.fill(0.5, 0.5, 0.5);
+    public static final Vector<N3> kDefaultSingleTagStdDevs = VecBuilder.fill(1, 1, Double.MAX_VALUE);
+    public static final Vector<N3> kDefaultMultiTagStdDevs = VecBuilder.fill(0.5, 0.5, Double.MAX_VALUE);
+
+    public class Names {
+      // Switched top and left IRL (need to rename)
+      public static final String leftLL = "limelight-top";
+      public static final String rightLL = "limelight-right";
+    }
   }
 
   public static class LED {

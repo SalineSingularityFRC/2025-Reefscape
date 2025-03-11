@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import lib.vision.Limelight;
 import frc.robot.commands.ButtonDriveController;
 import frc.robot.commands.DriveController;
 import frc.robot.commands.RumbleCommandStart;
@@ -27,24 +28,26 @@ import frc.robot.subsystems.TroughSubsystem;
 
 public class RobotContainer {
     private SwerveSubsystem drive;
-    private Limelight lime;
     private CommandXboxController driveController;
     private CommandXboxController buttonController;
     private SendableChooser<Command> autoChooser;
     private IntakeSubsystem intake;
     // private CommandGenericHID simController;
     private ElevatorSubsystem elevator;
+    private Limelight leftLL;
+    private Limelight rightLL;
     private ClimberSubsystem climber;
     private TroughSubsystem trough;
     private LEDStatusSubsystem ledStatus;
 
     protected RobotContainer() {
-        lime = new Limelight();
-        drive = new SwerveSubsystem();
         intake = new IntakeSubsystem();
         elevator = new ElevatorSubsystem(intake);
+        leftLL = new Limelight(Constants.Vision.Names.leftLL);
+        rightLL = new Limelight(Constants.Vision.Names.rightLL);
+        drive = new SwerveSubsystem(leftLL, rightLL);
         // climber = new ClimberSubsystem();
-        ledStatus = new LEDStatusSubsystem(intake, lime, elevator);
+        ledStatus = new LEDStatusSubsystem(intake, elevator);
         // trough = new TroughSubsystem();
 
         driveController = new CommandXboxController(Constants.Gamepad.Controller.DRIVE);
