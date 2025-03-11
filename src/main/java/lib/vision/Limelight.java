@@ -1,30 +1,13 @@
 package lib.vision;
 
-import java.util.function.Consumer;
-
 import edu.wpi.first.math.Matrix;
-import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.estimator.PoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.FunctionalCommand;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.Constants.CanId.Swerve;
-import lib.vision.LimelightHelpers.PoseEstimate;
-import lib.vision.LimelightHelpers.RawFiducial;
-import frc.robot.subsystems.SwerveSubsystem;
 
 /**
  * A wrapper class that provides access to a Limelight camera as an object
@@ -32,7 +15,6 @@ import frc.robot.subsystems.SwerveSubsystem;
 public class Limelight {
 
   private final String LLName;
-  private boolean doRejectUpdate;
   private final NetworkTable mainTable;
   private final NetworkTable subTable;
   private Matrix<N3, N1> stdDevs;
@@ -43,7 +25,6 @@ public class Limelight {
     mainTable = NetworkTableInstance.getDefault().getTable("Limelight Data");
     subTable = mainTable.getSubTable(LLName);
     pose2dpublisher = subTable.getStructTopic("Pose2D", Pose2d.struct).publish();
-    doRejectUpdate = false;
     stdDevs = Constants.Vision.kDefaultSingleTagStdDevs;
   }
 
@@ -78,7 +59,7 @@ public class Limelight {
     int numTargets = poseEstimate.tagCount;
     double avgDist = poseEstimate.avgTagDist;
 
-    // Decrease std devs if multiple targets are visible and scales stdDev by
+    // Decrease std devs if multiple targets are visible and scales std devs by
     // distance^2 if one tag detected
     if (numTargets > 1) {
       stdDevs = Constants.Vision.kDefaultMultiTagStdDevs;
