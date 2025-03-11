@@ -153,7 +153,7 @@ public class SwerveOdometry {
     if (Math.abs(subsystem.getAngularChassisSpeed()) > 680) {
       doRejectLeftLLUpdate = true;
     }
-    if (leftLLPoseEstimate.tagCount == 0) {
+    if (leftLLPoseEstimate.tagCount == 0 || leftLLPoseEstimate == null) {
       doRejectLeftLLUpdate = true;
     }
     if (!doRejectLeftLLUpdate) {
@@ -175,7 +175,7 @@ public class SwerveOdometry {
     if (Math.abs(subsystem.getAngularChassisSpeed()) > 680) {
       doRejectRightLLUpdate = true;
     }
-    if (rightLLPoseEstimate.tagCount == 0) {
+    if (rightLLPoseEstimate.tagCount == 0 || leftLLPoseEstimate == null) {
       doRejectRightLLUpdate = true;
     }
     if (!doRejectRightLLUpdate) {
