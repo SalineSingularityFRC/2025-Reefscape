@@ -36,7 +36,6 @@ public class Limelight {
   private final NetworkTable mainTable;
   private final NetworkTable subTable;
   private Matrix<N3, N1> stdDevs;
-  private Matrix<N3, N1> maxStdDevs;
   private StructPublisher<Pose2d> pose2dpublisher;
 
   public Limelight(String name) {
@@ -46,7 +45,6 @@ public class Limelight {
     pose2dpublisher = subTable.getStructTopic("Pose2D", Pose2d.struct).publish();
     doRejectUpdate = false;
     stdDevs = Constants.Vision.kDefaultSingleTagStdDevs;
-    maxStdDevs = VecBuilder.fill(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
   }
 
   /** Sets robot orientation used by the MegaTag2 pose estimation algorithm */
@@ -58,35 +56,36 @@ public class Limelight {
   }
 
   /**
+   * Gets estimated limelight pose
    * DO NOT change to red since ALWAYS blue origin
    */
   public LimelightHelpers.PoseEstimate getBotPoseEstimate() {
     return LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(LLName);
   }
 
+  /**
+   * Publishes a pose to NetworkTables
+   */
   public void setPoseNT(LimelightHelpers.PoseEstimate poseEstimate) {
     pose2dpublisher.set(poseEstimate.pose);
   }
 
+  /**
+   * Calculates StdDevs to use for Kalman filter
+   */
   public Matrix<N3, N1> calculateStdDevs(LimelightHelpers.PoseEstimate poseEstimate) {
 
     int numTargets = poseEstimate.tagCount;
     double avgDist = poseEstimate.avgTagDist;
 
-    // Decrease std devs if multiple targets are visible
-    avgDist /= (double) numTargets;
+    // Decrease std devs if multiple targets are visible and scales stdDev by
+    // distance^2 if one tag detected
     if (numTargets > 1) {
       stdDevs = Constants.Vision.kDefaultMultiTagStdDevs;
-    }
-
-    // Increase std devs based on (average) distance
-    if (numTargets == 1 && avgDist > 4) {
-      // Distance greater than 4 meters, and only one tag detected, resort to maximum
-      // std devs
-      stdDevs = maxStdDevs;
     } else {
       stdDevs = stdDevs.times(1 + (avgDist * avgDist / 30));
     }
+
     return stdDevs;
   }
 
