@@ -116,34 +116,6 @@ public class SwerveOdometry {
 
     boolean doRejectUpdate = false;
 
-    // // MegaTag 1
-    // LimelightHelpers.PoseEstimate mt1 =
-    // LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight");
-
-    // if(mt1.tagCount == 1 && mt1.rawFiducials.length == 1)
-    // {
-    // if(mt1.rawFiducials[0].ambiguity > .7)
-    // {
-    // doRejectUpdate = true;
-    // }
-    // if(mt1.rawFiducials[0].distToCamera > 3)
-    // {
-    // doRejectUpdate = true;
-    // }
-    // }
-    // if(mt1.tagCount == 0)
-    // {
-    // doRejectUpdate = true;
-    // }
-
-    // if(!doRejectUpdate)
-    // {
-    // swerveOdometry.setVisionMeasurementStdDevs(VecBuilder.fill(1.5,1.5,5));
-    // swerveOdometry.addVisionMeasurement(
-    // mt1.pose,
-    // mt1.timestampSeconds);
-    // }
-
     // MegaTag 2
     LimelightHelpers.SetRobotOrientation("limelight-right",
         swerveOdometry.getEstimatedPosition().getRotation().getDegrees(), 0, 0, 0, 0, 0);
@@ -227,7 +199,7 @@ public class SwerveOdometry {
     double avgDist = poseEstimate.avgTagDist;
 
     // Decrease std devs if multiple targets are visible
-    avgDist /= numTargets;
+    avgDist /= (double) numTargets;
     if (numTargets > 1) {
       stdDevs = Constants.Vision.kDefaultMultiTagStdDevs;
     }
