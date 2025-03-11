@@ -70,7 +70,7 @@ public class Limelight {
 
   public Matrix<N3, N1> calculateStdDevs(LimelightHelpers.PoseEstimate poseEstimate) {
 
-    int numTargets = LimelightHelpers.getTargetCount(LLName);
+    int numTargets = poseEstimate.tagCount;
     double avgDist = poseEstimate.avgTagDist;
 
     // Decrease std devs if multiple targets are visible
