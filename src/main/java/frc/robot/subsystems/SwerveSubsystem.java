@@ -21,6 +21,7 @@ import com.pathplanner.lib.pathfinding.Pathfinder;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -28,6 +29,9 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.Matrix;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
@@ -472,152 +476,64 @@ public class SwerveSubsystem extends SubsystemBase {
   // });
   // }
 
-  // // Aligns the limelight to have near 0 degrees horizontal offset (around 0 tx)
-  // public Command alignToTagCommand(Limelight lime) {
+  public Command cameraDriveToPose(Pose3d reefPose, Pose3d cameraPose, Matrix<N3, N1> normalVector) {
 
-  //   PIDController rotationController = new PIDController(0.025, 0, 0.000033);
-  //   rotationController.setSetpoint(0);
-  //   rotationController.setTolerance(1);
+    PIDController rotationController = new PIDController(0.025, 0, 0.000033);
+    rotationController.setSetpoint(0);
+    rotationController.setTolerance(1);
 
-  //   SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(0.1, 0);
+    SimpleMotorFeedforward rotationFeedForward = new SimpleMotorFeedforward(0, 0);
 
-  //   return new FunctionalCommand(
-  //       () -> {
+    PIDController driveController = new PIDController(0.395, 0, 0);
+    driveController.setTolerance(0.1);
 
-  //       },
-  //       () -> {
-  //         if (lime.isTagFound()) {
-  //           double tx = lime.getTX();
+    SimpleMotorFeedforward driveFeedForward = new SimpleMotorFeedforward(0.01, 0);
 
-  //           SmartDashboard.putNumber("tx in alignToTagCommand", tx);
+    return new FunctionalCommand(
+        () -> {
 
-  //           drive(-feedforward.calculate(tx) + rotationController.calculate(tx), 0, 0, true);
-  //         }
-  //       },
-  //       (_unused) -> {
+        },
+        () -> {
+          double distance = lime.getDistanceToTagInFeet();
+          double toDriveDistance = 0;
 
-  //       },
-  //       rotationController::atSetpoint,
-  //       this);
-  // }
+          if (distance > 6) {
+            toDriveDistance = 6;
+          } else {
+            toDriveDistance = distance;
+          }
 
-  // Takes in a target distance to drive to away from the tag
-  // Not using this in RobotContainer.java, using this in
-  // alignAndDriveToTagCommand()
-  // public Command driveToTagCommand(double targetDistance, Limelight lime) {
+          driveController.setSetpoint(toDriveDistance);
 
-  //   PIDController driveController = new PIDController(0.395, 0, 0);
-  //   driveController.setSetpoint(targetDistance);
-  //   driveController.setTolerance(0.1);
+          SmartDashboard.putNumber("finding closest distance", toDriveDistance);
+          SmartDashboard.putNumber("distance", distance);
 
-  //   SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(0.05, 0);
+          double tx = lime.getTX();
 
-  //   return new FunctionalCommand(
-  //       () -> {
+          double driveSpeed = driveController.calculate(distance);
 
-  //       },
-  //       () -> {
-  //         double distance = lime.getDistanceToTagInFeet();
+          if (driveSpeed >= 3.5) {
+            driveSpeed = 3.5;
+          } else if (driveSpeed <= -3.5) {
+            driveSpeed = -3.5;
+          }
 
-  //         drive(0, -feedforward.calculate(distance) + driveController.calculate(distance), 0, false);
-  //       },
-  //       (_unused) -> {
+          if (lime.isTagFound()) {
+            drive(
+                -rotationFeedForward.calculate(tx) + rotationController.calculate(tx),
+                -driveFeedForward.calculate(distance) + driveSpeed,
+                0,
+                false);
+          }
+        },
+        (_unused) -> {
 
-  //       },
-  //       driveController::atSetpoint,
-  //       this);
-  // }
-
-  // //Finds the Closest Distances That We have Calibrated Shooting From
-  // // Not using this in RobotContainer.java, using this in
-  // alignAndDriveToTagCommand
-  // public double[] findClosestDistance(double currentDistance){
-  // double[] knownDistances = Constants.Limelight.knownDriveDistances;
-
-  // //Final Distance from Known Distances
-  // double closestDistance = 0.0;
-
-  // /*
-  // * Needs to be Maxiximum Value possible as it
-  // * gets compared to smaller numbers in the code
-  // * below.
-  // */
-  // double closestDistanceFromKnownPoint = Double.MAX_VALUE;
-  // int index = Integer.MAX_VALUE;
-
-  // for(int i = 0; i < knownDistances.length; i++){
-
-  // double distanceFromKnownPoint = Math.abs(currentDistance -
-  // knownDistances[i]);
-  // if(distanceFromKnownPoint < closestDistanceFromKnownPoint) {
-  // closestDistanceFromKnownPoint = distanceFromKnownPoint;
-  // closestDistance = knownDistances[i];
-  // index = i;
-  // }
-  // }
-  // double returnValues[] = {closestDistance, index};
-  // return returnValues;
-  // }
-
-  // For Speaker with various distances to shoot
-  // public Command alignAndDriveToTagCommand(Limelight lime) {
-
-  //   PIDController rotationController = new PIDController(0.025, 0, 0.000033);
-  //   rotationController.setSetpoint(0);
-  //   rotationController.setTolerance(1);
-
-  //   SimpleMotorFeedforward rotationFeedForward = new SimpleMotorFeedforward(0, 0);
-
-  //   PIDController driveController = new PIDController(0.395, 0, 0);
-  //   driveController.setTolerance(0.1);
-
-  //   SimpleMotorFeedforward driveFeedForward = new SimpleMotorFeedforward(0.01, 0);
-
-  //   return new FunctionalCommand(
-  //       () -> {
-
-  //       },
-  //       () -> {
-  //         double distance = lime.getDistanceToTagInFeet();
-  //         double toDriveDistance = 0;
-
-  //         if (distance > 6) {
-  //           toDriveDistance = 6;
-  //         } else {
-  //           toDriveDistance = distance;
-  //         }
-
-  //         driveController.setSetpoint(toDriveDistance);
-
-  //         SmartDashboard.putNumber("finding closest distance", toDriveDistance);
-  //         SmartDashboard.putNumber("distance", distance);
-
-  //         double tx = lime.getTX();
-
-  //         double driveSpeed = driveController.calculate(distance);
-
-  //         if (driveSpeed >= 3.5) {
-  //           driveSpeed = 3.5;
-  //         } else if (driveSpeed <= -3.5) {
-  //           driveSpeed = -3.5;
-  //         }
-
-  //         if (lime.isTagFound()) {
-  //           drive(
-  //               -rotationFeedForward.calculate(tx) + rotationController.calculate(tx),
-  //               -driveFeedForward.calculate(distance) + driveSpeed,
-  //               0,
-  //               false);
-  //         }
-  //       },
-  //       (_unused) -> {
-
-  //       },
-  //       () -> {
-  //         return driveController.atSetpoint() && rotationController.atSetpoint();
-  //       },
-  //       this);
-  // }
+        },
+        () -> {
+          return driveController.atSetpoint() && rotationController.atSetpoint();
+        },
+        this);
+  }
 
   // Getting to the amp diagonally
   // public Command alignAndGetPerpendicularToTagCommand(Limelight lime) {
@@ -694,11 +610,6 @@ public class SwerveSubsystem extends SubsystemBase {
   public Command stopDriving() {
     return runOnce(
         () -> {
-
-          // ChassisSpeeds chassisSpeeds = new ChassisSpeeds(0, 0,0);
-          // SwerveModuleState[] modules =
-          // swerveDriveKinematics.toSwerveModuleStates(chassisSpeeds);
-          // setModuleStates(modules);
           this.stop();
         });
   }
