@@ -199,7 +199,6 @@ public class SwerveOdometry {
     double avgDist = poseEstimate.avgTagDist;
 
     // Decrease std devs if multiple targets are visible
-    avgDist /= (double) numTargets;
     if (numTargets > 1) {
       stdDevs = Constants.Vision.kDefaultMultiTagStdDevs;
     }
