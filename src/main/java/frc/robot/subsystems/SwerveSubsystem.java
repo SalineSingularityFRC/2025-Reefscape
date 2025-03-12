@@ -476,76 +476,18 @@ public class SwerveSubsystem extends SubsystemBase {
   // });
   // }
 
-  public Command cameraDriveToPose(Pose3d cameraReefPose, Pose3d cameraPose, Matrix<N3, N1> normalVector, double LiDARAngle, double targetAngle) {
 
-    PIDController rotationController = new PIDController(0.025, 0, 0.000033);
-    rotationController.setSetpoint(0);
-    rotationController.setTolerance(1);
+  // // z should be out, x right, y down
+  // public Command cameraDriveToPose(Supplier<Pose3d> cameraReefPose, Supplier<Pose3d> cameraPose,
+  //     Matrix<N3, N1> normalVector, double targetAngle) {
 
-    SimpleMotorFeedforward rotationFeedForward = new SimpleMotorFeedforward(0, 0);
-
-    PIDController driveController = new PIDController(0.395, 0, 0);
-    driveController.setTolerance(0.1);
-
-    SimpleMotorFeedforward driveFeedForward = new SimpleMotorFeedforward(0.01, 0);
-
-    return new FunctionalCommand(
-        () -> {
-
-        },
-        () -> {
-          double distance = lime.getDistanceToTagInFeet();
-          double toDriveDistance = 0;
-
-          if (distance > 6) {
-            toDriveDistance = 6;
-          } else {
-            toDriveDistance = distance;
-          }
-
-          driveController.setSetpoint(toDriveDistance);
-
-          SmartDashboard.putNumber("finding closest distance", toDriveDistance);
-          SmartDashboard.putNumber("distance", distance);
-
-          double tx = lime.getTX();
-
-          double driveSpeed = driveController.calculate(distance);
-
-          if (driveSpeed >= 3.5) {
-            driveSpeed = 3.5;
-          } else if (driveSpeed <= -3.5) {
-            driveSpeed = -3.5;
-          }
-
-          if (lime.isTagFound()) {
-            drive(
-                -rotationFeedForward.calculate(tx) + rotationController.calculate(tx),
-                -driveFeedForward.calculate(distance) + driveSpeed,
-                0,
-                false);
-          }
-        },
-        (_unused) -> {
-
-        },
-        () -> {
-          return driveController.atSetpoint() && rotationController.atSetpoint();
-        },
-        this);
-  }
-
-  // Getting to the amp diagonally
-  // public Command alignAndGetPerpendicularToTagCommand(Limelight lime) {
-
-  //   PIDController rotationController = new PIDController(0.0315, 0, 0.000033);
+  //   PIDController rotationController = new PIDController(0.025, 0, 0.000033);
   //   rotationController.setSetpoint(0);
   //   rotationController.setTolerance(1);
 
   //   SimpleMotorFeedforward rotationFeedForward = new SimpleMotorFeedforward(0, 0);
 
   //   PIDController driveController = new PIDController(0.395, 0, 0);
-  //   driveController.setSetpoint(0);
   //   driveController.setTolerance(0.1);
 
   //   SimpleMotorFeedforward driveFeedForward = new SimpleMotorFeedforward(0.01, 0);
@@ -556,6 +498,9 @@ public class SwerveSubsystem extends SubsystemBase {
   //       },
   //       () -> {
   //         double distance = lime.getDistanceToTagInFeet();
+  //         double toDriveDistance = 0;
+
+  //         driveController.setSetpoint(toDriveDistance);
 
   //         double driveSpeed = driveController.calculate(distance);
 
@@ -567,8 +512,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
   //         if (lime.isTagFound()) {
   //           drive(
-  //               rotationFeedForward.calculate(gyro.getYaw().getValueAsDouble() - 270)
-  //                   - rotationController.calculate(gyro.getYaw().getValueAsDouble() - 270),
+  //               -rotationFeedForward.calculate(tx) + rotationController.calculate(tx),
   //               -driveFeedForward.calculate(distance) + driveSpeed,
   //               0,
   //               false);
@@ -581,6 +525,56 @@ public class SwerveSubsystem extends SubsystemBase {
   //         return driveController.atSetpoint() && rotationController.atSetpoint();
   //       },
   //       this);
+  // }
+
+  // Getting to the amp diagonally
+  // public Command alignAndGetPerpendicularToTagCommand(Limelight lime) {
+
+  // PIDController rotationController = new PIDController(0.0315, 0, 0.000033);
+  // rotationController.setSetpoint(0);
+  // rotationController.setTolerance(1);
+
+  // SimpleMotorFeedforward rotationFeedForward = new SimpleMotorFeedforward(0,
+  // 0);
+
+  // PIDController driveController = new PIDController(0.395, 0, 0);
+  // driveController.setSetpoint(0);
+  // driveController.setTolerance(0.1);
+
+  // SimpleMotorFeedforward driveFeedForward = new SimpleMotorFeedforward(0.01,
+  // 0);
+
+  // return new FunctionalCommand(
+  // () -> {
+
+  // },
+  // () -> {
+  // double distance = lime.getDistanceToTagInFeet();
+
+  // double driveSpeed = driveController.calculate(distance);
+
+  // if (driveSpeed >= 3.5) {
+  // driveSpeed = 3.5;
+  // } else if (driveSpeed <= -3.5) {
+  // driveSpeed = -3.5;
+  // }
+
+  // if (lime.isTagFound()) {
+  // drive(
+  // rotationFeedForward.calculate(gyro.getYaw().getValueAsDouble() - 270)
+  // - rotationController.calculate(gyro.getYaw().getValueAsDouble() - 270),
+  // -driveFeedForward.calculate(distance) + driveSpeed,
+  // 0,
+  // false);
+  // }
+  // },
+  // (_unused) -> {
+
+  // },
+  // () -> {
+  // return driveController.atSetpoint() && rotationController.atSetpoint();
+  // },
+  // this);
   // }
 
   public Command xMode() {
