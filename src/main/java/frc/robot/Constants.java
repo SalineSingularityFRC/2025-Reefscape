@@ -36,9 +36,9 @@ public final class Constants {
       public static final int TROUGH_MOTOR = 62;
     }
 
-    public static final class Alge{
-      public static final int LEFT_MOTOE = 50;
-      public static final int RIGHT_MOTOR = 51;
+    public static final class Algae {
+      public static final int MAIN_MOTOR = 50;
+      public static final int ALGAE_MOTOR = 51;
     }
     
     public static final class CanCoder {
@@ -320,6 +320,11 @@ public final class Constants {
     public static final ConfigDouble CLIMB_POSITION = new ConfigDouble("Trough/ENCODER_CLIMB_POS", 1.0);
     public static final ConfigDouble KP = new ConfigDouble("Trough/KP", 1.0);
     public static final ConfigDouble KD = new ConfigDouble("Trough/KD", 0);
+  }
+
+  public static class Algae {
+    public static final ConfigDouble kP = new ConfigDouble("Algae/kP", 1);
+    public static final ConfigDouble kD = new ConfigDouble("Algae/kD", 0);
   }
 
   public static class Elevator {
