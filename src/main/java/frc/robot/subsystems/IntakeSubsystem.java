@@ -3,6 +3,11 @@ package frc.robot.subsystems;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.spark.SparkClosedLoopController;
 
 import java.util.function.BooleanSupplier;
@@ -23,8 +28,8 @@ import frc.robot.Constants;
 import frc.robot.Constants.Intake;
 
 public class IntakeSubsystem extends SubsystemBase {
-    private SparkFlex rightMotor;
-    private SparkFlex leftMotor;
+    private TalonFX rightMotor;
+    private TalonFX leftMotor;
     private LaserCan troughSensor;
     private LaserCan intakeSensor;
     private LaserCan shooterSensor;
@@ -33,11 +38,11 @@ public class IntakeSubsystem extends SubsystemBase {
     private double troughSenserDistance;
     private SparkClosedLoopController leftIntakeClosedLoopController;
     private SparkClosedLoopController rightIntakeClosedLoopController;
-        private Double motorSpeedSlow;
-        public static final SparkFlexConfig intakeLeftConfig = new SparkFlexConfig();
-        public static final SparkFlexConfig intakeRightConfig = new SparkFlexConfig();
-    
-        private static final int LASER_CAN_NO_MEASUREMENT = -1;
+    private Double motorSpeedSlow;
+    public static final SparkFlexConfig intakeLeftConfig = new SparkFlexConfig();
+    public static final SparkFlexConfig intakeRightConfig = new SparkFlexConfig();
+
+    private static final int LASER_CAN_NO_MEASUREMENT = -1;
     
         public IntakeSubsystem() {
             troughSensor = new LaserCan(Constants.CanId.Intake.TROUGH_LASER);
@@ -50,42 +55,64 @@ public class IntakeSubsystem extends SubsystemBase {
             motorSpeedSlow = Intake.Nums.motorSpeedSlow.getValue();
 
             // Left Motor
-            intakeLeftConfig.idleMode(IdleMode.kBrake).smartCurrentLimit(40).voltageCompensation(12);
-            intakeLeftConfig.closedLoop
-                    .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-                    // Set PID values for position control
-                    .p(Intake.LeftMotor.KP.getValue())
-                    .outputRange(Intake.LeftMotor.MIN_POWER.getValue(), Intake.LeftMotor.MAX_POWER.getValue()).maxMotion
-                    // Set MAXMotion parameters for position control
-                    .maxVelocity(Intake.LeftMotor.MAX_VELOCITY.getValue())
-                    .maxAcceleration(Intake.LeftMotor.MAX_ACCELERATION.getValue())
-                    .allowedClosedLoopError(Intake.LeftMotor.MAX_CLOSED_LOOP_ERROR.getValue());
-            leftMotor = new SparkFlex(Constants.CanId.Intake.LEFT_MOTOR, MotorType.kBrushless);
-            leftMotor.configure(
-                    intakeLeftConfig,
-                    ResetMode.kResetSafeParameters,
-                    PersistMode.kPersistParameters);
+            // intakeLeftConfig.idleMode(IdleMode.kBrake).smartCurrentLimit(40).voltageCompensation(12);
+            // intakeLeftConfig.closedLoop
+            //         .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+            //         // Set PID values for position control
+            //         .p(Intake.LeftMotor.KP.getValue())
+            //         .outputRange(Intake.LeftMotor.MIN_POWER.getValue(), Intake.LeftMotor.MAX_POWER.getValue()).maxMotion
+            //         // Set MAXMotion parameters for position control
+            //         .maxVelocity(Intake.LeftMotor.MAX_VELOCITY.getValue())
+            //         .maxAcceleration(Intake.LeftMotor.MAX_ACCELERATION.getValue())
+            //         .allowedClosedLoopError(Intake.LeftMotor.MAX_CLOSED_LOOP_ERROR.getValue());
+            leftMotor = new TalonFX(Constants.CanId.Intake.LEFT_MOTOR);
+            leftMotor.getConfigurator().apply(new TalonFXConfiguration());
+
+            TalonFXConfiguration talonLeftConfig = new TalonFXConfiguration();
+            talonLeftConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake; // Brake Mode
+            talonLeftConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+            talonLeftConfig.CurrentLimits.SupplyCurrentLimit = 40; // Max Current
+            talonLeftConfig.Voltage.PeakForwardVoltage = 12;
+            talonLeftConfig.Voltage.PeakReverseVoltage = -12;
+            talonLeftConfig.Slot0.kP = Intake.LeftMotor.KP.getValue();
+            talonLeftConfig.MotorOutput.PeakReverseDutyCycle = Intake.LeftMotor.MIN_POWER.getValue();
+            talonLeftConfig.MotorOutput.PeakForwardDutyCycle = Intake.LeftMotor.MAX_POWER.getValue();
+            talonLeftConfig.MotionMagic.MotionMagicCruiseVelocity = Intake.LeftMotor.MAX_VELOCITY.getValue();
+            talonLeftConfig.MotionMagic.MotionMagicAcceleration = Intake.LeftMotor.MAX_ACCELERATION.getValue();
+            leftMotor.getConfigurator().apply(talonLeftConfig, 0.05);
+
+            // leftMotor.configure(
+            //         intakeLeftConfig,
+            //         ResetMode.kResetSafeParameters,
+            //         PersistMode.kPersistParameters);
             leftMotor.setInverted(true);
     
             // Right Motor
-            intakeRightConfig.idleMode(IdleMode.kBrake).smartCurrentLimit(40).voltageCompensation(12);
-            intakeRightConfig.closedLoop
-                    .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-                    // Set PID values for position control
-                    .p(Intake.RightMotor.KP.getValue())
-                    .outputRange(Intake.RightMotor.MIN_POWER.getValue(), Intake.RightMotor.MAX_POWER.getValue()).maxMotion
-                    // Set MAXMotion parameters for position control
-                    .maxVelocity(Intake.RightMotor.MAX_VELOCITY.getValue())
-                    .maxAcceleration(Intake.RightMotor.MAX_ACCELERATION.getValue())
-                    .allowedClosedLoopError(Intake.RightMotor.MAX_CLOSED_LOOP_ERROR.getValue());
-            rightMotor = new SparkFlex(Constants.CanId.Intake.RIGHT_MOTOR, MotorType.kBrushless);
-            rightMotor.configure(
-                    intakeLeftConfig,
-                    ResetMode.kResetSafeParameters,
-                    PersistMode.kPersistParameters);
-    
-            leftIntakeClosedLoopController = leftMotor.getClosedLoopController();
-            rightIntakeClosedLoopController = rightMotor.getClosedLoopController();
+            // intakeRightConfig.idleMode(IdleMode.kBrake).smartCurrentLimit(40).voltageCompensation(12);
+            // intakeRightConfig.closedLoop
+            //         .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+            //         // Set PID values for position control
+            //         .p(Intake.RightMotor.KP.getValue())
+            //         .outputRange(Intake.RightMotor.MIN_POWER.getValue(), Intake.RightMotor.MAX_POWER.getValue()).maxMotion
+            //         // Set MAXMotion parameters for position control
+            //         .maxVelocity(Intake.RightMotor.MAX_VELOCITY.getValue())
+            //         .maxAcceleration(Intake.RightMotor.MAX_ACCELERATION.getValue())
+            //         .allowedClosedLoopError(Intake.RightMotor.MAX_CLOSED_LOOP_ERROR.getValue());
+            rightMotor = new TalonFX(Constants.CanId.Intake.RIGHT_MOTOR);
+            rightMotor.getConfigurator().apply(new TalonFXConfiguration());
+
+            TalonFXConfiguration talonRightConfig = new TalonFXConfiguration();
+            talonRightConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake; // Brake Mode
+            talonRightConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+            talonRightConfig.CurrentLimits.SupplyCurrentLimit = 40; // Max Current
+            talonRightConfig.Voltage.PeakForwardVoltage = 12;
+            talonRightConfig.Voltage.PeakReverseVoltage = -12;
+            talonRightConfig.Slot0.kP = Intake.RightMotor.KP.getValue();
+            talonRightConfig.MotorOutput.PeakReverseDutyCycle = Intake.RightMotor.MIN_POWER.getValue();
+            talonRightConfig.MotorOutput.PeakForwardDutyCycle = Intake.RightMotor.MAX_POWER.getValue();
+            talonRightConfig.MotionMagic.MotionMagicCruiseVelocity = Intake.RightMotor.MAX_VELOCITY.getValue();
+            talonRightConfig.MotionMagic.MotionMagicAcceleration = Intake.RightMotor.MAX_ACCELERATION.getValue();
+            rightMotor.getConfigurator().apply(talonRightConfig, 0.05);
         }
     
         public void periodic() {
