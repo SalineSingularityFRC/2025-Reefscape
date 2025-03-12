@@ -172,7 +172,7 @@ public class SwerveOdometry {
      * Logic for updating poseEstimator based on right limelight
      */
 
-    if (rightLLPoseEstimate.tagCount == 0 || leftLLPoseEstimate == null) {
+    if (rightLLPoseEstimate.tagCount == 0 || rightLLPoseEstimate == null) {
       doRejectRightLLUpdate = true;
     }
     if (!doRejectRightLLUpdate) {
@@ -182,7 +182,7 @@ public class SwerveOdometry {
           rightLLPoseEstimate.timestampSeconds);
     }
 
-    rightLL.setPoseNT(leftLLPoseEstimate);
+    rightLL.setPoseNT(rightLLPoseEstimate);
   }
 
   public Pose2d getEstimatedPosition() {
