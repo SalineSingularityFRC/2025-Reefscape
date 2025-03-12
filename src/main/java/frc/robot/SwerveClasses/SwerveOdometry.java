@@ -143,16 +143,19 @@ public class SwerveOdometry {
     leftLLPoseEstimate = leftLL.getBotPoseEstimate();
     rightLLPoseEstimate = rightLL.getBotPoseEstimate();
 
-    /**
-     * Logic for updating poseEstimator based on left limelight
-     */
     doRejectLeftLLUpdate = false;
+    doRejectRightLLUpdate = false;
 
     // if our angular velocity is greater than 680 degrees per second, ignore vision
     // updates
     if (Math.abs(subsystem.getAngularChassisSpeed()) > 680) {
       doRejectLeftLLUpdate = true;
+      doRejectRightLLUpdate = true;
     }
+
+    /**
+     * Logic for updating poseEstimator based on left limelight
+     */
     if (leftLLPoseEstimate.tagCount == 0 || leftLLPoseEstimate == null) {
       doRejectLeftLLUpdate = true;
     }
@@ -168,21 +171,15 @@ public class SwerveOdometry {
     /**
      * Logic for updating poseEstimator based on right limelight
      */
-    doRejectRightLLUpdate = false;
 
-    // if our angular velocity is greater than 680 degrees per second, ignore vision
-    // updates
-    if (Math.abs(subsystem.getAngularChassisSpeed()) > 680) {
-      doRejectRightLLUpdate = true;
-    }
     if (rightLLPoseEstimate.tagCount == 0 || leftLLPoseEstimate == null) {
       doRejectRightLLUpdate = true;
     }
     if (!doRejectRightLLUpdate) {
-      poseEstimator.setVisionMeasurementStdDevs(rightLL.calculateStdDevs(leftLLPoseEstimate));
+      poseEstimator.setVisionMeasurementStdDevs(rightLL.calculateStdDevs(rightLLPoseEstimate));
       poseEstimator.addVisionMeasurement(
-        rightLLPoseEstimate.pose,
-        rightLLPoseEstimate.timestampSeconds);
+          rightLLPoseEstimate.pose,
+          rightLLPoseEstimate.timestampSeconds);
     }
 
     rightLL.setPoseNT(leftLLPoseEstimate);
