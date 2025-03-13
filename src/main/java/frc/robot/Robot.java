@@ -13,6 +13,7 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 import com.pathplanner.lib.commands.PathfindingCommand;
 
+import au.grapplerobotics.CanBridge;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.util.PixelFormat;
@@ -27,7 +28,7 @@ public class Robot extends LoggedRobot {
   private RobotContainer m_robotContainer;
 
   public Robot() {
-    // CanBridge.runTCP();
+    CanBridge.runTCP();
     DataLogManager.start();
     // Creates UsbCamera and MjpegServer [1] and connects them
     // UsbCamera cam = CameraServer.startAutomaticCapture();
