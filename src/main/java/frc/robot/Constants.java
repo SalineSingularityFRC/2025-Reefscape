@@ -325,6 +325,7 @@ public final class Constants {
   public static class Algae {
     public static final ConfigDouble kP = new ConfigDouble("Algae/kP", 1);
     public static final ConfigDouble kD = new ConfigDouble("Algae/kD", 0);
+    public static ConfigDouble MAX_CONTROL_ERROR_IN_COUNTS = new ConfigDouble("Algae/Control Error Tolerance", 0.25);
   }
 
   public static class Elevator {

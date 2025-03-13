@@ -1,8 +1,7 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.MotionMagicDutyCycle;
-import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.controls.PositionDutyCycle;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
@@ -31,12 +30,20 @@ public class AlgaeSubsystem extends SubsystemBase {
         mainMotor.getConfigurator().apply(mainConfig);
     }
 
-    public Command moveToPos(double targetRotations) {
-        return new FunctionalCommand(() -> {},
-        () -> {
-            mainMotor.setControl(new MotionMagicVoltage(targetRotations).withSlot(0).withEnableFOC(true));
-        },
-        (_unused) -> {},
-        () -> (), this);
+    public Command moveToPos(double targetPos) {
+        return new FunctionalCommand(
+            () -> {
+                
+            },
+            () -> {
+                mainMotor.setControl(new PositionDutyCycle(targetPos).withSlot(0).withEnableFOC(true));
+            },
+            (_unused) -> {
+
+            },
+            () -> {
+                return Math.abs(targetPos - mainMotor.getPosition().getValueAsDouble()) < Constants.Algae.MAX_CONTROL_ERROR_IN_COUNTS.getValue();
+            },
+            this);
     }
 }
