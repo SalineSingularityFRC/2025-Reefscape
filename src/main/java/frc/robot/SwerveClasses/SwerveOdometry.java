@@ -148,9 +148,9 @@ public class SwerveOdometry {
     doRejectLeftLLUpdate = false;
     doRejectRightLLUpdate = false;
 
-    // if our angular velocity is greater than 680 degrees per second, ignore vision
-    // updates
-    if (Math.abs(subsystem.getAngularChassisSpeed()) > 680) {
+    // if our angular velocity is greater than 360 degrees per second, ignore vision
+    // updates. 360 is the default value in docs
+    if (Math.abs(subsystem.getAngularChassisSpeed()) > 360) {
       doRejectLeftLLUpdate = true;
       doRejectRightLLUpdate = true;
     }
@@ -158,7 +158,7 @@ public class SwerveOdometry {
     /**
      * Logic for updating poseEstimator based on left limelight
      */
-    if (leftLLPoseEstimate.tagCount == 0 || leftLLPoseEstimate == null) {
+    if (!LimelightHelpers.validPoseEstimate(leftLLPoseEstimate)) {
       doRejectLeftLLUpdate = true;
     }
     if (!doRejectLeftLLUpdate) {
@@ -174,7 +174,7 @@ public class SwerveOdometry {
      * Logic for updating poseEstimator based on right limelight
      */
 
-    if (rightLLPoseEstimate.tagCount == 0 || rightLLPoseEstimate == null) {
+    if (!LimelightHelpers.validPoseEstimate(rightLLPoseEstimate)) {
       doRejectRightLLUpdate = true;
     }
     if (!doRejectRightLLUpdate) {

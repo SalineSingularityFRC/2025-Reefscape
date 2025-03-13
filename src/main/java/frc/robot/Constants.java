@@ -293,8 +293,8 @@ public final class Constants {
   }
 
   public static class Vision {
-    public static final Vector<N3> kDefaultSingleTagStdDevs = VecBuilder.fill(0.7, 0.7, Double.MAX_VALUE);
-    public static final Vector<N3> kDefaultMultiTagStdDevs = VecBuilder.fill(0.5, 0.5, Double.MAX_VALUE);
+    public static final Vector<N3> kDefaultSingleTagStdDevs = VecBuilder.fill(0.7, 0.7,9999999);
+    public static final Vector<N3> kDefaultMultiTagStdDevs = VecBuilder.fill(0.5, 0.5,9999999);
 
     public class Names {
       // Switched top and left IRL (need to rename)
