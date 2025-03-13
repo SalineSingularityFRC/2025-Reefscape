@@ -28,6 +28,7 @@ import com.revrobotics.sim.SparkLimitSwitchSim;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
@@ -280,7 +281,7 @@ public class ElevatorSubsystem extends SubsystemBase {
      */
     private void moveToSetpoint() {
         elevatorClosedLoopController.setReference(
-                elevatorCurrentTarget, ControlType.kMAXMotionPositionControl);
+                elevatorCurrentTarget, ControlType.kMAXMotionPositionControl, ClosedLoopSlot.kSlot0, Constants.Elevator.PrimaryMotor.arbFF.getValue());
     }
 
     /** Zero the elevator encoder when the limit switch is pressed. */
