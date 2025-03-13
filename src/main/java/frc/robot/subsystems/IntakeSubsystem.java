@@ -1,22 +1,13 @@
 package frc.robot.subsystems;
 
-import com.revrobotics.spark.SparkBase.ControlType;
-import com.revrobotics.spark.SparkBase.PersistMode;
-import com.revrobotics.spark.SparkBase.ResetMode;
-import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.spark.SparkClosedLoopController;
 
 import java.util.function.BooleanSupplier;
-import java.util.function.Supplier;
 
-import com.revrobotics.spark.SparkFlex;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
-import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
 
 import au.grapplerobotics.LaserCan;
@@ -33,14 +24,9 @@ public class IntakeSubsystem extends SubsystemBase {
     private LaserCan troughSensor;
     private LaserCan intakeSensor;
     private LaserCan shooterSensor;
-    private double motorSpeed;
     private double sensingDistance;
     private double troughSenserDistance;
-    private SparkClosedLoopController leftIntakeClosedLoopController;
-    private SparkClosedLoopController rightIntakeClosedLoopController;
-    private Double motorSpeedSlow;
-    public static final SparkFlexConfig intakeLeftConfig = new SparkFlexConfig();
-    public static final SparkFlexConfig intakeRightConfig = new SparkFlexConfig();
+    private final VelocityTorqueCurrentFOC slowVelocityRequest, fastVelocityRequest;
 
     private static final int LASER_CAN_NO_MEASUREMENT = -1;
     
@@ -51,8 +37,9 @@ public class IntakeSubsystem extends SubsystemBase {
     
             sensingDistance = Intake.Nums.sensingDistance.getValue();
             troughSenserDistance = Intake.Nums.troughSenserDistance.getValue();
-            motorSpeed = Intake.Nums.motorSpeed.getValue();
-            motorSpeedSlow = Intake.Nums.motorSpeedSlow.getValue();
+
+            slowVelocityRequest = new VelocityTorqueCurrentFOC(Intake.Nums.motorSpeedSlow.getValue()).withSlot(0); // 30
+            fastVelocityRequest = new VelocityTorqueCurrentFOC(Intake.Nums.motorSpeed.getValue()).withSlot(0); // 70
 
             // Left Motor
             // intakeLeftConfig.idleMode(IdleMode.kBrake).smartCurrentLimit(40).voltageCompensation(12);
@@ -75,10 +62,11 @@ public class IntakeSubsystem extends SubsystemBase {
             talonLeftConfig.Voltage.PeakForwardVoltage = 12;
             talonLeftConfig.Voltage.PeakReverseVoltage = -12;
             talonLeftConfig.Slot0.kP = Intake.LeftMotor.KP.getValue();
-            talonLeftConfig.MotorOutput.PeakReverseDutyCycle = Intake.LeftMotor.MIN_POWER.getValue();
-            talonLeftConfig.MotorOutput.PeakForwardDutyCycle = Intake.LeftMotor.MAX_POWER.getValue();
-            talonLeftConfig.MotionMagic.MotionMagicCruiseVelocity = Intake.LeftMotor.MAX_VELOCITY.getValue();
-            talonLeftConfig.MotionMagic.MotionMagicAcceleration = Intake.LeftMotor.MAX_ACCELERATION.getValue();
+            talonLeftConfig.Slot0.kS = 2.5;
+            // talonLeftConfig.MotorOutput.PeakReverseDutyCycle = Intake.LeftMotor.MIN_POWER.getValue();
+            // talonLeftConfig.MotorOutput.PeakForwardDutyCycle = Intake.LeftMotor.MAX_POWER.getValue();
+            // talonLeftConfig.MotionMagic.MotionMagicCruiseVelocity = Intake.LeftMotor.MAX_VELOCITY.getValue();
+            // talonLeftConfig.MotionMagic.MotionMagicAcceleration = Intake.LeftMotor.MAX_ACCELERATION.getValue();
             leftMotor.getConfigurator().apply(talonLeftConfig, 0.05);
 
             // leftMotor.configure(
@@ -108,25 +96,28 @@ public class IntakeSubsystem extends SubsystemBase {
             talonRightConfig.Voltage.PeakForwardVoltage = 12;
             talonRightConfig.Voltage.PeakReverseVoltage = -12;
             talonRightConfig.Slot0.kP = Intake.RightMotor.KP.getValue();
-            talonRightConfig.MotorOutput.PeakReverseDutyCycle = Intake.RightMotor.MIN_POWER.getValue();
-            talonRightConfig.MotorOutput.PeakForwardDutyCycle = Intake.RightMotor.MAX_POWER.getValue();
-            talonRightConfig.MotionMagic.MotionMagicCruiseVelocity = Intake.RightMotor.MAX_VELOCITY.getValue();
-            talonRightConfig.MotionMagic.MotionMagicAcceleration = Intake.RightMotor.MAX_ACCELERATION.getValue();
+            talonRightConfig.Slot0.kS = 2.5;
+            // talonRightConfig.MotorOutput.PeakReverseDutyCycle = Intake.RightMotor.MIN_POWER.getValue();
+            // talonRightConfig.MotorOutput.PeakForwardDutyCycle = Intake.RightMotor.MAX_POWER.getValue();
+            // talonRightConfig.MotionMagic.MotionMagicCruiseVelocity = Intake.RightMotor.MAX_VELOCITY.getValue();
+            // talonRightConfig.MotionMagic.MotionMagicAcceleration = Intake.RightMotor.MAX_ACCELERATION.getValue();
             rightMotor.getConfigurator().apply(talonRightConfig, 0.05);
         }
     
         public void periodic() {
             sensingDistance = Intake.Nums.sensingDistance.getValue();
             troughSenserDistance = Intake.Nums.troughSenserDistance.getValue();
-            motorSpeed = Intake.Nums.motorSpeed.getValue();
-            motorSpeedSlow = Intake.Nums.motorSpeedSlow.getValue();
+            slowVelocityRequest.Velocity = Intake.Nums.motorSpeedSlow.getValue();
+            fastVelocityRequest.Velocity = Intake.Nums.motorSpeed.getValue();
+            SmartDashboard.putNumber("Intake/CurrentPos", rightMotor.getVelocity().getValueAsDouble());
+            SmartDashboard.putNumber("Intake/Setpoint", fastVelocityRequest.Velocity);
+            SmartDashboard.putNumber("Intake/Current", rightMotor.getSupplyCurrent().getValueAsDouble());
 
-        // SmartDashboard.putNumber("Intake Sensor", getSensorValue(intakeSensor));
-        // SmartDashboard.putNumber("Shooter Sensor", getSensorValue(shooterSensor));
-        SmartDashboard.putBoolean("Coral in intake", coralInIntake());
-        SmartDashboard.putBoolean("Coral in shooter", coralInShooter());
-        SmartDashboard.putBoolean("Coral In Trough", coralInTrough());
-    }
+            // SmartDashboard.putNumber("Intake Sensor", getSensorValue(intakeSensor));
+            // SmartDashboard.putNumber("Shooter Sensor", getSensorValue(shooterSensor));
+            SmartDashboard.putBoolean("Coral in intake", coralInIntake());
+            SmartDashboard.putBoolean("Coral In Trough", coralInTrough());
+        }
 
     public boolean canSeeCoral(LaserCan sensor) {
         if (!intakeSensorIsFunctional()) {
@@ -183,11 +174,8 @@ public class IntakeSubsystem extends SubsystemBase {
     public Command runMotors() {
         return runEnd(
                 () -> {
-                    double speed = coralInShooter() ? motorSpeedSlow : motorSpeed;
-                    // leftIntakeClosedLoopController.setReference(speed, ControlType.kVelocity);
-                    // rightIntakeClosedLoopController.setReference(speed, ControlType.kVelocity);
-                    leftMotor.set(speed);
-                    rightMotor.set(speed);
+                    leftMotor.setControl(!coralInShooter() ? slowVelocityRequest: fastVelocityRequest);
+                    rightMotor.setControl(!coralInShooter() ? slowVelocityRequest: fastVelocityRequest);
                 },
                 () -> {
                     leftMotor.stopMotor();
