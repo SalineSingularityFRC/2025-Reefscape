@@ -10,8 +10,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class LidarOverCAN extends SubsystemBase {
 
     private int handle;
-    // HashMap to store CAN message IDs (as strings with a "0x" prefix) and their occurrence counts
     private HashMap<String, Integer> idCountMap = new HashMap<>();
+    private byte[][] lidarData = new byte[8][8]; // Assuming each message contains 8 bytes of data
+    int loopIndex = 0;
 
     public LidarOverCAN() {
         super();
@@ -20,15 +21,13 @@ public class LidarOverCAN extends SubsystemBase {
 
     @Override
     public void periodic() {
-        CANStreamMessage[] messages = new CANStreamMessage[4];
+        CANStreamMessage[] messages = new CANStreamMessage[8];
 
         try {
-            // Read up to 4 messages from the CAN stream
-            CANJNI.readCANStreamSession(handle, messages, 4);
+            CANJNI.readCANStreamSession(handle, messages, 8);
         } catch (CANMessageNotFoundException e) {
             // No messages found, do nothing
         } catch (Exception e) {
-            // Print any other exception
             System.out.println(e.toString());
         }
 
@@ -37,18 +36,30 @@ public class LidarOverCAN extends SubsystemBase {
                 if (msg == null) {
                     continue;
                 }
-                // Format the message ID as a hexadecimal string with "0x" prefix
                 String idStr = String.format("0x%08X", msg.messageID);
-                // Update the count for this message ID in the map
                 idCountMap.put(idStr, idCountMap.getOrDefault(idStr, 0) + 1);
-                for (byte b : msg.data){
-                System.out.print(b + " ");
+
+                int index = msg.messageID - 0x40000550;
+                if (index >= 0 && index < 8) {
+                    lidarData[index] = msg.data;
                 }
-                System.out.println();
             }
-            // Print the entire hashmap after processing messages
+
+            
+                if (loopIndex >= 100) {
+                // Print the 2D array
+                System.out.println("Lidar 2D Array:");
+                for (int i = 0; i < lidarData.length; i++) {
+                    for (int j = 0; j < lidarData[i].length; j++) {
+                        System.out.print(lidarData[i][j] + " ");
+                    }
+                    System.out.println();
+                }
+                loopIndex = 0;
+            }
+            
+            loopIndex++;
             System.out.println("CAN ID Count Map: " + idCountMap.toString());
         }
-
     }
 }
