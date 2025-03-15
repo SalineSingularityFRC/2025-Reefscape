@@ -355,10 +355,9 @@ public final class Constants {
     public static class Heights {
 
       // From the ground (in)
-      public static ConfigDouble LOWEST_HEIGHT = new ConfigDouble("Elevator/Heights/Lowest Height", 12);
-      public static ConfigDouble HIGHEST_HEIGHT = new ConfigDouble("Elevator/Positions/Highest Height", 72);
-      public static ConfigDouble CAMERA_LOWEST_HEIGHT = new ConfigDouble("Elevator/Positions/Camera Lowest Height", 10);
-      public static ConfigDouble DEADZONE = new ConfigDouble("Elevator/Positions/Deadzone Intake See Elevator", 10);
+      public static ConfigDouble LOWEST_HEIGHT = new ConfigDouble("Elevator/Heights/Lowest Height", 20.5);
+      public static ConfigDouble HIGHEST_HEIGHT = new ConfigDouble("Elevator/Positions/Highest Height", 75);
+      public static ConfigDouble DEADZONE = new ConfigDouble("Elevator/Positions/Deadzone Intake See Elevator", 7.0);
     }
 
     public static class Positions {
@@ -377,7 +376,9 @@ public final class Constants {
       public static ConfigDouble KP = new ConfigDouble("Elevator/Primary Motor/kP", 5);
       public static ConfigDouble KI = new ConfigDouble("Elevator/Primary Motor/kI", 0);
       public static ConfigDouble KD = new ConfigDouble("Elevator/Primary Motor/kD", 0);
-
+      public static ConfigDouble KF = new ConfigDouble("Elevator/Primary Motor/kF", 0);
+      public static ConfigDouble arbFF = new ConfigDouble("Elevator/Primary Motor/arbFF", 0.25);
+  
       public static ConfigDouble MIN_POWER = new ConfigDouble("Elevator/Primary Motor/Min Power", -1);
       public static ConfigDouble MAX_POWER = new ConfigDouble("Elevator/Primary Motor/Max Power", 1);
 
