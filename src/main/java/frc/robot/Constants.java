@@ -302,6 +302,7 @@ public final class Constants {
       // Switched top and left IRL (need to rename)
       public static final String leftLL = "limelight-top";
       public static final String rightLL = "limelight-right";
+      public static final String realSenseCam = "real-sense-camera";
     }
   }
 

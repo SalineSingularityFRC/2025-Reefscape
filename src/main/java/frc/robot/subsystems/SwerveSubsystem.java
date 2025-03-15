@@ -50,8 +50,10 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import lib.vision.Limelight;
+import lib.vision.RealSenseCamera;
 import frc.robot.SwerveClasses.SwerveModule;
 import frc.robot.SwerveClasses.SwerveOdometry;
+import frc.robot.commands.CameraDriveToPose;
 
 /*
  * This class provides functions to drive at a given angle and direction,
@@ -480,55 +482,57 @@ public class SwerveSubsystem extends SubsystemBase {
   // });
   // }
 
-
   // // z should be out, x right, y down
-  // public Command cameraDriveToPose(Supplier<Pose3d> cameraReefPose, Supplier<Pose3d> cameraPose,
-  //     Matrix<N3, N1> normalVector, double targetAngle) {
+  // public Command cameraDriveToPose(Supplier<Pose3d> cameraReefPose,
+  // Supplier<Pose3d> cameraPose,
+  // Matrix<N3, N1> normalVector, double targetAngle) {
 
-  //   PIDController rotationController = new PIDController(0.025, 0, 0.000033);
-  //   rotationController.setSetpoint(0);
-  //   rotationController.setTolerance(1);
+  // PIDController rotationController = new PIDController(0.025, 0, 0.000033);
+  // rotationController.setSetpoint(0);
+  // rotationController.setTolerance(1);
 
-  //   SimpleMotorFeedforward rotationFeedForward = new SimpleMotorFeedforward(0, 0);
+  // SimpleMotorFeedforward rotationFeedForward = new SimpleMotorFeedforward(0,
+  // 0);
 
-  //   PIDController driveController = new PIDController(0.395, 0, 0);
-  //   driveController.setTolerance(0.1);
+  // PIDController driveController = new PIDController(0.395, 0, 0);
+  // driveController.setTolerance(0.1);
 
-  //   SimpleMotorFeedforward driveFeedForward = new SimpleMotorFeedforward(0.01, 0);
+  // SimpleMotorFeedforward driveFeedForward = new SimpleMotorFeedforward(0.01,
+  // 0);
 
-  //   return new FunctionalCommand(
-  //       () -> {
+  // return new FunctionalCommand(
+  // () -> {
 
-  //       },
-  //       () -> {
-  //         double distance = lime.getDistanceToTagInFeet();
-  //         double toDriveDistance = 0;
+  // },
+  // () -> {
+  // double distance = lime.getDistanceToTagInFeet();
+  // double toDriveDistance = 0;
 
-  //         driveController.setSetpoint(toDriveDistance);
+  // driveController.setSetpoint(toDriveDistance);
 
-  //         double driveSpeed = driveController.calculate(distance);
+  // double driveSpeed = driveController.calculate(distance);
 
-  //         if (driveSpeed >= 3.5) {
-  //           driveSpeed = 3.5;
-  //         } else if (driveSpeed <= -3.5) {
-  //           driveSpeed = -3.5;
-  //         }
+  // if (driveSpeed >= 3.5) {
+  // driveSpeed = 3.5;
+  // } else if (driveSpeed <= -3.5) {
+  // driveSpeed = -3.5;
+  // }
 
-  //         if (lime.isTagFound()) {
-  //           drive(
-  //               -rotationFeedForward.calculate(tx) + rotationController.calculate(tx),
-  //               -driveFeedForward.calculate(distance) + driveSpeed,
-  //               0,
-  //               false);
-  //         }
-  //       },
-  //       (_unused) -> {
+  // if (lime.isTagFound()) {
+  // drive(
+  // -rotationFeedForward.calculate(tx) + rotationController.calculate(tx),
+  // -driveFeedForward.calculate(distance) + driveSpeed,
+  // 0,
+  // false);
+  // }
+  // },
+  // (_unused) -> {
 
-  //       },
-  //       () -> {
-  //         return driveController.atSetpoint() && rotationController.atSetpoint();
-  //       },
-  //       this);
+  // },
+  // () -> {
+  // return driveController.atSetpoint() && rotationController.atSetpoint();
+  // },
+  // this);
   // }
 
   // Getting to the amp diagonally
@@ -704,16 +708,30 @@ public class SwerveSubsystem extends SubsystemBase {
       new ReefPose("K", ReefFacetSide.LEFT, new Pose2d(3.936, 5.312, new Rotation2d(Math.toRadians(300.0)))),
       new ReefPose("L", ReefFacetSide.RIGHT, new Pose2d(3.648, 5.148, new Rotation2d(Math.toRadians(300.0)))));
 
-  public Command testPath(AutoScoreTarget target) {
+  public Command drivetoPose(AutoScoreTarget target) {
     return new DeferredCommand(() -> {
       Pose2d targetPose = getClosestReef(target);
-      PathConstraints constraints = new PathConstraints(1.5, 1.5, .5, .5);
+      // PathConstraints constraints = new PathConstraints(1.5, 1.5, .5, .5);
 
       if (BlueAlliance) {
-        return AutoBuilder.pathfindToPose(targetPose, constraints, 0);
+        return new CameraDriveToPose(this, supplier_position, () -> targetPose);
+        // return AutoBuilder.pathfindToPose(targetPose, constraints, 0);
       } else {
-        return AutoBuilder.pathfindToPoseFlipped(targetPose, constraints, 0);
+        return new CameraDriveToPose(this, supplier_position, () -> FlippingUtil.flipFieldPose(targetPose));
+        // return AutoBuilder.pathfindToPoseFlipped(targetPose, constraints, 0);
       }
+
+    }, Set.of(this));
+  }
+
+  /**
+   * Drives to pose supplied by camera
+   */
+  public Command cameraDriveToPose(RealSenseCamera cam) {
+    return new DeferredCommand(() -> {
+      Pose2d targetPose = cam.getReefPose();
+      
+      return new CameraDriveToPose(this, supplier_position, () -> targetPose);
 
     }, Set.of(this));
   }

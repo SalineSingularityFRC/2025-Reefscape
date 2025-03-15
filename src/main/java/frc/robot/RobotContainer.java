@@ -13,6 +13,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -20,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import lib.vision.Limelight;
+import lib.vision.RealSenseCamera;
 import frc.robot.commands.ButtonDriveController;
 import frc.robot.commands.CameraDriveToPose;
 import frc.robot.commands.DriveController;
@@ -44,8 +46,7 @@ public class RobotContainer {
     private ElevatorSubsystem elevator;
     private Limelight leftLL;
     private Limelight rightLL;
-    private ClimberSubsystem climber;
-    private TroughSubsystem trough;
+    private RealSenseCamera cam;
     private LEDStatusSubsystem ledStatus;
 
     protected RobotContainer() {
@@ -53,6 +54,7 @@ public class RobotContainer {
         elevator = new ElevatorSubsystem(intake);
         leftLL = new Limelight(Constants.Vision.Names.leftLL);
         rightLL = new Limelight(Constants.Vision.Names.rightLL);
+        cam = new RealSenseCamera(Constants.Vision.Names.realSenseCam);
         drive = new SwerveSubsystem(leftLL, rightLL);
         // climber = new ClimberSubsystem();
         ledStatus = new LEDStatusSubsystem(intake, elevator);
@@ -110,23 +112,27 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
-        // Elevator Position
+        // Redundent elevator positions of drive controller
         driveController.a().onTrue(elevator.moveToTargetPosition(Setpoint.kLevel1).withName("kLevel1"));
         driveController.b().onTrue(elevator.moveToTargetPosition(Setpoint.kLevel2).withName("kLevel2"));
         driveController.x().onTrue(elevator.moveToTargetPosition(Setpoint.kLevel3).withName("kLevel3"));
         driveController.y().onTrue(elevator.moveToTargetPosition(Setpoint.kLevel4).withName("kLevel4"));
 
+        // Redundent manual elevator movement and coral box intaking/shooting
         driveController.povDown().whileTrue(elevator.runMotors(true).withName("runMotorsReverseTrue"));
         driveController.povUp().whileTrue(elevator.runMotors(false).withName("runMotorsReverseFalse"));
         driveController.povLeft().whileTrue(intake.intakeCoral().withName("intakeCoral"));
         driveController.povRight().whileTrue(intake.shootCoral().withName("shootCoral"));
+
         driveController.leftTrigger().whileTrue(new DeferredCommand(() -> {
             return new CameraDriveToPose(drive, drive.supplier_position, () -> {
                 return new Pose2d(16, 4, Rotation2d.fromDegrees(180));
             });
         }, Set.of(drive)));
-        // driveController.leftTrigger().whileTrue(climber.moveWinchForward());
-        // driveController.rightTrigger().whileTrue(climber.moveWinchBack());
+        
+        // Doesn't work since CameraDriveToPose PIDs to a field centric pose
+        // Need to rewrite CameraDriveToPose to be robot centric
+        driveController.rightTrigger().whileTrue(drive.cameraDriveToPose(cam));
 
         // driveController.rightBumper().whileTrue(trough.moveTroughForward());
         // driveController.leftBumper().whileTrue(trough.moveTroughBack());
@@ -229,6 +235,14 @@ public class RobotContainer {
         this.drive.updateOdometry();
     }
 
+    protected void updateMatchTime() {
+        SmartDashboard.putNumber("Elastic/Match Time", DriverStation.getMatchTime());
+    }
+
+    protected void updateCamData() {
+        this.cam.updateReefPose();
+    }
+
     protected void zeroRotation() {
         this.drive.resetGyro();
     }
@@ -239,7 +253,7 @@ public class RobotContainer {
 
     private Command makeAutoScoreCommand(AutoScoreTarget target) {
         ParallelCommandGroup commandGroup = new ParallelCommandGroup();
-        commandGroup.addCommands(drive.testPath(target).andThen(drive.updateRotationPIDSetpointCommand()));
+        commandGroup.addCommands(drive.drivetoPose(target).andThen(drive.updateRotationPIDSetpointCommand()));
         commandGroup.addCommands(elevator.moveToTargetPosition(targetToSetPoint(target)));
         return commandGroup.andThen(drive.stopDriving());
     }
