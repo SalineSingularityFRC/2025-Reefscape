@@ -151,7 +151,7 @@ public class SwerveOdometry {
 
     // if our angular velocity is greater than 360 degrees per second, ignore vision
     // updates. 360 is the default value in docs
-    if (Math.abs(subsystem.getAngularChassisSpeed()) > 360) {
+    if (Math.abs(subsystem.getAngularChassisSpeed()) > Constants.Vision.kMaxRotationRate.getValue()) {
       doRejectLeftLLUpdate = true;
       doRejectRightLLUpdate = true;
     }
