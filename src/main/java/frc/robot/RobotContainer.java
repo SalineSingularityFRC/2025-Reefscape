@@ -16,6 +16,7 @@ import frc.robot.commands.ButtonDriveController;
 import frc.robot.commands.DriveController;
 import frc.robot.commands.RumbleCommandStart;
 import frc.robot.commands.RumbleCommandStop;
+import frc.robot.subsystems.AlgaeSubsystem;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem.Setpoint;
@@ -37,6 +38,7 @@ public class RobotContainer {
     private ClimberSubsystem climber;
     private TroughSubsystem trough;
     private LEDStatusSubsystem ledStatus;
+    private AlgaeSubsystem algae;
 
     protected RobotContainer() {
         lime = new Limelight();
@@ -46,6 +48,7 @@ public class RobotContainer {
         // climber = new ClimberSubsystem();
         ledStatus = new LEDStatusSubsystem(intake, lime, elevator);
         // trough = new TroughSubsystem();
+        algae = new AlgaeSubsystem();
 
         driveController = new CommandXboxController(Constants.Gamepad.Controller.DRIVE);
         buttonController = new CommandXboxController(Constants.Gamepad.Controller.BUTTON);
@@ -116,6 +119,11 @@ public class RobotContainer {
         // driveController.leftBumper().whileTrue(trough.moveTroughBack());
 
         driveController.rightBumper().onTrue(drive.resetGyroCommand());
+
+        // TEMPORARY ALGAE COMMAND BUTTON STUFF \\
+        driveController.leftBumper().whileTrue(algae.intakeAlgae().withName("intakeAlgae"));
+        driveController.leftTrigger().onTrue(algae.returnToHomePos().withName("returnToHomePosAlgae"));
+        driveController.rightTrigger().onTrue(algae.shootAlgae().withName("shootAlgae"));
 
         buttonController.a().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L1_LEFT));
         buttonController.b().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L2_LEFT));

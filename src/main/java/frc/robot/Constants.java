@@ -39,6 +39,7 @@ public final class Constants {
     public static final class Algae {
       public static final int MAIN_MOTOR = 50;
       public static final int ALGAE_MOTOR = 51;
+      public static final int ALGAE_LASER = 52;
     }
     
     public static final class CanCoder {
@@ -312,7 +313,7 @@ public final class Constants {
     public static final ConfigDouble ENCODER_MIN_POS = new ConfigDouble("Climber/ENCODER_MIN_POS", -100);
   }
 
-  public static class Trough{
+  public static class Trough {
     public static ConfigDouble TROUGH_SPEED = new ConfigDouble("Trough/TROUGH_SPEED", .05);
     public static final ConfigDouble ENCODER_MAX_POS = new ConfigDouble("Trough/ENCODER_MAX_POS", 1.0);
     public static final ConfigDouble ENCODER_MIN_POS = new ConfigDouble("Trough/ENCODER_MIN_POS", 0);
@@ -323,8 +324,15 @@ public final class Constants {
   }
 
   public static class Algae {
-    public static final ConfigDouble kP = new ConfigDouble("Algae/kP", 1);
-    public static final ConfigDouble kD = new ConfigDouble("Algae/kD", 0);
+    public static final ConfigDouble kPMain = new ConfigDouble("Algae/kPMain", 1);
+    public static final ConfigDouble kDMain = new ConfigDouble("Algae/kDMain", 0);
+    public static final ConfigDouble kPAlgae = new ConfigDouble("Algae/kPAlgae", 1);
+    public static final ConfigDouble kDAlgae = new ConfigDouble("Algae/kDAlgae", 0);
+    public static final ConfigDouble sensingDistance = new ConfigDouble("Algae/SensingDistance", 100);
+    public static ConfigDouble motorSpeedSlow = new ConfigDouble("Algae/SpeedSlow", 30);
+    public static ConfigDouble motorSpeedFast = new ConfigDouble("Algae/SpeedFast", 60);
+    public static ConfigDouble INTAKE_POS = new ConfigDouble("Algae/IntakePos", 20);
+    public static ConfigDouble SHOOT_POS = new ConfigDouble("Algae/ShootPos", 40);
     public static ConfigDouble MAX_CONTROL_ERROR_IN_COUNTS = new ConfigDouble("Algae/Control Error Tolerance", 0.25);
   }
 
