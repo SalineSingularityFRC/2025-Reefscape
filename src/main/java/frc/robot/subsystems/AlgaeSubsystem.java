@@ -11,7 +11,6 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import au.grapplerobotics.LaserCan;
 import au.grapplerobotics.interfaces.LaserCanInterface.Measurement;
 import frc.robot.Constants;
-import edu.wpi.first.units.VelocityUnit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -32,6 +31,7 @@ public class AlgaeSubsystem extends SubsystemBase {
         outtakeSpeedRequest = new VelocityTorqueCurrentFOC(Constants.Algae.motorSpeedFast.getValue()).withSlot(0);
 
         mainMotor.setPosition(0);
+        
         mainMotor.setNeutralMode(NeutralModeValue.Brake);
         mainMotor.getConfigurator().apply(new TalonFXConfiguration());
 

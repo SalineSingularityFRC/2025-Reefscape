@@ -41,6 +41,10 @@ public final class Constants {
       public static final int ALGAE_MOTOR = 51;
       public static final int ALGAE_LASER = 52;
     }
+
+    public static final class Processor {
+      public static final int INTAKE_MOTOR = 53;
+    }
     
     public static final class CanCoder {
       public static final int GYRO = 20;
@@ -334,6 +338,12 @@ public final class Constants {
     public static ConfigDouble INTAKE_POS = new ConfigDouble("Algae/IntakePos", 20);
     public static ConfigDouble SHOOT_POS = new ConfigDouble("Algae/ShootPos", 40);
     public static ConfigDouble MAX_CONTROL_ERROR_IN_COUNTS = new ConfigDouble("Algae/Control Error Tolerance", 0.25);
+  }
+
+  public static class Processor {
+    public static ConfigDouble intakeSpeed = new ConfigDouble("Processor/intakeSpeed", 30);
+    public static ConfigDouble spitSpeed = new ConfigDouble("Processor/spitSpeed", -30);
+    public static ConfigDouble kP = new ConfigDouble("Processor/kP", 1);
   }
 
   public static class Elevator {
