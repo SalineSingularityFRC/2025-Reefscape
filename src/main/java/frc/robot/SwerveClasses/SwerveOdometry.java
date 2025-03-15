@@ -138,6 +138,7 @@ public class SwerveOdometry {
    * Adds limelight data to the kalman filter
    */
   public void addLLVisionMeasurement() {
+
     double poseRotation = getPoseEstimatedRotation();
 
     leftLL.setRobotOrientation(poseRotation, 0, 0, 0, 0, 0);
@@ -166,9 +167,8 @@ public class SwerveOdometry {
       poseEstimator.addVisionMeasurement(
           leftLLPoseEstimate.pose,
           leftLLPoseEstimate.timestampSeconds);
+      leftLL.setPoseNT(leftLLPoseEstimate);
     }
-
-    leftLL.setPoseNT(leftLLPoseEstimate);
 
     /**
      * Logic for updating poseEstimator based on right limelight
@@ -182,9 +182,8 @@ public class SwerveOdometry {
       poseEstimator.addVisionMeasurement(
           rightLLPoseEstimate.pose,
           rightLLPoseEstimate.timestampSeconds);
+      rightLL.setPoseNT(rightLLPoseEstimate);
     }
-
-    rightLL.setPoseNT(rightLLPoseEstimate);
   }
 
   public double getPoseEstimatedRotation() {

@@ -6,25 +6,27 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants.Drive;
 import frc.robot.subsystems.SwerveSubsystem;
 import static frc.robot.Constants.Drive;
 
 public class CameraDriveToPose extends Command {
     private final SwerveSubsystem m_swerve;
-    private final Supplier<Pose3d> targetPose, currentPose;
+    private final Supplier<Pose2d> targetPose, currentPose;
     private PIDController rotationController;
     private PIDController xDriveController;
     private PIDController yDriveController;
     private SimpleMotorFeedforward rotationFeedForward = new SimpleMotorFeedforward(0, 0);
 
-    public CameraDriveToPose(SwerveSubsystem swerve, Supplier<Pose3d> currentPoseSupplier, Supplier<Pose3d> targetPoseSupplier,
-            Matrix<N3, N1> normalVector, double targetAngle) {
-        this.currentPose = targetPoseSupplier;
-        this.targetPose = currentPoseSupplier;
+    public CameraDriveToPose(SwerveSubsystem swerve, Supplier<Pose2d> currentPoseSupplier, Supplier<Pose2d> targetPoseSupplier) {
+        this.currentPose = currentPoseSupplier;
+        this.targetPose = targetPoseSupplier;
         m_swerve = swerve;
         addRequirements(swerve);
 
@@ -32,6 +34,8 @@ public class CameraDriveToPose extends Command {
                 Drive.PID_DRIVE_ROTATION_KP.getValue(),
                 Drive.PID_DRIVE_ROTATION_KI.getValue(),
                 Drive.PID_DRIVE_ROTATION_KD.getValue());
+
+        rotationController.enableContinuousInput(0, 2 * Math.PI);
 
         rotationController.setSetpoint(0);
         rotationController.setTolerance(Drive.PID_DRIVE_ROTATION_TOLERANCE.getValue());
@@ -72,18 +76,37 @@ public class CameraDriveToPose extends Command {
                 Drive.PID_DRIVE_Y_KD.getValue());
         }
 
-        Pose3d currentPose = this.currentPose.get();
-        Pose3d targetPose = this.targetPose.get();
+        Pose2d currentPose = this.currentPose.get();
+        Pose2d targetPose = this.targetPose.get();
 
-        double dr = rotationController.calculate(currentPose.getRotation().getAngle(), targetPose.getRotation().getAngle());
+        double errorR = targetPose.getRotation().getRadians() - currentPose.getRotation().getRadians();
+        // errorR = ((errorR + Math.PI) % (2*Math.PI)) - Math.PI;
+        // if (errorR > Math.PI) {
+        //     errorR =- 2 * Math.PI;
+        // } else if( errorR < - Math.PI) {
+        //     errorR =+ 2* Math.PI;
+        // }
+
+        SmartDashboard.putNumber("Tuning/Error", errorR);
+
+        double drCC = rotationController.calculate(targetPose.getRotation().getRadians(), currentPose.getRotation().getRadians());
+        double drCCW = rotationController.calculate(currentPose.getRotation().getRadians(), targetPose.getRotation().getRadians());
+        SmartDashboard.putNumber("Tuning/Current Rot", currentPose.getRotation().getRadians());
+        SmartDashboard.putNumber("Tuning/Targ rot", targetPose.getRotation().getRadians());
+        
+        double dr = Math.abs(drCC) > Math.abs(drCCW) ? drCCW: drCC;
         double dx = xDriveController.calculate(currentPose.getTranslation().getX(), targetPose.getTranslation().getX());
         double dy = yDriveController.calculate(currentPose.getTranslation().getY(), targetPose.getTranslation().getY());
 
-        dr = MathUtil.clamp(dr, -Drive.PID_DRIVE_MAX_ROTATION_SPEED.getValue(), Drive.PID_DRIVE_MAX_ROTATION_SPEED.getValue());
+        dr = - MathUtil.clamp(dr, -Drive.PID_DRIVE_MAX_ROTATION_SPEED.getValue(), Drive.PID_DRIVE_MAX_ROTATION_SPEED.getValue());
         dx = MathUtil.clamp(dx, -Drive.PID_DRIVE_MAX_DRIVE_X_SPEED.getValue(), Drive.PID_DRIVE_MAX_DRIVE_X_SPEED.getValue()); 
         dy = MathUtil.clamp(dy, -Drive.PID_DRIVE_MAX_DRIVE_Y_SPEED.getValue(), Drive.PID_DRIVE_MAX_DRIVE_Y_SPEED.getValue()); 
 
-        m_swerve.drive(dr, dx, dy, false, 1.0);
+        SmartDashboard.putNumber("Tuning/dr", dr);
+        SmartDashboard.putNumber("Tuning/dx", dx);
+        SmartDashboard.putNumber("Tuning/dy", dy);
+
+        m_swerve.drive(dr, dx, dy, true, 1.0);
     }
 
     public boolean isFinished() {

@@ -240,6 +240,10 @@ public class SwerveSubsystem extends SubsystemBase {
 
   }
 
+  public Supplier<Pose2d> supplier_position = () -> {
+    return odometry.getEstimatedPosition();
+  };
+
   public void drive(
       double rotation,
       double x,

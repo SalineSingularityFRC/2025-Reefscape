@@ -64,8 +64,12 @@ public class Limelight {
     if (numTargets > 1) {
       stdDevs = Constants.Vision.kDefaultMultiTagStdDevs;
     } else {
-      stdDevs = stdDevs.times(1 + (avgDist * avgDist / 30));
+      stdDevs = Constants.Vision.kDefaultSingleTagStdDevs;
     }
+
+    // } else {
+    //   stdDevs = stdDevs.times(1 + (avgDist / Constants.Vision.KalmanDivisor.getValue()));
+    // }
 
     return stdDevs;
   }
