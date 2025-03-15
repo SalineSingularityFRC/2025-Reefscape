@@ -9,6 +9,7 @@ import com.pathplanner.lib.commands.PathPlannerAuto;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.LidarOverCAN;
 import frc.robot.subsystems.LidarOverUsb;
@@ -16,7 +17,14 @@ import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.commands.DriveController;
 import frc.robot.commands.RumbleCommandStart;
 import frc.robot.commands.RumbleCommandStop;
-import frc.robot.commands.toSpeaker;
+import frc.robot.subsystems.ClimberSubsystem;
+import frc.robot.subsystems.ElevatorSubsystem;
+import frc.robot.subsystems.ElevatorSubsystem.Setpoint;
+import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.LEDStatusSubsystem;
+import frc.robot.subsystems.SwerveSubsystem;
+import frc.robot.subsystems.SwerveSubsystem.AutoScoreTarget;
+import frc.robot.subsystems.TroughSubsystem;
 
 public class RobotContainer {
     private SwerveSubsystem drive;
@@ -33,6 +41,7 @@ public class RobotContainer {
         lidarCan = new LidarOverCAN();
 
         driveController = new CommandXboxController(Constants.Gamepad.Controller.DRIVE);
+        // buttonController = new CommandXboxController(Constants.Gamepad.Controller.BUTTON);
 
         configureBindings();
 
@@ -45,6 +54,10 @@ public class RobotContainer {
         // this.pathAutonChooser.setDefaultOption("Noah's Auto", "New Auto");
         // this.pathAutonChooser.setDefaultOption("posEstimator Test", "Short Auto");
         // SmartDashboard.putData("Auton Choices", pathAutonChooser);
+    }
+
+    public void initialize() {
+        drive.initialize();
     }
 
     private void configureBindings() {
@@ -86,5 +99,39 @@ public class RobotContainer {
     // protected void updateOdometry() {
     //     this.drive.updateOdometry();
     // }
+
+    protected void zeroRotation() {
+        this.drive.resetGyro();
+    }
+
+    protected void updateRotationPIDSetpoint() {
+        this.drive.updateRotationPIDSetpoint();
+    }
+
+    private Command makeAutoScoreCommand(AutoScoreTarget target) {
+        ParallelCommandGroup commandGroup = new ParallelCommandGroup();
+        commandGroup.addCommands(drive.testPath(target).andThen(drive.updateRotationPIDSetpointCommand()));
+        // commandGroup.addCommands(elevator.moveToTargetPosition(targetToSetPoint(target)));
+        return commandGroup.andThen(drive.stopDriving());
+    }
+
+    private Setpoint targetToSetPoint(AutoScoreTarget target) {
+        switch (target) {
+            case L4_LEFT:
+            case L4_RIGHT:
+                return Setpoint.kLevel4;
+            case L3_LEFT:
+            case L3_RIGHT:
+                return Setpoint.kLevel3;
+            case L2_LEFT:
+            case L2_RIGHT:
+                return Setpoint.kLevel2;
+            case L1_LEFT:
+            case L1_RIGHT:
+                return Setpoint.kLevel1;
+            default:
+                return Setpoint.kFeederStation;
+        }
+    }
 
 }

@@ -1,14 +1,21 @@
 {
   "NetworkTables": {
-    "transitory": {
-      "SmartDashboard": {
+    "persistent": {
+      "Preferences": {
+        "Elevator": {
+          "Primary Motor": {
+            "open": true
+          }
+        },
         "open": true
       }
     },
     "types": {
       "/AdvantageKit/RealOutputs/Alerts": "Alerts",
       "/FMSInfo": "FMSInfo",
-      "/SmartDashboard/Alerts": "Alerts"
+      "/SmartDashboard/Alerts": "Alerts",
+      "/SmartDashboard/Auton Choices": "String Chooser",
+      "/SmartDashboard/Elevator/Model": "Mechanism2d"
     }
   },
   "NetworkTables Info": {
@@ -16,6 +23,7 @@
   },
   "NetworkTables Settings": {
     "mode": "Client (NT3)",
-    "serverTeam": "5066"
+    "serverTeam": "5066",
+    "visible": false
   }
 }

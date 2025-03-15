@@ -1,0 +1,118 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 1.201339285714286,
+        "y": 7.229815051020407
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 1.369855009193807,
+        "y": 7.02934114812559
+      },
+      "isLocked": false,
+      "linkedName": "CS_1"
+    },
+    {
+      "anchor": {
+        "x": 2.141517857142857,
+        "y": 6.2597895408163255
+      },
+      "prevControl": {
+        "x": 2.143385112767774,
+        "y": 6.763948559543913
+      },
+      "nextControl": {
+        "x": 2.13405612244898,
+        "y": 4.245121173469387
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 2.141517857142857,
+        "y": 3.863
+      },
+      "prevControl": {
+        "x": 1.895315918889805,
+        "y": 3.9064120444167325
+      },
+      "nextControl": {
+        "x": 2.387719795395909,
+        "y": 3.8195879555832675
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 3.1,
+        "y": 3.863
+      },
+      "prevControl": {
+        "x": 2.7925394286130096,
+        "y": 3.8490544084328424
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "B"
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 1.5,
+      "rotationDegrees": 0.0
+    }
+  ],
+  "constraintZones": [
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 1.294029850746268,
+      "maxWaypointRelativePos": 3.0,
+      "constraints": {
+        "maxVelocity": 1.0,
+        "maxAcceleration": 2.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 673.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    },
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 0,
+      "maxWaypointRelativePos": 0.9671641791044778,
+      "constraints": {
+        "maxVelocity": 2.0,
+        "maxAcceleration": 2.5,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 673.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.5,
+    "maxAcceleration": 2.5,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 673.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 0.0
+  },
+  "reversed": false,
+  "folder": "To Reef From CS_1",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": -54.0
+  },
+  "useDefaultConstraints": true
+}

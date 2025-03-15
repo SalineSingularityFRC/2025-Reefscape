@@ -12,7 +12,13 @@ public class RumbleCommandStart extends Command{
     }
 
     public void execute() {
-        controller.getHID().setRumble(RumbleType.kLeftRumble, 0.5);
-        controller.getHID().setRumble(RumbleType.kRightRumble, 0.5);
+        // controller.getHID().setRumble(RumbleType.kLeftRumble, 0.5);
+        // controller.getHID().setRumble(RumbleType.kRightRumble, 0.5);
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+        controller.getHID().setRumble(RumbleType.kLeftRumble, 0);
+        controller.getHID().setRumble(RumbleType.kRightRumble, 0);
     }
 }
