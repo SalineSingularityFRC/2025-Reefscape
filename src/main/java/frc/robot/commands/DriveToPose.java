@@ -17,9 +17,9 @@ import frc.robot.subsystems.SwerveSubsystem;
 import static frc.robot.Constants.Drive;
 
 /**
- * A command that takes in a robot relative pose from the camera and drives the robot to it via PID
+ * A command that takes in a field relative pose and drives the robot to it via PID
  */
-public class CameraDriveToPose extends Command {
+public class DriveToPose extends Command {
     private final SwerveSubsystem m_swerve;
     private final Supplier<Pose2d> targetPose, currentPose;
     private PIDController rotationController;
@@ -27,7 +27,7 @@ public class CameraDriveToPose extends Command {
     private PIDController yDriveController;
     private SimpleMotorFeedforward rotationFeedForward = new SimpleMotorFeedforward(0, 0);
 
-    public CameraDriveToPose(SwerveSubsystem swerve, Supplier<Pose2d> currentPoseSupplier, Supplier<Pose2d> targetPoseSupplier) {
+    public DriveToPose(SwerveSubsystem swerve, Supplier<Pose2d> currentPoseSupplier, Supplier<Pose2d> targetPoseSupplier) {
         this.currentPose = currentPoseSupplier;
         this.targetPose = targetPoseSupplier;
         m_swerve = swerve;
@@ -92,6 +92,7 @@ public class CameraDriveToPose extends Command {
 
         SmartDashboard.putNumber("Tuning/Error", errorR);
 
+        // Accounting for most efficient way to turn
         double drCC = rotationController.calculate(targetPose.getRotation().getRadians(), currentPose.getRotation().getRadians());
         double drCCW = rotationController.calculate(currentPose.getRotation().getRadians(), targetPose.getRotation().getRadians());
         SmartDashboard.putNumber("Tuning/Current Rot", currentPose.getRotation().getRadians());
@@ -105,11 +106,18 @@ public class CameraDriveToPose extends Command {
         dx = MathUtil.clamp(dx, -Drive.PID_DRIVE_MAX_DRIVE_X_SPEED.getValue(), Drive.PID_DRIVE_MAX_DRIVE_X_SPEED.getValue()); 
         dy = MathUtil.clamp(dy, -Drive.PID_DRIVE_MAX_DRIVE_Y_SPEED.getValue(), Drive.PID_DRIVE_MAX_DRIVE_Y_SPEED.getValue()); 
 
+        // Invert drive inputs if on red alliance since field centric
+        if(!m_swerve.isBlueAlliance()) {
+            dr*=-1;
+            dx*=-1;
+            dy*=-1;
+        }
+
         SmartDashboard.putNumber("Tuning/dr", dr);
         SmartDashboard.putNumber("Tuning/dx", dx);
         SmartDashboard.putNumber("Tuning/dy", dy);
 
-        m_swerve.drive(dr, dx, dy, false, 1.0);
+        m_swerve.drive(dr, dx, dy, true, 1.0);
     }
 
     public boolean isFinished() {

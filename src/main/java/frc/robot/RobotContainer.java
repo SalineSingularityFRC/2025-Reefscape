@@ -25,6 +25,7 @@ import lib.vision.RealSenseCamera;
 import frc.robot.commands.ButtonDriveController;
 import frc.robot.commands.CameraDriveToPose;
 import frc.robot.commands.DriveController;
+import frc.robot.commands.DriveToPose;
 import frc.robot.commands.RumbleCommandStart;
 import frc.robot.commands.RumbleCommandStop;
 import frc.robot.subsystems.ClimberSubsystem;
@@ -125,11 +126,11 @@ public class RobotContainer {
         driveController.povRight().whileTrue(intake.shootCoral().withName("shootCoral"));
 
         driveController.leftTrigger().whileTrue(new DeferredCommand(() -> {
-            return new CameraDriveToPose(drive, drive.supplier_position, () -> {
+            return new DriveToPose(drive, drive.supplier_position, () -> {
                 return new Pose2d(16, 4, Rotation2d.fromDegrees(180));
             });
         }, Set.of(drive)));
-        
+
         // Doesn't work since CameraDriveToPose PIDs to a field centric pose
         // Need to rewrite CameraDriveToPose to be robot centric
         driveController.rightTrigger().whileTrue(drive.cameraDriveToPose(cam));

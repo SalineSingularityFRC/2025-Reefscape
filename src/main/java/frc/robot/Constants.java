@@ -89,13 +89,6 @@ public final class Constants {
     public static final String DRIVE_TRAIN = "drivetrain";
   }
 
-  public static final class LaserCan {
-    public static final double INTAKE_WIDTH_MM = Measurement.INTAKE_WIDTH_M * 1000;
-    public static final double INTAKE_TOLERANCE_MM_1 = 100; // Includes height of sensor and other factors
-    public static final double INTAKE_TOLERANCE_MM_2 = 50; // Includes height of sensor and other factors
-
-  }
-
   public static final class Gamepad {
 
     public static final class Controller {
@@ -158,13 +151,11 @@ public final class Constants {
     // trackWidth - lateral distance between pairs of wheels on different sides of
     // the robot
     // wheelBase - distance between pairs of wheels on the same side of the robot
-    // driveBaseRadius - distance from robot center to furthest module.
-    // radiusFactor - to account for real world factors of the wheel radius
+    // WHEELRADIUS - Vex grip lock wheels: https://www.vexrobotics.com/217-9042.html
 
     public static final double TRACK_WIDTH = Units.inchesToMeters(21.75);
     public static final double WHEEL_BASE = Units.inchesToMeters(21.75);
-    public static final double WHEELRADIUS = Units.inchesToMeters(1.8787);
-    public static final double INTAKE_WIDTH_M = Units.inchesToMeters(19.25);
+    public static final double WHEELRADIUS = Units.inchesToMeters(2.0);
 
     // Without bumpers (meters)
     public static final double TOTAL_LENGTH = 0.70485;

@@ -54,6 +54,7 @@ import lib.vision.RealSenseCamera;
 import frc.robot.SwerveClasses.SwerveModule;
 import frc.robot.SwerveClasses.SwerveOdometry;
 import frc.robot.commands.CameraDriveToPose;
+import frc.robot.commands.DriveToPose;
 
 /*
  * This class provides functions to drive at a given angle and direction,
@@ -714,14 +715,18 @@ public class SwerveSubsystem extends SubsystemBase {
       // PathConstraints constraints = new PathConstraints(1.5, 1.5, .5, .5);
 
       if (BlueAlliance) {
-        return new CameraDriveToPose(this, supplier_position, () -> targetPose);
+        return new DriveToPose(this, supplier_position, () -> targetPose);
         // return AutoBuilder.pathfindToPose(targetPose, constraints, 0);
       } else {
-        return new CameraDriveToPose(this, supplier_position, () -> FlippingUtil.flipFieldPose(targetPose));
+        return new DriveToPose(this, supplier_position, () -> FlippingUtil.flipFieldPose(targetPose));
         // return AutoBuilder.pathfindToPoseFlipped(targetPose, constraints, 0);
       }
 
     }, Set.of(this));
+  }
+
+  public boolean isBlueAlliance() {
+    return BlueAlliance;
   }
 
   /**
@@ -730,7 +735,7 @@ public class SwerveSubsystem extends SubsystemBase {
   public Command cameraDriveToPose(RealSenseCamera cam) {
     return new DeferredCommand(() -> {
       Pose2d targetPose = cam.getReefPose();
-      
+
       return new CameraDriveToPose(this, supplier_position, () -> targetPose);
 
     }, Set.of(this));
