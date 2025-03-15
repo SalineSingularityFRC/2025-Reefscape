@@ -27,8 +27,8 @@ public class RobotContainer {
     private LidarOverCAN lidarCan;
 
     protected RobotContainer() {
-        lime = new Limelight();
-        drive = new SwerveSubsystem();
+        // lime = new Limelight();
+        // drive = new SwerveSubsystem();
         lidar = new LidarOverUsb();
         lidarCan = new LidarOverCAN();
 
@@ -48,7 +48,7 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
-        driveController.x().whileTrue(drive.resetGyroCommand());
+        // driveController.x().whileTrue(drive.resetGyroCommand());
 
     //     driveController.b().whileTrue(
     //             new toSpeaker(drive, lime)

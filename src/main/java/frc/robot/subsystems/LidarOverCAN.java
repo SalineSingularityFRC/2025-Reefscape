@@ -11,7 +11,7 @@ public class LidarOverCAN extends SubsystemBase {
 
     private int handle;
     private HashMap<String, Integer> idCountMap = new HashMap<>();
-    private byte[][] lidarData = new byte[8][8]; // Assuming each message contains 8 bytes of data
+    private int[][] lidarData = new int[8][8]; // Assuming each message contains 8 bytes of data
     int loopIndex = 0;
 
     public LidarOverCAN() {
@@ -41,12 +41,16 @@ public class LidarOverCAN extends SubsystemBase {
 
                 int index = msg.messageID - 0x40000550;
                 if (index >= 0 && index < 8) {
-                    lidarData[index] = msg.data;
+                    for(int i = 0; i < msg.data.length; i++){
+                        int measurement = (msg.data[i] & 0xFF);
+                        measurement = measurement<<2;
+                        measurement++;
+                        lidarData[index][i] = measurement;
+                    }
                 }
             }
 
-            
-                if (loopIndex >= 100) {
+            if (loopIndex >= 25) {
                 // Print the 2D array
                 System.out.println("Lidar 2D Array:");
                 for (int i = 0; i < lidarData.length; i++) {
@@ -57,9 +61,10 @@ public class LidarOverCAN extends SubsystemBase {
                 }
                 loopIndex = 0;
             }
-            
+
             loopIndex++;
-            System.out.println("CAN ID Count Map: " + idCountMap.toString());
+            // if (loopIndex % 20 == 0)
+            //     System.out.println("CAN ID Count Map: " + idCountMap.toString());
         }
     }
 }
