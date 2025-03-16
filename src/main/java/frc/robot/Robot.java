@@ -75,7 +75,8 @@ public class Robot extends LoggedRobot {
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
     m_robotContainer.updateOdometry();
-    SmartDashboard.putNumber("Elastic/Match Time", DriverStation.getMatchTime());
+    m_robotContainer.updateCamData();
+    m_robotContainer.updateMatchTime();
   }
 
   @Override

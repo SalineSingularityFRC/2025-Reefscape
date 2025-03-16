@@ -1,12 +1,16 @@
 package frc.robot;
+
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.RobotConfig;
 
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
@@ -32,7 +36,7 @@ public final class Constants {
       public static final int MOTOR = 60;
     }
 
-    public static final class Trougth{
+    public static final class Trougth {
       public static final int TROUGH_MOTOR = 62;
     }
 
@@ -45,7 +49,7 @@ public final class Constants {
     public static final class Processor {
       public static final int INTAKE_MOTOR = 53;
     }
-    
+
     public static final class CanCoder {
       public static final int GYRO = 20;
       public static final int FL = 1;
@@ -69,7 +73,7 @@ public final class Constants {
         public static final int BR = 14;
       }
     }
-  
+
     public static final class LaserCan {
       public static final int SENSOR1 = 50;
       public static final int SENSOR2 = 49;
@@ -88,13 +92,6 @@ public final class Constants {
   public static final class Canbus {
     // public static final String DEFAULT = "rio";
     public static final String DRIVE_TRAIN = "drivetrain";
-  }
-
-  public static final class LaserCan {
-    public static final double INTAKE_WIDTH_MM = Measurement.INTAKE_WIDTH_M * 1000;
-    public static final double INTAKE_TOLERANCE_MM_1 = 100; //Includes height of sensor and other factors
-    public static final double INTAKE_TOLERANCE_MM_2 = 50; //Includes height of sensor and other factors
-
   }
 
   public static final class Gamepad {
@@ -132,7 +129,8 @@ public final class Constants {
   public static final class SwerveModule {
 
     /*
-     * The following are for the Mk4n Swerve Modules, L2+ Ratio, FOC on (from liscence)
+     * The following are for the Mk4n Swerve Modules, L2+ Ratio, FOC on (from
+     * liscence)
      */
     public static final class GearRatio {
       public static final double DRIVE = 5.9;
@@ -158,13 +156,11 @@ public final class Constants {
     // trackWidth - lateral distance between pairs of wheels on different sides of
     // the robot
     // wheelBase - distance between pairs of wheels on the same side of the robot
-    // driveBaseRadius - distance from robot center to furthest module.
-    // radiusFactor - to account for real world factors of the wheel radius
+    // WHEELRADIUS - Vex grip lock wheels: https://www.vexrobotics.com/217-9042.html
 
     public static final double TRACK_WIDTH = Units.inchesToMeters(21.75);
     public static final double WHEEL_BASE = Units.inchesToMeters(21.75);
-    public static final double WHEELRADIUS = Units.inchesToMeters(1.8787);
-    public static final double INTAKE_WIDTH_M = Units.inchesToMeters(19.25);
+    public static final double WHEELRADIUS = Units.inchesToMeters(2.0);
 
     // Without bumpers (meters)
     public static final double TOTAL_LENGTH = 0.70485;
@@ -182,9 +178,9 @@ public final class Constants {
 
   public static final class PidGains {
     public static final class PathPlanner {
-      //public static final PID translation = new PID(3, 5, 0.0);
+      // public static final PID translation = new PID(3, 5, 0.0);
       public static final PID translation = new PID(3, 0, 0.011);
-      //public static final PID rotation = new PID(1, 0, 0.3);
+      // public static final PID rotation = new PID(1, 0, 0.3);
       public static final PID rotation = new PID(3, 0, 0);
     }
 
@@ -192,55 +188,43 @@ public final class Constants {
       public static final PID rotation = new PID(0.085, 0, 0);
     }
 
-
     public static final class Limelight {
       public static final PID DRIVE_CONTROLLER = new PID(0.0025, 0, 0);
-      public static final PID TURN_CONTROLLER = new PID(0.01,0,0);
+      public static final PID TURN_CONTROLLER = new PID(0.01, 0, 0);
       public static final PID SCORE_DRIVE_CONTROLLER = new PID(0.0056, 0, 0);
-      
+
     }
 
     public static final class SwerveModule {
-      //On test carpet
+      // On test carpet
       public static final PID DRIVE_PID_CONTROLLER = new PID(5.3, 0, 0.053, 3.5);
-      //public static final PID TURNING_PID_CONTROLLER = new PID(7, 0, 0.1, 0);
+      // public static final PID TURNING_PID_CONTROLLER = new PID(7, 0, 0.1, 0);
 
       // On test carpet
-      public static final PID TURNING_PID_CONTROLLER = new PID(7, 0, 0.1,0.4);
+      public static final PID TURNING_PID_CONTROLLER = new PID(7, 0, 0.1, 0.4);
 
     }
   }
 
   public static final class PathplannerConfig {
     public static Translation2d[] ChassisModuleOffsets = {
-      new Translation2d(0.289, 0.238), 
-      new Translation2d(0.289, -0.238),
-      new Translation2d(-0.289, 0.238),
-      new Translation2d(-0.289, -0.238),
+        new Translation2d(0.289, 0.238),
+        new Translation2d(0.289, -0.238),
+        new Translation2d(-0.289, 0.238),
+        new Translation2d(-0.289, -0.238),
     };
 
-    public static ModuleConfig ChassisModuleConfig = 
-      new ModuleConfig(
-        Measurement.WHEELRADIUS, 
-        SwerveModule.Speed.MAX_SPEED, 
-        1.0, 
-        null, 
-        SwerveModule.GearRatio.DRIVE, 
-        60, 
+    public static ModuleConfig ChassisModuleConfig = new ModuleConfig(
+        Measurement.WHEELRADIUS,
+        SwerveModule.Speed.MAX_SPEED,
+        1.0,
+        null,
+        SwerveModule.GearRatio.DRIVE,
+        60,
         1);
-        
-    public static RobotConfig ChassisRobotConfig = 
-      new RobotConfig(23.350, 1.705, ChassisModuleConfig, ChassisModuleOffsets);
-  }
 
-  public final static class ReefPoses {
-    ArrayList<Translation2d> BluePoses = new ArrayList<>(
-    Arrays.asList(
-        new Translation2d(1.0, 2.0),
-        new Translation2d(3.0, 4.0),
-        new Translation2d(5.0, 6.0)
-    )
-);
+    public static RobotConfig ChassisRobotConfig = new RobotConfig(23.350, 1.705, ChassisModuleConfig,
+        ChassisModuleOffsets);
   }
 
   public static final class Modes {
@@ -248,11 +232,13 @@ public final class Constants {
      * Mode.REAL - if on a real robot
      * Mode.SIM - if on "Simulate Robot Code"
      * Mode.REPLAY - finds path to log file and puts in AdvantageScope (if open)
-    */
+     */
     public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : Mode.SIM; // Mode.REAL : Mode.REPLAY;
   }
 
-  public static enum Mode{REAL, SIM, REPLAY}
+  public static enum Mode {
+    REAL, SIM, REPLAY
+  }
 
   public abstract static class Config<T> {
     public final String name;
@@ -293,18 +279,27 @@ public final class Constants {
       return Preferences.getInt(name, defaultValue);
     }
 
-    public boolean isTrue(){
+    public boolean isTrue() {
       return getValue() != 0;
     }
 
-    public boolean isFalse(){
+    public boolean isFalse() {
       return (!isTrue());
     }
   }
 
   public static class Vision {
-    public static final Vector<N3> kDefaultSingleTagStdDevs = VecBuilder.fill(1, 1, 1);
-    public static final Vector<N3> kDefaultMultiTagStdDevs = VecBuilder.fill(0.5, 0.5, 0.5);
+    public static final Vector<N3> kDefaultSingleTagStdDevs = VecBuilder.fill(0.7, 0.7,9999999);
+    public static final Vector<N3> kDefaultMultiTagStdDevs = VecBuilder.fill(0.5, 0.5,9999999);
+    public static final ConfigDouble kKalmanDivisor = new ConfigDouble("Vision/kKalmanDivisor", 30);
+    public static final ConfigDouble kMaxRotationRate = new ConfigDouble("Vision/kMaxRotationRate", 360);
+
+    public class Names {
+      // Switched top and left IRL (need to rename)
+      public static final String leftLL = "limelight-top";
+      public static final String rightLL = "limelight-right";
+      public static final String realSenseCam = "real-sense-camera";
+    }
   }
 
   public static class LED {
@@ -325,6 +320,29 @@ public final class Constants {
     public static final ConfigDouble CLIMB_POSITION = new ConfigDouble("Trough/ENCODER_CLIMB_POS", 1.0);
     public static final ConfigDouble KP = new ConfigDouble("Trough/KP", 1.0);
     public static final ConfigDouble KD = new ConfigDouble("Trough/KD", 0);
+  }
+
+  public static class Drive {
+    public static ConfigInt PID_DRIVE_TUNING = new ConfigInt("Drive/PID/Tuning Enabled", 0);
+
+    public static ConfigDouble PID_DRIVE_ROTATION_KP = new ConfigDouble("Drive/PID/Rotation kP", 0.1);
+    public static ConfigDouble PID_DRIVE_ROTATION_KI = new ConfigDouble("Drive/PID/Rotation kI", 0);
+    public static ConfigDouble PID_DRIVE_ROTATION_KD = new ConfigDouble("Drive/PID/Rotation kD", 0);
+    public static ConfigDouble PID_DRIVE_ROTATION_TOLERANCE = new ConfigDouble("Drive/PID/Rotation Tolerance", 1);
+
+    public static ConfigDouble PID_DRIVE_X_KP = new ConfigDouble("Drive/PID/X kP", 0.1);
+    public static ConfigDouble PID_DRIVE_X_KI = new ConfigDouble("Drive/PID/X kI", 0);
+    public static ConfigDouble PID_DRIVE_X_KD = new ConfigDouble("Drive/PID/X kD", 0);
+    public static ConfigDouble PID_DRIVE_X_TOLERANCE = new ConfigDouble("Drive/PID/X Tolerance", 1);
+
+    public static ConfigDouble PID_DRIVE_Y_KP = new ConfigDouble("Drive/PID/Y kP", 0.1);
+    public static ConfigDouble PID_DRIVE_Y_KI = new ConfigDouble("Drive/PID/Y kI", 0);
+    public static ConfigDouble PID_DRIVE_Y_KD = new ConfigDouble("Drive/PID/Y kD", 0);
+    public static ConfigDouble PID_DRIVE_Y_TOLERANCE = new ConfigDouble("Drive/PID/Y Tolerance", 1);
+    
+    public static ConfigDouble PID_DRIVE_MAX_ROTATION_SPEED = new ConfigDouble("Drive/PID/Max Rotation", 2);
+    public static ConfigDouble PID_DRIVE_MAX_DRIVE_X_SPEED = new ConfigDouble("Drive/PID/Max Drive X", 2);
+    public static ConfigDouble PID_DRIVE_MAX_DRIVE_Y_SPEED = new ConfigDouble("Drive/PID/Max Drive Y", 2);
   }
 
   public static class Algae {
@@ -367,7 +385,7 @@ public final class Constants {
       public static ConfigInt L3_COUNTS = new ConfigInt("Elevator/Positions/L3 in counts", 60);
       public static ConfigInt L4_COUNTS = new ConfigInt("Elevator/Positions/L4 in counts", 90);
     }
-    
+
     public static class PrimaryMotor {
       public static ConfigDouble RAISE_SPEED = new ConfigDouble("Elevator/Primary Motor/RAISE_SPEED", 0.1);
       public static ConfigDouble LOWER_SPEED = new ConfigDouble("Elevator/Primary Motor/LOWER_SPEED", .1);
@@ -385,27 +403,32 @@ public final class Constants {
   
       public static ConfigDouble MIN_POWER = new ConfigDouble("Elevator/Primary Motor/Min Power", -1);
       public static ConfigDouble MAX_POWER = new ConfigDouble("Elevator/Primary Motor/Max Power", 1);
-  
-      public static ConfigDouble MAX_VELOCITY_RPM = new ConfigDouble("Elevator/Primary Motor/Max Velocity in rpm", 2000);
-      public static ConfigDouble MAX_ACCEL_RPM_PER_S = new ConfigDouble("Elevator/Primary Motor/Max Accel in rpm per s", 200);
+
+      public static ConfigDouble MAX_VELOCITY_RPM = new ConfigDouble("Elevator/Primary Motor/Max Velocity in rpm",
+          2000);
+      public static ConfigDouble MAX_ACCEL_RPM_PER_S = new ConfigDouble("Elevator/Primary Motor/Max Accel in rpm per s",
+          200);
       public static ConfigInt MAX_CURRENT_IN_A = new ConfigInt("Elevator/Primary Motor/Max Current in A", 40);
-      public static ConfigDouble VOLTAGE_COMPENSATION_IN_V = new ConfigDouble("Elevator/Primary Motor/Voltage Compensation in V", 12);
-      public static ConfigDouble MAX_CONTROL_ERROR_IN_COUNTS = new ConfigDouble("Elevator/Primary Motor/Control Error Tolerance", 0.25);  
+      public static ConfigDouble VOLTAGE_COMPENSATION_IN_V = new ConfigDouble(
+          "Elevator/Primary Motor/Voltage Compensation in V", 12);
+      public static ConfigDouble MAX_CONTROL_ERROR_IN_COUNTS = new ConfigDouble(
+          "Elevator/Primary Motor/Control Error Tolerance", 0.25);
     }
 
-    public static class SecondaryMotor{
+    public static class SecondaryMotor {
       public static ConfigInt CAN_ID = new ConfigInt("Elevator/Secondary Motor/CAN ID", 41);
     }
   }
 
-  public static class Intake{
-    public static class Nums{
+  public static class Intake {
+    public static class Nums {
       public static ConfigDouble motorSpeed = new ConfigDouble("Intake Motor Speed", .1);
       public static ConfigDouble motorSpeedSlow = new ConfigDouble("Intake Motor Speed Slow", .1);
       public static ConfigDouble sensingDistance = new ConfigDouble("Sensor Max Distance", 100);
       public static ConfigDouble troughSenserDistance = new ConfigDouble("Trough Sensor Max Distance", 70);
     }
-    public static class LeftMotor{
+
+    public static class LeftMotor {
       public static ConfigDouble KP = new ConfigDouble("Intake Left P", .1);
       public static ConfigDouble MAX_POWER = new ConfigDouble("Intake Left Max Power", 1);
       public static ConfigDouble MIN_POWER = new ConfigDouble("Intake Left Max Power", -1);
@@ -413,7 +436,8 @@ public final class Constants {
       public static ConfigDouble MAX_ACCELERATION = new ConfigDouble("Intake Left Max A", 10000);
       public static ConfigDouble MAX_CLOSED_LOOP_ERROR = new ConfigDouble("Intake Left Max Error", 0.25);
     }
-    public static class RightMotor{
+
+    public static class RightMotor {
       public static ConfigDouble KP = new ConfigDouble("Intake Right P", .1);
       public static ConfigDouble MAX_POWER = new ConfigDouble("Intake Right Max Power", 1);
       public static ConfigDouble MIN_POWER = new ConfigDouble("Intake Right Max Power", -1);
