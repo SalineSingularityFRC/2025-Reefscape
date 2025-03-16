@@ -7,6 +7,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
+import edu.wpi.first.math.controller.DifferentialDriveAccelerationLimiter;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -118,12 +119,15 @@ public class RobotContainer {
         // driveController.rightBumper().whileTrue(trough.moveTroughForward());
         // driveController.leftBumper().whileTrue(trough.moveTroughBack());
 
-        driveController.rightBumper().onTrue(drive.resetGyroCommand());
+        // driveController.rightBumper().onTrue(drive.resetGyroCommand()); TEMPORARY CHANGE LATER
 
         // TEMPORARY ALGAE COMMAND BUTTON STUFF \\
-        driveController.leftBumper().whileTrue(algae.intakeAlgae().withName("intakeAlgae"));
+        driveController.leftBumper().whileTrue(algae.intake().withName("intakeAlgae"));
+        driveController.leftBumper().onFalse(algae.hold(3));
+        driveController.rightBumper().onTrue(algae.moveToIntakePos().withName("movetointakepos"));
         driveController.leftTrigger().onTrue(algae.returnToHomePos().withName("returnToHomePosAlgae"));
-        driveController.rightTrigger().onTrue(algae.shootAlgae().withName("shootAlgae"));
+        driveController.rightTrigger().whileTrue(algae.spitAlgaeMotor().withName("shootAlgae"));
+        driveController.rightTrigger().onFalse(algae.hold(0));
 
         buttonController.a().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L1_LEFT));
         buttonController.b().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L2_LEFT));

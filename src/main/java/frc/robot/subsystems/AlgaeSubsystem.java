@@ -4,6 +4,7 @@ import java.util.function.DoubleSupplier;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionDutyCycle;
+import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -11,16 +12,21 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import au.grapplerobotics.LaserCan;
 import au.grapplerobotics.interfaces.LaserCanInterface.Measurement;
 import frc.robot.Constants;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 
 public class AlgaeSubsystem extends SubsystemBase {
     private TalonFX mainMotor, algaeMotor;
     private LaserCan sensor;
     private double sensingDistance;
     private final VelocityTorqueCurrentFOC intakeSpeedRequest, outtakeSpeedRequest;
+    private final PositionTorqueCurrentFOC holdRequest;
     private static final int LASER_CAN_NO_MEASUREMENT = -1;
+    private final Timer timer;
+    private boolean hasAlgae;
 
     public AlgaeSubsystem() {
         mainMotor = new TalonFX(Constants.CanId.Algae.MAIN_MOTOR);
@@ -29,6 +35,7 @@ public class AlgaeSubsystem extends SubsystemBase {
 
         intakeSpeedRequest = new VelocityTorqueCurrentFOC(Constants.Algae.motorSpeedSlow.getValue()).withSlot(0);
         outtakeSpeedRequest = new VelocityTorqueCurrentFOC(Constants.Algae.motorSpeedFast.getValue()).withSlot(0);
+        holdRequest = new PositionTorqueCurrentFOC(algaeMotor.getPosition().getValueAsDouble()).withSlot(1);
 
         mainMotor.setPosition(0);
         
@@ -46,14 +53,29 @@ public class AlgaeSubsystem extends SubsystemBase {
         TalonFXConfiguration algaeConfig = new TalonFXConfiguration();
         algaeConfig.Slot0.kP = Constants.Algae.kPAlgae.getValue();
         algaeConfig.Slot0.kD = Constants.Algae.kDAlgae.getValue();
+        algaeConfig.Slot1.kP = Constants.Algae.kP1Algae.getValue();
+        algaeConfig.Slot1.kD = Constants.Algae.kD1Algae.getValue();
         algaeMotor.getConfigurator().apply(algaeConfig);
 
         sensingDistance = Constants.Algae.sensingDistance.getValue();
+
+        timer = new Timer();
+        hasAlgae = false;
+
+        setDefaultCommand(holdCommand());
     }
 
     public void periodic() {
+        // if (canSeeAlgae() && timer.hasElapsed(2)) {
+        //     hasAlgae = true;
+        // }
+        
         intakeSpeedRequest.Velocity = Constants.Algae.motorSpeedSlow.getValue();
         outtakeSpeedRequest.Velocity = Constants.Algae.motorSpeedFast.getValue();
+    }
+
+    public Command holdCommand() {
+        return runOnce(() -> algaeMotor.setControl(holdRequest.withSlot(1)));
     }
 
     public Command moveToPos(DoubleSupplier targetPos) {
@@ -73,23 +95,41 @@ public class AlgaeSubsystem extends SubsystemBase {
             this);
     }
 
-    public Command intakeAlgae() {
-        return moveToPos(() -> Constants.Algae.INTAKE_POS.getValue()).alongWith(runAlgaeMotor().until(() -> algaeInSystem()));
+    public Command moveToIntakePos() {
+        return moveToPos(() -> Constants.Algae.INTAKE_POS.getValue());
     }
 
     public Command shootAlgae() {
-        return moveToPos(() -> Constants.Algae.SHOOT_POS.getValue()).andThen(runAlgaeMotor().until(() -> !algaeInSystem()));
+        return moveToPos(() -> Constants.Algae.SHOOT_POS.getValue()).andThen(spitAlgaeMotor().until(() -> !canSeeAlgae()));
     }
 
-    public Command runAlgaeMotor() {
-        return runEnd(() -> {
-            algaeMotor.setControl(algaeInSystem() ? outtakeSpeedRequest: intakeSpeedRequest); // If algae is in system, make motor speed fast, otherwise slow
-        }, () -> {
-            algaeMotor.stopMotor();
+    public Command intake() {
+        return intakeAlgaeMotor().until(() -> canSeeAlgae()).andThen(new WaitCommand(0.5)).andThen(hold(3));
+    }
+
+    public Command intakeAlgaeMotor() {
+        return run(() -> {
+            algaeMotor.setControl(intakeSpeedRequest); // If algae is in system, make motor speed fast, otherwise slow
         });
     }
 
-    public boolean algaeInSystem() {
+    public Command spitAlgaeMotor() {
+        return run(() -> {
+            algaeMotor.setControl(outtakeSpeedRequest);
+        }).andThen(hold(0));
+    }
+
+    public Command hold(double extra) {
+        return runOnce(() -> {holdRequest.Position = algaeMotor.getPosition().getValueAsDouble() + extra;});
+    }
+
+    // public Command stopAlgaeMotor() {
+    //     return runOnce(() -> {
+    //         algaeMotor.stopMotor();
+    //     });
+    // }
+
+    public boolean canSeeAlgae() {
         return sensor.getMeasurement() != null && getSensorValue(sensor) <= sensingDistance;
     }
 
@@ -99,6 +139,6 @@ public class AlgaeSubsystem extends SubsystemBase {
     }
 
     public Command returnToHomePos() {
-        return moveToPos(() -> 0).onlyIf(() -> !algaeInSystem());
+        return moveToPos(() -> 0).onlyIf(() -> !canSeeAlgae());
     }
 }

@@ -37,8 +37,8 @@ public final class Constants {
     }
 
     public static final class Algae {
-      public static final int MAIN_MOTOR = 50;
-      public static final int ALGAE_MOTOR = 51;
+      public static final int MAIN_MOTOR = 51;
+      public static final int ALGAE_MOTOR = 50;
       public static final int ALGAE_LASER = 52;
     }
 
@@ -332,6 +332,8 @@ public final class Constants {
     public static final ConfigDouble kDMain = new ConfigDouble("Algae/kDMain", 0);
     public static final ConfigDouble kPAlgae = new ConfigDouble("Algae/kPAlgae", 1);
     public static final ConfigDouble kDAlgae = new ConfigDouble("Algae/kDAlgae", 0);
+    public static final ConfigDouble kP1Algae = new ConfigDouble("Algae/kP1Algae", 1);
+    public static final ConfigDouble kD1Algae = new ConfigDouble("Algae/kD1Algae", 0);
     public static final ConfigDouble sensingDistance = new ConfigDouble("Algae/SensingDistance", 100);
     public static ConfigDouble motorSpeedSlow = new ConfigDouble("Algae/SpeedSlow", 30);
     public static ConfigDouble motorSpeedFast = new ConfigDouble("Algae/SpeedFast", 60);
