@@ -40,9 +40,14 @@ public final class Constants {
       public static final int TROUGH_MOTOR = 62;
     }
 
-    public static final class Alge {
-      public static final int LEFT_MOTOE = 50;
-      public static final int RIGHT_MOTOR = 51;
+    public static final class Algae {
+      public static final int MAIN_MOTOR = 51;
+      public static final int ALGAE_MOTOR = 50;
+      public static final int ALGAE_LASER = 52;
+    }
+
+    public static final class Processor {
+      public static final int INTAKE_MOTOR = 53;
     }
 
     public static final class CanCoder {
@@ -339,6 +344,27 @@ public final class Constants {
     public static ConfigDouble PID_DRIVE_MAX_DRIVE_X_SPEED = new ConfigDouble("Drive/PID/Max Drive X", 2);
     public static ConfigDouble PID_DRIVE_MAX_DRIVE_Y_SPEED = new ConfigDouble("Drive/PID/Max Drive Y", 2);
   }
+  
+  public static class Algae {
+    public static final ConfigDouble kPMain = new ConfigDouble("Algae/kPMain", 1);
+    public static final ConfigDouble kDMain = new ConfigDouble("Algae/kDMain", 0);
+    public static final ConfigDouble kPAlgae = new ConfigDouble("Algae/kPAlgae", 1);
+    public static final ConfigDouble kDAlgae = new ConfigDouble("Algae/kDAlgae", 0);
+    public static final ConfigDouble kP1Algae = new ConfigDouble("Algae/kP1Algae", 1);
+    public static final ConfigDouble kD1Algae = new ConfigDouble("Algae/kD1Algae", 0);
+    public static final ConfigDouble sensingDistance = new ConfigDouble("Algae/SensingDistance", 100);
+    public static ConfigDouble motorSpeedSlow = new ConfigDouble("Algae/SpeedSlow", 30);
+    public static ConfigDouble motorSpeedFast = new ConfigDouble("Algae/SpeedFast", 60);
+    public static ConfigDouble INTAKE_POS = new ConfigDouble("Algae/IntakePos", 20);
+    public static ConfigDouble SHOOT_POS = new ConfigDouble("Algae/ShootPos", 40);
+    public static ConfigDouble MAX_CONTROL_ERROR_IN_COUNTS = new ConfigDouble("Algae/Control Error Tolerance", 0.25);
+  }
+
+  public static class Processor {
+    public static ConfigDouble intakeSpeed = new ConfigDouble("Processor/intakeSpeed", 30);
+    public static ConfigDouble spitSpeed = new ConfigDouble("Processor/spitSpeed", -30);
+    public static ConfigDouble kP = new ConfigDouble("Processor/kP", 1);
+  }
 
   public static class Elevator {
 
@@ -365,10 +391,14 @@ public final class Constants {
       public static ConfigDouble LOWER_SPEED = new ConfigDouble("Elevator/Primary Motor/LOWER_SPEED", .1);
       public static ConfigInt INVERTED = new ConfigInt("Elevator/Primary Motor/ INVERTED MOTOR", 1);
       public static ConfigInt CAN_ID = new ConfigInt("Elevator/Primary Motor/CAN ID", 40);
-      public static ConfigDouble KP = new ConfigDouble("Elevator/Primary Motor/kP", 5);
-      public static ConfigDouble KI = new ConfigDouble("Elevator/Primary Motor/kI", 0);
-      public static ConfigDouble KD = new ConfigDouble("Elevator/Primary Motor/kD", 0);
-      public static ConfigDouble KF = new ConfigDouble("Elevator/Primary Motor/kF", 0);
+      public static ConfigDouble KPUP = new ConfigDouble("Elevator/Primary Motor/kPUP", 5);
+      public static ConfigDouble KIUP = new ConfigDouble("Elevator/Primary Motor/kIUP", 0);
+      public static ConfigDouble KDUP = new ConfigDouble("Elevator/Primary Motor/kDUP", 0);
+      public static ConfigDouble KFUP = new ConfigDouble("Elevator/Primary Motor/kFUP", 0);
+      public static ConfigDouble KPDOWN = new ConfigDouble("Elevator/Primary Motor/kPDOWN", 5);
+      public static ConfigDouble KIDOWN = new ConfigDouble("Elevator/Primary Motor/kIDOWN", 0);
+      public static ConfigDouble KDDOWN = new ConfigDouble("Elevator/Primary Motor/kDDOWN", 0);
+      public static ConfigDouble KFDOWN = new ConfigDouble("Elevator/Primary Motor/kFDOWN", 0);
       public static ConfigDouble arbFF = new ConfigDouble("Elevator/Primary Motor/arbFF", 0.25);
   
       public static ConfigDouble MIN_POWER = new ConfigDouble("Elevator/Primary Motor/Min Power", -1);
@@ -394,8 +424,9 @@ public final class Constants {
     public static class Nums {
       public static ConfigDouble motorSpeed = new ConfigDouble("Intake Motor Speed", .1);
       public static ConfigDouble motorSpeedSlow = new ConfigDouble("Intake Motor Speed Slow", .1);
-      public static ConfigDouble sensingDistance = new ConfigDouble("Sensor Max Distance", 100);
-      public static ConfigDouble troughSenserDistance = new ConfigDouble("Trough Sensor Max Distance", 70);
+      public static ConfigDouble intakeDistance = new ConfigDouble("Intake Sensor Min Distance", 100);
+      public static ConfigDouble shooterDistance = new ConfigDouble("Shooter Sensor Min Distance", 100);
+      public static ConfigDouble troughSenserDistance = new ConfigDouble("Trough Sensor Min Distance", 70);
     }
 
     public static class LeftMotor {

@@ -7,12 +7,9 @@ import java.util.Set;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-import com.pathplanner.lib.commands.PathPlannerAuto;
 
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -20,22 +17,20 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import lib.vision.Limelight;
-import lib.vision.RealSenseCamera;
 import frc.robot.commands.ButtonDriveController;
-import frc.robot.commands.CameraDriveToPose;
 import frc.robot.commands.DriveController;
 import frc.robot.commands.DriveToPose;
 import frc.robot.commands.RumbleCommandStart;
 import frc.robot.commands.RumbleCommandStop;
-import frc.robot.subsystems.ClimberSubsystem;
+import frc.robot.subsystems.AlgaeSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem.Setpoint;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.LEDStatusSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.SwerveSubsystem.AutoScoreTarget;
-import frc.robot.subsystems.TroughSubsystem;
+import lib.vision.Limelight;
+import lib.vision.RealSenseCamera;
 
 public class RobotContainer {
     private SwerveSubsystem drive;
@@ -49,6 +44,7 @@ public class RobotContainer {
     private Limelight rightLL;
     private RealSenseCamera cam;
     private LEDStatusSubsystem ledStatus;
+    private AlgaeSubsystem algae;
 
     protected RobotContainer() {
         intake = new IntakeSubsystem();
@@ -60,6 +56,7 @@ public class RobotContainer {
         // climber = new ClimberSubsystem();
         ledStatus = new LEDStatusSubsystem(intake, elevator);
         // trough = new TroughSubsystem();
+        algae = new AlgaeSubsystem();
 
         driveController = new CommandXboxController(Constants.Gamepad.Controller.DRIVE);
         buttonController = new CommandXboxController(Constants.Gamepad.Controller.BUTTON);
@@ -138,7 +135,15 @@ public class RobotContainer {
         // driveController.rightBumper().whileTrue(trough.moveTroughForward());
         // driveController.leftBumper().whileTrue(trough.moveTroughBack());
 
-        driveController.rightBumper().onTrue(drive.resetGyroCommand());
+        // driveController.rightBumper().onTrue(drive.resetGyroCommand()); //TEMPORARY CHANGE LATER
+
+        // TEMPORARY ALGAE COMMAND BUTTON STUFF \\
+        driveController.leftBumper().whileTrue(algae.intake().withName("intakeAlgae"));
+        driveController.leftBumper().onFalse(algae.hold(3));
+        driveController.rightBumper().onTrue(algae.moveToIntakePos().withName("movetointakepos"));
+        driveController.leftTrigger().onTrue(algae.returnToHomePos().withName("returnToHomePosAlgae"));
+        driveController.rightTrigger().whileTrue(algae.spitAlgaeMotor().withName("shootAlgae"));
+        driveController.rightTrigger().onFalse(algae.hold(0));
 
         buttonController.a().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L1_LEFT));
         buttonController.b().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L2_LEFT));
