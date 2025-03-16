@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import java.util.function.DoubleSupplier;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.PositionDutyCycle;
 import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
@@ -148,5 +149,13 @@ public class AlgaeSubsystem extends SubsystemBase {
 
     public Command returnToHomePos() {
         return moveToPos(() -> 0).onlyIf(() -> !canSeeAlgae());
+    }
+
+    public Command manualControlForward() {
+        return run(() -> {mainMotor.setControl(new DutyCycleOut(Constants.Algae.manualSpeed.getValue()));});
+    }
+
+    public Command manualControlBackwards() {
+        return run(() -> {mainMotor.setControl(new DutyCycleOut(-Constants.Algae.manualSpeed.getValue()));});
     }
 }

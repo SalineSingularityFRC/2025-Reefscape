@@ -44,6 +44,7 @@ public class RobotContainer {
     private SwerveSubsystem drive;
     private CommandXboxController driveController;
     private CommandXboxController buttonController;
+    private CommandXboxController thirdController;
     private SendableChooser<Command> autoChooser;
     private IntakeSubsystem intake;
     // private CommandGenericHID simController;
@@ -68,6 +69,7 @@ public class RobotContainer {
 
         driveController = new CommandXboxController(Constants.Gamepad.Controller.DRIVE);
         buttonController = new CommandXboxController(Constants.Gamepad.Controller.BUTTON);
+        thirdController = new CommandXboxController(Constants.Gamepad.Controller.THIRD);
 
         configureBindings();
 
@@ -145,13 +147,16 @@ public class RobotContainer {
 
         // driveController.rightBumper().onTrue(drive.resetGyroCommand()); //TEMPORARY CHANGE LATER
 
-        // TEMPORARY ALGAE COMMAND BUTTON STUFF
+        // TEMPORARY ALGAE COMMAND BUTTON STUFF \\
         driveController.leftBumper().whileTrue(algae.intake().withName("intakeAlgae"));
-        driveController.leftBumper().onFalse(algae.hold(3));
+        driveController.leftBumper().onFalse(algae.hold(1.5));
         driveController.rightBumper().onTrue(algae.moveToIntakePos().withName("movetointakepos"));
         driveController.leftTrigger().onTrue(algae.returnToHomePos().withName("returnToHomePosAlgae"));
         driveController.rightTrigger().whileTrue(algae.spitAlgaeMotor().withName("shootAlgae"));
         driveController.rightTrigger().onFalse(algae.hold(0));
+
+        thirdController.povUp().whileTrue(algae.manualControlForward());
+        thirdController.povDown().whileTrue(algae.manualControlBackwards());
 
         buttonController.a().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L1_LEFT));
         buttonController.b().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L2_LEFT));

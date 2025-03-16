@@ -99,6 +99,7 @@ public final class Constants {
     public static final class Controller {
       public static final int DRIVE = 0;
       public static final int BUTTON = 1;
+      public static final int THIRD = 2;
     }
 
     public static final class Axis {
@@ -355,6 +356,7 @@ public final class Constants {
     public static final ConfigDouble sensingDistance = new ConfigDouble("Algae/SensingDistance", 100);
     public static ConfigDouble motorSpeedSlow = new ConfigDouble("Algae/SpeedSlow", 30);
     public static ConfigDouble motorSpeedFast = new ConfigDouble("Algae/SpeedFast", 60);
+    public static ConfigDouble manualSpeed = new ConfigDouble("Algae/ManualControlSpeed", 10);
     public static ConfigDouble INTAKE_POS = new ConfigDouble("Algae/IntakePos", 20);
     public static ConfigDouble SHOOT_POS = new ConfigDouble("Algae/ShootPos", 40);
     public static ConfigDouble MAX_CONTROL_ERROR_IN_COUNTS = new ConfigDouble("Algae/Control Error Tolerance", 0.25);
