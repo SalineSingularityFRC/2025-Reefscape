@@ -49,7 +49,7 @@ public class RobotContainer {
     private ElevatorSubsystem elevator;
     private Limelight leftLL;
     private Limelight rightLL;
-    private RealSenseCamera cam;
+    // private RealSenseCamera cam;
     private LEDStatusSubsystem ledStatus;
     // private AlgaeSubsystem algae;
 
@@ -58,7 +58,7 @@ public class RobotContainer {
         elevator = new ElevatorSubsystem(intake);
         leftLL = new Limelight(Constants.Vision.Names.leftLL);
         rightLL = new Limelight(Constants.Vision.Names.rightLL);
-        cam = new RealSenseCamera(Constants.Vision.Names.realSenseCam);
+        // cam = new RealSenseCamera(Constants.Vision.Names.realSenseCam);
         drive = new SwerveSubsystem(leftLL, rightLL);
         // climber = new ClimberSubsystem();
         ledStatus = new LEDStatusSubsystem(intake, elevator);
@@ -137,12 +137,12 @@ public class RobotContainer {
 
         // Doesn't work since CameraDriveToPose PIDs to a field centric pose
         // Need to rewrite CameraDriveToPose to be robot centric
-        driveController.rightTrigger().whileTrue(drive.cameraDriveToPose(cam));
+        // driveController.rightTrigger().whileTrue(drive.cameraDriveToPose(cam));
 
         // driveController.rightBumper().whileTrue(trough.moveTroughForward());
         // driveController.leftBumper().whileTrue(trough.moveTroughBack());
 
-        // driveController.rightBumper().onTrue(drive.resetGyroCommand()); TEMPORARY CHANGE LATER
+        driveController.rightBumper().onTrue(drive.resetGyroCommand()); //TEMPORARY CHANGE LATER
 
         // TEMPORARY ALGAE COMMAND BUTTON STUFF \\
         // driveController.leftBumper().whileTrue(algae.intake().withName("intakeAlgae"));
@@ -252,9 +252,9 @@ public class RobotContainer {
         SmartDashboard.putNumber("Elastic/Match Time", DriverStation.getMatchTime());
     }
 
-    protected void updateCamData() {
-        this.cam.updateReefPose();
-    }
+    // protected void updateCamData() {
+    //     this.cam.updateReefPose();
+    // }
 
     protected void zeroRotation() {
         this.drive.resetGyro();
