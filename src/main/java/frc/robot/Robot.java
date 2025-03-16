@@ -75,7 +75,7 @@ public class Robot extends LoggedRobot {
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
     m_robotContainer.updateOdometry();
-    m_robotContainer.updateCamData();
+    // m_robotContainer.updateCamData();
     m_robotContainer.updateMatchTime();
   }
 
