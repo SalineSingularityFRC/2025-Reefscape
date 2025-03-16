@@ -184,6 +184,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         SmartDashboard.putData("Elevator/Model", mech2d);
         SmartDashboard.putNumber("Elevator/Amp", elevatorPrimaryMotor.getOutputCurrent());
         SmartDashboard.putNumber("Elevator/Camera Height", getCurrentCameraHeight());
+        SmartDashboard.putNumber("Elevator/Amp2", elevatorSecondaryMotor.getOutputCurrent());
     }
 
     // Sometimes intake sensor sees top of elevator
@@ -284,10 +285,10 @@ public class ElevatorSubsystem extends SubsystemBase {
     private void moveToSetpoint() {
         if (elevatorCurrentTarget > elevatorEncoder.getPosition()) {
             elevatorClosedLoopController.setReference(
-                elevatorCurrentTarget, ControlType.kMAXMotionPositionControl, ClosedLoopSlot.kSlot0, Constants.Elevator.PrimaryMotor.arbFF.getValue());
-        } else if (elevatorCurrentTarget < elevatorEncoder.getPosition()) {
+                elevatorCurrentTarget, ControlType.kPosition, ClosedLoopSlot.kSlot0, Constants.Elevator.PrimaryMotor.arbFF.getValue());
+        } else {
             elevatorClosedLoopController.setReference(
-                elevatorCurrentTarget, ControlType.kMAXMotionPositionControl, ClosedLoopSlot.kSlot1, Constants.Elevator.PrimaryMotor.arbFF.getValue());
+                elevatorCurrentTarget, ControlType.kPosition, ClosedLoopSlot.kSlot1, Constants.Elevator.PrimaryMotor.arbFF.getValue());
         }
     }
 

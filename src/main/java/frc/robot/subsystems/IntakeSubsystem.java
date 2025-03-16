@@ -102,6 +102,7 @@ public class IntakeSubsystem extends SubsystemBase {
         SmartDashboard.putBoolean("Ready Shoot", readyToShoot());
         SmartDashboard.putBoolean("NoCoralDetected", noCoralDetected());
         SmartDashboard.putBoolean("IntakeSensorFunctional", intakeSensorIsFunctional());
+        SmartDashboard.putBoolean("elevator can move", elevator_can_move.getAsBoolean());
     }
 
     public boolean canSeeCoral(LaserCan sensor) {
