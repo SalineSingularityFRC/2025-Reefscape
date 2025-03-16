@@ -29,6 +29,7 @@ import frc.robot.commands.DriveController;
 import frc.robot.commands.DriveToPose;
 import frc.robot.commands.RumbleCommandStart;
 import frc.robot.commands.RumbleCommandStop;
+import frc.robot.subsystems.AlgaeSubsystem;
 // import frc.robot.subsystems.AlgaeSubsystem;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
@@ -51,7 +52,7 @@ public class RobotContainer {
     private Limelight rightLL;
     // private RealSenseCamera cam;
     private LEDStatusSubsystem ledStatus;
-    // private AlgaeSubsystem algae;
+    private AlgaeSubsystem algae;
 
     protected RobotContainer() {
         intake = new IntakeSubsystem();
@@ -63,7 +64,7 @@ public class RobotContainer {
         // climber = new ClimberSubsystem();
         ledStatus = new LEDStatusSubsystem(intake, elevator);
         // trough = new TroughSubsystem();
-        // algae = new AlgaeSubsystem();
+        algae = new AlgaeSubsystem();
 
         driveController = new CommandXboxController(Constants.Gamepad.Controller.DRIVE);
         buttonController = new CommandXboxController(Constants.Gamepad.Controller.BUTTON);
@@ -142,15 +143,15 @@ public class RobotContainer {
         // driveController.rightBumper().whileTrue(trough.moveTroughForward());
         // driveController.leftBumper().whileTrue(trough.moveTroughBack());
 
-        driveController.rightBumper().onTrue(drive.resetGyroCommand()); //TEMPORARY CHANGE LATER
+        // driveController.rightBumper().onTrue(drive.resetGyroCommand()); //TEMPORARY CHANGE LATER
 
-        // TEMPORARY ALGAE COMMAND BUTTON STUFF \\
-        // driveController.leftBumper().whileTrue(algae.intake().withName("intakeAlgae"));
-        // driveController.leftBumper().onFalse(algae.hold(3));
-        // driveController.rightBumper().onTrue(algae.moveToIntakePos().withName("movetointakepos"));
-        // driveController.leftTrigger().onTrue(algae.returnToHomePos().withName("returnToHomePosAlgae"));
-        // driveController.rightTrigger().whileTrue(algae.spitAlgaeMotor().withName("shootAlgae"));
-        // driveController.rightTrigger().onFalse(algae.hold(0));
+        // TEMPORARY ALGAE COMMAND BUTTON STUFF
+        driveController.leftBumper().whileTrue(algae.intake().withName("intakeAlgae"));
+        driveController.leftBumper().onFalse(algae.hold(3));
+        driveController.rightBumper().onTrue(algae.moveToIntakePos().withName("movetointakepos"));
+        driveController.leftTrigger().onTrue(algae.returnToHomePos().withName("returnToHomePosAlgae"));
+        driveController.rightTrigger().whileTrue(algae.spitAlgaeMotor().withName("shootAlgae"));
+        driveController.rightTrigger().onFalse(algae.hold(0));
 
         buttonController.a().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L1_LEFT));
         buttonController.b().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L2_LEFT));

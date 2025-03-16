@@ -431,6 +431,8 @@ public final class Constants {
 
     public static class LeftMotor {
       public static ConfigDouble KP = new ConfigDouble("Intake Left P", .1);
+      public static ConfigDouble KS = new ConfigDouble("Intake Left kS", 2.5);
+      public static ConfigDouble KV = new ConfigDouble("Intake Left kV", 1);
       public static ConfigDouble MAX_POWER = new ConfigDouble("Intake Left Max Power", 1);
       public static ConfigDouble MIN_POWER = new ConfigDouble("Intake Left Max Power", -1);
       public static ConfigDouble MAX_VELOCITY = new ConfigDouble("Intake Left Max V", 2000);
@@ -440,6 +442,8 @@ public final class Constants {
 
     public static class RightMotor {
       public static ConfigDouble KP = new ConfigDouble("Intake Right P", .1);
+      public static ConfigDouble KS = new ConfigDouble("Intake Right kS", 2.5);
+      public static ConfigDouble KV = new ConfigDouble("Intake Right kV", 1);
       public static ConfigDouble MAX_POWER = new ConfigDouble("Intake Right Max Power", 1);
       public static ConfigDouble MIN_POWER = new ConfigDouble("Intake Right Max Power", -1);
       public static ConfigDouble MAX_VELOCITY = new ConfigDouble("Intake Right Max V", 2000);

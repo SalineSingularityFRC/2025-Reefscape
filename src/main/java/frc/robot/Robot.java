@@ -28,7 +28,7 @@ public class Robot extends LoggedRobot {
   private RobotContainer m_robotContainer;
 
   public Robot() {
-    // CanBridge.runTCP();
+    CanBridge.runTCP();
     DataLogManager.start();
     // Creates UsbCamera and MjpegServer [1] and connects them
     // UsbCamera cam = CameraServer.startAutomaticCapture();
@@ -75,7 +75,7 @@ public class Robot extends LoggedRobot {
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
     m_robotContainer.updateOdometry();
-    m_robotContainer.updateCamData();
+    // m_robotContainer.updateCamData();
     m_robotContainer.updateMatchTime();
   }
 

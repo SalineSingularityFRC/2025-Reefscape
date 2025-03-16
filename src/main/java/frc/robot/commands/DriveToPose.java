@@ -108,7 +108,6 @@ public class DriveToPose extends Command {
 
         // Invert drive inputs if on red alliance since field centric
         if(!m_swerve.isBlueAlliance()) {
-            dr*=-1;
             dx*=-1;
             dy*=-1;
         }

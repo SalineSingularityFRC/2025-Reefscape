@@ -262,8 +262,8 @@ public class SwerveSubsystem extends SubsystemBase {
     // don't move or turn at all
     // 0.08 value can be increased if the joystick is increasingly inaccurate at
     // neutral position
-    if (Math.abs(x) < 0.03
-        && Math.abs(y) < 0.03
+    if (Math.abs(x) < 0.06
+        && Math.abs(y) < 0.06
         && Math.abs(rotation) < 0.08) {
 
       this.stop();
@@ -700,12 +700,12 @@ public class SwerveSubsystem extends SubsystemBase {
       new ReefPose("B", ReefFacetSide.RIGHT, new Pose2d(3.100, 3.863, new Rotation2d(Math.toRadians(0)))),
       new ReefPose("C", ReefFacetSide.LEFT, new Pose2d(3.657, 2.917, new Rotation2d(Math.toRadians(60.0)))),
       new ReefPose("D", ReefFacetSide.RIGHT, new Pose2d(3.934, 2.738, new Rotation2d(Math.toRadians(60.0)))),
-      new ReefPose("E", ReefFacetSide.LEFT, new Pose2d(5.037, 2.745, new Rotation2d(Math.toRadians(120.0)))),
-      new ReefPose("F", ReefFacetSide.RIGHT, new Pose2d(5.320, 2.909, new Rotation2d(Math.toRadians(120.0)))),
-      new ReefPose("G", ReefFacetSide.LEFT, new Pose2d(5.850, 3.863, new Rotation2d(Math.toRadians(180.0)))),
-      new ReefPose("H", ReefFacetSide.RIGHT, new Pose2d(5.850, 4.19, new Rotation2d(Math.toRadians(180.0)))),
-      new ReefPose("I", ReefFacetSide.LEFT, new Pose2d(5.326, 5.148, new Rotation2d(Math.toRadians(240.0)))),
-      new ReefPose("J", ReefFacetSide.RIGHT, new Pose2d(5.035, 5.305, new Rotation2d(Math.toRadians(240.0)))),
+      new ReefPose("E", ReefFacetSide.RIGHT, new Pose2d(5.037, 2.745, new Rotation2d(Math.toRadians(120.0)))),
+      new ReefPose("F", ReefFacetSide.LEFT, new Pose2d(5.320, 2.909, new Rotation2d(Math.toRadians(120.0)))),
+      new ReefPose("G", ReefFacetSide.RIGHT, new Pose2d(5.850, 3.863, new Rotation2d(Math.toRadians(180.0)))),
+      new ReefPose("H", ReefFacetSide.LEFT, new Pose2d(5.850, 4.19, new Rotation2d(Math.toRadians(180.0)))),
+      new ReefPose("I", ReefFacetSide.RIGHT, new Pose2d(5.326, 5.148, new Rotation2d(Math.toRadians(240.0)))),
+      new ReefPose("J", ReefFacetSide.LEFT, new Pose2d(5.035, 5.305, new Rotation2d(Math.toRadians(240.0)))),
       new ReefPose("K", ReefFacetSide.LEFT, new Pose2d(3.936, 5.312, new Rotation2d(Math.toRadians(300.0)))),
       new ReefPose("L", ReefFacetSide.RIGHT, new Pose2d(3.648, 5.148, new Rotation2d(Math.toRadians(300.0)))));
 
