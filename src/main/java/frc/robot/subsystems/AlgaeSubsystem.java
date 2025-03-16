@@ -13,6 +13,7 @@ import au.grapplerobotics.LaserCan;
 import au.grapplerobotics.interfaces.LaserCanInterface.Measurement;
 import frc.robot.Constants;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -27,6 +28,7 @@ public class AlgaeSubsystem extends SubsystemBase {
     private static final int LASER_CAN_NO_MEASUREMENT = -1;
     private final Timer timer;
     private boolean hasAlgae;
+    private double targetPosition;
 
     public AlgaeSubsystem() {
         mainMotor = new TalonFX(Constants.CanId.Algae.MAIN_MOTOR);
@@ -48,6 +50,8 @@ public class AlgaeSubsystem extends SubsystemBase {
         TalonFXConfiguration mainConfig = new TalonFXConfiguration();
         mainConfig.Slot0.kP = Constants.Algae.kPMain.getValue();
         mainConfig.Slot0.kD = Constants.Algae.kDMain.getValue();
+        mainConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+        mainConfig.CurrentLimits.SupplyCurrentLimit = 20;
         mainMotor.getConfigurator().apply(mainConfig);
 
         TalonFXConfiguration algaeConfig = new TalonFXConfiguration();
@@ -72,6 +76,9 @@ public class AlgaeSubsystem extends SubsystemBase {
         
         intakeSpeedRequest.Velocity = Constants.Algae.motorSpeedSlow.getValue();
         outtakeSpeedRequest.Velocity = Constants.Algae.motorSpeedFast.getValue();
+
+        SmartDashboard.putNumber("AlgaeHinge/TargetPosition", targetPosition);
+        SmartDashboard.putNumber("AlgaeHinge/ActualPosition", mainMotor.getPosition().getValueAsDouble());
     }
 
     public Command holdCommand() {
@@ -81,6 +88,7 @@ public class AlgaeSubsystem extends SubsystemBase {
     public Command moveToPos(DoubleSupplier targetPos) {
         return new FunctionalCommand(
             () -> {
+                targetPosition = targetPos.getAsDouble();
                 mainMotor.setControl(new PositionDutyCycle(targetPos.getAsDouble()).withSlot(0).withEnableFOC(true));
             },
             () -> {

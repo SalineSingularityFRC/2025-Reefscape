@@ -424,8 +424,9 @@ public final class Constants {
     public static class Nums {
       public static ConfigDouble motorSpeed = new ConfigDouble("Intake Motor Speed", .1);
       public static ConfigDouble motorSpeedSlow = new ConfigDouble("Intake Motor Speed Slow", .1);
-      public static ConfigDouble sensingDistance = new ConfigDouble("Sensor Max Distance", 100);
-      public static ConfigDouble troughSenserDistance = new ConfigDouble("Trough Sensor Max Distance", 70);
+      public static ConfigDouble intakeDistance = new ConfigDouble("Intake Sensor Min Distance", 100);
+      public static ConfigDouble shooterDistance = new ConfigDouble("Shooter Sensor Min Distance", 100);
+      public static ConfigDouble troughSenserDistance = new ConfigDouble("Trough Sensor Min Distance", 70);
     }
 
     public static class LeftMotor {
