@@ -24,7 +24,7 @@ public class IntakeSubsystem extends SubsystemBase {
     private LaserCan troughSensor;
     private LaserCan intakeSensor;
     private LaserCan shooterSensor;
-    private double sensingDistance;
+    private double intakeDistance, shooterDistance;
     private double troughSenserDistance;
     private final VelocityTorqueCurrentFOC slowVelocityRequest, fastVelocityRequest;
 
@@ -35,7 +35,8 @@ public class IntakeSubsystem extends SubsystemBase {
             intakeSensor = new LaserCan(Constants.CanId.Intake.INTAKE_LASER);
             shooterSensor = new LaserCan(Constants.CanId.Intake.SHOOTER_LASER);
     
-            sensingDistance = Intake.Nums.sensingDistance.getValue();
+            intakeDistance = Intake.Nums.intakeDistance.getValue();
+            shooterDistance = Intake.Nums.shooterDistance.getValue();
             troughSenserDistance = Intake.Nums.troughSenserDistance.getValue();
 
             slowVelocityRequest = new VelocityTorqueCurrentFOC(Intake.Nums.motorSpeedSlow.getValue()).withSlot(0); // 30
@@ -105,7 +106,7 @@ public class IntakeSubsystem extends SubsystemBase {
         }
     
         public void periodic() {
-            sensingDistance = Intake.Nums.sensingDistance.getValue();
+            intakeDistance = Intake.Nums.intakeDistance.getValue();
             troughSenserDistance = Intake.Nums.troughSenserDistance.getValue();
           
             slowVelocityRequest.Velocity = Intake.Nums.motorSpeedSlow.getValue();
@@ -122,12 +123,24 @@ public class IntakeSubsystem extends SubsystemBase {
             SmartDashboard.putBoolean("elevator can move", elevator_can_move.getAsBoolean());
         }
 
-    public boolean canSeeCoral(LaserCan sensor) {
+    public boolean intakeCanSeeCoral(LaserCan sensor) {
         if (!intakeSensorIsFunctional()) {
             return false;
         }
 
-        if (sensor.getMeasurement() != null && getSensorValue(sensor) <= sensingDistance) {
+        if (sensor.getMeasurement() != null && getSensorValue(sensor) <= intakeDistance) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public boolean shooterCanSeeCoral(LaserCan sensor) {
+        if (!intakeSensorIsFunctional()) {
+            return false;
+        }
+
+        if (sensor.getMeasurement() != null && getSensorValue(sensor) <= shooterDistance) {
             return true;
         }
 
@@ -135,11 +148,11 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public boolean coralInIntake() {
-        return canSeeCoral(intakeSensor);
+        return intakeCanSeeCoral(intakeSensor);
     }
 
     public boolean coralInShooter(){
-        return canSeeCoral(shooterSensor);
+        return shooterCanSeeCoral(shooterSensor);
     }
 
     public boolean coralInTrough(){
@@ -147,7 +160,7 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public boolean readyToShoot() {
-        return canSeeCoral(shooterSensor) && !canSeeCoral(intakeSensor);
+        return shooterCanSeeCoral(shooterSensor) && !intakeCanSeeCoral(intakeSensor);
     }
 
     public boolean noCoralDetected() {

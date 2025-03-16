@@ -26,7 +26,7 @@ public class Robot extends LoggedRobot {
 
   public Robot() {
     // CanBridge.runTCP();
-    // DataLogManager.start();
+    DataLogManager.start();
     // Creates UsbCamera and MjpegServer [1] and connects them
     // UsbCamera cam = CameraServer.startAutomaticCapture();
     // cam.setFPS(15);
@@ -39,29 +39,29 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void robotInit() {
-    // Logger.recordMetadata("ProjectName", "2025-Reefscape");
+    Logger.recordMetadata("ProjectName", "2025-Reefscape");
 
-    // switch (Constants.Modes.currentMode) {
-    //   case REAL: // on a real robot
-    //     System.out.println("REAL!");
-    //     Logger.addDataReceiver(new WPILOGWriter()); // logs to /logs/ on USB stick
-    //     Logger.addDataReceiver(new NT4Publisher());
-    //     break;
-    //   case SIM: // on "Simulate Robot Code"
-    //     System.out.println("SIM!");
-    //     Logger.addDataReceiver(new WPILOGWriter()); // logs to logs folder in project
-    //     Logger.addDataReceiver(new NT4Publisher());
-    //     break;
-    //   case REPLAY:
-    //     System.out.println("REPLAY!");
-    //     // setUseTiming(false);
-    //     String logPath = LogFileUtil.findReplayLog();
-    //     Logger.setReplaySource(new WPILOGReader(logPath));
-    //     Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim")));
-    //     break;
-    // }
+    switch (Constants.Modes.currentMode) {
+      case REAL: // on a real robot
+        System.out.println("REAL!");
+        Logger.addDataReceiver(new WPILOGWriter()); // logs to /logs/ on USB stick
+        Logger.addDataReceiver(new NT4Publisher());
+        break;
+      case SIM: // on "Simulate Robot Code"
+        System.out.println("SIM!");
+        Logger.addDataReceiver(new WPILOGWriter()); // logs to logs folder in project
+        Logger.addDataReceiver(new NT4Publisher());
+        break;
+      case REPLAY:
+        System.out.println("REPLAY!");
+        // setUseTiming(false);
+        String logPath = LogFileUtil.findReplayLog();
+        Logger.setReplaySource(new WPILOGReader(logPath));
+        Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim")));
+        break;
+    }
 
-    // Logger.start();
+    Logger.start();
 
     // AlertManager.initialize();
     m_robotContainer = new RobotContainer();
