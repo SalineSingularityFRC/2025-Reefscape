@@ -251,8 +251,8 @@ public class SwerveSubsystem extends SubsystemBase {
     // don't move or turn at all
     // 0.08 value can be increased if the joystick is increasingly inaccurate at
     // neutral position
-    if (Math.abs(x) < 0.07
-        && Math.abs(y) < 0.07
+    if (Math.abs(x) < 0.03
+        && Math.abs(y) < 0.03
         && Math.abs(rotation) < 0.08) {
 
       this.stop();
