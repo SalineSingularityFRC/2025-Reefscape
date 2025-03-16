@@ -110,8 +110,10 @@ public class ElevatorSubsystem extends SubsystemBase {
         elevatorPrimaryMotorConfig.closedLoop
                 .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
                 // Set PID values for position control
-                .pidf(Elevator.PrimaryMotor.KP.getValue(), Elevator.PrimaryMotor.KI.getValue(),
-                        Elevator.PrimaryMotor.KD.getValue(), Elevator.PrimaryMotor.KF.getValue())
+                .pidf(Elevator.PrimaryMotor.KPUP.getValue(), Elevator.PrimaryMotor.KIUP.getValue(),
+                        Elevator.PrimaryMotor.KDUP.getValue(), Elevator.PrimaryMotor.KFUP.getValue(), ClosedLoopSlot.kSlot0)
+                .pidf(Elevator.PrimaryMotor.KPDOWN.getValue(), Elevator.PrimaryMotor.KIDOWN.getValue(),
+                    Elevator.PrimaryMotor.KDDOWN.getValue(), Elevator.PrimaryMotor.KFDOWN.getValue(), ClosedLoopSlot.kSlot1)
                 .outputRange(Elevator.PrimaryMotor.MIN_POWER.getValue(),
                         Elevator.PrimaryMotor.MAX_POWER.getValue()).maxMotion
                 // Set MAXMotion parameters for position control
@@ -280,8 +282,13 @@ public class ElevatorSubsystem extends SubsystemBase {
      * setpoints.
      */
     private void moveToSetpoint() {
-        elevatorClosedLoopController.setReference(
+        if (elevatorCurrentTarget > elevatorEncoder.getPosition()) {
+            elevatorClosedLoopController.setReference(
                 elevatorCurrentTarget, ControlType.kMAXMotionPositionControl, ClosedLoopSlot.kSlot0, Constants.Elevator.PrimaryMotor.arbFF.getValue());
+        } else if (elevatorCurrentTarget < elevatorEncoder.getPosition()) {
+            elevatorClosedLoopController.setReference(
+                elevatorCurrentTarget, ControlType.kMAXMotionPositionControl, ClosedLoopSlot.kSlot1, Constants.Elevator.PrimaryMotor.arbFF.getValue());
+        }
     }
 
     /** Zero the elevator encoder when the limit switch is pressed. */
