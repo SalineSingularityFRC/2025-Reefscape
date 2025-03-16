@@ -117,6 +117,7 @@ public class IntakeSubsystem extends SubsystemBase {
             // SmartDashboard.putNumber("Shooter Sensor", getSensorValue(shooterSensor));
             SmartDashboard.putBoolean("Coral in intake", coralInIntake());
             SmartDashboard.putBoolean("Coral In Trough", coralInTrough());
+            SmartDashboard.putBoolean("Coral In Shooter", coralInShooter());
         }
 
     public boolean canSeeCoral(LaserCan sensor) {
@@ -171,18 +172,6 @@ public class IntakeSubsystem extends SubsystemBase {
         }).until(() -> coralInTrough() || readyToShoot());
     }
 
-    public Command runMotors() {
-        return runEnd(
-                () -> {
-                    leftMotor.setControl(!coralInShooter() ? slowVelocityRequest: fastVelocityRequest);
-                    rightMotor.setControl(!coralInShooter() ? slowVelocityRequest: fastVelocityRequest);
-                },
-                () -> {
-                    leftMotor.stopMotor();
-                    rightMotor.stopMotor();
-                });
-    }
-
     public boolean isMotorRunning() {
         return Math.abs(rightMotor.get()) > 0.01;
     }
@@ -203,10 +192,26 @@ public class IntakeSubsystem extends SubsystemBase {
 
 
     public Command shootCoral() {
-        return runMotors().until(() -> !coralInShooter() && !coralInIntake());
+        return runEnd(
+                () -> {
+                    leftMotor.setControl(fastVelocityRequest);
+                    rightMotor.setControl(fastVelocityRequest);
+                },
+                () -> {
+                    leftMotor.stopMotor();
+                    rightMotor.stopMotor();
+                }).until(() -> !coralInShooter() && !coralInIntake());
     }
 
     public Command intakeCoral() {
-        return runMotors().until(() -> coralInShooter() && !coralInIntake());
+        return runEnd(
+                () -> {
+                    leftMotor.setControl(coralInShooter() ? slowVelocityRequest: fastVelocityRequest);
+                    rightMotor.setControl(coralInShooter() ? slowVelocityRequest: fastVelocityRequest);
+                },
+                () -> {
+                    leftMotor.stopMotor();
+                    rightMotor.stopMotor();
+                }).until(() -> coralInShooter() && !coralInIntake());
     }
 }
