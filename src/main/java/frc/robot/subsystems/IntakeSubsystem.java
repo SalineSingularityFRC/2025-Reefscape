@@ -104,7 +104,7 @@ public class IntakeSubsystem extends SubsystemBase {
             // talonRightConfig.MotorOutput.PeakForwardDutyCycle = Intake.RightMotor.MAX_POWER.getValue();
             // talonRightConfig.MotionMagic.MotionMagicCruiseVelocity = Intake.RightMotor.MAX_VELOCITY.getValue();
             // talonRightConfig.MotionMagic.MotionMagicAcceleration = Intake.RightMotor.MAX_ACCELERATION.getValue();
-            rightMotor.getConfigurator().apply(talonRightConfig, 0.05);
+            rightMotor.getConfigurator().apply(talonRightConfig);
         }
     
         public void periodic() {
@@ -223,21 +223,22 @@ public class IntakeSubsystem extends SubsystemBase {
                 }).until(() -> !coralInShooter() && !coralInIntake());
     }
 
+    // ONLY ADD SMARTDASHBOARD FOR DEBUGGGING, causes delay in CAN first time you run the command
     public Command intakeCoral() {
         return runEnd(
                 () -> {
                     leftMotor.setControl(coralInShooter() ? slowVelocityRequest: fastVelocityRequest);
                     rightMotor.setControl(coralInShooter() ? slowVelocityRequest: fastVelocityRequest);
-                    if(coralInShooter()) {
-                        SmartDashboard.putNumber("Intake/Target Speed", slowVelocityRequest.getVelocityMeasure().magnitude());
-                    } else {
-                        SmartDashboard.putNumber("Intake/Target Speed", fastVelocityRequest.getVelocityMeasure().magnitude());
-                    }
+                    // if(coralInShooter()) {
+                    //     SmartDashboard.putNumber("Intake/Target Speed", slowVelocityRequest.getVelocityMeasure().magnitude());
+                    // } else {
+                    //     SmartDashboard.putNumber("Intake/Target Speed", fastVelocityRequest.getVelocityMeasure().magnitude());
+                    // }
                 },
                 () -> {
                     leftMotor.stopMotor();
                     rightMotor.stopMotor();
-                    SmartDashboard.putNumber("Intake/Target Speed", 0);
+                    // SmartDashboard.putNumber("Intake/Target Speed", 0);
                 }).until(() -> coralInShooter() && !coralInIntake());
     }
 }

@@ -132,11 +132,11 @@ public class RobotContainer {
         driveController.povLeft().whileTrue(intake.intakeCoral().withName("intakeCoral"));
         driveController.povRight().whileTrue(intake.shootCoral().withName("shootCoral"));
 
-        driveController.leftTrigger().whileTrue(new DeferredCommand(() -> {
-            return new DriveToPose(drive, drive.supplier_position, () -> {
-                return new Pose2d(16, 4, Rotation2d.fromDegrees(180));
-            });
-        }, Set.of(drive)));
+        // driveController.leftTrigger().whileTrue(new DeferredCommand(() -> {
+        //     return new DriveToPose(drive, drive.supplier_position, () -> {
+        //         return new Pose2d(16, 4, Rotation2d.fromDegrees(180));
+        //     });
+        // }, Set.of(drive)));
 
         // Doesn't work since CameraDriveToPose PIDs to a field centric pose
         // Need to rewrite CameraDriveToPose to be robot centric
@@ -145,18 +145,20 @@ public class RobotContainer {
         // driveController.rightBumper().whileTrue(trough.moveTroughForward());
         // driveController.leftBumper().whileTrue(trough.moveTroughBack());
 
-        // driveController.rightBumper().onTrue(drive.resetGyroCommand()); //TEMPORARY CHANGE LATER
+        driveController.rightBumper().onTrue(drive.resetGyroCommand()); //TEMPORARY CHANGE LATER
 
         // TEMPORARY ALGAE COMMAND BUTTON STUFF \\
-        driveController.leftBumper().whileTrue(algae.intake().withName("intakeAlgae"));
-        driveController.leftBumper().onFalse(algae.hold(1.5));
-        driveController.rightBumper().onTrue(algae.moveToIntakePos().withName("movetointakepos"));
-        driveController.leftTrigger().onTrue(algae.returnToHomePos().withName("returnToHomePosAlgae"));
+        driveController.leftTrigger().whileTrue(algae.intake().withName("intakeAlgae"));
+        driveController.leftTrigger().onFalse(algae.hold(3));
+        // driveController.rightBumper().onTrue(algae.moveToIntakePos().withName("movetointakepos"));
+        // driveController.leftTrigger().onTrue(algae.returnToHomePos().withName("returnToHomePosAlgae"));
         driveController.rightTrigger().whileTrue(algae.spitAlgaeMotor().withName("shootAlgae"));
         driveController.rightTrigger().onFalse(algae.hold(0));
 
         thirdController.povUp().whileTrue(algae.manualControlForward());
+        thirdController.povUp().onFalse(algae.mainMotorHoldCommand());
         thirdController.povDown().whileTrue(algae.manualControlBackwards());
+        thirdController.povUp().onFalse(algae.mainMotorHoldCommand());
 
         buttonController.a().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L1_LEFT));
         buttonController.b().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L2_LEFT));

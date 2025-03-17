@@ -25,7 +25,8 @@ public class AlgaeSubsystem extends SubsystemBase {
     private LaserCan sensor;
     private double sensingDistance;
     private final VelocityTorqueCurrentFOC intakeSpeedRequest, outtakeSpeedRequest;
-    private final PositionTorqueCurrentFOC holdRequest;
+    private final PositionTorqueCurrentFOC algaeMotorHoldRequest;
+    private final PositionDutyCycle mainMotorHoldRequest;
     private static final int LASER_CAN_NO_MEASUREMENT = -1;
     private final Timer timer;
     private boolean hasAlgae;
@@ -38,16 +39,17 @@ public class AlgaeSubsystem extends SubsystemBase {
 
         intakeSpeedRequest = new VelocityTorqueCurrentFOC(Constants.Algae.motorSpeedSlow.getValue()).withSlot(0);
         outtakeSpeedRequest = new VelocityTorqueCurrentFOC(Constants.Algae.motorSpeedFast.getValue()).withSlot(0);
-        holdRequest = new PositionTorqueCurrentFOC(algaeMotor.getPosition().getValueAsDouble()).withSlot(1);
+        algaeMotorHoldRequest = new PositionTorqueCurrentFOC(algaeMotor.getPosition().getValueAsDouble()).withSlot(1);
+        mainMotorHoldRequest = new PositionDutyCycle(mainMotor.getPosition().getValueAsDouble()).withSlot(0);
 
         mainMotor.setPosition(0);
-        
+
         mainMotor.setNeutralMode(NeutralModeValue.Brake);
         mainMotor.getConfigurator().apply(new TalonFXConfiguration());
 
         algaeMotor.setNeutralMode(NeutralModeValue.Brake);
         algaeMotor.getConfigurator().apply(new TalonFXConfiguration());
-        
+
         TalonFXConfiguration mainConfig = new TalonFXConfiguration();
         mainConfig.Slot0.kP = Constants.Algae.kPMain.getValue();
         mainConfig.Slot0.kD = Constants.Algae.kDMain.getValue();
@@ -72,9 +74,9 @@ public class AlgaeSubsystem extends SubsystemBase {
 
     public void periodic() {
         // if (canSeeAlgae() && timer.hasElapsed(2)) {
-        //     hasAlgae = true;
+        // hasAlgae = true;
         // }
-        
+
         intakeSpeedRequest.Velocity = Constants.Algae.motorSpeedSlow.getValue();
         outtakeSpeedRequest.Velocity = Constants.Algae.motorSpeedFast.getValue();
 
@@ -83,25 +85,31 @@ public class AlgaeSubsystem extends SubsystemBase {
     }
 
     public Command holdCommand() {
-        return runOnce(() -> algaeMotor.setControl(holdRequest.withSlot(1)));
+        return runOnce(() -> {
+            algaeMotor.setControl(algaeMotorHoldRequest.withSlot(1));
+            mainMotor.setControl(mainMotorHoldRequest.withSlot(0));
+        });
     }
 
     public Command moveToPos(DoubleSupplier targetPos) {
         return new FunctionalCommand(
-            () -> {
-                targetPosition = targetPos.getAsDouble();
-                mainMotor.setControl(new PositionDutyCycle(targetPos.getAsDouble()).withSlot(0).withEnableFOC(true));
-            },
-            () -> {
+                () -> {
+                    targetPosition = targetPos.getAsDouble();
+                    mainMotor
+                            .setControl(new PositionDutyCycle(targetPos.getAsDouble()).withSlot(0).withEnableFOC(true));
+                },
+                () -> {
 
-            },
-            (_unused) -> {
+                },
+                (_unused) -> {
 
-            },
-            () -> {
-                return Math.abs(targetPos.getAsDouble() - mainMotor.getPosition().getValueAsDouble()) < Constants.Algae.MAX_CONTROL_ERROR_IN_COUNTS.getValue();
-            },
-            this);
+                },
+                () -> {
+                    return Math.abs(targetPos.getAsDouble()
+                            - mainMotor.getPosition().getValueAsDouble()) < Constants.Algae.MAX_CONTROL_ERROR_IN_COUNTS
+                                    .getValue();
+                },
+                this);
     }
 
     public Command moveToIntakePos() {
@@ -109,11 +117,12 @@ public class AlgaeSubsystem extends SubsystemBase {
     }
 
     public Command shootAlgae() {
-        return moveToPos(() -> Constants.Algae.SHOOT_POS.getValue()).andThen(spitAlgaeMotor().until(() -> !canSeeAlgae()));
+        return moveToPos(() -> Constants.Algae.SHOOT_POS.getValue())
+                .andThen(spitAlgaeMotor().until(() -> !canSeeAlgae()));
     }
 
     public Command intake() {
-        return intakeAlgaeMotor().until(() -> canSeeAlgae()).andThen(new WaitCommand(0.5)).andThen(hold(3));
+        return intakeAlgaeMotor().until(() -> canSeeAlgae()).andThen(new WaitCommand(0.05)).andThen(hold(3));
     }
 
     public Command intakeAlgaeMotor() {
@@ -129,13 +138,15 @@ public class AlgaeSubsystem extends SubsystemBase {
     }
 
     public Command hold(double extra) {
-        return runOnce(() -> {holdRequest.Position = algaeMotor.getPosition().getValueAsDouble() + extra;});
+        return runOnce(() -> {
+            algaeMotorHoldRequest.Position = algaeMotor.getPosition().getValueAsDouble() + extra;
+        });
     }
 
     // public Command stopAlgaeMotor() {
-    //     return runOnce(() -> {
-    //         algaeMotor.stopMotor();
-    //     });
+    // return runOnce(() -> {
+    // algaeMotor.stopMotor();
+    // });
     // }
 
     public boolean canSeeAlgae() {
@@ -144,18 +155,34 @@ public class AlgaeSubsystem extends SubsystemBase {
 
     public int getSensorValue(LaserCan laserCan) {
         Measurement measurement = laserCan.getMeasurement();
-        return measurement == null ? LASER_CAN_NO_MEASUREMENT: measurement.distance_mm;
+        return measurement == null ? LASER_CAN_NO_MEASUREMENT : measurement.distance_mm;
     }
 
     public Command returnToHomePos() {
         return moveToPos(() -> 0).onlyIf(() -> !canSeeAlgae());
     }
 
+    public Command mainMotorHoldCommand() {
+        return runOnce(() -> {
+            mainMotorHoldRequest.Position = mainMotor.getPosition().getValueAsDouble();
+        });
+    }
+
     public Command manualControlForward() {
-        return run(() -> {mainMotor.setControl(new DutyCycleOut(Constants.Algae.manualSpeed.getValue()));});
+        return runEnd(() -> {
+            mainMotor.setControl(new DutyCycleOut(Constants.Algae.manualSpeed.getValue()));
+        }, () -> {
+            // mainMotor.setControl(new DutyCycleOut(0));
+            mainMotorHoldCommand();
+        });
     }
 
     public Command manualControlBackwards() {
-        return run(() -> {mainMotor.setControl(new DutyCycleOut(-Constants.Algae.manualSpeed.getValue()));});
+        return runEnd(() -> {
+            mainMotor.setControl(new DutyCycleOut(-Constants.Algae.manualSpeed.getValue()));
+        }, () -> {
+            // mainMotor.setControl(new DutyCycleOut(0));
+            mainMotorHoldCommand();
+        });
     }
 }
