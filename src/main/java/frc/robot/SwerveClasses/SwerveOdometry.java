@@ -45,10 +45,11 @@ public class SwerveOdometry {
   private final SwerveDriveKinematics swerveKinematics;
 
   private SwerveSubsystem subsystem;
+  private SwerveModulePosition[] currentSwerveModulePositions = new SwerveModulePosition[4];
 
   private DataLog log;
 
-  public SwerveOdometry(SwerveSubsystem subsystem, Translation2d[] vectorKinematics, Limelight leftLL,
+  public SwerveOdometry(SwerveSubsystem subsystem, SwerveDriveKinematics kinematics, Limelight leftLL,
       Limelight rightLL) {
     this.subsystem = subsystem;
     this.leftLL = leftLL;
@@ -61,46 +62,33 @@ public class SwerveOdometry {
     doRejectLeftLLUpdate = false;
     doRejectRightLLUpdate = false;
 
-    swerveKinematics = new SwerveDriveKinematics(
-        vectorKinematics[FL], vectorKinematics[FR], vectorKinematics[BL], vectorKinematics[BR]);
+    swerveKinematics = kinematics;
 
+    for (int i = 0; i < 4; i++) {
+        currentSwerveModulePositions[i] = new SwerveModulePosition(
+            subsystem.getSwerveModule(i).getPosition(),
+            new Rotation2d(subsystem.getSwerveModule(i).getEncoderPosition()));
+    }
     poseEstimator = new SwerveDrivePoseEstimator(
         swerveKinematics,
         subsystem.getRobotRotation2dForOdometry(),
-        new SwerveModulePosition[] {
-            new SwerveModulePosition(
-                subsystem.getSwerveModule(FL).getPosition(),
-                new Rotation2d(subsystem.getSwerveModule(FL).getEncoderPosition())),
-            new SwerveModulePosition(
-                subsystem.getSwerveModule(FR).getPosition(),
-                new Rotation2d(subsystem.getSwerveModule(FR).getEncoderPosition())),
-            new SwerveModulePosition(
-                subsystem.getSwerveModule(BL).getPosition(),
-                new Rotation2d(subsystem.getSwerveModule(BL).getEncoderPosition())),
-            new SwerveModulePosition(
-                subsystem.getSwerveModule(BR).getPosition(),
-                new Rotation2d(subsystem.getSwerveModule(BR).getEncoderPosition())),
-        },
+        currentSwerveModulePositions,
         new Pose2d(0, 0, subsystem.getRobotRotation2dForOdometry()));
   }
 
+  private void updateSwerveModulePositions() {
+    for (int i = 0; i < 4; i++) {
+        SwerveModule module = subsystem.getSwerveModule(i);
+        this.currentSwerveModulePositions[i].distanceMeters = module.getPosition();
+        this.currentSwerveModulePositions[i].angle = new Rotation2d(module.getEncoderPosition());
+    }
+  }
+
   public void update() {
+    updateSwerveModulePositions();
     poseEstimator.update(
         subsystem.getRobotRotation2dForOdometry(),
-        new SwerveModulePosition[] {
-            new SwerveModulePosition(
-                subsystem.getSwerveModule(FL).getPosition(),
-                new Rotation2d(subsystem.getSwerveModule(FL).getEncoderPosition())),
-            new SwerveModulePosition(
-                subsystem.getSwerveModule(FR).getPosition(),
-                new Rotation2d(subsystem.getSwerveModule(FR).getEncoderPosition())),
-            new SwerveModulePosition(
-                subsystem.getSwerveModule(BL).getPosition(),
-                new Rotation2d(subsystem.getSwerveModule(BL).getEncoderPosition())),
-            new SwerveModulePosition(
-                subsystem.getSwerveModule(BR).getPosition(),
-                new Rotation2d(subsystem.getSwerveModule(BR).getEncoderPosition())),
-        });
+        currentSwerveModulePositions);
 
     addLLVisionMeasurement();
 
@@ -195,22 +183,10 @@ public class SwerveOdometry {
   }
 
   public void resetPosition() {
+    updateSwerveModulePositions();
     poseEstimator.resetPosition(
         subsystem.getRobotRotation2dForOdometry(),
-        new SwerveModulePosition[] {
-            new SwerveModulePosition(
-                subsystem.getSwerveModule(FL).getPosition(),
-                new Rotation2d(subsystem.getSwerveModule(FL).getEncoderPosition())),
-            new SwerveModulePosition(
-                subsystem.getSwerveModule(FR).getPosition(),
-                new Rotation2d(subsystem.getSwerveModule(FR).getEncoderPosition())),
-            new SwerveModulePosition(
-                subsystem.getSwerveModule(BL).getPosition(),
-                new Rotation2d(subsystem.getSwerveModule(BL).getEncoderPosition())),
-            new SwerveModulePosition(
-                subsystem.getSwerveModule(BR).getPosition(),
-                new Rotation2d(subsystem.getSwerveModule(BR).getEncoderPosition())),
-        },
+        currentSwerveModulePositions,
         new Pose2d(0, 0, subsystem.getRobotRotation2dForOdometry()));
   }
 
@@ -219,22 +195,10 @@ public class SwerveOdometry {
     SmartDashboard.putNumber("Pathplanner Angle", pos.getRotation().getRadians());
     SmartDashboard.putNumber("Setting Angle", subsystem.getRobotRotation2dForOdometry().getRadians());
 
+    updateSwerveModulePositions();
     poseEstimator.resetPosition(
         subsystem.getRobotRotation2dForOdometry(),
-        new SwerveModulePosition[] {
-            new SwerveModulePosition(
-                subsystem.getSwerveModule(FL).getPosition(),
-                new Rotation2d(subsystem.getSwerveModule(FL).getEncoderPosition())),
-            new SwerveModulePosition(
-                subsystem.getSwerveModule(FR).getPosition(),
-                new Rotation2d(subsystem.getSwerveModule(FR).getEncoderPosition())),
-            new SwerveModulePosition(
-                subsystem.getSwerveModule(BL).getPosition(),
-                new Rotation2d(subsystem.getSwerveModule(BL).getEncoderPosition())),
-            new SwerveModulePosition(
-                subsystem.getSwerveModule(BR).getPosition(),
-                new Rotation2d(subsystem.getSwerveModule(BR).getEncoderPosition())),
-        },
+        currentSwerveModulePositions,
         pos);
   }
 }

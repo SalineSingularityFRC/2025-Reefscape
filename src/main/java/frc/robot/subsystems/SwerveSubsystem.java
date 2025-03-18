@@ -101,6 +101,22 @@ public class SwerveSubsystem extends SubsystemBase {
   private Boolean BlueAlliance;
 
   private DataLog log;
+  private DoubleLogEntry flEncoderPositionLog;
+  private DoubleLogEntry frEncoderPositionLog;
+  private DoubleLogEntry blEncoderPositionLog;
+  private DoubleLogEntry brEncoderPositionLog;
+  private DoubleLogEntry flPositionLog;
+  private DoubleLogEntry frPositionLog;
+  private DoubleLogEntry blPositionLog;
+  private DoubleLogEntry brPositionLog;
+  private DoubleLogEntry pidgeonAccelerationXLog;
+  private DoubleLogEntry pidgeonAccelerationYLog;
+  private DoubleLogEntry pidgeonAccelerationZLog;
+  private DoubleLogEntry pidgeonAngularVelocityXLog;
+  private DoubleLogEntry pidgeonAngularVelocityYLog;
+  private DoubleLogEntry pidgeonAngularVelocityZLog;
+  private DoubleLogEntry pidgeonTimeLog;
+
 
   /*
    * This constructor should create an instance of the pidgeon class, and should
@@ -167,7 +183,7 @@ public class SwerveSubsystem extends SubsystemBase {
         Constants.Inverted.ANGLE,
         "BR");
 
-    odometry = new SwerveOdometry(this, vectorKinematics, leftLL, rightLL);
+    odometry = new SwerveOdometry(this, swerveDriveKinematics, leftLL, rightLL);
     odometry.resetPosition();
 
     Supplier<ChassisSpeeds> supplier_chasis = () -> {
@@ -241,6 +257,22 @@ public class SwerveSubsystem extends SubsystemBase {
     currentRobotAngleDerivative = 0;
     isRotating = false;
 
+    flEncoderPositionLog = new DoubleLogEntry(log, "FL encoder position");
+    frEncoderPositionLog = new DoubleLogEntry(log, "FR encoder position");
+    blEncoderPositionLog = new DoubleLogEntry(log, "BL encoder position");
+    brEncoderPositionLog = new DoubleLogEntry(log, "BR encoder position");
+    flPositionLog = new DoubleLogEntry(log, "FL position");
+    frPositionLog = new DoubleLogEntry(log, "FR position");
+    blPositionLog = new DoubleLogEntry(log, "BL position");
+    brPositionLog = new DoubleLogEntry(log, "BR position");
+    pidgeonAccelerationXLog = new DoubleLogEntry(log, "Pidgeon Acceleration X");
+    pidgeonAccelerationYLog = new DoubleLogEntry(log, "Pidgeon Acceleration Y");
+    pidgeonAccelerationZLog = new DoubleLogEntry(log, "Pidgeon Acceleration Z");
+    pidgeonAngularVelocityXLog = new DoubleLogEntry(log, "Pidgeon Angular Velocity X");
+    pidgeonAngularVelocityYLog = new DoubleLogEntry(log, "Pidgeon Angular Velocity Y");
+    pidgeonAngularVelocityZLog = new DoubleLogEntry(log, "Pidgeon Angular Velocity Z");
+    pidgeonTimeLog = new DoubleLogEntry(log, "Pidgeon Time");
+
   }
 
   public Supplier<Pose2d> supplier_position = () -> {
@@ -296,12 +328,13 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     // For correcting angular position when not rotating manually
+    double gyroYaw = gyro.getYaw().getValueAsDouble();
     if (Math.abs(rotation) > 0.08 * mulitplier || isRotating) {
       isRotating = true;
-      rotationController.setSetpoint(gyro.getYaw().getValueAsDouble());
+      rotationController.setSetpoint(gyroYaw);
       rotationController.reset();
     } else {
-      rotation = rotationController.calculate(gyro.getYaw().getValueAsDouble());
+      rotation = rotationController.calculate(gyroYaw);
     }
 
     // SmartDashboard.putNumber("Rotation Correction/Setpoint: Robot Angle", rotationController.getSetpoint());
@@ -310,7 +343,9 @@ public class SwerveSubsystem extends SubsystemBase {
     // rotation);
     // SmartDashboard.putBoolean("Is bot turning", isRotating);
 
-    this.chassisSpeeds = new ChassisSpeeds(robotX, robotY, rotation);
+    this.chassisSpeeds.vxMetersPerSecond = robotX;
+    this.chassisSpeeds.vyMetersPerSecond = robotY;
+    this.chassisSpeeds.omegaRadiansPerSecond = rotation;
 
     SwerveModuleState[] modules = swerveDriveKinematics.toSwerveModuleStates(chassisSpeeds);
     setModuleStates(modules);
@@ -340,27 +375,6 @@ public class SwerveSubsystem extends SubsystemBase {
     double vy = speeds.vyMetersPerSecond;
     double totalSpeed = Math.sqrt(vx * vx + vy * vy);
     // SmartDashboard.putNumber("SwerveData/Chassis Speed", totalSpeed);
-
-    DoubleLogEntry flEncoderPositionLog = new DoubleLogEntry(log, "FL encoder position");
-    DoubleLogEntry frEncoderPositionLog = new DoubleLogEntry(log, "FR encoder position");
-    DoubleLogEntry blEncoderPositionLog = new DoubleLogEntry(log, "BL encoder position");
-    DoubleLogEntry brEncoderPositionLog = new DoubleLogEntry(log, "BR encoder position");
-
-    DoubleLogEntry flPositionLog = new DoubleLogEntry(log, "FL position");
-    DoubleLogEntry frPositionLog = new DoubleLogEntry(log, "FR position");
-    DoubleLogEntry blPositionLog = new DoubleLogEntry(log, "BL position");
-    DoubleLogEntry brPositionLog = new DoubleLogEntry(log, "BR position");
-
-    DoubleLogEntry pidgeonAccelerationXLog = new DoubleLogEntry(log, "Pidgeon Acceleration X");
-    DoubleLogEntry pidgeonAccelerationYLog = new DoubleLogEntry(log, "Pidgeon Acceleration Y");
-    DoubleLogEntry pidgeonAccelerationZLog = new DoubleLogEntry(log, "Pidgeon Acceleration Z");
-
-    DoubleLogEntry pidgeonAngularVelocityXLog = new DoubleLogEntry(log, "Pidgeon Angular Velocity X");
-    DoubleLogEntry pidgeonAngularVelocityYLog = new DoubleLogEntry(log, "Pidgeon Angular Velocity Y");
-    DoubleLogEntry pidgeonAngularVelocityZLog = new DoubleLogEntry(log, "Pidgeon Angular Velocity Z");
-
-    DoubleLogEntry pidgeonTimeLog = new DoubleLogEntry(log, "Pidgeon Time");
-
     // To log data into these entries, wherever you would have used SmartDashboard,
     // use:
     flEncoderPositionLog.append(swerveModules[FL].getEncoderPosition());
@@ -589,16 +603,11 @@ public class SwerveSubsystem extends SubsystemBase {
   public Command xMode() {
     return runOnce(
         () -> {
-          ChassisSpeeds chassisSpeeds = new ChassisSpeeds(0, 0, 0);
-          SwerveModuleState[] modules = swerveDriveKinematics.toSwerveModuleStates(chassisSpeeds);
-          modules[FL].angle = new Rotation2d(Math.PI / 4.0);
-          modules[FR].angle = new Rotation2d((-5.0 * Math.PI) / 4.0);
-          modules[BR].angle = new Rotation2d((Math.PI) / 4.0);
-          modules[BL].angle = new Rotation2d((-5.0 * Math.PI) / 4.0);
-          modules[FL].speedMetersPerSecond = 0.02;
-          modules[FR].speedMetersPerSecond = 0.02;
-          modules[BR].speedMetersPerSecond = 0.02;
-          modules[BL].speedMetersPerSecond = 0.02;
+          SwerveModuleState[] modules = new SwerveModuleState[4];
+          modules[FL] = new SwerveModuleState(0.02, new Rotation2d(Math.PI / 4.0));
+          modules[FR] = new SwerveModuleState(0.02, new Rotation2d((-5.0 * Math.PI) / 4.0));
+          modules[BR] = new SwerveModuleState(0.02, new Rotation2d((Math.PI) / 4.0));
+          modules[BL] = new SwerveModuleState(0.02, new Rotation2d((-5.0 * Math.PI) / 4.0));
           setModuleStates(modules);
         });
   }
@@ -669,9 +678,7 @@ public class SwerveSubsystem extends SubsystemBase {
     // return posesForSide.get(0).pose;
 
     List<Pose2d> poses = posesForSide.stream().map((rp) -> {
-      WrappedPose2d np = new WrappedPose2d(rp.pose.getX(), rp.pose.getY(), rp.pose.getRotation());
-      np.reefPose = rp;
-      return (Pose2d) np;
+      return rp.pose;
     }).toList();
 
     Pose2d ourPose = odometry.getEstimatedPosition();
@@ -682,7 +689,7 @@ public class SwerveSubsystem extends SubsystemBase {
       return ourPose;
     }
 
-    SmartDashboard.putString("AutoScore/Chosen Reef", ((WrappedPose2d) nearest).reefPose.name);
+    // SmartDashboard.putString("AutoScore/Chosen Reef", ((WrappedPose2d) nearest).reefPose.name);
     // SmartDashboard.putNumber("AutoScore/Chosen Reef/X", nearest.getX());
     // SmartDashboard.putNumber("AutoScore/Chosen Reef/Y", nearest.getY());
 
@@ -691,14 +698,6 @@ public class SwerveSubsystem extends SubsystemBase {
 
   record ReefPose(String name, ReefFacetSide side, Pose2d pose) {
   };
-
-  public class WrappedPose2d extends Pose2d {
-    public WrappedPose2d(double x, double y, Rotation2d rotation) {
-      super(x, y, rotation);
-    }
-
-    public ReefPose reefPose;
-  }
 
   // Blue alliance only since we flip if red alliance (from pathplanner)
   static List<ReefPose> reefPoses = List.of(
