@@ -42,7 +42,7 @@ public class AlgaeSubsystem extends SubsystemBase {
         algaeMotorHoldRequest = new PositionTorqueCurrentFOC(algaeMotor.getPosition().getValueAsDouble()).withSlot(1);
         mainMotorHoldRequest = new PositionDutyCycle(mainMotor.getPosition().getValueAsDouble()).withSlot(0);
 
-        mainMotor.setPosition(0);
+        zeroALgaeCommand();
 
         mainMotor.setNeutralMode(NeutralModeValue.Brake);
         mainMotor.getConfigurator().apply(new TalonFXConfiguration());
@@ -94,9 +94,10 @@ public class AlgaeSubsystem extends SubsystemBase {
     public Command moveToPos(DoubleSupplier targetPos) {
         return new FunctionalCommand(
                 () -> {
-                    targetPosition = targetPos.getAsDouble();
-                    mainMotor
-                            .setControl(new PositionDutyCycle(targetPos.getAsDouble()).withSlot(0).withEnableFOC(true));
+                    // targetPosition = targetPos.getAsDouble();
+                    // mainMotor
+                    //         .setControl(new PositionDutyCycle(targetPos.getAsDouble()).withSlot(0).withEnableFOC(true));
+                    mainMotorHoldRequest.Position = targetPos.getAsDouble();
                 },
                 () -> {
 
@@ -116,9 +117,12 @@ public class AlgaeSubsystem extends SubsystemBase {
         return moveToPos(() -> Constants.Algae.INTAKE_POS.getValue());
     }
 
+    public Command moveToShootPos(){
+        return moveToPos(() -> Constants.Algae.SHOOT_POS.getValue());
+    }
+
     public Command shootAlgae() {
-        return moveToPos(() -> Constants.Algae.SHOOT_POS.getValue())
-                .andThen(spitAlgaeMotor().until(() -> !canSeeAlgae()));
+        return moveToShootPos().andThen(spitAlgaeMotor().until(() -> !canSeeAlgae()));
     }
 
     public Command intake() {
@@ -165,6 +169,12 @@ public class AlgaeSubsystem extends SubsystemBase {
     public Command mainMotorHoldCommand() {
         return runOnce(() -> {
             mainMotorHoldRequest.Position = mainMotor.getPosition().getValueAsDouble();
+        });
+    }
+
+    public Command zeroALgaeCommand(){
+        return runOnce(() -> {
+            mainMotor.setPosition(0);
         });
     }
 
