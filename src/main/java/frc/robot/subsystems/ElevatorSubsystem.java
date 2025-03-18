@@ -180,7 +180,7 @@ public class ElevatorSubsystem extends SubsystemBase {
                                 * (kElevatorDrumRadius * 2.0 * Math.PI));
 
         // SmartDashboard.putNumber("Elevator/Target Position Encoder", elevatorCurrentTarget);
-        // SmartDashboard.putNumber("Elevator/Actual Position", elevatorEncoder.getPosition());
+        SmartDashboard.putNumber("Elevator/Actual Position", elevatorEncoder.getPosition());
         // SmartDashboard.putData("Elevator/Model", mech2d);
         // SmartDashboard.putNumber("Elevator/Amp", elevatorPrimaryMotor.getOutputCurrent());
         // SmartDashboard.putNumber("Elevator/Camera Height", getCurrentCameraHeight());

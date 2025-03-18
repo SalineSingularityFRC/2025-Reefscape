@@ -80,8 +80,8 @@ public class AlgaeSubsystem extends SubsystemBase {
         intakeSpeedRequest.Velocity = Constants.Algae.motorSpeedSlow.getValue();
         outtakeSpeedRequest.Velocity = Constants.Algae.motorSpeedFast.getValue();
 
-        // SmartDashboard.putNumber("AlgaeHinge/TargetPosition", targetPosition);
-        // SmartDashboard.putNumber("AlgaeHinge/ActualPosition", mainMotor.getPosition().getValueAsDouble());
+        SmartDashboard.putNumber("AlgaeHinge/TargetPosition", targetPosition);
+        SmartDashboard.putNumber("AlgaeHinge/ActualPosition", mainMotor.getPosition().getValueAsDouble());
     }
 
     public Command holdCommand() {
@@ -114,6 +114,10 @@ public class AlgaeSubsystem extends SubsystemBase {
 
     public Command moveToIntakePos() {
         return moveToPos(() -> Constants.Algae.INTAKE_POS.getValue());
+    }
+
+    public Command moveToCoralScorePose() {
+        return moveToPos(() -> Constants.Algae.CORAL_SCORE_POSE.getValue());
     }
 
     public Command shootAlgae() {

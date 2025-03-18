@@ -709,9 +709,10 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     List<Pose2d> poses = posesForSide.stream().map((rp) -> {
-      WrappedPose2d np = new WrappedPose2d(rp.pose.getX(), rp.pose.getY(), rp.pose.getRotation());
-      np.sourcePose = rp;
-      return (Pose2d) np;
+      // WrappedPose2d np = new WrappedPose2d(rp.pose.getX(), rp.pose.getY(), rp.pose.getRotation());
+      // np.sourcePose = rp;
+      // return (Pose2d) np;
+      return rp.pose;
     }).toList();
 
     Pose2d ourPose = odometry.getEstimatedPosition();

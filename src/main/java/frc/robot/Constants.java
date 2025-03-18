@@ -358,6 +358,7 @@ public final class Constants {
     public static ConfigDouble motorSpeedFast = new ConfigDouble("Algae/SpeedFast", 60);
     public static ConfigDouble manualSpeed = new ConfigDouble("Algae/ManualControlSpeed", 10);
     public static ConfigDouble INTAKE_POS = new ConfigDouble("Algae/IntakePos", 20);
+    public static ConfigDouble CORAL_SCORE_POSE = new ConfigDouble("Algae/IntakePos", 3.916);
     public static ConfigDouble SHOOT_POS = new ConfigDouble("Algae/ShootPos", 40);
     public static ConfigDouble MAX_CONTROL_ERROR_IN_COUNTS = new ConfigDouble("Algae/Control Error Tolerance", 0.25);
   }

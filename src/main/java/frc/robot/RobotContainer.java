@@ -262,6 +262,7 @@ public class RobotContainer {
         ParallelCommandGroup commandGroup = new ParallelCommandGroup();
         commandGroup.addCommands(drive.drivetoReefPose(target).andThen(drive.updateRotationPIDSetpointCommand()));
         commandGroup.addCommands(elevator.moveToTargetPosition(targetToSetPoint(target)));
+        commandGroup.addCommands(algae.moveToCoralScorePose());
         return commandGroup.andThen(drive.stopDriving());
     }
 
