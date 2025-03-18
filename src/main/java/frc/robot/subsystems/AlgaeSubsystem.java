@@ -26,7 +26,7 @@ public class AlgaeSubsystem extends SubsystemBase {
     private double sensingDistance;
     private final VelocityTorqueCurrentFOC intakeSpeedRequest, outtakeSpeedRequest;
     private final PositionTorqueCurrentFOC algaeMotorHoldRequest;
-    private final PositionDutyCycle mainMotorHoldRequest;
+    private final PositionTorqueCurrentFOC mainMotorHoldRequest;
     private static final int LASER_CAN_NO_MEASUREMENT = -1;
     private final Timer timer;
     private boolean hasAlgae;
@@ -40,7 +40,7 @@ public class AlgaeSubsystem extends SubsystemBase {
         intakeSpeedRequest = new VelocityTorqueCurrentFOC(Constants.Algae.motorSpeedSlow.getValue()).withSlot(0);
         outtakeSpeedRequest = new VelocityTorqueCurrentFOC(Constants.Algae.motorSpeedFast.getValue()).withSlot(0);
         algaeMotorHoldRequest = new PositionTorqueCurrentFOC(algaeMotor.getPosition().getValueAsDouble()).withSlot(1);
-        mainMotorHoldRequest = new PositionDutyCycle(mainMotor.getPosition().getValueAsDouble()).withSlot(0);
+        mainMotorHoldRequest = new PositionTorqueCurrentFOC(mainMotor.getPosition().getValueAsDouble()).withSlot(0);
 
         mainMotor.setPosition(0);
 
@@ -53,6 +53,8 @@ public class AlgaeSubsystem extends SubsystemBase {
         TalonFXConfiguration mainConfig = new TalonFXConfiguration();
         mainConfig.Slot0.kP = Constants.Algae.kPMain.getValue();
         mainConfig.Slot0.kD = Constants.Algae.kDMain.getValue();
+        mainConfig.Slot0.kS = Constants.Algae.kSMain.getValue();
+        mainConfig.Slot0.kV = Constants.Algae.kVMain.getValue();
         mainConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
         mainConfig.CurrentLimits.SupplyCurrentLimit = 20;
         mainMotor.getConfigurator().apply(mainConfig);
@@ -80,12 +82,12 @@ public class AlgaeSubsystem extends SubsystemBase {
         intakeSpeedRequest.Velocity = Constants.Algae.motorSpeedSlow.getValue();
         outtakeSpeedRequest.Velocity = Constants.Algae.motorSpeedFast.getValue();
 
-        SmartDashboard.putNumber("AlgaeHinge/TargetPosition", targetPosition);
+        SmartDashboard.putNumber("AlgaeHinge/TargetPosition", mainMotorHoldRequest.Position);
         SmartDashboard.putNumber("AlgaeHinge/ActualPosition", mainMotor.getPosition().getValueAsDouble());
     }
 
     public Command holdCommand() {
-        return runOnce(() -> {
+        return run(() -> {
             algaeMotor.setControl(algaeMotorHoldRequest.withSlot(1));
             mainMotor.setControl(mainMotorHoldRequest.withSlot(0));
         });
@@ -94,9 +96,10 @@ public class AlgaeSubsystem extends SubsystemBase {
     public Command moveToPos(DoubleSupplier targetPos) {
         return new FunctionalCommand(
                 () -> {
-                    targetPosition = targetPos.getAsDouble();
-                    mainMotor
-                            .setControl(new PositionDutyCycle(targetPos.getAsDouble()).withSlot(0).withEnableFOC(true));
+                    mainMotorHoldRequest.Position = targetPos.getAsDouble();
+                    // targetPosition = targetPos.getAsDouble();
+                    // mainMotor
+                    //         .setControl(new PositionDutyCycle(targetPos.getAsDouble()).withSlot(0).withEnableFOC(true));
                 },
                 () -> {
 
@@ -118,6 +121,10 @@ public class AlgaeSubsystem extends SubsystemBase {
 
     public Command moveToCoralScorePose() {
         return moveToPos(() -> Constants.Algae.CORAL_SCORE_POSE.getValue());
+    }
+
+    public Command moveToZero() {
+        return moveToPos(() -> Constants.Algae.DEFAULT_POSE.getValue());
     }
 
     public Command shootAlgae() {

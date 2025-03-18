@@ -160,6 +160,8 @@ public class RobotContainer {
         // buttonController.leftStick().whileTrue(trough.moveToClimbPositon());
         buttonController.rightStick().whileTrue(intake.intakeCoral().withName("intakeCoral"));
         buttonController.leftStick().whileTrue(intake.shootCoral().withName("shootCoral"));
+        buttonController.leftStick().onTrue(algae.moveToCoralScorePose());
+        buttonController.leftStick().onFalse(algae.moveToZero());
 
         // driveController.povDown().whileTrue(intake.runMotorsBack());
         // driveController.leftBumper().whileTrue(intake.intakeCoral());
@@ -262,7 +264,6 @@ public class RobotContainer {
         ParallelCommandGroup commandGroup = new ParallelCommandGroup();
         commandGroup.addCommands(drive.drivetoReefPose(target).andThen(drive.updateRotationPIDSetpointCommand()));
         commandGroup.addCommands(elevator.moveToTargetPosition(targetToSetPoint(target)));
-        commandGroup.addCommands(algae.moveToCoralScorePose());
         return commandGroup.andThen(drive.stopDriving());
     }
 

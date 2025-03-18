@@ -349,6 +349,8 @@ public final class Constants {
   public static class Algae {
     public static final ConfigDouble kPMain = new ConfigDouble("Algae/kPMain", 1);
     public static final ConfigDouble kDMain = new ConfigDouble("Algae/kDMain", 0);
+    public static final ConfigDouble kSMain = new ConfigDouble("Algae/kSMain", 2.5);
+    public static final ConfigDouble kVMain = new ConfigDouble("Algae/kVMain", 0.2);
     public static final ConfigDouble kPAlgae = new ConfigDouble("Algae/kPAlgae", 1);
     public static final ConfigDouble kDAlgae = new ConfigDouble("Algae/kDAlgae", 0);
     public static final ConfigDouble kP1Algae = new ConfigDouble("Algae/kP1Algae", 1);
@@ -358,7 +360,8 @@ public final class Constants {
     public static ConfigDouble motorSpeedFast = new ConfigDouble("Algae/SpeedFast", 60);
     public static ConfigDouble manualSpeed = new ConfigDouble("Algae/ManualControlSpeed", 10);
     public static ConfigDouble INTAKE_POS = new ConfigDouble("Algae/IntakePos", 20);
-    public static ConfigDouble CORAL_SCORE_POSE = new ConfigDouble("Algae/IntakePos", 3.916);
+    public static ConfigDouble CORAL_SCORE_POSE = new ConfigDouble("Algae/Coral Score Pose", 3.916);
+    public static ConfigDouble DEFAULT_POSE = new ConfigDouble("Algae/Default Pose", 0);
     public static ConfigDouble SHOOT_POS = new ConfigDouble("Algae/ShootPos", 40);
     public static ConfigDouble MAX_CONTROL_ERROR_IN_COUNTS = new ConfigDouble("Algae/Control Error Tolerance", 0.25);
   }
