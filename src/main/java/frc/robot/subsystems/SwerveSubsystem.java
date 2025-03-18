@@ -304,8 +304,10 @@ public class SwerveSubsystem extends SubsystemBase {
       rotation = rotationController.calculate(gyro.getYaw().getValueAsDouble());
     }
 
-    // SmartDashboard.putNumber("Rotation Correction/Setpoint: Robot Angle", rotationController.getSetpoint());
-    // SmartDashboard.putNumber("Rotation Correction/Plant state: Robot Angle", gyro.getYaw().getValueAsDouble());
+    // SmartDashboard.putNumber("Rotation Correction/Setpoint: Robot Angle",
+    // rotationController.getSetpoint());
+    // SmartDashboard.putNumber("Rotation Correction/Plant state: Robot Angle",
+    // gyro.getYaw().getValueAsDouble());
     // SmartDashboard.putNumber("Control Effort: Calculated Rotation Speed",
     // rotation);
     // SmartDashboard.putBoolean("Is bot turning", isRotating);
@@ -661,7 +663,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
     List<ReefPose> posesForSide;
 
-    if(BlueAlliance) {
+    if (BlueAlliance) {
       posesForSide = reefPoses.stream().filter((p) -> p.side == target.side).toList();
     } else {
       posesForSide = reefPoses.stream().filter((p) -> p.side != target.side).toList();
@@ -689,6 +691,33 @@ public class SwerveSubsystem extends SubsystemBase {
     return nearest;
   }
 
+  public Pose2d getClosestSource(AutoScoreTarget target) {
+
+    List<ReefPose> posesForSide;
+
+    if (BlueAlliance) {
+      posesForSide = sourcePoses.stream().filter((p) -> p.side == target.side).toList();
+    } else {
+      posesForSide = sourcePoses.stream().filter((p) -> p.side != target.side).toList();
+    }
+
+    List<Pose2d> poses = posesForSide.stream().map((rp) -> {
+      WrappedPose2d np = new WrappedPose2d(rp.pose.getX(), rp.pose.getY(), rp.pose.getRotation());
+      np.sourcePose = rp;
+      return (Pose2d) np;
+    }).toList();
+
+    Pose2d ourPose = odometry.getEstimatedPosition();
+
+    Pose2d fieldAdjustedPose = BlueAlliance ? ourPose : FlippingUtil.flipFieldPose(ourPose);
+    Pose2d nearest = fieldAdjustedPose.nearest(poses);
+    if (nearest == null) {
+      return ourPose;
+    }
+
+    return nearest;
+  }
+
   record ReefPose(String name, ReefFacetSide side, Pose2d pose) {
   };
 
@@ -698,6 +727,7 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     public ReefPose reefPose;
+    public ReefPose sourcePose;
   }
 
   // Blue alliance only since we flip if red alliance (from pathplanner)
@@ -715,9 +745,30 @@ public class SwerveSubsystem extends SubsystemBase {
       new ReefPose("K", ReefFacetSide.LEFT, new Pose2d(3.980, 5.240, new Rotation2d(Math.toRadians(300.0)))),
       new ReefPose("L", ReefFacetSide.RIGHT, new Pose2d(3.692, 5.077, new Rotation2d(Math.toRadians(300.0)))));
 
-  public Command drivetoPose(AutoScoreTarget target) {
+  // Blue alliance only since we flip if red alliance (from pathplanner)
+  static List<ReefPose> sourcePoses = List.of(
+      new ReefPose("Left Source", ReefFacetSide.LEFT, new Pose2d(0.615, 6.908, new Rotation2d(Math.toRadians(306.0)))),
+      new ReefPose("Right Source", ReefFacetSide.RIGHT, new Pose2d(1.393, 0.490, new Rotation2d(Math.toRadians(54.0)))));
+
+  public Command drivetoReefPose(AutoScoreTarget target) {
     return new DeferredCommand(() -> {
       Pose2d targetPose = getClosestReef(target);
+      // PathConstraints constraints = new PathConstraints(1.5, 1.5, .5, .5);
+
+      if (BlueAlliance) {
+        return new DriveToPose(this, supplier_position, () -> targetPose);
+        // return AutoBuilder.pathfindToPose(targetPose, constraints, 0);
+      } else {
+        return new DriveToPose(this, supplier_position, () -> FlippingUtil.flipFieldPose(targetPose));
+        // return AutoBuilder.pathfindToPoseFlipped(targetPose, constraints, 0);
+      }
+
+    }, Set.of(this));
+  }
+
+  public Command drivetoSourcePose(AutoScoreTarget target) {
+    return new DeferredCommand(() -> {
+      Pose2d targetPose = getClosestSource(target);
       // PathConstraints constraints = new PathConstraints(1.5, 1.5, .5, .5);
 
       if (BlueAlliance) {

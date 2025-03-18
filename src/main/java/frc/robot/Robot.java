@@ -11,6 +11,7 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
+import com.ctre.phoenix6.SignalLogger;
 import com.pathplanner.lib.commands.PathfindingCommand;
 
 import au.grapplerobotics.CanBridge;
@@ -42,6 +43,7 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void robotInit() {
+    SignalLogger.enableAutoLogging(false);
     Logger.recordMetadata("ProjectName", "2025-Reefscape");
 
     switch (Constants.Modes.currentMode) {

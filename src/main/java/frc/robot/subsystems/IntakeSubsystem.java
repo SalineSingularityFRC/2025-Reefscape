@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -107,6 +108,7 @@ public class IntakeSubsystem extends SubsystemBase {
             // talonRightConfig.MotionMagic.MotionMagicCruiseVelocity = Intake.RightMotor.MAX_VELOCITY.getValue();
             // talonRightConfig.MotionMagic.MotionMagicAcceleration = Intake.RightMotor.MAX_ACCELERATION.getValue();
             rightMotor.getConfigurator().apply(talonRightConfig);
+            SignalLogger.stop();
         }
     
         public void periodic() {

@@ -148,6 +148,8 @@ public class RobotContainer {
         buttonController.b().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L2_LEFT));
         buttonController.x().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L3_LEFT));
         buttonController.y().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L4_LEFT));
+        buttonController.button(11).whileTrue(makeAutoDriveToSourceCommand(AutoScoreTarget.L1_LEFT));
+        buttonController.button(12).whileTrue(makeAutoDriveToSourceCommand(AutoScoreTarget.L1_RIGHT));
 
         buttonController.leftBumper().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L1_RIGHT));
         buttonController.rightBumper().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L2_RIGHT));
@@ -258,7 +260,14 @@ public class RobotContainer {
 
     private Command makeAutoScoreCommand(AutoScoreTarget target) {
         ParallelCommandGroup commandGroup = new ParallelCommandGroup();
-        commandGroup.addCommands(drive.drivetoPose(target).andThen(drive.updateRotationPIDSetpointCommand()));
+        commandGroup.addCommands(drive.drivetoReefPose(target).andThen(drive.updateRotationPIDSetpointCommand()));
+        commandGroup.addCommands(elevator.moveToTargetPosition(targetToSetPoint(target)));
+        return commandGroup.andThen(drive.stopDriving());
+    }
+
+    private Command makeAutoDriveToSourceCommand(AutoScoreTarget target) {
+        ParallelCommandGroup commandGroup = new ParallelCommandGroup();
+        commandGroup.addCommands(drive.drivetoSourcePose(target).andThen(drive.updateRotationPIDSetpointCommand()));
         commandGroup.addCommands(elevator.moveToTargetPosition(targetToSetPoint(target)));
         return commandGroup.andThen(drive.stopDriving());
     }
