@@ -179,12 +179,12 @@ public class ElevatorSubsystem extends SubsystemBase {
                                 * (elevatorEncoder.getPosition() / kElevatorGearing)
                                 * (kElevatorDrumRadius * 2.0 * Math.PI));
 
-        SmartDashboard.putNumber("Elevator/Target Position Encoder", elevatorCurrentTarget);
-        SmartDashboard.putNumber("Elevator/Actual Position", elevatorEncoder.getPosition());
-        SmartDashboard.putData("Elevator/Model", mech2d);
-        SmartDashboard.putNumber("Elevator/Amp", elevatorPrimaryMotor.getOutputCurrent());
-        SmartDashboard.putNumber("Elevator/Camera Height", getCurrentCameraHeight());
-        SmartDashboard.putNumber("Elevator/Amp2", elevatorSecondaryMotor.getOutputCurrent());
+        // SmartDashboard.putNumber("Elevator/Target Position Encoder", elevatorCurrentTarget);
+        // SmartDashboard.putNumber("Elevator/Actual Position", elevatorEncoder.getPosition());
+        // SmartDashboard.putData("Elevator/Model", mech2d);
+        // SmartDashboard.putNumber("Elevator/Amp", elevatorPrimaryMotor.getOutputCurrent());
+        // SmartDashboard.putNumber("Elevator/Camera Height", getCurrentCameraHeight());
+        // SmartDashboard.putNumber("Elevator/Amp2", elevatorSecondaryMotor.getOutputCurrent());
     }
 
     // Sometimes intake sensor sees top of elevator
@@ -273,6 +273,16 @@ public class ElevatorSubsystem extends SubsystemBase {
                     return isAtSetpoint() || !intake.elevator_can_move.getAsBoolean();
                 },
                 this);
+    }
+    
+    /**
+     * Run once command to set the setpoint and then 
+     */
+    public Command autonTargetPosition(Setpoint setpoint) {
+        return runOnce(() -> {
+                setTargetPosition(setpoint);
+            
+        });
     }
 
     /**

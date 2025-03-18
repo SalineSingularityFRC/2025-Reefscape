@@ -47,7 +47,7 @@ public class LEDStatusSubsystem extends SubsystemBase {
       LEDColor.FLASHBLUE, 0.15); // Unfinished White
 
   public void setColor(LEDColor color) {
-    SmartDashboard.putString("LED/colorName", color.name());
+    // SmartDashboard.putString("LED/colorName", color.name());
     Double colorPWMValue = colorToPwmMap.get(color);
     if (colorPWMValue != null) {
       currentColorPWMValue = colorPWMValue;

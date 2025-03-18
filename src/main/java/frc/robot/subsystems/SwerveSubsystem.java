@@ -304,8 +304,8 @@ public class SwerveSubsystem extends SubsystemBase {
       rotation = rotationController.calculate(gyro.getYaw().getValueAsDouble());
     }
 
-    SmartDashboard.putNumber("Rotation Correction/Setpoint: Robot Angle", rotationController.getSetpoint());
-    SmartDashboard.putNumber("Rotation Correction/Plant state: Robot Angle", gyro.getYaw().getValueAsDouble());
+    // SmartDashboard.putNumber("Rotation Correction/Setpoint: Robot Angle", rotationController.getSetpoint());
+    // SmartDashboard.putNumber("Rotation Correction/Plant state: Robot Angle", gyro.getYaw().getValueAsDouble());
     // SmartDashboard.putNumber("Control Effort: Calculated Rotation Speed",
     // rotation);
     // SmartDashboard.putBoolean("Is bot turning", isRotating);
@@ -339,7 +339,7 @@ public class SwerveSubsystem extends SubsystemBase {
     double vx = speeds.vxMetersPerSecond;
     double vy = speeds.vyMetersPerSecond;
     double totalSpeed = Math.sqrt(vx * vx + vy * vy);
-    SmartDashboard.putNumber("SwerveData/Chassis Speed", totalSpeed);
+    // SmartDashboard.putNumber("SwerveData/Chassis Speed", totalSpeed);
 
     DoubleLogEntry flEncoderPositionLog = new DoubleLogEntry(log, "FL encoder position");
     DoubleLogEntry frEncoderPositionLog = new DoubleLogEntry(log, "FR encoder position");
@@ -659,7 +659,13 @@ public class SwerveSubsystem extends SubsystemBase {
 
   public Pose2d getClosestReef(AutoScoreTarget target) {
 
-    List<ReefPose> posesForSide = reefPoses.stream().filter((p) -> p.side == target.side).toList();
+    List<ReefPose> posesForSide;
+
+    if(BlueAlliance) {
+      posesForSide = reefPoses.stream().filter((p) -> p.side == target.side).toList();
+    } else {
+      posesForSide = reefPoses.stream().filter((p) -> p.side != target.side).toList();
+    }
     // return posesForSide.get(0).pose;
 
     List<Pose2d> poses = posesForSide.stream().map((rp) -> {
@@ -677,8 +683,8 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     SmartDashboard.putString("AutoScore/Chosen Reef", ((WrappedPose2d) nearest).reefPose.name);
-    SmartDashboard.putNumber("AutoScore/Chosen Reef/X", nearest.getX());
-    SmartDashboard.putNumber("AutoScore/Chosen Reef/Y", nearest.getY());
+    // SmartDashboard.putNumber("AutoScore/Chosen Reef/X", nearest.getX());
+    // SmartDashboard.putNumber("AutoScore/Chosen Reef/Y", nearest.getY());
 
     return nearest;
   }

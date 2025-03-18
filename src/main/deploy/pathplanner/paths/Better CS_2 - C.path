@@ -3,37 +3,37 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.85,
-        "y": 3.863
+        "x": 1.6230785472972975,
+        "y": 0.6750844594594594
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.514094387755103,
-        "y": 2.939317602040816
+        "x": 2.913899075293979,
+        "y": 2.0724318573662543
       },
       "isLocked": false,
-      "linkedName": "G"
+      "linkedName": "Better_CS2"
     },
     {
       "anchor": {
-        "x": 1.0744897959183675,
-        "y": 0.8948022959183664
+        "x": 3.657,
+        "y": 2.917
       },
       "prevControl": {
-        "x": 4.424808673469387,
-        "y": 1.2678890306122446
+        "x": 3.34069363190698,
+        "y": 2.5790163618629727
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "CS_2"
+      "linkedName": "C"
     }
   ],
   "rotationTargets": [],
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 0,
-      "maxWaypointRelativePos": 0.29646017699115057,
+      "minWaypointRelativePos": 0.5697674418604668,
+      "maxWaypointRelativePos": 1.0,
       "constraints": {
         "maxVelocity": 1.5,
         "maxAcceleration": 2.5,
@@ -44,18 +44,7 @@
       }
     }
   ],
-  "pointTowardsZones": [
-    {
-      "fieldPosition": {
-        "x": 4.5,
-        "y": 4.026
-      },
-      "rotationOffset": 0.0,
-      "minWaypointRelativePos": 0.0,
-      "maxWaypointRelativePos": 0.8569321533923298,
-      "name": "Point Towards Zone"
-    }
-  ],
+  "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 4.0,
@@ -67,13 +56,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 54.0
+    "rotation": 59.99999999999999
   },
   "reversed": false,
-  "folder": "To CS_2",
+  "folder": "CS_2 to Reef",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": 54.0
   },
   "useDefaultConstraints": true
 }

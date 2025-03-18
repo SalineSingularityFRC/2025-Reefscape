@@ -76,6 +76,8 @@ public class RobotContainer {
         NamedCommands.registerCommand("Stop Driving", drive.stopDriving());
         NamedCommands.registerCommand("Feeder Station", elevator.targetPosition(Setpoint.kFeederStation));
         NamedCommands.registerCommand("L4", elevator.targetPosition(Setpoint.kLevel4));
+        NamedCommands.registerCommand("L2", elevator.targetPosition(Setpoint.kLevel2));
+        NamedCommands.registerCommand("Pre-L4", elevator.autonTargetPosition(Setpoint.kLevel4));
         NamedCommands.registerCommand("Intake Coral", intake.intakeCoral());
         NamedCommands.registerCommand("Shoot Coral", intake.shootCoral());
         NamedCommands.registerCommand("Wait For Coral", intake.waitUntilCoral());

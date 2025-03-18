@@ -3,39 +3,44 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.85,
-        "y": 3.863
+        "x": 1.201339285714286,
+        "y": 7.229815051020407
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.514094387755103,
-        "y": 2.939317602040816
+        "x": 2.195173413638792,
+        "y": 6.4099974815697225
       },
       "isLocked": false,
-      "linkedName": "G"
+      "linkedName": "CS_1"
     },
     {
       "anchor": {
-        "x": 1.0744897959183675,
-        "y": 0.8948022959183664
+        "x": 3.648788265306123,
+        "y": 5.147991071428571
       },
       "prevControl": {
-        "x": 4.424808673469387,
-        "y": 1.2678890306122446
+        "x": 2.9388836263044875,
+        "y": 5.740494905770382
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "CS_2"
+      "linkedName": "L"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.6883289124668435,
+      "rotationDegrees": -59.99999999999999
+    }
+  ],
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 0,
-      "maxWaypointRelativePos": 0.29646017699115057,
+      "minWaypointRelativePos": 0.880872483221478,
+      "maxWaypointRelativePos": 1.0,
       "constraints": {
-        "maxVelocity": 1.5,
+        "maxVelocity": 2.0,
         "maxAcceleration": 2.5,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 673.0,
@@ -44,19 +49,15 @@
       }
     }
   ],
-  "pointTowardsZones": [
+  "pointTowardsZones": [],
+  "eventMarkers": [
     {
-      "fieldPosition": {
-        "x": 4.5,
-        "y": 4.026
-      },
-      "rotationOffset": 0.0,
-      "minWaypointRelativePos": 0.0,
-      "maxWaypointRelativePos": 0.8569321533923298,
-      "name": "Point Towards Zone"
+      "name": "L4",
+      "waypointRelativePos": 0.8523489932885909,
+      "endWaypointRelativePos": null,
+      "command": null
     }
   ],
-  "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 4.0,
     "maxAcceleration": 3.0,
@@ -67,13 +68,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 54.0
+    "rotation": -59.99999999999999
   },
   "reversed": false,
-  "folder": "To CS_2",
+  "folder": "CS_1 To Reef",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": -54.0
   },
   "useDefaultConstraints": true
 }

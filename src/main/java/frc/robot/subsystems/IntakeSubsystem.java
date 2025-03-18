@@ -27,6 +27,7 @@ public class IntakeSubsystem extends SubsystemBase {
     private double intakeDistance, shooterDistance;
     private double troughSenserDistance;
     private final VelocityTorqueCurrentFOC slowVelocityRequest, fastVelocityRequest;
+    private final VelocityTorqueCurrentFOC shooterVelocityRequest;
 
     private static final int LASER_CAN_NO_MEASUREMENT = -1;
     
@@ -41,6 +42,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
             slowVelocityRequest = new VelocityTorqueCurrentFOC(Intake.Nums.motorSpeedSlow.getValue()).withSlot(0); // 30
             fastVelocityRequest = new VelocityTorqueCurrentFOC(Intake.Nums.motorSpeed.getValue()).withSlot(0); // 70
+            shooterVelocityRequest = new VelocityTorqueCurrentFOC(Intake.Nums.shooterSpeed.getValue()).withSlot(0); // 70
 
             // Left Motor
             // intakeLeftConfig.idleMode(IdleMode.kBrake).smartCurrentLimit(40).voltageCompensation(12);
@@ -113,19 +115,21 @@ public class IntakeSubsystem extends SubsystemBase {
           
             slowVelocityRequest.Velocity = Intake.Nums.motorSpeedSlow.getValue();
             fastVelocityRequest.Velocity = Intake.Nums.motorSpeed.getValue();
+            shooterVelocityRequest.Velocity = Intake.Nums.shooterSpeed.getValue();
+
           
             // SmartDashboard.putNumber("Intake Sensor", getSensorValue(intakeSensor));
             // SmartDashboard.putNumber("Shooter Sensor", getSensorValue(shooterSensor));
-            SmartDashboard.putBoolean("Coral in intake", coralInIntake());
-            SmartDashboard.putBoolean("Coral in shooter", coralInShooter());
-            SmartDashboard.putBoolean("Coral In Trough", coralInTrough());
-            SmartDashboard.putBoolean("Ready Shoot", readyToShoot());
-            SmartDashboard.putBoolean("NoCoralDetected", noCoralDetected());
-            SmartDashboard.putBoolean("IntakeSensorFunctional", intakeSensorIsFunctional());
-            SmartDashboard.putBoolean("elevator can move", elevator_can_move.getAsBoolean());
-            SmartDashboard.putNumber("Intake/Current Speed", Math.abs(leftMotor.getVelocity().getValueAsDouble()));
-            SmartDashboard.putNumber("Intake/Intake Sensor Distance", intakeSensor.getMeasurement().distance_mm);
-            SmartDashboard.putNumber("Intake/Shooter Sensor Distance", shooterSensor.getMeasurement().distance_mm);
+            // SmartDashboard.putBoolean("Coral in intake", coralInIntake());
+            // SmartDashboard.putBoolean("Coral in shooter", coralInShooter());
+            // SmartDashboard.putBoolean("Coral In Trough", coralInTrough());
+            // SmartDashboard.putBoolean("Ready Shoot", readyToShoot());
+            // SmartDashboard.putBoolean("NoCoralDetected", noCoralDetected());
+            // SmartDashboard.putBoolean("IntakeSensorFunctional", intakeSensorIsFunctional());
+            // SmartDashboard.putBoolean("elevator can move", elevator_can_move.getAsBoolean());
+            // SmartDashboard.putNumber("Intake/Current Speed", Math.abs(leftMotor.getVelocity().getValueAsDouble()));
+            // SmartDashboard.putNumber("Intake/Intake Sensor Distance", intakeSensor.getMeasurement().distance_mm);
+            // SmartDashboard.putNumber("Intake/Shooter Sensor Distance", shooterSensor.getMeasurement().distance_mm);
         }
 
     public boolean intakeCanSeeCoral(LaserCan sensor) {
@@ -214,8 +218,8 @@ public class IntakeSubsystem extends SubsystemBase {
     public Command shootCoral() {
         return runEnd(
                 () -> {
-                    leftMotor.setControl(fastVelocityRequest);
-                    rightMotor.setControl(fastVelocityRequest);
+                    leftMotor.setControl(shooterVelocityRequest);
+                    rightMotor.setControl(shooterVelocityRequest);
                 },
                 () -> {
                     leftMotor.stopMotor();
