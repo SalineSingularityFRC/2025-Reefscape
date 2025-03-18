@@ -96,24 +96,6 @@ public class RobotContainer {
                                 || auto.getName().startsWith("Center")))
                         : stream);
 
-        // this.autoChooser.setDefaultOption("Center/ H - A", "Center - H - A");
-        // this.autoChooser.addOption("Center/ H - B", "Center - H - B");
-        // this.autoChooser.addOption("Center/ H - I", "Center - H - I");
-        // this.autoChooser.addOption("Center/ H - J", "Center - H - J");
-        // this.autoChooser.addOption("Center/ H - K", "Center - H - K");
-        // this.autoChooser.addOption("Center/ H - L", "Center - H - L");
-        // this.autoChooser.addOption("Top/ K - A", "TopTop - K - A");
-        // this.autoChooser.addOption("Top/ K - L", "TopTop - K - L");
-        // this.autoChooser.addOption("Top/ J - B", "Top - J - B");
-        // this.autoChooser.addOption("Top/ J - I", "Top - J - I");
-        // this.autoChooser.addOption("Top/ J - L - K", "Top - J - L - K");
-        // this.autoChooser.addOption("Top/ J - K - L", "Top - J - K - L");
-        // this.autoChooser.addOption("Bottom/ E - C - D", "Bottom - E - C - D");
-        // this.autoChooser.addOption("Bottom/ G - F", "Bottom - G - F");
-        // this.autoChooser.addOption("Bottom/ E - B", "Bottom - E - B");
-        // this.autoChooser.addOption("Bottom/ G - C", "Bottom - G - C");
-        // this.autoChooser.addOption("Bottom/ G - B", "Bottom - G - B");
-
         SmartDashboard.putData("Auto Chooser", autoChooser);
     }
 
