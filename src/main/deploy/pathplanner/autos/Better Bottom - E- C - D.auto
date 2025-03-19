@@ -49,9 +49,15 @@
           }
         },
         {
-          "type": "parallel",
+          "type": "deadline",
           "data": {
             "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Wait For Coral"
+                }
+              },
               {
                 "type": "sequential",
                 "data": {
@@ -72,18 +78,25 @@
                 }
               },
               {
-                "type": "named",
+                "type": "sequential",
                 "data": {
-                  "name": "Feeder Station"
+                  "commands": [
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "Feeder Station"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "Intake Coral"
+                      }
+                    }
+                  ]
                 }
               }
             ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Wait For Coral"
           }
         },
         {
@@ -138,9 +151,15 @@
           }
         },
         {
-          "type": "parallel",
+          "type": "deadline",
           "data": {
             "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Wait For Coral"
+                }
+              },
               {
                 "type": "sequential",
                 "data": {
@@ -161,18 +180,25 @@
                 }
               },
               {
-                "type": "named",
+                "type": "sequential",
                 "data": {
-                  "name": "Feeder Station"
+                  "commands": [
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "Feeder Station"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "Intake Coral"
+                      }
+                    }
+                  ]
                 }
               }
             ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Wait For Coral"
           }
         },
         {

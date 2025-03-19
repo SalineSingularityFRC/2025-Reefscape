@@ -413,7 +413,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
     publisher.set(odometry.getEstimatedPosition());
 
-    logData();
+    // logData();
 
   }
 
