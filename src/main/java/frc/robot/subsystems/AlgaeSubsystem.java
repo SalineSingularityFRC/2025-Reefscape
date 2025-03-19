@@ -31,6 +31,7 @@ public class AlgaeSubsystem extends SubsystemBase {
     private final Timer timer;
     private boolean hasAlgae;
     private double targetPosition;
+    private boolean manual = false;
 
     public AlgaeSubsystem() {
         mainMotor = new TalonFX(Constants.CanId.Algae.MAIN_MOTOR);
@@ -54,9 +55,9 @@ public class AlgaeSubsystem extends SubsystemBase {
         mainConfig.Slot0.kP = Constants.Algae.kPMain.getValue();
         mainConfig.Slot0.kD = Constants.Algae.kDMain.getValue();
         mainConfig.Slot0.kS = Constants.Algae.kSMain.getValue();
-        mainConfig.Slot0.kV = Constants.Algae.kVMain.getValue();
+        mainConfig.Slot0.kG = Constants.Algae.kVMain.getValue();
         mainConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-        mainConfig.CurrentLimits.SupplyCurrentLimit = 20;
+        mainConfig.CurrentLimits.SupplyCurrentLimit = 5;
         mainMotor.getConfigurator().apply(mainConfig);
 
         TalonFXConfiguration algaeConfig = new TalonFXConfiguration();
@@ -78,6 +79,11 @@ public class AlgaeSubsystem extends SubsystemBase {
         // if (canSeeAlgae() && timer.hasElapsed(2)) {
         // hasAlgae = true;
         // }
+        //
+        if (!manual) {
+            algaeMotor.setControl(algaeMotorHoldRequest.withSlot(1));
+            mainMotor.setControl(mainMotorHoldRequest.withSlot(0));
+        }
 
         intakeSpeedRequest.Velocity = Constants.Algae.motorSpeedSlow.getValue();
         outtakeSpeedRequest.Velocity = Constants.Algae.motorSpeedFast.getValue();
@@ -88,8 +94,6 @@ public class AlgaeSubsystem extends SubsystemBase {
 
     public Command holdCommand() {
         return run(() -> {
-            algaeMotor.setControl(algaeMotorHoldRequest.withSlot(1));
-            mainMotor.setControl(mainMotorHoldRequest.withSlot(0));
         });
     }
 
@@ -102,7 +106,7 @@ public class AlgaeSubsystem extends SubsystemBase {
                     //         .setControl(new PositionDutyCycle(targetPos.getAsDouble()).withSlot(0).withEnableFOC(true));
                 },
                 () -> {
-
+                    mainMotor.setControl(mainMotorHoldRequest);
                 },
                 (_unused) -> {
 
@@ -129,7 +133,8 @@ public class AlgaeSubsystem extends SubsystemBase {
 
     public Command shootAlgae() {
         return moveToPos(() -> Constants.Algae.SHOOT_POS.getValue())
-                .andThen(spitAlgaeMotor().until(() -> !canSeeAlgae()));
+                .andThen(spitAlgaeMotor().until(() -> !canSeeAlgae()))
+                .andThen(new WaitCommand(0.05)).andThen(hold(0));
     }
 
     public Command intake() {
@@ -176,11 +181,13 @@ public class AlgaeSubsystem extends SubsystemBase {
     public Command mainMotorHoldCommand() {
         return runOnce(() -> {
             mainMotorHoldRequest.Position = mainMotor.getPosition().getValueAsDouble();
+            this.manual = false;
         });
     }
 
     public Command manualControlForward() {
         return runEnd(() -> {
+            this.manual = true;
             mainMotor.setControl(new DutyCycleOut(Constants.Algae.manualSpeed.getValue()));
         }, () -> {
             // mainMotor.setControl(new DutyCycleOut(0));
@@ -190,6 +197,7 @@ public class AlgaeSubsystem extends SubsystemBase {
 
     public Command manualControlBackwards() {
         return runEnd(() -> {
+            this.manual = true;
             mainMotor.setControl(new DutyCycleOut(-Constants.Algae.manualSpeed.getValue()));
         }, () -> {
             // mainMotor.setControl(new DutyCycleOut(0));

@@ -672,11 +672,11 @@ public class SwerveSubsystem extends SubsystemBase {
 
     List<ReefPose> posesForSide;
 
-    if (BlueAlliance) {
-      posesForSide = reefPoses.stream().filter((p) -> p.side == target.side).toList();
-    } else {
+    // if (BlueAlliance) {
+    //   posesForSide = reefPoses.stream().filter((p) -> p.side == target.side).toList();
+    // } else {
       posesForSide = reefPoses.stream().filter((p) -> p.side != target.side).toList();
-    }
+    // }
     // return posesForSide.get(0).pose;
 
     List<Pose2d> poses = posesForSide.stream().map((rp) -> {
@@ -702,11 +702,11 @@ public class SwerveSubsystem extends SubsystemBase {
 
     List<ReefPose> posesForSide;
 
-    if (BlueAlliance) {
-      posesForSide = sourcePoses.stream().filter((p) -> p.side == target.side).toList();
-    } else {
+    // if (BlueAlliance) {
+    //  posesForSide = sourcePoses.stream().filter((p) -> p.side == target.side).toList();
+    // } else {
       posesForSide = sourcePoses.stream().filter((p) -> p.side != target.side).toList();
-    }
+    // }
 
     List<Pose2d> poses = posesForSide.stream().map((rp) -> {
       // WrappedPose2d np = new WrappedPose2d(rp.pose.getX(), rp.pose.getY(), rp.pose.getRotation());

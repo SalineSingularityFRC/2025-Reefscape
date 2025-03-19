@@ -135,8 +135,8 @@ public class RobotContainer {
         driveController.leftTrigger().whileTrue(algae.intake().withName("intakeAlgae"));
         driveController.leftTrigger().onFalse(algae.hold(3));
         // driveController.rightBumper().onTrue(algae.moveToIntakePos().withName("movetointakepos"));
-        // driveController.leftTrigger().onTrue(algae.returnToHomePos().withName("returnToHomePosAlgae"));
-        driveController.rightTrigger().whileTrue(algae.spitAlgaeMotor().withName("shootAlgae"));
+        driveController.leftBumper().onTrue(algae.returnToHomePos().withName("returnToHomePosAlgae"));
+        driveController.rightTrigger().whileTrue(algae.shootAlgae().withName("shootAlgae"));
         driveController.rightTrigger().onFalse(algae.hold(0));
 
         thirdController.povUp().whileTrue(algae.manualControlForward());
@@ -160,7 +160,7 @@ public class RobotContainer {
         // buttonController.leftStick().whileTrue(trough.moveToClimbPositon());
         buttonController.rightStick().whileTrue(intake.intakeCoral().withName("intakeCoral"));
         buttonController.leftStick().whileTrue(intake.shootCoral().withName("shootCoral"));
-        buttonController.leftStick().onTrue(algae.moveToCoralScorePose());
+        buttonController.leftStick().whileTrue(algae.moveToCoralScorePose());
         buttonController.leftStick().onFalse(algae.moveToZero());
 
         // driveController.povDown().whileTrue(intake.runMotorsBack());
