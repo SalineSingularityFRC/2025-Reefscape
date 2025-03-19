@@ -56,6 +56,7 @@ public final class Constants {
       public static final int FR = 2;
       public static final int BL = 3;
       public static final int BR = 4;
+      public static final int ALGAE = 9;
     }
 
     public static final class Swerve {
