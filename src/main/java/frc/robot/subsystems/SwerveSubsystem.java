@@ -376,28 +376,28 @@ public class SwerveSubsystem extends SubsystemBase {
     double vx = speeds.vxMetersPerSecond;
     double vy = speeds.vyMetersPerSecond;
     double totalSpeed = Math.sqrt(vx * vx + vy * vy);
-    // SmartDashboard.putNumber("SwerveData/Chassis Speed", totalSpeed);
+    SmartDashboard.putNumber("SwerveData/Chassis Speed", totalSpeed);
     // To log data into these entries, wherever you would have used SmartDashboard,
     // use:
-    flEncoderPositionLog.append(swerveModules[FL].getEncoderPosition());
-    frEncoderPositionLog.append(swerveModules[FR].getEncoderPosition());
-    blEncoderPositionLog.append(swerveModules[BL].getEncoderPosition());
-    brEncoderPositionLog.append(swerveModules[BR].getEncoderPosition());
+    // flEncoderPositionLog.append(swerveModules[FL].getEncoderPosition());
+    // frEncoderPositionLog.append(swerveModules[FR].getEncoderPosition());
+    // blEncoderPositionLog.append(swerveModules[BL].getEncoderPosition());
+    // brEncoderPositionLog.append(swerveModules[BR].getEncoderPosition());
 
-    flPositionLog.append(swerveModules[FL].getPosition());
-    frPositionLog.append(swerveModules[FR].getPosition());
-    blPositionLog.append(swerveModules[BL].getPosition());
-    brPositionLog.append(swerveModules[BR].getPosition());
+    // flPositionLog.append(swerveModules[FL].getPosition());
+    // frPositionLog.append(swerveModules[FR].getPosition());
+    // blPositionLog.append(swerveModules[BL].getPosition());
+    // brPositionLog.append(swerveModules[BR].getPosition());
 
-    pidgeonAccelerationXLog.append(gyro.getAccelerationX().getValueAsDouble());
-    pidgeonAccelerationYLog.append(gyro.getAccelerationY().getValueAsDouble());
-    pidgeonAccelerationZLog.append(gyro.getAccelerationZ().getValueAsDouble());
+    // pidgeonAccelerationXLog.append(gyro.getAccelerationX().getValueAsDouble());
+    // pidgeonAccelerationYLog.append(gyro.getAccelerationY().getValueAsDouble());
+    // pidgeonAccelerationZLog.append(gyro.getAccelerationZ().getValueAsDouble());
 
-    pidgeonAngularVelocityXLog.append(gyro.getAngularVelocityXDevice().getValueAsDouble());
-    pidgeonAngularVelocityYLog.append(gyro.getAngularVelocityYDevice().getValueAsDouble());
-    pidgeonAngularVelocityZLog.append(gyro.getAngularVelocityZDevice().getValueAsDouble());
+    // pidgeonAngularVelocityXLog.append(gyro.getAngularVelocityXDevice().getValueAsDouble());
+    // pidgeonAngularVelocityYLog.append(gyro.getAngularVelocityYDevice().getValueAsDouble());
+    // pidgeonAngularVelocityZLog.append(gyro.getAngularVelocityZDevice().getValueAsDouble());
 
-    pidgeonTimeLog.append(gyro.getUpTime().getValueAsDouble());
+    // pidgeonTimeLog.append(gyro.getUpTime().getValueAsDouble());
   }
 
   public void periodic() {
@@ -413,7 +413,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
     publisher.set(odometry.getEstimatedPosition());
 
-    // logData();
+    logData();
 
   }
 
