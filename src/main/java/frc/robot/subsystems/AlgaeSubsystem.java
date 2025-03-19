@@ -7,12 +7,15 @@ import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.PositionDutyCycle;
 import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
+import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import au.grapplerobotics.LaserCan;
 import au.grapplerobotics.interfaces.LaserCanInterface.Measurement;
 import frc.robot.Constants;
+import frc.robot.Constants.CanId.CanCoder;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -31,12 +34,14 @@ public class AlgaeSubsystem extends SubsystemBase {
     private final Timer timer;
     private boolean hasAlgae;
     private double targetPosition;
+    private CANcoder canCoder;
     private boolean manual = false;
 
     public AlgaeSubsystem() {
         mainMotor = new TalonFX(Constants.CanId.Algae.MAIN_MOTOR);
         algaeMotor = new TalonFX(Constants.CanId.Algae.ALGAE_MOTOR);
         sensor = new LaserCan(Constants.CanId.Algae.ALGAE_LASER);
+        canCoder = new CANcoder(Constants.CanId.CanCoder.ALGAE);
 
         intakeSpeedRequest = new VelocityTorqueCurrentFOC(Constants.Algae.motorSpeedSlow.getValue()).withSlot(0);
         outtakeSpeedRequest = new VelocityTorqueCurrentFOC(Constants.Algae.motorSpeedFast.getValue()).withSlot(0);
@@ -58,6 +63,8 @@ public class AlgaeSubsystem extends SubsystemBase {
         mainConfig.Slot0.kG = Constants.Algae.kVMain.getValue();
         mainConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
         mainConfig.CurrentLimits.SupplyCurrentLimit = 5;
+        mainConfig.Feedback.FeedbackRemoteSensorID = canCoder.getDeviceID();
+        mainConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
         mainMotor.getConfigurator().apply(mainConfig);
 
         TalonFXConfiguration algaeConfig = new TalonFXConfiguration();
@@ -97,6 +104,7 @@ public class AlgaeSubsystem extends SubsystemBase {
         });
     }
 
+    
     public Command moveToPos(DoubleSupplier targetPos) {
         return new FunctionalCommand(
                 () -> {
