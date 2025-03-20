@@ -51,12 +51,6 @@
                 "data": {
                   "name": "Shoot Coral"
                 }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Move Hinge Coral"
-                }
               }
             ]
           }
@@ -69,12 +63,6 @@
                 "type": "named",
                 "data": {
                   "name": "Wait For Coral"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Move Hinge Zero"
                 }
               },
               {
@@ -166,12 +154,6 @@
                 "data": {
                   "name": "Shoot Coral"
                 }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Move Hinge Coral"
-                }
               }
             ]
           }
@@ -184,12 +166,6 @@
                 "type": "named",
                 "data": {
                   "name": "Wait For Coral"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Move Hinge Zero"
                 }
               },
               {
@@ -281,20 +257,8 @@
                 "data": {
                   "name": "Shoot Coral"
                 }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Move Hinge Coral"
-                }
               }
             ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Move Hinge Zero"
           }
         },
         {

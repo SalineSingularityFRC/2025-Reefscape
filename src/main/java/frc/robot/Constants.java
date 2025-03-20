@@ -360,14 +360,24 @@ public final class Constants {
   }
 
   public static class Algae {
+    // No algae inside PIDs
     public static final ConfigDouble kPMain = new ConfigDouble("Algae/kPMain", 1);
     public static final ConfigDouble kDMain = new ConfigDouble("Algae/kDMain", 0);
     public static final ConfigDouble kSMain = new ConfigDouble("Algae/kSMain", 2.5);
     public static final ConfigDouble kVMain = new ConfigDouble("Algae/kVMain", 0.2);
+    
+    // Algae inside PIDs
+    public static final ConfigDouble kPMainAlgaeInside = new ConfigDouble("Algae/kPMainAlgaeInside", 200);
+    public static final ConfigDouble kIMainAlgaeInside = new ConfigDouble("Algae/kIMainAlgaeInside", 1);
+    public static final ConfigDouble kDMainAlgaeInside = new ConfigDouble("Algae/kDMainAlgaeInside", 0);
+    public static final ConfigDouble kSMainAlgaeInside = new ConfigDouble("Algae/kSMainAlgaeInside", 2.5);
+    public static final ConfigDouble kVMainAlgaeInside = new ConfigDouble("Algae/kVMainAlgaeInside", 2.0);
+
     public static final ConfigDouble kPAlgae = new ConfigDouble("Algae/kPAlgae", 1);
     public static final ConfigDouble kDAlgae = new ConfigDouble("Algae/kDAlgae", 0);
     public static final ConfigDouble kP1Algae = new ConfigDouble("Algae/kP1Algae", 1);
     public static final ConfigDouble kD1Algae = new ConfigDouble("Algae/kD1Algae", 0);
+
     public static final ConfigDouble sensingDistance = new ConfigDouble("Algae/SensingDistance", 100);
     public static ConfigDouble motorSpeedSlow = new ConfigDouble("Algae/SpeedSlow", 30);
     public static ConfigDouble motorSpeedFast = new ConfigDouble("Algae/SpeedFast", 60);

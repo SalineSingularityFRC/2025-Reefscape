@@ -126,9 +126,9 @@ public class RobotContainer {
 
         // TEMPORARY ALGAE COMMAND BUTTON STUFF \\
         driveController.leftTrigger().whileTrue(algae.intake().withName("intakeAlgae"));
-        driveController.leftTrigger().onFalse(algae.hold(3));
-        // driveController.rightBumper().onTrue(algae.moveToIntakePos().withName("movetointakepos"));
-        driveController.leftBumper().onTrue(algae.returnToHomePos().withName("returnToHomePosAlgae"));
+        // driveController.leftTrigger().onFalse(algae.hold(3));
+        // driveController.rightBumper().onTrue(algae.moveToAlgaeShoot().withName("movetointakepos"));
+        driveController.leftBumper().onTrue(algae.moveToZero().withName("returnToHomePosAlgae"));
         driveController.rightTrigger().whileTrue(algae.shootAlgae().withName("shootAlgae"));
         driveController.rightTrigger().onFalse(algae.hold(0));
 
@@ -138,13 +138,13 @@ public class RobotContainer {
         thirdController.povUp().onFalse(algae.mainMotorHoldCommand());
 
         // PID to nearest coral pose left
-        buttonController.a().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L1_LEFT));
+        buttonController.a().whileTrue(elevator.moveToTargetPosition(Setpoint.kFeederStation).withName("kFeederStation"));
         buttonController.b().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L2_LEFT));
         buttonController.x().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L3_LEFT));
         buttonController.y().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L4_LEFT));
 
         // PID to nearest coral pose right
-        buttonController.leftBumper().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L1_RIGHT));
+        buttonController.leftBumper().whileTrue(elevator.moveToTargetPosition(Setpoint.kFeederStation).withName("kFeederStation"));
         buttonController.rightBumper().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L2_RIGHT));
         buttonController.back().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L3_RIGHT));
         buttonController.start().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L4_RIGHT));
@@ -158,8 +158,7 @@ public class RobotContainer {
         buttonController.leftStick().whileTrue(intake.shootCoral().withName("shootCoral"));
         buttonController.leftStick().whileTrue(algae.moveToCoralScorePose().withName("Algae Hinge to Coral Pose"));
         // buttonController.leftStick().onTrue(elevator.moveToTargetPosition(Setpoint.kLevel4Raised).withName("Raised Elevator L4 Shoot Pose"));
-        buttonController.leftStick().onFalse(algae.moveToZero()
-                .andThen(elevator.moveToTargetPosition(Setpoint.kFeederStation).withName("kFeederStation")));
+        buttonController.leftStick().whileFalse(algae.moveToZero());
 
         // driveController.povRight().onTrue(drive.xMode());
 
@@ -230,8 +229,8 @@ public class RobotContainer {
     private Command makeAutoScoreCommand(AutoScoreTarget target) {
         ParallelCommandGroup commandGroup = new ParallelCommandGroup();
         commandGroup.addCommands(drive.drivetoReefPose(target).andThen(drive.updateRotationPIDSetpointCommand()));
-        commandGroup.addCommands(elevator.moveToTargetPosition(Setpoint.kLevel2));
-        return commandGroup.andThen(drive.stopDriving().andThen(elevator.moveToTargetPosition(targetToSetPoint(target))));
+        commandGroup.addCommands(elevator.moveToTargetPosition(targetToSetPoint(target)));
+        return commandGroup.andThen(drive.stopDriving());
     }
 
     private Command makeAutoDriveToSourceCommand(AutoScoreTarget target) {
