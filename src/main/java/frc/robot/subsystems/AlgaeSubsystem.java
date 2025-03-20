@@ -2,6 +2,8 @@ package frc.robot.subsystems;
 
 import java.util.function.DoubleSupplier;
 
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.configs.MagnetSensorConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.PositionDutyCycle;
@@ -11,6 +13,7 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
 
 import au.grapplerobotics.LaserCan;
 import au.grapplerobotics.interfaces.LaserCanInterface.Measurement;
@@ -47,6 +50,10 @@ public class AlgaeSubsystem extends SubsystemBase {
         outtakeSpeedRequest = new VelocityTorqueCurrentFOC(Constants.Algae.motorSpeedFast.getValue()).withSlot(0);
         algaeMotorHoldRequest = new PositionTorqueCurrentFOC(algaeMotor.getPosition().getValueAsDouble()).withSlot(1);
         mainMotorHoldRequest = new PositionTorqueCurrentFOC(mainMotor.getPosition().getValueAsDouble()).withSlot(0);
+
+        canCoder.getConfigurator().apply(new CANcoderConfiguration().withMagnetSensor(
+                new MagnetSensorConfigs().withSensorDirection(SensorDirectionValue.Clockwise_Positive))
+        );
 
         mainMotor.setPosition(0);
 
@@ -104,14 +111,14 @@ public class AlgaeSubsystem extends SubsystemBase {
         });
     }
 
-    
     public Command moveToPos(DoubleSupplier targetPos) {
         return new FunctionalCommand(
                 () -> {
                     mainMotorHoldRequest.Position = targetPos.getAsDouble();
                     // targetPosition = targetPos.getAsDouble();
                     // mainMotor
-                    //         .setControl(new PositionDutyCycle(targetPos.getAsDouble()).withSlot(0).withEnableFOC(true));
+                    // .setControl(new
+                    // PositionDutyCycle(targetPos.getAsDouble()).withSlot(0).withEnableFOC(true));
                 },
                 () -> {
                     mainMotor.setControl(mainMotorHoldRequest);
@@ -200,6 +207,7 @@ public class AlgaeSubsystem extends SubsystemBase {
         }, () -> {
             // mainMotor.setControl(new DutyCycleOut(0));
             mainMotorHoldCommand();
+            this.manual = false;
         });
     }
 

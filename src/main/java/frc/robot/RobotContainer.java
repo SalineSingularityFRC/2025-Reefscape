@@ -81,6 +81,8 @@ public class RobotContainer {
         NamedCommands.registerCommand("Intake Coral", intake.intakeCoral());
         NamedCommands.registerCommand("Shoot Coral", intake.shootCoral());
         NamedCommands.registerCommand("Wait For Coral", intake.waitUntilCoral());
+        NamedCommands.registerCommand("Move Hinge Coral", algae.moveToCoralScorePose());
+        NamedCommands.registerCommand("Move Hinge Zero", algae.moveToZero());
         NamedCommands.registerCommand("RumbleCommantStart", new RumbleCommandStart(driveController));
         NamedCommands.registerCommand("RumbleCommantStop", new RumbleCommandStop(driveController));
 
