@@ -43,9 +43,22 @@
           }
         },
         {
-          "type": "named",
+          "type": "parallel",
           "data": {
-            "name": "Shoot Coral"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Shoot Coral"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Move Hinge Coral"
+                }
+              }
+            ]
           }
         },
         {
@@ -56,6 +69,12 @@
                 "type": "named",
                 "data": {
                   "name": "Wait For Coral"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Move Hinge Zero"
                 }
               },
               {
@@ -139,9 +158,22 @@
           }
         },
         {
-          "type": "named",
+          "type": "parallel",
           "data": {
-            "name": "Shoot Coral"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Shoot Coral"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Move Hinge Coral"
+                }
+              }
+            ]
           }
         },
         {
@@ -152,6 +184,12 @@
                 "type": "named",
                 "data": {
                   "name": "Wait For Coral"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Move Hinge Zero"
                 }
               },
               {
@@ -235,9 +273,34 @@
           }
         },
         {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Shoot Coral"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Move Hinge Coral"
+                }
+              }
+            ]
+          }
+        },
+        {
           "type": "named",
           "data": {
-            "name": "Shoot Coral"
+            "name": "Move Hinge Zero"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Feeder Station"
           }
         }
       ]
