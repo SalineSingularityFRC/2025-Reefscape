@@ -286,7 +286,19 @@ public final class Constants {
     }
 
     public boolean isFalse() {
-      return (!isTrue());
+      return (!isTrue()); 
+    }
+  }
+
+  public static class ConfigBoolean extends Config<Boolean> {
+    public ConfigBoolean(String name, boolean defaultValue){
+      super(name, defaultValue);
+
+      Preferences.initBoolean(name, defaultValue);
+    }
+
+    public Boolean getValue(){
+      return Preferences.getBoolean(name, defaultValue);
     }
   }
 
@@ -435,6 +447,7 @@ public final class Constants {
       public static ConfigDouble intakeDistance = new ConfigDouble("Intake Sensor Min Distance", 100);
       public static ConfigDouble shooterDistance = new ConfigDouble("Shooter Sensor Min Distance", 100);
       public static ConfigDouble troughSenserDistance = new ConfigDouble("Trough Sensor Min Distance", 70);
+      public static ConfigBoolean overideElevator = new ConfigBoolean("Elevator Overided", false);
     }
 
     public static class LeftMotor {
