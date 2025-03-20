@@ -142,7 +142,7 @@ public final class Constants {
     public static final class Speed {
 
       // Tested max speed in m/s
-      public static final double MAX_SPEED = 5.0;
+      public static final double MAX_SPEED = 4.865;
     }
 
     public static final class WheelOffset {
