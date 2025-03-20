@@ -86,12 +86,6 @@
                       "data": {
                         "name": "Feeder Station"
                       }
-                    },
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "Intake Coral"
-                      }
                     }
                   ]
                 }
@@ -187,12 +181,6 @@
                       "type": "named",
                       "data": {
                         "name": "Feeder Station"
-                      }
-                    },
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "Intake Coral"
                       }
                     }
                   ]
