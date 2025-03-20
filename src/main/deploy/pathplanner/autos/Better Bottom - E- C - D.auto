@@ -30,16 +30,16 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "L4"
+                  "name": "L2"
                 }
               }
             ]
           }
         },
         {
-          "type": "wait",
+          "type": "named",
           "data": {
-            "waitTime": 0.1
+            "name": "L4"
           }
         },
         {

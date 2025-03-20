@@ -56,11 +56,12 @@ public class ElevatorSubsystem extends SubsystemBase {
         kLevel1(Elevator.Positions.L1_COUNTS.getValue()),
         kLevel2(Elevator.Positions.L2_COUNTS.getValue()),
         kLevel3(Elevator.Positions.L3_COUNTS.getValue()),
-        kLevel4(Elevator.Positions.L4_COUNTS.getValue());
+        kLevel4(Elevator.Positions.L4_COUNTS.getValue()),
+        kLevel4Raised(Elevator.Positions.L4_COUNTS_ADDITIONAL_RAISE.getValue() + Elevator.Positions.L4_COUNTS.getValue());
 
-        public final int encoderPosition;
+        public final double encoderPosition;
 
-        Setpoint(int encoderPosition) {
+        Setpoint(double encoderPosition) {
             this.encoderPosition = encoderPosition;
         }
     }
@@ -228,6 +229,8 @@ public class ElevatorSubsystem extends SubsystemBase {
             case kLevel4:
                 elevatorCurrentTarget = Elevator.Positions.L4_COUNTS.getValue();
                 break;
+            case kLevel4Raised:
+                elevatorCurrentTarget = Elevator.Positions.L4_COUNTS.getValue() + Elevator.Positions.L4_COUNTS_ADDITIONAL_RAISE.getValue();
         }
     }
 
