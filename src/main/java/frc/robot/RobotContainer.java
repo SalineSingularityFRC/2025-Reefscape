@@ -18,6 +18,7 @@ import edu.wpi.first.math.controller.DifferentialDriveAccelerationLimiter;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -29,6 +30,7 @@ import frc.robot.commands.DriveController;
 import frc.robot.commands.DriveToPose;
 import frc.robot.commands.RumbleCommandStart;
 import frc.robot.commands.RumbleCommandStop;
+import frc.robot.subsystems.AlgaeProcessorSubsystem;
 import frc.robot.subsystems.AlgaeSubsystem;
 // import frc.robot.subsystems.AlgaeSubsystem;
 import frc.robot.subsystems.ClimberSubsystem;
@@ -54,6 +56,7 @@ public class RobotContainer {
     // private RealSenseCamera cam;
     private LEDStatusSubsystem ledStatus;
     private AlgaeSubsystem algae;
+    private AlgaeProcessorSubsystem algaeProcessorSubsystem;
 
     protected RobotContainer() {
         intake = new IntakeSubsystem();
@@ -66,6 +69,7 @@ public class RobotContainer {
         ledStatus = new LEDStatusSubsystem(intake, elevator);
         // trough = new TroughSubsystem();
         algae = new AlgaeSubsystem();
+        algaeProcessorSubsystem = new AlgaeProcessorSubsystem();
 
         driveController = new CommandXboxController(Constants.Gamepad.Controller.DRIVE);
         buttonController = new CommandXboxController(Constants.Gamepad.Controller.BUTTON);
@@ -128,7 +132,7 @@ public class RobotContainer {
         driveController.leftTrigger().whileTrue(algae.intake().withName("intakeAlgae"));
         // driveController.leftTrigger().onFalse(algae.hold(3));
         // driveController.rightBumper().onTrue(algae.moveToAlgaeShoot().withName("movetointakepos"));
-        driveController.leftBumper().onTrue(algae.moveToZero().withName("returnToHomePosAlgae"));
+        // driveController.leftBumper().onTrue(algae.moveToZero().withName("returnToHomePosAlgae")); VERY TEMPORARY
         driveController.rightTrigger().whileTrue(algae.shootAlgae().withName("shootAlgae"));
         driveController.rightTrigger().onFalse(algae.hold(0));
 
@@ -136,9 +140,13 @@ public class RobotContainer {
         thirdController.povUp().onFalse(algae.mainMotorHoldCommand());
         thirdController.povDown().whileTrue(algae.manualControlBackwards());
         thirdController.povUp().onFalse(algae.mainMotorHoldCommand());
+        
+        // driveController.leftBumper().whileTrue(algaeProcessorSubsystem.intakeProcessor());
+        // driveController.rightBumper().whileTrue(algaeProcessorSubsystem.spitProcessor());
 
         // PID to nearest coral pose left
-        buttonController.a().whileTrue(elevator.moveToTargetPosition(Setpoint.kFeederStation).withName("kFeederStation"));
+        // buttonController.a().whileTrue(elevator.moveToTargetPosition(Setpoint.kFeederStation).withName("kFeederStation"));
+        buttonController.a().onTrue(algaeProcessorSubsystem.setDutyCycle(0));
         buttonController.b().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L2_LEFT));
         buttonController.x().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L3_LEFT));
         buttonController.y().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L4_LEFT));
