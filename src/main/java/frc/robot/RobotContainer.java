@@ -126,13 +126,13 @@ public class RobotContainer {
         // Need to rewrite CameraDriveToPose to be robot centric
         // driveController.rightTrigger().whileTrue(drive.cameraDriveToPose(cam));
 
-        driveController.rightBumper().onTrue(drive.resetGyroCommand()); // TEMPORARY CHANGE LATER
+        driveController.rightBumper().onTrue(drive.resetGyroCommand());
 
         // TEMPORARY ALGAE COMMAND BUTTON STUFF \\
         driveController.leftTrigger().whileTrue(algae.intake().withName("intakeAlgae"));
         // driveController.leftTrigger().onFalse(algae.hold(3));
         // driveController.rightBumper().onTrue(algae.moveToAlgaeShoot().withName("movetointakepos"));
-        // driveController.leftBumper().onTrue(algae.moveToZero().withName("returnToHomePosAlgae")); VERY TEMPORARY
+        driveController.leftBumper().whileTrue(algae.moveToZero().withName("returnToHomePosAlgae"));
         driveController.rightTrigger().whileTrue(algae.shootAlgae().withName("shootAlgae"));
         driveController.rightTrigger().onFalse(algae.hold(0));
 
