@@ -43,13 +43,19 @@
           }
         },
         {
-          "type": "parallel",
+          "type": "deadline",
           "data": {
             "commands": [
               {
                 "type": "named",
                 "data": {
                   "name": "Shoot Coral"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Move Hinge Coral"
                 }
               }
             ]
@@ -63,6 +69,12 @@
                 "type": "named",
                 "data": {
                   "name": "Wait For Coral"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Move Hinge Zero"
                 }
               },
               {
@@ -146,13 +158,19 @@
           }
         },
         {
-          "type": "parallel",
+          "type": "deadline",
           "data": {
             "commands": [
               {
                 "type": "named",
                 "data": {
                   "name": "Shoot Coral"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Move Hinge Coral"
                 }
               }
             ]
@@ -166,6 +184,12 @@
                 "type": "named",
                 "data": {
                   "name": "Wait For Coral"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Move Hinge Zero"
                 }
               },
               {
@@ -249,7 +273,7 @@
           }
         },
         {
-          "type": "parallel",
+          "type": "deadline",
           "data": {
             "commands": [
               {
@@ -257,14 +281,65 @@
                 "data": {
                   "name": "Shoot Coral"
                 }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Move Hinge Coral"
+                }
               }
             ]
           }
         },
         {
-          "type": "named",
+          "type": "deadline",
           "data": {
-            "name": "Feeder Station"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Wait For Coral"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Move Hinge Zero"
+                }
+              },
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "path",
+                      "data": {
+                        "pathName": "D - CS_2"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "Stop Driving"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "Feeder Station"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
           }
         }
       ]

@@ -3,40 +3,45 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.5520408163265307,
-        "y": 7.401434948979592
-      },
-      "prevControl": null,
-      "nextControl": {
-        "x": 3.614021305022182,
-        "y": 5.611626033748459
-      },
-      "isLocked": false,
-      "linkedName": "Better_CS1"
-    },
-    {
-      "anchor": {
         "x": 3.936,
         "y": 5.312
       },
+      "prevControl": null,
+      "nextControl": {
+        "x": 3.1895015363473096,
+        "y": 5.900318127401537
+      },
+      "isLocked": false,
+      "linkedName": "K"
+    },
+    {
+      "anchor": {
+        "x": 1.5520408163265307,
+        "y": 7.401434948979592
+      },
       "prevControl": {
-        "x": 3.745742878354366,
-        "y": 5.474179615436461
+        "x": 1.7879624541695296,
+        "y": 7.318724727135633
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "K"
+      "linkedName": "Better_CS1"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.7826086956521752,
+      "rotationDegrees": -54.0
+    }
+  ],
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 0.28691275167785263,
+      "minWaypointRelativePos": 0.7365771812080534,
       "maxWaypointRelativePos": 1.0,
       "constraints": {
         "maxVelocity": 1.5,
-        "maxAcceleration": 2.5,
+        "maxAcceleration": 5.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 673.0,
         "nominalVoltage": 12.0,
@@ -56,13 +61,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -59.99999999999999
+    "rotation": -54.0
   },
   "reversed": false,
-  "folder": "CS_1 To Reef",
+  "folder": "To CS_1",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -54.0
+    "rotation": -59.99999999999999
   },
   "useDefaultConstraints": true
 }
