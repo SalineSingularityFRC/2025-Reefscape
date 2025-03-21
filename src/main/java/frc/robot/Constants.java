@@ -47,7 +47,7 @@ public final class Constants {
     }
 
     public static final class Processor {
-      public static final int INTAKE_MOTOR = 53;
+      public static final int INTAKE_MOTOR = 62;
     }
 
     public static final class CanCoder {
@@ -393,6 +393,20 @@ public final class Constants {
     public static ConfigDouble intakeSpeed = new ConfigDouble("Processor/intakeSpeed", 30);
     public static ConfigDouble spitSpeed = new ConfigDouble("Processor/spitSpeed", -30);
     public static ConfigDouble kP = new ConfigDouble("Processor/kP", 1);
+    public static class MotorStuff {
+      public static ConfigDouble MIN_POWER = new ConfigDouble("Elevator/Primary Motor/Min Power", -1);
+      public static ConfigDouble MAX_POWER = new ConfigDouble("Elevator/Primary Motor/Max Power", 1);
+
+      public static ConfigDouble MAX_VELOCITY_RPM = new ConfigDouble("Elevator/Primary Motor/Max Velocity in rpm",
+          2000);
+      public static ConfigDouble MAX_ACCEL_RPM_PER_S = new ConfigDouble("Elevator/Primary Motor/Max Accel in rpm per s",
+          200);
+      public static ConfigInt MAX_CURRENT_IN_A = new ConfigInt("Elevator/Primary Motor/Max Current in A", 40);
+      public static ConfigDouble VOLTAGE_COMPENSATION_IN_V = new ConfigDouble(
+          "Elevator/Primary Motor/Voltage Compensation in V", 12);
+      public static ConfigDouble MAX_CONTROL_ERROR_IN_COUNTS = new ConfigDouble(
+          "Elevator/Primary Motor/Control Error Tolerance", 0.25);
+    }
   }
 
   public static class Elevator {
