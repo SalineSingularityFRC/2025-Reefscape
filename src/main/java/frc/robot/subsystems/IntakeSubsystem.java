@@ -198,7 +198,7 @@ public class IntakeSubsystem extends SubsystemBase {
     //This Command is for driving away from the coral station when the coral enters the trough
     public Command waitUntilCoral(){
         return run(() -> {
-            intakeCoral();
+
         }).until(() -> coralInTrough() || coralInIntake());
     }
 
