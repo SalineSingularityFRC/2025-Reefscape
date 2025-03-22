@@ -126,9 +126,9 @@ public class IntakeSubsystem extends SubsystemBase {
           
             // SmartDashboard.putNumber("Intake Sensor", getSensorValue(intakeSensor));
             // SmartDashboard.putNumber("Shooter Sensor", getSensorValue(shooterSensor));
-            // SmartDashboard.putBoolean("Coral in intake", coralInIntake());
-            // SmartDashboard.putBoolean("Coral in shooter", coralInShooter());
-            // SmartDashboard.putBoolean("Coral In Trough", coralInTrough());
+            SmartDashboard.putBoolean("Coral in intake", coralInIntake());
+            SmartDashboard.putBoolean("Coral in shooter", coralInShooter());
+            SmartDashboard.putBoolean("Coral In Trough", coralInTrough());
             // SmartDashboard.putBoolean("Ready Shoot", readyToShoot());
             // SmartDashboard.putBoolean("NoCoralDetected", noCoralDetected());
             // SmartDashboard.putBoolean("IntakeSensorFunctional", intakeSensorIsFunctional());

@@ -735,12 +735,12 @@ public class SwerveSubsystem extends SubsystemBase {
       new ReefPose("B", ReefFacetSide.RIGHT, new Pose2d(3.190, 3.863, new Rotation2d(Math.toRadians(0)))),
       new ReefPose("C", ReefFacetSide.LEFT, new Pose2d(3.698, 2.983, new Rotation2d(Math.toRadians(60.0)))),
       new ReefPose("D", ReefFacetSide.RIGHT, new Pose2d(3.980, 2.817, new Rotation2d(Math.toRadians(60.0)))),
-      new ReefPose("E", ReefFacetSide.RIGHT, new Pose2d(4.995, 2.817, new Rotation2d(Math.toRadians(120.0)))),
-      new ReefPose("F", ReefFacetSide.LEFT, new Pose2d(5.280, 2.985, new Rotation2d(Math.toRadians(120.0)))),
-      new ReefPose("G", ReefFacetSide.RIGHT, new Pose2d(5.788, 3.863, new Rotation2d(Math.toRadians(180.0)))),
-      new ReefPose("H", ReefFacetSide.LEFT, new Pose2d(5.788, 4.19, new Rotation2d(Math.toRadians(180.0)))),
-      new ReefPose("I", ReefFacetSide.RIGHT, new Pose2d(5.282, 5.070, new Rotation2d(Math.toRadians(240.0)))),
-      new ReefPose("J", ReefFacetSide.LEFT, new Pose2d(4.995, 5.233, new Rotation2d(Math.toRadians(240.0)))),
+      new ReefPose("E", ReefFacetSide.LEFT, new Pose2d(4.995, 2.817, new Rotation2d(Math.toRadians(120.0)))),
+      new ReefPose("F", ReefFacetSide.RIGHT, new Pose2d(5.280, 2.985, new Rotation2d(Math.toRadians(120.0)))),
+      new ReefPose("G", ReefFacetSide.LEFT, new Pose2d(5.788, 3.863, new Rotation2d(Math.toRadians(180.0)))),
+      new ReefPose("H", ReefFacetSide.RIGHT, new Pose2d(5.788, 4.19, new Rotation2d(Math.toRadians(180.0)))),
+      new ReefPose("I", ReefFacetSide.LEFT, new Pose2d(5.282, 5.070, new Rotation2d(Math.toRadians(240.0)))),
+      new ReefPose("J", ReefFacetSide.RIGHT, new Pose2d(4.995, 5.233, new Rotation2d(Math.toRadians(240.0)))),
       new ReefPose("K", ReefFacetSide.LEFT, new Pose2d(3.980, 5.240, new Rotation2d(Math.toRadians(300.0)))),
       new ReefPose("L", ReefFacetSide.RIGHT, new Pose2d(3.692, 5.077, new Rotation2d(Math.toRadians(300.0)))));
 

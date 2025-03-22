@@ -98,7 +98,7 @@ public class RobotContainer {
         // competition as defined by the programmer
         autoChooser = AutoBuilder.buildAutoChooserWithOptionsModifier(
                 (stream) -> isCompetition
-                        ? stream.filter(auto -> (auto.getName().startsWith("Bottom") || auto.getName().startsWith("Top")
+                        ? stream.filter(auto -> (auto.getName().startsWith("No Kick") || auto.getName().startsWith("Bottom") || auto.getName().startsWith("Top")
                                 || auto.getName().startsWith("Center")))
                         : stream);
 
@@ -131,7 +131,6 @@ public class RobotContainer {
         // TEMPORARY ALGAE COMMAND BUTTON STUFF \\
         driveController.leftTrigger().whileTrue(algae.intake().withName("intakeAlgae"));
         // driveController.leftTrigger().onFalse(algae.hold(3));
-        // driveController.rightBumper().onTrue(algae.moveToAlgaeShoot().withName("movetointakepos"));
         driveController.leftBumper().whileTrue(algae.moveToZero().withName("returnToHomePosAlgae"));
         driveController.rightTrigger().whileTrue(algae.shootAlgae().withName("shootAlgae"));
         driveController.rightTrigger().onFalse(algae.hold(0));
@@ -141,8 +140,9 @@ public class RobotContainer {
         thirdController.povDown().whileTrue(algae.manualControlBackwards());
         thirdController.povUp().onFalse(algae.mainMotorHoldCommand());
         
-        // driveController.leftBumper().whileTrue(algaeProcessorSubsystem.intakeProcessor());
-        // driveController.rightBumper().whileTrue(algaeProcessorSubsystem.spitProcessor());
+        thirdController.a().onTrue(algae.moveToAlgaeShoot().withName("movetointakepos"));
+        thirdController.leftBumper().whileTrue(algaeProcessorSubsystem.intakeProcessor());
+        thirdController.rightBumper().whileTrue(algaeProcessorSubsystem.spitProcessor());
 
         // PID to nearest coral pose left
         // buttonController.a().whileTrue(elevator.moveToTargetPosition(Setpoint.kFeederStation).withName("kFeederStation"));
