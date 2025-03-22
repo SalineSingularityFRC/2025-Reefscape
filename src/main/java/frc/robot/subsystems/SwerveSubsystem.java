@@ -737,8 +737,8 @@ public class SwerveSubsystem extends SubsystemBase {
       new ReefPose("D", ReefFacetSide.RIGHT, new Pose2d(3.980, 2.817, new Rotation2d(Math.toRadians(60.0)))),
       new ReefPose("E", ReefFacetSide.LEFT, new Pose2d(4.995, 2.817, new Rotation2d(Math.toRadians(120.0)))),
       new ReefPose("F", ReefFacetSide.RIGHT, new Pose2d(5.280, 2.985, new Rotation2d(Math.toRadians(120.0)))),
-      new ReefPose("G", ReefFacetSide.LEFT, new Pose2d(5.788, 3.863, new Rotation2d(Math.toRadians(180.0)))),
-      new ReefPose("H", ReefFacetSide.RIGHT, new Pose2d(5.788, 4.19, new Rotation2d(Math.toRadians(180.0)))),
+      new ReefPose("G", ReefFacetSide.LEFT, new Pose2d(5.750, 3.863, new Rotation2d(Math.toRadians(180.0)))),
+      new ReefPose("H", ReefFacetSide.RIGHT, new Pose2d(5.750, 4.19, new Rotation2d(Math.toRadians(180.0)))),
       new ReefPose("I", ReefFacetSide.LEFT, new Pose2d(5.282, 5.070, new Rotation2d(Math.toRadians(240.0)))),
       new ReefPose("J", ReefFacetSide.RIGHT, new Pose2d(4.995, 5.233, new Rotation2d(Math.toRadians(240.0)))),
       new ReefPose("K", ReefFacetSide.LEFT, new Pose2d(3.980, 5.240, new Rotation2d(Math.toRadians(300.0)))),
@@ -746,8 +746,8 @@ public class SwerveSubsystem extends SubsystemBase {
 
   // Blue alliance only since we flip if red alliance (from pathplanner)
   static List<ReefPose> sourcePoses = List.of(
-      new ReefPose("Left Source", ReefFacetSide.LEFT, new Pose2d(0.615, 6.908, new Rotation2d(Math.toRadians(306.0)))),
-      new ReefPose("Right Source", ReefFacetSide.RIGHT, new Pose2d(1.393, 0.490, new Rotation2d(Math.toRadians(54.0)))));
+      new ReefPose("Left Source", ReefFacetSide.LEFT, new Pose2d(1.480, 7.270, new Rotation2d(Math.toRadians(306.0)))),
+      new ReefPose("Right Source", ReefFacetSide.RIGHT, new Pose2d(1.480, 0.750, new Rotation2d(Math.toRadians(54.0)))));
 
   public Command drivetoReefPose(AutoScoreTarget target) {
     return new DeferredCommand(() -> {
