@@ -15,7 +15,7 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "S_Top_Mid - J"
+                        "pathName": "Fudge S_Top_Mid - J"
                       }
                     },
                     {
@@ -43,6 +43,12 @@
           }
         },
         {
+          "type": "wait",
+          "data": {
+            "waitTime": 1.0
+          }
+        },
+        {
           "type": "deadline",
           "data": {
             "commands": [
@@ -50,6 +56,12 @@
                 "type": "named",
                 "data": {
                   "name": "Shoot Coral"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Move Hinge Coral"
                 }
               }
             ]
@@ -66,13 +78,19 @@
                 }
               },
               {
+                "type": "named",
+                "data": {
+                  "name": "Move Hinge Zero"
+                }
+              },
+              {
                 "type": "sequential",
                 "data": {
                   "commands": [
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "Better J - CS_1"
+                        "pathName": "Fudge J - CS_1"
                       }
                     },
                     {
@@ -98,6 +116,12 @@
                 }
               }
             ]
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 1.0
           }
         },
         {
@@ -146,6 +170,12 @@
           }
         },
         {
+          "type": "wait",
+          "data": {
+            "waitTime": 1.0
+          }
+        },
+        {
           "type": "deadline",
           "data": {
             "commands": [
@@ -153,6 +183,12 @@
                 "type": "named",
                 "data": {
                   "name": "Shoot Coral"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Move Hinge Coral"
                 }
               }
             ]
@@ -166,6 +202,12 @@
                 "type": "named",
                 "data": {
                   "name": "Wait For Coral"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Move Hinge Zero"
                 }
               },
               {
@@ -249,6 +291,12 @@
           }
         },
         {
+          "type": "wait",
+          "data": {
+            "waitTime": 1.0
+          }
+        },
+        {
           "type": "deadline",
           "data": {
             "commands": [
@@ -256,6 +304,12 @@
                 "type": "named",
                 "data": {
                   "name": "Shoot Coral"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Move Hinge Coral"
                 }
               }
             ]
@@ -269,6 +323,12 @@
                 "type": "named",
                 "data": {
                   "name": "Wait For Coral"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Move Hinge Zero"
                 }
               },
               {

@@ -731,22 +731,22 @@ public class SwerveSubsystem extends SubsystemBase {
 
   // Blue alliance only since we flip if red alliance (from pathplanner)
   static List<ReefPose> reefPoses = List.of(
-      new ReefPose("A", ReefFacetSide.LEFT, new Pose2d(3.190, 4.193, new Rotation2d(Math.toRadians(0)))),
-      new ReefPose("B", ReefFacetSide.RIGHT, new Pose2d(3.190, 3.863, new Rotation2d(Math.toRadians(0)))),
-      new ReefPose("C", ReefFacetSide.LEFT, new Pose2d(3.698, 2.983, new Rotation2d(Math.toRadians(60.0)))),
-      new ReefPose("D", ReefFacetSide.RIGHT, new Pose2d(3.980, 2.817, new Rotation2d(Math.toRadians(60.0)))),
-      new ReefPose("E", ReefFacetSide.LEFT, new Pose2d(4.995, 2.817, new Rotation2d(Math.toRadians(120.0)))),
-      new ReefPose("F", ReefFacetSide.RIGHT, new Pose2d(5.280, 2.985, new Rotation2d(Math.toRadians(120.0)))),
-      new ReefPose("G", ReefFacetSide.LEFT, new Pose2d(5.750, 3.863, new Rotation2d(Math.toRadians(180.0)))),
-      new ReefPose("H", ReefFacetSide.RIGHT, new Pose2d(5.750, 4.19, new Rotation2d(Math.toRadians(180.0)))),
-      new ReefPose("I", ReefFacetSide.LEFT, new Pose2d(5.282, 5.070, new Rotation2d(Math.toRadians(240.0)))),
-      new ReefPose("J", ReefFacetSide.RIGHT, new Pose2d(4.995, 5.233, new Rotation2d(Math.toRadians(240.0)))),
-      new ReefPose("K", ReefFacetSide.LEFT, new Pose2d(3.980, 5.240, new Rotation2d(Math.toRadians(300.0)))),
-      new ReefPose("L", ReefFacetSide.RIGHT, new Pose2d(3.692, 5.077, new Rotation2d(Math.toRadians(300.0)))));
+      new ReefPose("A", ReefFacetSide.LEFT, new Pose2d(3.250, 4.193, new Rotation2d(Math.toRadians(0)))),
+      new ReefPose("B", ReefFacetSide.RIGHT, new Pose2d(3.250, 3.863, new Rotation2d(Math.toRadians(0)))),
+      new ReefPose("C", ReefFacetSide.LEFT, new Pose2d(3.735, 3.044, new Rotation2d(Math.toRadians(60.0)))),
+      new ReefPose("D", ReefFacetSide.RIGHT, new Pose2d(4.014, 2.872, new Rotation2d(Math.toRadians(60.0)))),
+      new ReefPose("E", ReefFacetSide.LEFT, new Pose2d(4.962, 2.880, new Rotation2d(Math.toRadians(120.0)))),
+      new ReefPose("F", ReefFacetSide.RIGHT, new Pose2d(5.253, 3.036, new Rotation2d(Math.toRadians(120.0)))),
+      new ReefPose("G", ReefFacetSide.LEFT, new Pose2d(5.720, 3.863, new Rotation2d(Math.toRadians(180.0)))),
+      new ReefPose("H", ReefFacetSide.RIGHT, new Pose2d(5.720, 4.19, new Rotation2d(Math.toRadians(180.0)))),
+      new ReefPose("I", ReefFacetSide.LEFT, new Pose2d(5.253, 5.025, new Rotation2d(Math.toRadians(240.0)))),
+      new ReefPose("J", ReefFacetSide.RIGHT, new Pose2d(4.970, 5.193, new Rotation2d(Math.toRadians(240.0)))),
+      new ReefPose("K", ReefFacetSide.LEFT, new Pose2d(4.000, 5.193, new Rotation2d(Math.toRadians(300.0)))),
+      new ReefPose("L", ReefFacetSide.RIGHT, new Pose2d(3.725, 5.029, new Rotation2d(Math.toRadians(300.0)))));
 
   // Blue alliance only since we flip if red alliance (from pathplanner)
   static List<ReefPose> sourcePoses = List.of(
-      new ReefPose("Left Source", ReefFacetSide.LEFT, new Pose2d(1.480, 7.270, new Rotation2d(Math.toRadians(306.0)))),
+      new ReefPose("Left Source", ReefFacetSide.LEFT, new Pose2d(1.485, 7.342, new Rotation2d(Math.toRadians(306.0)))),
       new ReefPose("Right Source", ReefFacetSide.RIGHT, new Pose2d(1.480, 0.750, new Rotation2d(Math.toRadians(54.0)))));
 
   public Command drivetoReefPose(AutoScoreTarget target) {
