@@ -317,7 +317,7 @@ public final class Constants {
   }
 
   public static class LED {
-    public static ConfigDouble PWM_VALUE = new ConfigDouble("LED/PWM_VALUE", 0);
+    public static ConfigDouble PWM_VALUE = new ConfigDouble("LED/PWM_VALUE", 0.15);
   }
 
   public static class Climber {
@@ -375,13 +375,13 @@ public final class Constants {
 
     public static final ConfigDouble kPAlgae = new ConfigDouble("Algae/kPAlgae", 1);
     public static final ConfigDouble kDAlgae = new ConfigDouble("Algae/kDAlgae", 0);
-    public static final ConfigDouble kP1Algae = new ConfigDouble("Algae/kP1Algae", 1);
+    public static final ConfigDouble kP1Algae = new ConfigDouble("Algae/kP1Algae", 5);
     public static final ConfigDouble kD1Algae = new ConfigDouble("Algae/kD1Algae", 0);
 
     public static final ConfigDouble sensingDistance = new ConfigDouble("Algae/SensingDistance", 100);
-    public static ConfigDouble motorSpeedSlow = new ConfigDouble("Algae/SpeedSlow", 30);
-    public static ConfigDouble motorSpeedFast = new ConfigDouble("Algae/SpeedFast", 60);
     public static ConfigDouble manualSpeed = new ConfigDouble("Algae/ManualControlSpeed", 10);
+    public static ConfigDouble motorSpeedSlow = new ConfigDouble("Algae/SpeedSlow", 70);
+    public static ConfigDouble motorSpeedFast = new ConfigDouble("Algae/SpeedFast", -60);
     public static ConfigDouble INTAKE_POS = new ConfigDouble("Algae/IntakePos", 20);
     public static ConfigDouble CORAL_SCORE_POSE = new ConfigDouble("Algae/Coral Score Pose", 3.916);
     public static ConfigDouble DEFAULT_POSE = new ConfigDouble("Algae/Default Pose", 0);
@@ -416,47 +416,43 @@ public final class Constants {
     public static class Heights {
 
       // From the ground (in)
-      public static ConfigDouble LOWEST_HEIGHT = new ConfigDouble("Elevator/Heights/Lowest Height", 20.5);
-      public static ConfigDouble HIGHEST_HEIGHT = new ConfigDouble("Elevator/Positions/Highest Height", 75);
+      public static ConfigDouble LOWEST_HEIGHT = new ConfigDouble("Elevator/Heights/Lowest Height", 12);
+      public static ConfigDouble HIGHEST_HEIGHT = new ConfigDouble("Elevator/Positions/Highest Height", 72);
       public static ConfigDouble DEADZONE = new ConfigDouble("Elevator/Positions/Deadzone Intake See Elevator", 7.0);
     }
 
     public static class Positions {
-      public static ConfigDouble FEED_STATION_COUNTS = new ConfigDouble("Elevator/Positions/Feed Station in counts", -2.0);
-      public static ConfigDouble L1_COUNTS = new ConfigDouble("Elevator/Positions/L1 in counts", -2.0);
-      public static ConfigDouble L2_COUNTS = new ConfigDouble("Elevator/Positions/L2 in counts", 21.0);
-      public static ConfigDouble L3_COUNTS = new ConfigDouble("Elevator/Positions/L3 in counts", 51.5);
-      public static ConfigDouble L4_COUNTS = new ConfigDouble("Elevator/Positions/L4 in counts", 96.5);
+      public static ConfigInt FEED_STATION_COUNTS = new ConfigInt("Elevator/Positions/Feed Station in counts", 0);
+      public static ConfigDouble L1_COUNTS = new ConfigDouble("Elevator/Positions/L1 in counts", 0);
+      public static ConfigDouble L2_COUNTS = new ConfigDouble("Elevator/Positions/L2 in counts", 23);
+      public static ConfigDouble L3_COUNTS = new ConfigDouble("Elevator/Positions/L3 in counts", 53);
+      public static ConfigDouble L4_COUNTS = new ConfigDouble("Elevator/Positions/L4 in counts", 97.5);
       public static ConfigDouble L4_COUNTS_ADDITIONAL_RAISE = new ConfigDouble("Elevator/Positions/L4 additional raise in counts", 1);
     }
 
     public static class PrimaryMotor {
-      public static ConfigDouble RAISE_SPEED = new ConfigDouble("Elevator/Primary Motor/RAISE_SPEED", 0.1);
-      public static ConfigDouble LOWER_SPEED = new ConfigDouble("Elevator/Primary Motor/LOWER_SPEED", .1);
+      public static ConfigDouble RAISE_SPEED = new ConfigDouble("Elevator/Primary Motor/RAISE_SPEED", 0.3);
+      public static ConfigDouble LOWER_SPEED = new ConfigDouble("Elevator/Primary Motor/LOWER_SPEED", 0.2);
       public static ConfigInt INVERTED = new ConfigInt("Elevator/Primary Motor/ INVERTED MOTOR", 1);
       public static ConfigInt CAN_ID = new ConfigInt("Elevator/Primary Motor/CAN ID", 40);
-      public static ConfigDouble KPUP = new ConfigDouble("Elevator/Primary Motor/kPUP", 5);
+      public static ConfigDouble KPUP = new ConfigDouble("Elevator/Primary Motor/kPUP", 0.082);
       public static ConfigDouble KIUP = new ConfigDouble("Elevator/Primary Motor/kIUP", 0);
       public static ConfigDouble KDUP = new ConfigDouble("Elevator/Primary Motor/kDUP", 0);
       public static ConfigDouble KFUP = new ConfigDouble("Elevator/Primary Motor/kFUP", 0);
-      public static ConfigDouble KPDOWN = new ConfigDouble("Elevator/Primary Motor/kPDOWN", 5);
+      public static ConfigDouble KPDOWN = new ConfigDouble("Elevator/Primary Motor/kPDOWN", 0.073);
       public static ConfigDouble KIDOWN = new ConfigDouble("Elevator/Primary Motor/kIDOWN", 0);
       public static ConfigDouble KDDOWN = new ConfigDouble("Elevator/Primary Motor/kDDOWN", 0);
       public static ConfigDouble KFDOWN = new ConfigDouble("Elevator/Primary Motor/kFDOWN", 0);
-      public static ConfigDouble arbFF = new ConfigDouble("Elevator/Primary Motor/arbFF", 0.25);
+      public static ConfigDouble arbFF = new ConfigDouble("Elevator/Primary Motor/arbFF", 0);
   
       public static ConfigDouble MIN_POWER = new ConfigDouble("Elevator/Primary Motor/Min Power", -1);
       public static ConfigDouble MAX_POWER = new ConfigDouble("Elevator/Primary Motor/Max Power", 1);
-
-      public static ConfigDouble MAX_VELOCITY_RPM = new ConfigDouble("Elevator/Primary Motor/Max Velocity in rpm",
-          2000);
-      public static ConfigDouble MAX_ACCEL_RPM_PER_S = new ConfigDouble("Elevator/Primary Motor/Max Accel in rpm per s",
-          200);
-      public static ConfigInt MAX_CURRENT_IN_A = new ConfigInt("Elevator/Primary Motor/Max Current in A", 40);
-      public static ConfigDouble VOLTAGE_COMPENSATION_IN_V = new ConfigDouble(
-          "Elevator/Primary Motor/Voltage Compensation in V", 12);
-      public static ConfigDouble MAX_CONTROL_ERROR_IN_COUNTS = new ConfigDouble(
-          "Elevator/Primary Motor/Control Error Tolerance", 0.25);
+  
+      public static ConfigDouble MAX_VELOCITY_RPM = new ConfigDouble("Elevator/Primary Motor/Max Velocity in rpm", 6784);
+      public static ConfigDouble MAX_ACCEL_RPM_PER_S = new ConfigDouble("Elevator/Primary Motor/Max Accel in rpm per s", 20000);
+      public static ConfigInt MAX_CURRENT_IN_A = new ConfigInt("Elevator/Primary Motor/Max Current in A", 60);
+      public static ConfigDouble VOLTAGE_COMPENSATION_IN_V = new ConfigDouble("Elevator/Primary Motor/Voltage Compensation in V", 12);
+      public static ConfigDouble MAX_CONTROL_ERROR_IN_COUNTS = new ConfigDouble("Elevator/Primary Motor/Control Error Tolerance", 0.25);  
     }
 
     public static class SecondaryMotor {
@@ -466,17 +462,17 @@ public final class Constants {
 
   public static class Intake {
     public static class Nums {
-      public static ConfigDouble motorSpeed = new ConfigDouble("Intake Motor Speed", .1);
-      public static ConfigDouble motorSpeedSlow = new ConfigDouble("Intake Motor Speed Slow", .1);
+      public static ConfigDouble motorSpeed = new ConfigDouble("Intake Motor Speed", 70);
+      public static ConfigDouble motorSpeedSlow = new ConfigDouble("Intake Motor Speed Slow", 35);
       public static ConfigDouble shooterSpeed = new ConfigDouble("Shooter Motor Speed", 65);
       public static ConfigDouble intakeDistance = new ConfigDouble("Intake Sensor Min Distance", 100);
       public static ConfigDouble shooterDistance = new ConfigDouble("Shooter Sensor Min Distance", 100);
-      public static ConfigDouble troughSenserDistance = new ConfigDouble("Trough Sensor Min Distance", 70);
+      public static ConfigDouble troughSenserDistance = new ConfigDouble("Trough Sensor Min Distance", 150);
       public static ConfigBoolean overideElevator = new ConfigBoolean("Elevator Overided", false);
     }
 
     public static class LeftMotor {
-      public static ConfigDouble KP = new ConfigDouble("Intake Left P", .1);
+      public static ConfigDouble KP = new ConfigDouble("Intake Left P", 1.5);
       public static ConfigDouble KS = new ConfigDouble("Intake Left kS", 2.5);
       public static ConfigDouble KV = new ConfigDouble("Intake Left kV", 1);
       public static ConfigDouble MAX_POWER = new ConfigDouble("Intake Left Max Power", 1);
@@ -487,7 +483,7 @@ public final class Constants {
     }
 
     public static class RightMotor {
-      public static ConfigDouble KP = new ConfigDouble("Intake Right P", .1);
+      public static ConfigDouble KP = new ConfigDouble("Intake Right P", 1.5);
       public static ConfigDouble KS = new ConfigDouble("Intake Right kS", 2.5);
       public static ConfigDouble KV = new ConfigDouble("Intake Right kV", 1);
       public static ConfigDouble MAX_POWER = new ConfigDouble("Intake Right Max Power", 1);

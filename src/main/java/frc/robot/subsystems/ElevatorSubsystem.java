@@ -44,7 +44,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     public static final SparkFlexConfig elevatorSecondaryMotorConfig = new SparkFlexConfig();
     private boolean wasResetByButton = false;
     private boolean wasResetByLimit = false;
-    private double elevatorCurrentTarget = Setpoint.kFeederStation.encoderPosition;
+    private double elevatorCurrentTarget = Elevator.Positions.FEED_STATION_COUNTS.getValue();
     private boolean manual = false;
     private RumbleCommandStart rumbleStart;
 
@@ -52,18 +52,12 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     /** Elevator setpoints */
     public enum Setpoint {
-        kFeederStation(Elevator.Positions.FEED_STATION_COUNTS.getValue()),
-        kLevel1(Elevator.Positions.L1_COUNTS.getValue()),
-        kLevel2(Elevator.Positions.L2_COUNTS.getValue()),
-        kLevel3(Elevator.Positions.L3_COUNTS.getValue()),
-        kLevel4(Elevator.Positions.L4_COUNTS.getValue()),
-        kLevel4Raised(Elevator.Positions.L4_COUNTS_ADDITIONAL_RAISE.getValue() + Elevator.Positions.L4_COUNTS.getValue());
-
-        public final double encoderPosition;
-
-        Setpoint(double encoderPosition) {
-            this.encoderPosition = encoderPosition;
-        }
+        kFeederStation,
+        kLevel1,
+        kLevel2,
+        kLevel3,
+        kLevel4,
+        kLevel4Raised;
     }
 
     // Simulation
