@@ -19,8 +19,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.DeferredCommand;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import lib.vision.Limelight;
 import lib.vision.RealSenseCamera;
@@ -166,10 +169,10 @@ public class RobotContainer {
 
         // Intaking and shooting coral logic
         buttonController.rightStick().whileTrue(intake.intakeCoral().withName("intakeCoral"));
-        buttonController.leftStick().whileTrue(intake.shootCoral().withName("shootCoral"));
-        buttonController.leftStick().whileTrue(algae.moveToCoralScorePose().withName("Algae Hinge to Coral Pose"));
-        // buttonController.leftStick().onTrue(elevator.moveToTargetPosition(Setpoint.kLevel4Raised).withName("Raised
-        // Elevator L4 Shoot Pose"));
+        buttonController.leftStick()
+                .whileTrue(intake.shootCoral().withName("shootCoral").andThen(makeCoralHelpScoreCommand()));
+        // buttonController.leftStick().whileTrue(algae.moveToCoralScorePose().withName("Algae
+        // Hinge to Coral Pose"));
         buttonController.leftStick().whileFalse(algae.moveToZero());
 
         // driveController.povRight().onTrue(drive.xMode());
@@ -250,6 +253,25 @@ public class RobotContainer {
         commandGroup.addCommands(drive.drivetoSourcePose(target).andThen(drive.updateRotationPIDSetpointCommand()));
         commandGroup.addCommands(elevator.moveToTargetPosition(targetToSetPoint(target)));
         return commandGroup.andThen(drive.stopDriving());
+    }
+
+    private Command makeCoralHelpScoreCommand() {
+        return new ConditionalCommand(coralHelpScoreCommand(true), coralHelpScoreCommand(false),
+                elevator::isElevatorAtL4);
+    }
+
+    private Command coralHelpScoreCommand(boolean wantHelp) {
+
+        if (!wantHelp) {
+            return new InstantCommand();
+        }
+
+        ParallelDeadlineGroup commandGroup = new ParallelDeadlineGroup(elevator.moveL4RaisedSlow(Setpoint.kLevel4Raised));
+
+        // Need to change to different shootAlgae method
+        commandGroup.addCommands(algae.moveToCoralScorePose().andThen(algae.spitAlgaeMotor()));
+
+        return commandGroup;
     }
 
     private Setpoint targetToSetPoint(AutoScoreTarget target) {
