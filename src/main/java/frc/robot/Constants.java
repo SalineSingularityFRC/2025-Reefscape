@@ -422,8 +422,8 @@ public final class Constants {
     }
 
     public static class Positions {
-      public static ConfigInt FEED_STATION_COUNTS = new ConfigInt("Elevator/Positions/Feed Station in counts", 0);
-      public static ConfigDouble L1_COUNTS = new ConfigDouble("Elevator/Positions/L1 in counts", 0);
+      public static ConfigDouble FEED_STATION_COUNTS = new ConfigDouble("Elevator/Positions/Feed Station in counts", -2);
+      public static ConfigDouble L1_COUNTS = new ConfigDouble("Elevator/Positions/L1 in counts", -2);
       public static ConfigDouble L2_COUNTS = new ConfigDouble("Elevator/Positions/L2 in counts", 23);
       public static ConfigDouble L3_COUNTS = new ConfigDouble("Elevator/Positions/L3 in counts", 53);
       public static ConfigDouble L4_COUNTS = new ConfigDouble("Elevator/Positions/L4 in counts", 97.5);
