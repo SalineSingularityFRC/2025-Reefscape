@@ -21,6 +21,7 @@ import com.pathplanner.lib.pathfinding.Pathfinder;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -28,6 +29,9 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.Matrix;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
@@ -45,9 +49,12 @@ import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.Limelight;
+import lib.vision.Limelight;
+import lib.vision.RealSenseCamera;
 import frc.robot.SwerveClasses.SwerveModule;
 import frc.robot.SwerveClasses.SwerveOdometry;
+import frc.robot.commands.CameraDriveToPose;
+import frc.robot.commands.DriveToPose;
 
 /*
  * This class provides functions to drive at a given angle and direction,
@@ -94,6 +101,22 @@ public class SwerveSubsystem extends SubsystemBase {
   private Boolean BlueAlliance;
 
   private DataLog log;
+  private DoubleLogEntry flEncoderPositionLog;
+  private DoubleLogEntry frEncoderPositionLog;
+  private DoubleLogEntry blEncoderPositionLog;
+  private DoubleLogEntry brEncoderPositionLog;
+  private DoubleLogEntry flPositionLog;
+  private DoubleLogEntry frPositionLog;
+  private DoubleLogEntry blPositionLog;
+  private DoubleLogEntry brPositionLog;
+  private DoubleLogEntry pidgeonAccelerationXLog;
+  private DoubleLogEntry pidgeonAccelerationYLog;
+  private DoubleLogEntry pidgeonAccelerationZLog;
+  private DoubleLogEntry pidgeonAngularVelocityXLog;
+  private DoubleLogEntry pidgeonAngularVelocityYLog;
+  private DoubleLogEntry pidgeonAngularVelocityZLog;
+  private DoubleLogEntry pidgeonTimeLog;
+
 
   /*
    * This constructor should create an instance of the pidgeon class, and should
@@ -101,7 +124,7 @@ public class SwerveSubsystem extends SubsystemBase {
    * SwerveModule class and add them to our SwerveModule dictionary
    * Use values from the Constants.java class
    */
-  public SwerveSubsystem() {
+  public SwerveSubsystem(Limelight leftLL, Limelight rightLL) {
     log = DataLogManager.getLog();
 
     BlueAlliance = true;
@@ -160,7 +183,7 @@ public class SwerveSubsystem extends SubsystemBase {
         Constants.Inverted.ANGLE,
         "BR");
 
-    odometry = new SwerveOdometry(this, vectorKinematics);
+    odometry = new SwerveOdometry(this, swerveDriveKinematics, leftLL, rightLL);
     odometry.resetPosition();
 
     Supplier<ChassisSpeeds> supplier_chasis = () -> {
@@ -234,7 +257,27 @@ public class SwerveSubsystem extends SubsystemBase {
     currentRobotAngleDerivative = 0;
     isRotating = false;
 
+    flEncoderPositionLog = new DoubleLogEntry(log, "FL encoder position");
+    frEncoderPositionLog = new DoubleLogEntry(log, "FR encoder position");
+    blEncoderPositionLog = new DoubleLogEntry(log, "BL encoder position");
+    brEncoderPositionLog = new DoubleLogEntry(log, "BR encoder position");
+    flPositionLog = new DoubleLogEntry(log, "FL position");
+    frPositionLog = new DoubleLogEntry(log, "FR position");
+    blPositionLog = new DoubleLogEntry(log, "BL position");
+    brPositionLog = new DoubleLogEntry(log, "BR position");
+    pidgeonAccelerationXLog = new DoubleLogEntry(log, "Pidgeon Acceleration X");
+    pidgeonAccelerationYLog = new DoubleLogEntry(log, "Pidgeon Acceleration Y");
+    pidgeonAccelerationZLog = new DoubleLogEntry(log, "Pidgeon Acceleration Z");
+    pidgeonAngularVelocityXLog = new DoubleLogEntry(log, "Pidgeon Angular Velocity X");
+    pidgeonAngularVelocityYLog = new DoubleLogEntry(log, "Pidgeon Angular Velocity Y");
+    pidgeonAngularVelocityZLog = new DoubleLogEntry(log, "Pidgeon Angular Velocity Z");
+    pidgeonTimeLog = new DoubleLogEntry(log, "Pidgeon Time");
+
   }
+
+  public Supplier<Pose2d> supplier_position = () -> {
+    return odometry.getEstimatedPosition();
+  };
 
   public void drive(
       double rotation,
@@ -251,8 +294,8 @@ public class SwerveSubsystem extends SubsystemBase {
     // don't move or turn at all
     // 0.08 value can be increased if the joystick is increasingly inaccurate at
     // neutral position
-    if (Math.abs(x) < 0.03
-        && Math.abs(y) < 0.03
+    if (Math.abs(x) < 0.06
+        && Math.abs(y) < 0.06
         && Math.abs(rotation) < 0.08) {
 
       this.stop();
@@ -285,21 +328,26 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     // For correcting angular position when not rotating manually
+    double gyroYaw = gyro.getYaw().getValueAsDouble();
     if (Math.abs(rotation) > 0.08 * mulitplier || isRotating) {
       isRotating = true;
-      rotationController.setSetpoint(gyro.getYaw().getValueAsDouble());
+      rotationController.setSetpoint(gyroYaw);
       rotationController.reset();
     } else {
-      rotation = rotationController.calculate(gyro.getYaw().getValueAsDouble());
+      rotation = rotationController.calculate(gyroYaw);
     }
 
-    SmartDashboard.putNumber("Rotation Correction/Setpoint: Robot Angle", rotationController.getSetpoint());
-    SmartDashboard.putNumber("Rotation Correction/Plant state: Robot Angle", gyro.getYaw().getValueAsDouble());
+    // SmartDashboard.putNumber("Rotation Correction/Setpoint: Robot Angle",
+    // rotationController.getSetpoint());
+    // SmartDashboard.putNumber("Rotation Correction/Plant state: Robot Angle",
+    // gyro.getYaw().getValueAsDouble());
     // SmartDashboard.putNumber("Control Effort: Calculated Rotation Speed",
     // rotation);
     // SmartDashboard.putBoolean("Is bot turning", isRotating);
 
-    this.chassisSpeeds = new ChassisSpeeds(robotX, robotY, rotation);
+    this.chassisSpeeds.vxMetersPerSecond = robotX;
+    this.chassisSpeeds.vyMetersPerSecond = robotY;
+    this.chassisSpeeds.omegaRadiansPerSecond = rotation;
 
     SwerveModuleState[] modules = swerveDriveKinematics.toSwerveModuleStates(chassisSpeeds);
     setModuleStates(modules);
@@ -329,48 +377,27 @@ public class SwerveSubsystem extends SubsystemBase {
     double vy = speeds.vyMetersPerSecond;
     double totalSpeed = Math.sqrt(vx * vx + vy * vy);
     SmartDashboard.putNumber("SwerveData/Chassis Speed", totalSpeed);
-
-    DoubleLogEntry flEncoderPositionLog = new DoubleLogEntry(log, "FL encoder position");
-    DoubleLogEntry frEncoderPositionLog = new DoubleLogEntry(log, "FR encoder position");
-    DoubleLogEntry blEncoderPositionLog = new DoubleLogEntry(log, "BL encoder position");
-    DoubleLogEntry brEncoderPositionLog = new DoubleLogEntry(log, "BR encoder position");
-
-    DoubleLogEntry flPositionLog = new DoubleLogEntry(log, "FL position");
-    DoubleLogEntry frPositionLog = new DoubleLogEntry(log, "FR position");
-    DoubleLogEntry blPositionLog = new DoubleLogEntry(log, "BL position");
-    DoubleLogEntry brPositionLog = new DoubleLogEntry(log, "BR position");
-
-    DoubleLogEntry pidgeonAccelerationXLog = new DoubleLogEntry(log, "Pidgeon Acceleration X");
-    DoubleLogEntry pidgeonAccelerationYLog = new DoubleLogEntry(log, "Pidgeon Acceleration Y");
-    DoubleLogEntry pidgeonAccelerationZLog = new DoubleLogEntry(log, "Pidgeon Acceleration Z");
-
-    DoubleLogEntry pidgeonAngularVelocityXLog = new DoubleLogEntry(log, "Pidgeon Angular Velocity X");
-    DoubleLogEntry pidgeonAngularVelocityYLog = new DoubleLogEntry(log, "Pidgeon Angular Velocity Y");
-    DoubleLogEntry pidgeonAngularVelocityZLog = new DoubleLogEntry(log, "Pidgeon Angular Velocity Z");
-
-    DoubleLogEntry pidgeonTimeLog = new DoubleLogEntry(log, "Pidgeon Time");
-
     // To log data into these entries, wherever you would have used SmartDashboard,
     // use:
-    flEncoderPositionLog.append(swerveModules[FL].getEncoderPosition());
-    frEncoderPositionLog.append(swerveModules[FR].getEncoderPosition());
-    blEncoderPositionLog.append(swerveModules[BL].getEncoderPosition());
-    brEncoderPositionLog.append(swerveModules[BR].getEncoderPosition());
+    // flEncoderPositionLog.append(swerveModules[FL].getEncoderPosition());
+    // frEncoderPositionLog.append(swerveModules[FR].getEncoderPosition());
+    // blEncoderPositionLog.append(swerveModules[BL].getEncoderPosition());
+    // brEncoderPositionLog.append(swerveModules[BR].getEncoderPosition());
 
-    flPositionLog.append(swerveModules[FL].getPosition());
-    frPositionLog.append(swerveModules[FR].getPosition());
-    blPositionLog.append(swerveModules[BL].getPosition());
-    brPositionLog.append(swerveModules[BR].getPosition());
+    // flPositionLog.append(swerveModules[FL].getPosition());
+    // frPositionLog.append(swerveModules[FR].getPosition());
+    // blPositionLog.append(swerveModules[BL].getPosition());
+    // brPositionLog.append(swerveModules[BR].getPosition());
 
-    pidgeonAccelerationXLog.append(gyro.getAccelerationX().getValueAsDouble());
-    pidgeonAccelerationYLog.append(gyro.getAccelerationY().getValueAsDouble());
-    pidgeonAccelerationZLog.append(gyro.getAccelerationZ().getValueAsDouble());
+    // pidgeonAccelerationXLog.append(gyro.getAccelerationX().getValueAsDouble());
+    // pidgeonAccelerationYLog.append(gyro.getAccelerationY().getValueAsDouble());
+    // pidgeonAccelerationZLog.append(gyro.getAccelerationZ().getValueAsDouble());
 
-    pidgeonAngularVelocityXLog.append(gyro.getAngularVelocityXDevice().getValueAsDouble());
-    pidgeonAngularVelocityYLog.append(gyro.getAngularVelocityYDevice().getValueAsDouble());
-    pidgeonAngularVelocityZLog.append(gyro.getAngularVelocityZDevice().getValueAsDouble());
+    // pidgeonAngularVelocityXLog.append(gyro.getAngularVelocityXDevice().getValueAsDouble());
+    // pidgeonAngularVelocityYLog.append(gyro.getAngularVelocityYDevice().getValueAsDouble());
+    // pidgeonAngularVelocityZLog.append(gyro.getAngularVelocityZDevice().getValueAsDouble());
 
-    pidgeonTimeLog.append(gyro.getUpTime().getValueAsDouble());
+    // pidgeonTimeLog.append(gyro.getUpTime().getValueAsDouble());
   }
 
   public void periodic() {
@@ -472,214 +499,117 @@ public class SwerveSubsystem extends SubsystemBase {
   // });
   // }
 
-  // // Aligns the limelight to have near 0 degrees horizontal offset (around 0 tx)
-  // public Command alignToTagCommand(Limelight lime) {
+  // // z should be out, x right, y down
+  // public Command cameraDriveToPose(Supplier<Pose3d> cameraReefPose,
+  // Supplier<Pose3d> cameraPose,
+  // Matrix<N3, N1> normalVector, double targetAngle) {
 
-  //   PIDController rotationController = new PIDController(0.025, 0, 0.000033);
-  //   rotationController.setSetpoint(0);
-  //   rotationController.setTolerance(1);
+  // PIDController rotationController = new PIDController(0.025, 0, 0.000033);
+  // rotationController.setSetpoint(0);
+  // rotationController.setTolerance(1);
 
-  //   SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(0.1, 0);
+  // SimpleMotorFeedforward rotationFeedForward = new SimpleMotorFeedforward(0,
+  // 0);
 
-  //   return new FunctionalCommand(
-  //       () -> {
+  // PIDController driveController = new PIDController(0.395, 0, 0);
+  // driveController.setTolerance(0.1);
 
-  //       },
-  //       () -> {
-  //         if (lime.isTagFound()) {
-  //           double tx = lime.getTX();
+  // SimpleMotorFeedforward driveFeedForward = new SimpleMotorFeedforward(0.01,
+  // 0);
 
-  //           SmartDashboard.putNumber("tx in alignToTagCommand", tx);
+  // return new FunctionalCommand(
+  // () -> {
 
-  //           drive(-feedforward.calculate(tx) + rotationController.calculate(tx), 0, 0, true);
-  //         }
-  //       },
-  //       (_unused) -> {
+  // },
+  // () -> {
+  // double distance = lime.getDistanceToTagInFeet();
+  // double toDriveDistance = 0;
 
-  //       },
-  //       rotationController::atSetpoint,
-  //       this);
+  // driveController.setSetpoint(toDriveDistance);
+
+  // double driveSpeed = driveController.calculate(distance);
+
+  // if (driveSpeed >= 3.5) {
+  // driveSpeed = 3.5;
+  // } else if (driveSpeed <= -3.5) {
+  // driveSpeed = -3.5;
   // }
 
-  // Takes in a target distance to drive to away from the tag
-  // Not using this in RobotContainer.java, using this in
-  // alignAndDriveToTagCommand()
-  // public Command driveToTagCommand(double targetDistance, Limelight lime) {
-
-  //   PIDController driveController = new PIDController(0.395, 0, 0);
-  //   driveController.setSetpoint(targetDistance);
-  //   driveController.setTolerance(0.1);
-
-  //   SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(0.05, 0);
-
-  //   return new FunctionalCommand(
-  //       () -> {
-
-  //       },
-  //       () -> {
-  //         double distance = lime.getDistanceToTagInFeet();
-
-  //         drive(0, -feedforward.calculate(distance) + driveController.calculate(distance), 0, false);
-  //       },
-  //       (_unused) -> {
-
-  //       },
-  //       driveController::atSetpoint,
-  //       this);
+  // if (lime.isTagFound()) {
+  // drive(
+  // -rotationFeedForward.calculate(tx) + rotationController.calculate(tx),
+  // -driveFeedForward.calculate(distance) + driveSpeed,
+  // 0,
+  // false);
   // }
+  // },
+  // (_unused) -> {
 
-  // //Finds the Closest Distances That We have Calibrated Shooting From
-  // // Not using this in RobotContainer.java, using this in
-  // alignAndDriveToTagCommand
-  // public double[] findClosestDistance(double currentDistance){
-  // double[] knownDistances = Constants.Limelight.knownDriveDistances;
-
-  // //Final Distance from Known Distances
-  // double closestDistance = 0.0;
-
-  // /*
-  // * Needs to be Maxiximum Value possible as it
-  // * gets compared to smaller numbers in the code
-  // * below.
-  // */
-  // double closestDistanceFromKnownPoint = Double.MAX_VALUE;
-  // int index = Integer.MAX_VALUE;
-
-  // for(int i = 0; i < knownDistances.length; i++){
-
-  // double distanceFromKnownPoint = Math.abs(currentDistance -
-  // knownDistances[i]);
-  // if(distanceFromKnownPoint < closestDistanceFromKnownPoint) {
-  // closestDistanceFromKnownPoint = distanceFromKnownPoint;
-  // closestDistance = knownDistances[i];
-  // index = i;
-  // }
-  // }
-  // double returnValues[] = {closestDistance, index};
-  // return returnValues;
-  // }
-
-  // For Speaker with various distances to shoot
-  // public Command alignAndDriveToTagCommand(Limelight lime) {
-
-  //   PIDController rotationController = new PIDController(0.025, 0, 0.000033);
-  //   rotationController.setSetpoint(0);
-  //   rotationController.setTolerance(1);
-
-  //   SimpleMotorFeedforward rotationFeedForward = new SimpleMotorFeedforward(0, 0);
-
-  //   PIDController driveController = new PIDController(0.395, 0, 0);
-  //   driveController.setTolerance(0.1);
-
-  //   SimpleMotorFeedforward driveFeedForward = new SimpleMotorFeedforward(0.01, 0);
-
-  //   return new FunctionalCommand(
-  //       () -> {
-
-  //       },
-  //       () -> {
-  //         double distance = lime.getDistanceToTagInFeet();
-  //         double toDriveDistance = 0;
-
-  //         if (distance > 6) {
-  //           toDriveDistance = 6;
-  //         } else {
-  //           toDriveDistance = distance;
-  //         }
-
-  //         driveController.setSetpoint(toDriveDistance);
-
-  //         SmartDashboard.putNumber("finding closest distance", toDriveDistance);
-  //         SmartDashboard.putNumber("distance", distance);
-
-  //         double tx = lime.getTX();
-
-  //         double driveSpeed = driveController.calculate(distance);
-
-  //         if (driveSpeed >= 3.5) {
-  //           driveSpeed = 3.5;
-  //         } else if (driveSpeed <= -3.5) {
-  //           driveSpeed = -3.5;
-  //         }
-
-  //         if (lime.isTagFound()) {
-  //           drive(
-  //               -rotationFeedForward.calculate(tx) + rotationController.calculate(tx),
-  //               -driveFeedForward.calculate(distance) + driveSpeed,
-  //               0,
-  //               false);
-  //         }
-  //       },
-  //       (_unused) -> {
-
-  //       },
-  //       () -> {
-  //         return driveController.atSetpoint() && rotationController.atSetpoint();
-  //       },
-  //       this);
+  // },
+  // () -> {
+  // return driveController.atSetpoint() && rotationController.atSetpoint();
+  // },
+  // this);
   // }
 
   // Getting to the amp diagonally
   // public Command alignAndGetPerpendicularToTagCommand(Limelight lime) {
 
-  //   PIDController rotationController = new PIDController(0.0315, 0, 0.000033);
-  //   rotationController.setSetpoint(0);
-  //   rotationController.setTolerance(1);
+  // PIDController rotationController = new PIDController(0.0315, 0, 0.000033);
+  // rotationController.setSetpoint(0);
+  // rotationController.setTolerance(1);
 
-  //   SimpleMotorFeedforward rotationFeedForward = new SimpleMotorFeedforward(0, 0);
+  // SimpleMotorFeedforward rotationFeedForward = new SimpleMotorFeedforward(0,
+  // 0);
 
-  //   PIDController driveController = new PIDController(0.395, 0, 0);
-  //   driveController.setSetpoint(0);
-  //   driveController.setTolerance(0.1);
+  // PIDController driveController = new PIDController(0.395, 0, 0);
+  // driveController.setSetpoint(0);
+  // driveController.setTolerance(0.1);
 
-  //   SimpleMotorFeedforward driveFeedForward = new SimpleMotorFeedforward(0.01, 0);
+  // SimpleMotorFeedforward driveFeedForward = new SimpleMotorFeedforward(0.01,
+  // 0);
 
-  //   return new FunctionalCommand(
-  //       () -> {
+  // return new FunctionalCommand(
+  // () -> {
 
-  //       },
-  //       () -> {
-  //         double distance = lime.getDistanceToTagInFeet();
+  // },
+  // () -> {
+  // double distance = lime.getDistanceToTagInFeet();
 
-  //         double driveSpeed = driveController.calculate(distance);
+  // double driveSpeed = driveController.calculate(distance);
 
-  //         if (driveSpeed >= 3.5) {
-  //           driveSpeed = 3.5;
-  //         } else if (driveSpeed <= -3.5) {
-  //           driveSpeed = -3.5;
-  //         }
+  // if (driveSpeed >= 3.5) {
+  // driveSpeed = 3.5;
+  // } else if (driveSpeed <= -3.5) {
+  // driveSpeed = -3.5;
+  // }
 
-  //         if (lime.isTagFound()) {
-  //           drive(
-  //               rotationFeedForward.calculate(gyro.getYaw().getValueAsDouble() - 270)
-  //                   - rotationController.calculate(gyro.getYaw().getValueAsDouble() - 270),
-  //               -driveFeedForward.calculate(distance) + driveSpeed,
-  //               0,
-  //               false);
-  //         }
-  //       },
-  //       (_unused) -> {
+  // if (lime.isTagFound()) {
+  // drive(
+  // rotationFeedForward.calculate(gyro.getYaw().getValueAsDouble() - 270)
+  // - rotationController.calculate(gyro.getYaw().getValueAsDouble() - 270),
+  // -driveFeedForward.calculate(distance) + driveSpeed,
+  // 0,
+  // false);
+  // }
+  // },
+  // (_unused) -> {
 
-  //       },
-  //       () -> {
-  //         return driveController.atSetpoint() && rotationController.atSetpoint();
-  //       },
-  //       this);
+  // },
+  // () -> {
+  // return driveController.atSetpoint() && rotationController.atSetpoint();
+  // },
+  // this);
   // }
 
   public Command xMode() {
     return runOnce(
         () -> {
-          ChassisSpeeds chassisSpeeds = new ChassisSpeeds(0, 0, 0);
-          SwerveModuleState[] modules = swerveDriveKinematics.toSwerveModuleStates(chassisSpeeds);
-          modules[FL].angle = new Rotation2d(Math.PI / 4.0);
-          modules[FR].angle = new Rotation2d((-5.0 * Math.PI) / 4.0);
-          modules[BR].angle = new Rotation2d((Math.PI) / 4.0);
-          modules[BL].angle = new Rotation2d((-5.0 * Math.PI) / 4.0);
-          modules[FL].speedMetersPerSecond = 0.02;
-          modules[FR].speedMetersPerSecond = 0.02;
-          modules[BR].speedMetersPerSecond = 0.02;
-          modules[BL].speedMetersPerSecond = 0.02;
+          SwerveModuleState[] modules = new SwerveModuleState[4];
+          modules[FL] = new SwerveModuleState(0.02, new Rotation2d(Math.PI / 4.0));
+          modules[FR] = new SwerveModuleState(0.02, new Rotation2d((-5.0 * Math.PI) / 4.0));
+          modules[BR] = new SwerveModuleState(0.02, new Rotation2d((Math.PI) / 4.0));
+          modules[BL] = new SwerveModuleState(0.02, new Rotation2d((-5.0 * Math.PI) / 4.0));
           setModuleStates(modules);
         });
   }
@@ -694,11 +624,6 @@ public class SwerveSubsystem extends SubsystemBase {
   public Command stopDriving() {
     return runOnce(
         () -> {
-
-          // ChassisSpeeds chassisSpeeds = new ChassisSpeeds(0, 0,0);
-          // SwerveModuleState[] modules =
-          // swerveDriveKinematics.toSwerveModuleStates(chassisSpeeds);
-          // setModuleStates(modules);
           this.stop();
         });
   }
@@ -745,13 +670,17 @@ public class SwerveSubsystem extends SubsystemBase {
 
   public Pose2d getClosestReef(AutoScoreTarget target) {
 
-    List<ReefPose> posesForSide = reefPoses.stream().filter((p) -> p.side == target.side).toList();
+    List<ReefPose> posesForSide;
+
+    // if (BlueAlliance) {
+    //   posesForSide = reefPoses.stream().filter((p) -> p.side == target.side).toList();
+    // } else {
+      posesForSide = reefPoses.stream().filter((p) -> p.side != target.side).toList();
+    // }
     // return posesForSide.get(0).pose;
 
     List<Pose2d> poses = posesForSide.stream().map((rp) -> {
-      WrappedPose2d np = new WrappedPose2d(rp.pose.getX(), rp.pose.getY(), rp.pose.getRotation());
-      np.reefPose = rp;
-      return (Pose2d) np;
+      return rp.pose;
     }).toList();
 
     Pose2d ourPose = odometry.getEstimatedPosition();
@@ -762,9 +691,37 @@ public class SwerveSubsystem extends SubsystemBase {
       return ourPose;
     }
 
-    SmartDashboard.putString("AutoScore/Chosen Reef", ((WrappedPose2d) nearest).reefPose.name);
-    SmartDashboard.putNumber("AutoScore/Chosen Reef/X", nearest.getX());
-    SmartDashboard.putNumber("AutoScore/Chosen Reef/Y", nearest.getY());
+    // SmartDashboard.putString("AutoScore/Chosen Reef", ((WrappedPose2d) nearest).reefPose.name);
+    // SmartDashboard.putNumber("AutoScore/Chosen Reef/X", nearest.getX());
+    // SmartDashboard.putNumber("AutoScore/Chosen Reef/Y", nearest.getY());
+
+    return nearest;
+  }
+
+  public Pose2d getClosestSource(AutoScoreTarget target) {
+
+    List<ReefPose> posesForSide;
+
+    // if (BlueAlliance) {
+    //  posesForSide = sourcePoses.stream().filter((p) -> p.side == target.side).toList();
+    // } else {
+      posesForSide = sourcePoses.stream().filter((p) -> p.side != target.side).toList();
+    // }
+
+    List<Pose2d> poses = posesForSide.stream().map((rp) -> {
+      // WrappedPose2d np = new WrappedPose2d(rp.pose.getX(), rp.pose.getY(), rp.pose.getRotation());
+      // np.sourcePose = rp;
+      // return (Pose2d) np;
+      return rp.pose;
+    }).toList();
+
+    Pose2d ourPose = odometry.getEstimatedPosition();
+
+    Pose2d fieldAdjustedPose = BlueAlliance ? ourPose : FlippingUtil.flipFieldPose(ourPose);
+    Pose2d nearest = fieldAdjustedPose.nearest(poses);
+    if (nearest == null) {
+      return ourPose;
+    }
 
     return nearest;
   }
@@ -772,39 +729,70 @@ public class SwerveSubsystem extends SubsystemBase {
   record ReefPose(String name, ReefFacetSide side, Pose2d pose) {
   };
 
-  public class WrappedPose2d extends Pose2d {
-    public WrappedPose2d(double x, double y, Rotation2d rotation) {
-      super(x, y, rotation);
-    }
-
-    public ReefPose reefPose;
-  }
-
   // Blue alliance only since we flip if red alliance (from pathplanner)
   static List<ReefPose> reefPoses = List.of(
-      new ReefPose("A", ReefFacetSide.LEFT, new Pose2d(3.100, 4.193, new Rotation2d(Math.toRadians(0)))),
-      new ReefPose("B", ReefFacetSide.RIGHT, new Pose2d(3.100, 3.863, new Rotation2d(Math.toRadians(0)))),
-      new ReefPose("C", ReefFacetSide.LEFT, new Pose2d(3.657, 2.917, new Rotation2d(Math.toRadians(60.0)))),
-      new ReefPose("D", ReefFacetSide.RIGHT, new Pose2d(3.934, 2.738, new Rotation2d(Math.toRadians(60.0)))),
-      new ReefPose("E", ReefFacetSide.LEFT, new Pose2d(5.037, 2.745, new Rotation2d(Math.toRadians(120.0)))),
-      new ReefPose("F", ReefFacetSide.RIGHT, new Pose2d(5.320, 2.909, new Rotation2d(Math.toRadians(120.0)))),
-      new ReefPose("G", ReefFacetSide.LEFT, new Pose2d(5.850, 3.863, new Rotation2d(Math.toRadians(180.0)))),
-      new ReefPose("H", ReefFacetSide.RIGHT, new Pose2d(5.850, 4.19, new Rotation2d(Math.toRadians(180.0)))),
-      new ReefPose("I", ReefFacetSide.LEFT, new Pose2d(5.326, 5.148, new Rotation2d(Math.toRadians(240.0)))),
-      new ReefPose("J", ReefFacetSide.RIGHT, new Pose2d(5.035, 5.305, new Rotation2d(Math.toRadians(240.0)))),
-      new ReefPose("K", ReefFacetSide.LEFT, new Pose2d(3.936, 5.312, new Rotation2d(Math.toRadians(300.0)))),
-      new ReefPose("L", ReefFacetSide.RIGHT, new Pose2d(3.648, 5.148, new Rotation2d(Math.toRadians(300.0)))));
+      new ReefPose("A", ReefFacetSide.LEFT, new Pose2d(3.250, 4.193, new Rotation2d(Math.toRadians(0)))),
+      new ReefPose("B", ReefFacetSide.RIGHT, new Pose2d(3.250, 3.863, new Rotation2d(Math.toRadians(0)))),
+      new ReefPose("C", ReefFacetSide.LEFT, new Pose2d(3.735, 3.044, new Rotation2d(Math.toRadians(60.0)))),
+      new ReefPose("D", ReefFacetSide.RIGHT, new Pose2d(4.014, 2.872, new Rotation2d(Math.toRadians(60.0)))),
+      new ReefPose("E", ReefFacetSide.LEFT, new Pose2d(4.962, 2.880, new Rotation2d(Math.toRadians(120.0)))),
+      new ReefPose("F", ReefFacetSide.RIGHT, new Pose2d(5.253, 3.036, new Rotation2d(Math.toRadians(120.0)))),
+      new ReefPose("G", ReefFacetSide.LEFT, new Pose2d(5.720, 3.863, new Rotation2d(Math.toRadians(180.0)))),
+      new ReefPose("H", ReefFacetSide.RIGHT, new Pose2d(5.720, 4.19, new Rotation2d(Math.toRadians(180.0)))),
+      new ReefPose("I", ReefFacetSide.LEFT, new Pose2d(5.253, 5.025, new Rotation2d(Math.toRadians(240.0)))),
+      new ReefPose("J", ReefFacetSide.RIGHT, new Pose2d(4.970, 5.193, new Rotation2d(Math.toRadians(240.0)))),
+      new ReefPose("K", ReefFacetSide.LEFT, new Pose2d(4.000, 5.193, new Rotation2d(Math.toRadians(300.0)))),
+      new ReefPose("L", ReefFacetSide.RIGHT, new Pose2d(3.725, 5.029, new Rotation2d(Math.toRadians(300.0)))));
 
-  public Command testPath(AutoScoreTarget target) {
+  // Blue alliance only since we flip if red alliance (from pathplanner)
+  static List<ReefPose> sourcePoses = List.of(
+      new ReefPose("Left Source", ReefFacetSide.LEFT, new Pose2d(1.395, 7.387, new Rotation2d(Math.toRadians(306.0)))),
+      new ReefPose("Right Source", ReefFacetSide.RIGHT, new Pose2d(1.480, 0.750, new Rotation2d(Math.toRadians(54.0)))));
+
+  public Command drivetoReefPose(AutoScoreTarget target) {
     return new DeferredCommand(() -> {
       Pose2d targetPose = getClosestReef(target);
-      PathConstraints constraints = new PathConstraints(1.5, 1.5, .5, .5);
+      // PathConstraints constraints = new PathConstraints(1.5, 1.5, .5, .5);
 
       if (BlueAlliance) {
-        return AutoBuilder.pathfindToPose(targetPose, constraints, 0);
+        return new DriveToPose(this, supplier_position, () -> targetPose);
+        // return AutoBuilder.pathfindToPose(targetPose, constraints, 0);
       } else {
-        return AutoBuilder.pathfindToPoseFlipped(targetPose, constraints, 0);
+        return new DriveToPose(this, supplier_position, () -> FlippingUtil.flipFieldPose(targetPose));
+        // return AutoBuilder.pathfindToPoseFlipped(targetPose, constraints, 0);
       }
+
+    }, Set.of(this));
+  }
+
+  public Command drivetoSourcePose(AutoScoreTarget target) {
+    return new DeferredCommand(() -> {
+      Pose2d targetPose = getClosestSource(target);
+      // PathConstraints constraints = new PathConstraints(1.5, 1.5, .5, .5);
+
+      if (BlueAlliance) {
+        return new DriveToPose(this, supplier_position, () -> targetPose);
+        // return AutoBuilder.pathfindToPose(targetPose, constraints, 0);
+      } else {
+        return new DriveToPose(this, supplier_position, () -> FlippingUtil.flipFieldPose(targetPose));
+        // return AutoBuilder.pathfindToPoseFlipped(targetPose, constraints, 0);
+      }
+
+    }, Set.of(this));
+  }
+
+  public boolean isBlueAlliance() {
+    return BlueAlliance;
+  }
+
+  /**
+   * Drives to pose supplied by camera
+   */
+  public Command cameraDriveToPose(RealSenseCamera cam) {
+    return new DeferredCommand(() -> {
+      Pose2d targetPose = cam.getReefPose();
+
+      return new CameraDriveToPose(this, supplier_position, () -> targetPose);
 
     }, Set.of(this));
   }

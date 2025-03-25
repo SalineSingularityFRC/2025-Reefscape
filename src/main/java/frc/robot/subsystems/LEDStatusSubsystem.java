@@ -11,22 +11,19 @@ import java.util.Map;
 import edu.wpi.first.wpilibj.motorcontrol.VictorSP;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Limelight;
 import frc.robot.Constants.Elevator;
 
 public class LEDStatusSubsystem extends SubsystemBase {
   private double currentColorPWMValue = 0.0;
   private VictorSP ledController = new VictorSP(0);
   private final IntakeSubsystem intake;
-  private frc.robot.Limelight limelight;
   private ElevatorSubsystem elevator;
 
   /**
    * Creates a new ledController.
    */
-  public LEDStatusSubsystem(IntakeSubsystem intake, Limelight limeLight, ElevatorSubsystem elevator) {
+  public LEDStatusSubsystem(IntakeSubsystem intake, ElevatorSubsystem elevator) {
     this.intake = intake;
-    this.limelight = limeLight;
     this.elevator = elevator;
     setColor(LEDColor.BLUE);
   }
@@ -50,7 +47,7 @@ public class LEDStatusSubsystem extends SubsystemBase {
       LEDColor.FLASHBLUE, 0.15); // Unfinished White
 
   public void setColor(LEDColor color) {
-    SmartDashboard.putString("LED/colorName", color.name());
+    // SmartDashboard.putString("LED/colorName", color.name());
     Double colorPWMValue = colorToPwmMap.get(color);
     if (colorPWMValue != null) {
       currentColorPWMValue = colorPWMValue;

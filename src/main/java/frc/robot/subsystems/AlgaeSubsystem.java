@@ -2,20 +2,28 @@ package frc.robot.subsystems;
 
 import java.util.function.DoubleSupplier;
 
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.configs.MagnetSensorConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.PositionDutyCycle;
 import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
+import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
 
 import au.grapplerobotics.LaserCan;
 import au.grapplerobotics.interfaces.LaserCanInterface.Measurement;
 import frc.robot.Constants;
+import frc.robot.Constants.CanId.CanCoder;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 
@@ -23,35 +31,58 @@ public class AlgaeSubsystem extends SubsystemBase {
     private TalonFX mainMotor, algaeMotor;
     private LaserCan sensor;
     private double sensingDistance;
-    private final VelocityTorqueCurrentFOC intakeSpeedRequest, outtakeSpeedRequest;
-    private final PositionTorqueCurrentFOC holdRequest;
+    private final VelocityTorqueCurrentFOC intakeSpeedRequest, outtakeSpeedRequest, zeroSpeedRequest;
+    private PositionTorqueCurrentFOC algaeMotorHoldRequest;
+    private final PositionTorqueCurrentFOC mainMotorHoldRequest;
+    private final PositionTorqueCurrentFOC mainMotorAlgaeHoldRequest;
     private static final int LASER_CAN_NO_MEASUREMENT = -1;
     private final Timer timer;
     private boolean hasAlgae;
     private double targetPosition;
+    private CANcoder canCoder;
+    private boolean manual = false;
 
     public AlgaeSubsystem() {
         mainMotor = new TalonFX(Constants.CanId.Algae.MAIN_MOTOR);
         algaeMotor = new TalonFX(Constants.CanId.Algae.ALGAE_MOTOR);
         sensor = new LaserCan(Constants.CanId.Algae.ALGAE_LASER);
+        canCoder = new CANcoder(Constants.CanId.CanCoder.ALGAE);
 
         intakeSpeedRequest = new VelocityTorqueCurrentFOC(Constants.Algae.motorSpeedSlow.getValue()).withSlot(0);
+        zeroSpeedRequest = new VelocityTorqueCurrentFOC(0).withSlot(0);
         outtakeSpeedRequest = new VelocityTorqueCurrentFOC(Constants.Algae.motorSpeedFast.getValue()).withSlot(0);
-        holdRequest = new PositionTorqueCurrentFOC(algaeMotor.getPosition().getValueAsDouble()).withSlot(1);
+        algaeMotorHoldRequest = new PositionTorqueCurrentFOC(algaeMotor.getPosition().getValueAsDouble()).withSlot(1);
+        mainMotorHoldRequest = new PositionTorqueCurrentFOC(mainMotor.getPosition().getValueAsDouble()).withSlot(0);
+        mainMotorAlgaeHoldRequest = new PositionTorqueCurrentFOC(mainMotor.getPosition().getValueAsDouble()).withSlot(1);
+
+        canCoder.getConfigurator().apply(new CANcoderConfiguration().withMagnetSensor(
+                new MagnetSensorConfigs().withSensorDirection(SensorDirectionValue.Clockwise_Positive)));
 
         mainMotor.setPosition(0);
-        
+
         mainMotor.setNeutralMode(NeutralModeValue.Brake);
         mainMotor.getConfigurator().apply(new TalonFXConfiguration());
 
         algaeMotor.setNeutralMode(NeutralModeValue.Brake);
         algaeMotor.getConfigurator().apply(new TalonFXConfiguration());
-        
+
+        // No algae inside PIDs
         TalonFXConfiguration mainConfig = new TalonFXConfiguration();
         mainConfig.Slot0.kP = Constants.Algae.kPMain.getValue();
         mainConfig.Slot0.kD = Constants.Algae.kDMain.getValue();
+        mainConfig.Slot0.kS = Constants.Algae.kSMain.getValue();
+        mainConfig.Slot0.kG = Constants.Algae.kVMain.getValue();
+
+        mainConfig.Slot1.kP = Constants.Algae.kPMainAlgaeInside.getValue();
+        mainConfig.Slot1.kI = Constants.Algae.kIMainAlgaeInside.getValue();
+        mainConfig.Slot1.kD = Constants.Algae.kDMainAlgaeInside.getValue();
+        mainConfig.Slot1.kS = Constants.Algae.kSMainAlgaeInside.getValue();
+        mainConfig.Slot1.kG = Constants.Algae.kVMainAlgaeInside.getValue();
+
         mainConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-        mainConfig.CurrentLimits.SupplyCurrentLimit = 20;
+        mainConfig.CurrentLimits.SupplyCurrentLimit = 5;
+        mainConfig.Feedback.FeedbackRemoteSensorID = canCoder.getDeviceID();
+        mainConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
         mainMotor.getConfigurator().apply(mainConfig);
 
         TalonFXConfiguration algaeConfig = new TalonFXConfiguration();
@@ -71,82 +102,165 @@ public class AlgaeSubsystem extends SubsystemBase {
 
     public void periodic() {
         // if (canSeeAlgae() && timer.hasElapsed(2)) {
-        //     hasAlgae = true;
+        // hasAlgae = true;
         // }
-        
+        //
+        boolean status = true;
+        if (!manual) {
+            // mainMotor.setControl(mainMotorHoldRequest);
+            status = algaeMotor.setControl(algaeMotorHoldRequest).isOK();
+        }
+
         intakeSpeedRequest.Velocity = Constants.Algae.motorSpeedSlow.getValue();
         outtakeSpeedRequest.Velocity = Constants.Algae.motorSpeedFast.getValue();
 
-        SmartDashboard.putNumber("AlgaeHinge/TargetPosition", targetPosition);
+        SmartDashboard.putNumber("AlgaeRotater/Position", algaeMotor.getPosition().getValueAsDouble());
+        SmartDashboard.putNumber("AlgaeRotater/HoldPosition", algaeMotorHoldRequest.Position);
+        SmartDashboard.putBoolean("AlgaeRotater/Manual", manual);
+        SmartDashboard.putBoolean("AlgaeRotater/Status", status);
+
+        SmartDashboard.putNumber("AlgaeHinge/TargetPosition", mainMotorHoldRequest.Position);
         SmartDashboard.putNumber("AlgaeHinge/ActualPosition", mainMotor.getPosition().getValueAsDouble());
     }
 
     public Command holdCommand() {
-        return runOnce(() -> algaeMotor.setControl(holdRequest.withSlot(1)));
+        return run(() -> {
+        });
     }
 
     public Command moveToPos(DoubleSupplier targetPos) {
         return new FunctionalCommand(
-            () -> {
-                targetPosition = targetPos.getAsDouble();
-                mainMotor.setControl(new PositionDutyCycle(targetPos.getAsDouble()).withSlot(0).withEnableFOC(true));
-            },
-            () -> {
+                () -> {
+                    manual = false;
+                    mainMotorHoldRequest.Position = targetPos.getAsDouble();
+                    mainMotorAlgaeHoldRequest.Position = targetPos.getAsDouble();
+                },
+                () -> {
+                    if (canSeeAlgae()) {
+                        mainMotor.setControl(mainMotorAlgaeHoldRequest);
+                    } else {
+                        mainMotor.setControl(mainMotorHoldRequest);
+                    }
+                },
+                (_unused) -> {
 
-            },
-            (_unused) -> {
-
-            },
-            () -> {
-                return Math.abs(targetPos.getAsDouble() - mainMotor.getPosition().getValueAsDouble()) < Constants.Algae.MAX_CONTROL_ERROR_IN_COUNTS.getValue();
-            },
-            this);
+                },
+                () -> {
+                    return Math.abs(targetPos.getAsDouble()
+                            - mainMotor.getPosition().getValueAsDouble()) < Constants.Algae.MAX_CONTROL_ERROR_IN_COUNTS
+                                    .getValue();
+                });
     }
 
     public Command moveToIntakePos() {
         return moveToPos(() -> Constants.Algae.INTAKE_POS.getValue());
     }
 
+    public Command moveToCoralScorePose() {
+        return moveToPos(() -> Constants.Algae.CORAL_SCORE_POSE.getValue());
+    }
+
+    public Command moveToZero() {
+        return moveToPos(() -> Constants.Algae.DEFAULT_POSE.getValue());
+    }
+
     public Command shootAlgae() {
-        return moveToPos(() -> Constants.Algae.SHOOT_POS.getValue()).andThen(spitAlgaeMotor().until(() -> !canSeeAlgae()));
+        return spitAlgaeMotor().until(() -> !canSeeAlgae())
+                .andThen(new WaitCommand(0.05)).andThen(hold(0));
+    }
+
+    public Command moveToAlgaeShoot() {
+        return moveToPos(() -> Constants.Algae.SHOOT_POS.getValue());
     }
 
     public Command intake() {
-        return intakeAlgaeMotor().until(() -> canSeeAlgae()).andThen(new WaitCommand(0.5)).andThen(hold(3));
+        return moveToIntakePos()
+                .alongWith(intakeAlgaeMotor().until(() -> canSeeAlgae())
+                .andThen(new WaitCommand(0.05))
+                .andThen(hold(1)));
     }
 
     public Command intakeAlgaeMotor() {
-        return run(() -> {
+        return runEnd(() -> {
+            manual = true;
             algaeMotor.setControl(intakeSpeedRequest); // If algae is in system, make motor speed fast, otherwise slow
+        }, () -> {
+            // mainMotor.setControl(new DutyCycleOut(0));
+            // algaeMotor.setControl(zeroSpeedRequest.withSlot(0));
+            manual = false;
+            algaeMotorHoldRequest.Position = algaeMotor.getPosition().getValueAsDouble();
+            // SmartDashboard.putNumber(getName(), LASER_CAN_NO_MEASUREMENT)
+            algaeMotor.setControl(algaeMotorHoldRequest.withSlot(1));
         });
     }
 
     public Command spitAlgaeMotor() {
-        return run(() -> {
+        return runEnd(() -> {
             algaeMotor.setControl(outtakeSpeedRequest);
-        }).andThen(hold(0));
+        }, () -> {
+            algaeMotor.setControl(zeroSpeedRequest.withSlot(0));
+            manual = false;
+        });
     }
 
     public Command hold(double extra) {
-        return runOnce(() -> {holdRequest.Position = algaeMotor.getPosition().getValueAsDouble() + extra;});
+        return runOnce(() -> {
+            algaeMotorHoldRequest.Position = algaeMotor.getPosition().getValueAsDouble() + extra;
+        });
     }
 
     // public Command stopAlgaeMotor() {
-    //     return runOnce(() -> {
-    //         algaeMotor.stopMotor();
-    //     });
+    // return runOnce(() -> {
+    // algaeMotor.stopMotor();
+    // });
     // }
 
     public boolean canSeeAlgae() {
+        SmartDashboard.putBoolean("Algae/Can see algae",
+                sensor.getMeasurement() != null && getSensorValue(sensor) <= sensingDistance);
         return sensor.getMeasurement() != null && getSensorValue(sensor) <= sensingDistance;
     }
 
     public int getSensorValue(LaserCan laserCan) {
         Measurement measurement = laserCan.getMeasurement();
-        return measurement == null ? LASER_CAN_NO_MEASUREMENT: measurement.distance_mm;
+        return measurement == null ? LASER_CAN_NO_MEASUREMENT : measurement.distance_mm;
     }
 
     public Command returnToHomePos() {
         return moveToPos(() -> 0).onlyIf(() -> !canSeeAlgae());
     }
+
+    public Command mainMotorHoldCommand() {
+        return runOnce(() -> {
+            mainMotorHoldRequest.Position = mainMotor.getPosition().getValueAsDouble();
+            this.manual = false;
+        });
+    }
+
+    public Command manualControlForward() {
+        return runEnd(() -> {
+            this.manual = true;
+            mainMotor.setControl(new DutyCycleOut(Constants.Algae.manualSpeed.getValue()));
+        }, () -> {
+            // mainMotor.setControl(new DutyCycleOut(0));
+            mainMotorHoldCommand();
+            this.manual = false;
+        });
+    }
+
+    public Command manualControlBackwards() {
+        return runEnd(() -> {
+            this.manual = true;
+            mainMotor.setControl(new DutyCycleOut(-Constants.Algae.manualSpeed.getValue()));
+        }, () -> {
+            // mainMotor.setControl(new DutyCycleOut(0));
+            mainMotorHoldCommand();
+        });
+    }
 }
+
+// class intakeCoral extends ParallelCommandGroup {
+//     intakeCoral() {
+//         addCommands(null);
+//     }
+// }

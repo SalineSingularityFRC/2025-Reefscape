@@ -44,7 +44,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     public static final SparkFlexConfig elevatorSecondaryMotorConfig = new SparkFlexConfig();
     private boolean wasResetByButton = false;
     private boolean wasResetByLimit = false;
-    private double elevatorCurrentTarget = Setpoint.kFeederStation.encoderPosition;
+    private double elevatorCurrentTarget = Elevator.Positions.FEED_STATION_COUNTS.getValue();
     private boolean manual = false;
     private RumbleCommandStart rumbleStart;
 
@@ -52,17 +52,12 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     /** Elevator setpoints */
     public enum Setpoint {
-        kFeederStation(Elevator.Positions.FEED_STATION_COUNTS.getValue()),
-        kLevel1(Elevator.Positions.L1_COUNTS.getValue()),
-        kLevel2(Elevator.Positions.L2_COUNTS.getValue()),
-        kLevel3(Elevator.Positions.L3_COUNTS.getValue()),
-        kLevel4(Elevator.Positions.L4_COUNTS.getValue());
-
-        public final int encoderPosition;
-
-        Setpoint(int encoderPosition) {
-            this.encoderPosition = encoderPosition;
-        }
+        kFeederStation,
+        kLevel1,
+        kLevel2,
+        kLevel3,
+        kLevel4,
+        kLevel4Raised;
     }
 
     // Simulation
@@ -179,12 +174,12 @@ public class ElevatorSubsystem extends SubsystemBase {
                                 * (elevatorEncoder.getPosition() / kElevatorGearing)
                                 * (kElevatorDrumRadius * 2.0 * Math.PI));
 
-        SmartDashboard.putNumber("Elevator/Target Position Encoder", elevatorCurrentTarget);
+        // SmartDashboard.putNumber("Elevator/Target Position Encoder", elevatorCurrentTarget);
         SmartDashboard.putNumber("Elevator/Actual Position", elevatorEncoder.getPosition());
-        SmartDashboard.putData("Elevator/Model", mech2d);
-        SmartDashboard.putNumber("Elevator/Amp", elevatorPrimaryMotor.getOutputCurrent());
-        SmartDashboard.putNumber("Elevator/Camera Height", getCurrentCameraHeight());
-        SmartDashboard.putNumber("Elevator/Amp2", elevatorSecondaryMotor.getOutputCurrent());
+        // SmartDashboard.putData("Elevator/Model", mech2d);
+        // SmartDashboard.putNumber("Elevator/Amp", elevatorPrimaryMotor.getOutputCurrent());
+        // SmartDashboard.putNumber("Elevator/Camera Height", getCurrentCameraHeight());
+        // SmartDashboard.putNumber("Elevator/Amp2", elevatorSecondaryMotor.getOutputCurrent());
     }
 
     // Sometimes intake sensor sees top of elevator
@@ -228,6 +223,8 @@ public class ElevatorSubsystem extends SubsystemBase {
             case kLevel4:
                 elevatorCurrentTarget = Elevator.Positions.L4_COUNTS.getValue();
                 break;
+            case kLevel4Raised:
+                elevatorCurrentTarget = Elevator.Positions.L4_COUNTS.getValue() + Elevator.Positions.L4_COUNTS_ADDITIONAL_RAISE.getValue();
         }
     }
 
@@ -273,6 +270,16 @@ public class ElevatorSubsystem extends SubsystemBase {
                     return isAtSetpoint() || !intake.elevator_can_move.getAsBoolean();
                 },
                 this);
+    }
+    
+    /**
+     * Run once command to set the setpoint and then 
+     */
+    public Command autonTargetPosition(Setpoint setpoint) {
+        return runOnce(() -> {
+                setTargetPosition(setpoint);
+            
+        });
     }
 
     /**

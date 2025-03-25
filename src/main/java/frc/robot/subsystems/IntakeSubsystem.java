@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -14,6 +15,7 @@ import au.grapplerobotics.LaserCan;
 import au.grapplerobotics.interfaces.LaserCanInterface.Measurement;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.Intake;
@@ -27,6 +29,8 @@ public class IntakeSubsystem extends SubsystemBase {
     private double intakeDistance, shooterDistance;
     private double troughSenserDistance;
     private final VelocityTorqueCurrentFOC slowVelocityRequest, fastVelocityRequest;
+    private final VelocityTorqueCurrentFOC shooterVelocityRequest;
+    private boolean elevatorOveride = false;
 
     private static final int LASER_CAN_NO_MEASUREMENT = -1;
     
@@ -38,9 +42,11 @@ public class IntakeSubsystem extends SubsystemBase {
             intakeDistance = Intake.Nums.intakeDistance.getValue();
             shooterDistance = Intake.Nums.shooterDistance.getValue();
             troughSenserDistance = Intake.Nums.troughSenserDistance.getValue();
+            elevatorOveride = Intake.Nums.overideElevator.getValue();
 
             slowVelocityRequest = new VelocityTorqueCurrentFOC(Intake.Nums.motorSpeedSlow.getValue()).withSlot(0); // 30
             fastVelocityRequest = new VelocityTorqueCurrentFOC(Intake.Nums.motorSpeed.getValue()).withSlot(0); // 70
+            shooterVelocityRequest = new VelocityTorqueCurrentFOC(Intake.Nums.shooterSpeed.getValue()).withSlot(0); // 70
 
             // Left Motor
             // intakeLeftConfig.idleMode(IdleMode.kBrake).smartCurrentLimit(40).voltageCompensation(12);
@@ -63,7 +69,8 @@ public class IntakeSubsystem extends SubsystemBase {
             talonLeftConfig.Voltage.PeakForwardVoltage = 12;
             talonLeftConfig.Voltage.PeakReverseVoltage = -12;
             talonLeftConfig.Slot0.kP = Intake.LeftMotor.KP.getValue();
-            talonLeftConfig.Slot0.kS = 2.5;
+            talonLeftConfig.Slot0.kS = Intake.LeftMotor.KS.getValue();
+            talonLeftConfig.Slot0.kV = Intake.LeftMotor.KV.getValue();
             // talonLeftConfig.MotorOutput.PeakReverseDutyCycle = Intake.LeftMotor.MIN_POWER.getValue();
             // talonLeftConfig.MotorOutput.PeakForwardDutyCycle = Intake.LeftMotor.MAX_POWER.getValue();
             // talonLeftConfig.MotionMagic.MotionMagicCruiseVelocity = Intake.LeftMotor.MAX_VELOCITY.getValue();
@@ -97,30 +104,38 @@ public class IntakeSubsystem extends SubsystemBase {
             talonRightConfig.Voltage.PeakForwardVoltage = 12;
             talonRightConfig.Voltage.PeakReverseVoltage = -12;
             talonRightConfig.Slot0.kP = Intake.RightMotor.KP.getValue();
-            talonRightConfig.Slot0.kS = 2.5;
+            talonRightConfig.Slot0.kS = Intake.RightMotor.KS.getValue();
+            talonRightConfig.Slot0.kV = Intake.RightMotor.KV.getValue();
             // talonRightConfig.MotorOutput.PeakReverseDutyCycle = Intake.RightMotor.MIN_POWER.getValue();
             // talonRightConfig.MotorOutput.PeakForwardDutyCycle = Intake.RightMotor.MAX_POWER.getValue();
             // talonRightConfig.MotionMagic.MotionMagicCruiseVelocity = Intake.RightMotor.MAX_VELOCITY.getValue();
             // talonRightConfig.MotionMagic.MotionMagicAcceleration = Intake.RightMotor.MAX_ACCELERATION.getValue();
-            rightMotor.getConfigurator().apply(talonRightConfig, 0.05);
+            rightMotor.getConfigurator().apply(talonRightConfig);
+            SignalLogger.stop();
         }
     
         public void periodic() {
             intakeDistance = Intake.Nums.intakeDistance.getValue();
             troughSenserDistance = Intake.Nums.troughSenserDistance.getValue();
+            elevatorOveride = Intake.Nums.overideElevator.getValue();
           
             slowVelocityRequest.Velocity = Intake.Nums.motorSpeedSlow.getValue();
             fastVelocityRequest.Velocity = Intake.Nums.motorSpeed.getValue();
+            shooterVelocityRequest.Velocity = Intake.Nums.shooterSpeed.getValue();
+
           
             // SmartDashboard.putNumber("Intake Sensor", getSensorValue(intakeSensor));
             // SmartDashboard.putNumber("Shooter Sensor", getSensorValue(shooterSensor));
             SmartDashboard.putBoolean("Coral in intake", coralInIntake());
             SmartDashboard.putBoolean("Coral in shooter", coralInShooter());
             SmartDashboard.putBoolean("Coral In Trough", coralInTrough());
-            SmartDashboard.putBoolean("Ready Shoot", readyToShoot());
-            SmartDashboard.putBoolean("NoCoralDetected", noCoralDetected());
-            SmartDashboard.putBoolean("IntakeSensorFunctional", intakeSensorIsFunctional());
-            SmartDashboard.putBoolean("elevator can move", elevator_can_move.getAsBoolean());
+            // SmartDashboard.putBoolean("Ready Shoot", readyToShoot());
+            // SmartDashboard.putBoolean("NoCoralDetected", noCoralDetected());
+            // SmartDashboard.putBoolean("IntakeSensorFunctional", intakeSensorIsFunctional());
+            // SmartDashboard.putBoolean("elevator can move", elevator_can_move.getAsBoolean());
+            // SmartDashboard.putNumber("Intake/Current Speed", Math.abs(leftMotor.getVelocity().getValueAsDouble()));
+            // SmartDashboard.putNumber("Intake/Intake Sensor Distance", intakeSensor.getMeasurement().distance_mm);
+            // SmartDashboard.putNumber("Intake/Shooter Sensor Distance", shooterSensor.getMeasurement().distance_mm);
         }
 
     public boolean intakeCanSeeCoral(LaserCan sensor) {
@@ -168,7 +183,7 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     BooleanSupplier elevator_can_move = () -> {
-        return (readyToShoot() || noCoralDetected()) && intakeSensorIsFunctional();
+        return elevatorOveride || ((readyToShoot() || noCoralDetected()) && intakeSensorIsFunctional());
     };
 
     public boolean intakeSensorIsFunctional() {
@@ -184,7 +199,7 @@ public class IntakeSubsystem extends SubsystemBase {
     public Command waitUntilCoral(){
         return run(() -> {
 
-        }).until(() -> coralInTrough() || readyToShoot());
+        }).until(() -> coralInTrough() || coralInIntake());
     }
 
     public boolean isMotorRunning() {
@@ -209,8 +224,8 @@ public class IntakeSubsystem extends SubsystemBase {
     public Command shootCoral() {
         return runEnd(
                 () -> {
-                    leftMotor.setControl(fastVelocityRequest);
-                    rightMotor.setControl(fastVelocityRequest);
+                    leftMotor.setControl(shooterVelocityRequest);
+                    rightMotor.setControl(shooterVelocityRequest);
                 },
                 () -> {
                     leftMotor.stopMotor();
@@ -218,15 +233,23 @@ public class IntakeSubsystem extends SubsystemBase {
                 }).until(() -> !coralInShooter() && !coralInIntake());
     }
 
+    // ONLY ADD SMARTDASHBOARD FOR DEBUGGGING, causes delay in CAN first time you run the command
     public Command intakeCoral() {
         return runEnd(
                 () -> {
                     leftMotor.setControl(coralInShooter() ? slowVelocityRequest: fastVelocityRequest);
                     rightMotor.setControl(coralInShooter() ? slowVelocityRequest: fastVelocityRequest);
+                    // if(coralInShooter()) {
+                    //     SmartDashboard.putNumber("Intake/Target Speed", slowVelocityRequest.getVelocityMeasure().magnitude());
+                    // } else {
+                    //     SmartDashboard.putNumber("Intake/Target Speed", fastVelocityRequest.getVelocityMeasure().magnitude());
+                    // }
                 },
                 () -> {
                     leftMotor.stopMotor();
                     rightMotor.stopMotor();
+                    // SmartDashboard.putNumber("Intake/Target Speed", 0);
                 }).until(() -> coralInShooter() && !coralInIntake());
     }
 }
+
