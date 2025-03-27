@@ -24,6 +24,8 @@ import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import lib.vision.Limelight;
 import lib.vision.RealSenseCamera;
@@ -133,9 +135,8 @@ public class RobotContainer {
 
         driveController.rightBumper().onTrue(drive.resetGyroCommand());
 
-        // TEMPORARY ALGAE COMMAND BUTTON STUFF \\
-        driveController.leftTrigger().whileTrue(algae.intake().withName("intakeAlgae"));
-        // driveController.leftTrigger().onFalse(algae.hold(3));
+        // Algae controls
+        driveController.leftTrigger().whileTrue(makeAlgaeIntakeCommand());
         driveController.leftBumper().whileTrue(algae.moveToZero().withName("returnToHomePosAlgae"));
         driveController.rightTrigger().whileTrue(algae.shootAlgae().withName("shootAlgae"));
         driveController.rightTrigger().onFalse(algae.hold(0));
@@ -145,7 +146,7 @@ public class RobotContainer {
         thirdController.povDown().whileTrue(algae.manualControlBackwards());
         thirdController.povUp().onFalse(algae.mainMotorHoldCommand());
 
-        thirdController.a().onTrue(algae.moveToAlgaeShoot().withName("movetointakepos"));
+        thirdController.a().onTrue(algae.moveToAlgaeShoot());
         thirdController.leftBumper().whileTrue(algaeProcessorSubsystem.intakeProcessor());
         thirdController.rightBumper().whileTrue(algaeProcessorSubsystem.spitProcessor());
 
@@ -255,6 +256,13 @@ public class RobotContainer {
         return commandGroup.andThen(drive.stopDriving());
     }
 
+    private Command makeAlgaeIntakeCommand() {
+        SequentialCommandGroup commandGroup = new SequentialCommandGroup();
+        commandGroup.addCommands(algae.intake().andThen(new WaitCommand(2)));
+        commandGroup.addCommands(algae.moveToAlgaeShoot());
+        return commandGroup;
+    }
+
     private Command makeCoralHelpScoreCommand() {
         return new ConditionalCommand(coralHelpScoreCommand(true), coralHelpScoreCommand(false),
                 elevator::isElevatorAtL4);
@@ -267,9 +275,7 @@ public class RobotContainer {
         }
 
         ParallelDeadlineGroup commandGroup = new ParallelDeadlineGroup(elevator.moveL4RaisedSlow(Setpoint.kLevel4Raised));
-
-        // Need to change to different shootAlgae method
-        commandGroup.addCommands(algae.moveToCoralScorePose().andThen(algae.spitAlgaeMotor()));
+        commandGroup.addCommands(algae.moveToCoralScorePose().andThen(algae.runMotorsToIntake()));
 
         return commandGroup;
     }
