@@ -457,6 +457,9 @@ public class SwerveSubsystem extends SubsystemBase {
     }
   }
 
+  /*
+   * Returns algular speed of robot 
+   */
   public double getAngularChassisSpeed() {
     return gyro.getAngularVelocityZWorld().getValueAsDouble();
   }
@@ -474,133 +477,6 @@ public class SwerveSubsystem extends SubsystemBase {
           updateRotationPIDSetpoint();
         });
   }
-
-  // public Command rotate90() {
-  // return runOnce(
-  // () -> {
-
-  // ChassisSpeeds chassisSpeeds = new ChassisSpeeds(0, 0, 0);
-
-  // SwerveModuleState[] modules =
-  // swerveDriveKinematics.toSwerveModuleStates(chassisSpeeds);
-  // modules[FL].angle = new Rotation2d(swerveModules[FL].getAngleClamped() +
-  // Math.PI / 8);
-  // modules[FR].angle = new Rotation2d(swerveModules[FR].getAngleClamped() +
-  // Math.PI / 8);
-  // modules[BR].angle = new Rotation2d(swerveModules[BR].getAngleClamped() +
-  // Math.PI / 8);
-  // modules[BL].angle = new Rotation2d(swerveModules[BL].getAngleClamped() +
-  // Math.PI / 8);
-  // modules[FL].speedMetersPerSecond = 0.02;
-  // modules[FR].speedMetersPerSecond = 0.02;
-  // modules[BR].speedMetersPerSecond = 0.02;
-  // modules[BL].speedMetersPerSecond = 0.02;
-  // setModuleStates(modules);
-  // });
-  // }
-
-  // // z should be out, x right, y down
-  // public Command cameraDriveToPose(Supplier<Pose3d> cameraReefPose,
-  // Supplier<Pose3d> cameraPose,
-  // Matrix<N3, N1> normalVector, double targetAngle) {
-
-  // PIDController rotationController = new PIDController(0.025, 0, 0.000033);
-  // rotationController.setSetpoint(0);
-  // rotationController.setTolerance(1);
-
-  // SimpleMotorFeedforward rotationFeedForward = new SimpleMotorFeedforward(0,
-  // 0);
-
-  // PIDController driveController = new PIDController(0.395, 0, 0);
-  // driveController.setTolerance(0.1);
-
-  // SimpleMotorFeedforward driveFeedForward = new SimpleMotorFeedforward(0.01,
-  // 0);
-
-  // return new FunctionalCommand(
-  // () -> {
-
-  // },
-  // () -> {
-  // double distance = lime.getDistanceToTagInFeet();
-  // double toDriveDistance = 0;
-
-  // driveController.setSetpoint(toDriveDistance);
-
-  // double driveSpeed = driveController.calculate(distance);
-
-  // if (driveSpeed >= 3.5) {
-  // driveSpeed = 3.5;
-  // } else if (driveSpeed <= -3.5) {
-  // driveSpeed = -3.5;
-  // }
-
-  // if (lime.isTagFound()) {
-  // drive(
-  // -rotationFeedForward.calculate(tx) + rotationController.calculate(tx),
-  // -driveFeedForward.calculate(distance) + driveSpeed,
-  // 0,
-  // false);
-  // }
-  // },
-  // (_unused) -> {
-
-  // },
-  // () -> {
-  // return driveController.atSetpoint() && rotationController.atSetpoint();
-  // },
-  // this);
-  // }
-
-  // Getting to the amp diagonally
-  // public Command alignAndGetPerpendicularToTagCommand(Limelight lime) {
-
-  // PIDController rotationController = new PIDController(0.0315, 0, 0.000033);
-  // rotationController.setSetpoint(0);
-  // rotationController.setTolerance(1);
-
-  // SimpleMotorFeedforward rotationFeedForward = new SimpleMotorFeedforward(0,
-  // 0);
-
-  // PIDController driveController = new PIDController(0.395, 0, 0);
-  // driveController.setSetpoint(0);
-  // driveController.setTolerance(0.1);
-
-  // SimpleMotorFeedforward driveFeedForward = new SimpleMotorFeedforward(0.01,
-  // 0);
-
-  // return new FunctionalCommand(
-  // () -> {
-
-  // },
-  // () -> {
-  // double distance = lime.getDistanceToTagInFeet();
-
-  // double driveSpeed = driveController.calculate(distance);
-
-  // if (driveSpeed >= 3.5) {
-  // driveSpeed = 3.5;
-  // } else if (driveSpeed <= -3.5) {
-  // driveSpeed = -3.5;
-  // }
-
-  // if (lime.isTagFound()) {
-  // drive(
-  // rotationFeedForward.calculate(gyro.getYaw().getValueAsDouble() - 270)
-  // - rotationController.calculate(gyro.getYaw().getValueAsDouble() - 270),
-  // -driveFeedForward.calculate(distance) + driveSpeed,
-  // 0,
-  // false);
-  // }
-  // },
-  // (_unused) -> {
-
-  // },
-  // () -> {
-  // return driveController.atSetpoint() && rotationController.atSetpoint();
-  // },
-  // this);
-  // }
 
   public Command xMode() {
     return runOnce(
@@ -628,10 +504,11 @@ public class SwerveSubsystem extends SubsystemBase {
         });
   }
 
+  /*
+   * Resets gryo for field centric driving
+   */
   public void resetGyro() {
-    // gyro.reset();
     gyroZero = gyro.getRotation2d().plus(Rotation2d.fromDegrees(180.0)).getRadians();
-    // odometry.resetPosition();
   }
 
   public SwerveModule getSwerveModule(int module) {
@@ -668,6 +545,9 @@ public class SwerveSubsystem extends SubsystemBase {
     return swerveModules[0].isCoast();
   }
 
+  /*
+   * Gets closest reef pose based on which side specified (left or right)
+   */
   public Pose2d getClosestReef(AutoScoreTarget target) {
 
     List<ReefPose> posesForSide;
@@ -698,6 +578,9 @@ public class SwerveSubsystem extends SubsystemBase {
     return nearest;
   }
 
+  /*
+   * Gets closest source pose based on which side specified (left or right)
+   */
   public Pose2d getClosestSource(AutoScoreTarget target) {
 
     List<ReefPose> posesForSide;
@@ -749,6 +632,11 @@ public class SwerveSubsystem extends SubsystemBase {
       new ReefPose("Left Source", ReefFacetSide.LEFT, new Pose2d(1.395, 7.387, new Rotation2d(Math.toRadians(306.0)))),
       new ReefPose("Right Source", ReefFacetSide.RIGHT, new Pose2d(1.480, 0.750, new Rotation2d(Math.toRadians(54.0)))));
 
+  static double bargeX = 6.865;
+
+  /*
+   * Drives to closest reef pose based on which side specified (left or right)
+   */
   public Command drivetoReefPose(AutoScoreTarget target) {
     return new DeferredCommand(() -> {
       Pose2d targetPose = getClosestReef(target);
@@ -765,6 +653,9 @@ public class SwerveSubsystem extends SubsystemBase {
     }, Set.of(this));
   }
 
+  /*
+   * Drives to closest coral source pose based on which side specified (left or right)
+   */
   public Command drivetoSourcePose(AutoScoreTarget target) {
     return new DeferredCommand(() -> {
       Pose2d targetPose = getClosestSource(target);
@@ -781,6 +672,9 @@ public class SwerveSubsystem extends SubsystemBase {
     }, Set.of(this));
   }
 
+  /*
+   * Returns if we are on the blue alliance
+   */
   public boolean isBlueAlliance() {
     return BlueAlliance;
   }
@@ -793,6 +687,23 @@ public class SwerveSubsystem extends SubsystemBase {
       Pose2d targetPose = cam.getReefPose();
 
       return new CameraDriveToPose(this, supplier_position, () -> targetPose);
+
+    }, Set.of(this));
+  }
+
+  /*
+   * Drives to barge start point. (RobotX, RobotY) -> (BargePoseX, RobotY)
+   */
+  public Command drivetoBargePose() {
+    return new DeferredCommand(() -> {
+
+      Pose2d targetPose = new Pose2d(bargeX, supplier_position.get().getTranslation().getY(), new Rotation2d(0));
+
+      if (BlueAlliance) {
+        return new DriveToPose(this, supplier_position, () -> targetPose);
+      } else {
+        return new DriveToPose(this, supplier_position, () -> FlippingUtil.flipFieldPose(targetPose));
+      }
 
     }, Set.of(this));
   }

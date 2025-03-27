@@ -133,6 +133,7 @@ public class RobotContainer {
         // Need to rewrite CameraDriveToPose to be robot centric
         // driveController.rightTrigger().whileTrue(drive.cameraDriveToPose(cam));
 
+        // Reset gryo
         driveController.rightBumper().onTrue(drive.resetGyroCommand());
 
         // Algae controls
@@ -150,9 +151,8 @@ public class RobotContainer {
         thirdController.leftBumper().whileTrue(algaeProcessorSubsystem.intakeProcessor());
         thirdController.rightBumper().whileTrue(algaeProcessorSubsystem.spitProcessor());
 
-        // PID to nearest coral pose left
-        // buttonController.a().whileTrue(elevator.moveToTargetPosition(Setpoint.kFeederStation).withName("kFeederStation"));
-        buttonController.a().onTrue(algaeProcessorSubsystem.setDutyCycle(0));
+        // PID to nearest coral pose left and score into barge
+        buttonController.a().whileTrue(makeAutoBargeScoreCommand());
         buttonController.b().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L2_LEFT));
         buttonController.x().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L3_LEFT));
         buttonController.y().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L4_LEFT));
@@ -254,6 +254,14 @@ public class RobotContainer {
         commandGroup.addCommands(drive.drivetoSourcePose(target).andThen(drive.updateRotationPIDSetpointCommand()));
         commandGroup.addCommands(elevator.moveToTargetPosition(targetToSetPoint(target)));
         return commandGroup.andThen(drive.stopDriving());
+    }
+
+    private Command makeAutoBargeScoreCommand() {
+        ParallelCommandGroup commandGroup = new ParallelCommandGroup();
+        commandGroup.addCommands(drive.drivetoBargePose().andThen(drive.updateRotationPIDSetpointCommand()));
+        commandGroup.addCommands(elevator.moveToTargetPosition(Setpoint.kLevel4));
+        commandGroup.andThen(drive.stopDriving()).andThen(algae.shootAlgae()).andThen(algae.hold(0));
+        return commandGroup;
     }
 
     private Command makeAlgaeIntakeCommand() {
