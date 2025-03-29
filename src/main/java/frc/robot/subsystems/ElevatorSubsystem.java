@@ -13,6 +13,9 @@ import frc.robot.Constants.Elevator;
 import frc.robot.commands.RumbleCommandStart;
 import frc.robot.commands.RumbleCommandStop;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 
@@ -49,6 +52,8 @@ public class ElevatorSubsystem extends SubsystemBase {
     private RumbleCommandStart rumbleStart;
 
     private IntakeSubsystem intake;
+    private NetworkTable cameraTable;
+    private final DoublePublisher cameraHeightPublisher;
 
     /** Elevator setpoints */
     public enum Setpoint {
@@ -97,6 +102,9 @@ public class ElevatorSubsystem extends SubsystemBase {
         // elevatorSpeed = Preferences.getDouble("Elevator Motor Speed (rpm)", 1);
         rumbleStart = new RumbleCommandStart(new CommandXboxController(Constants.Gamepad.Controller.DRIVE));
         rumbleEnd = new RumbleCommandStop(new CommandXboxController(Constants.Gamepad.Controller.DRIVE));
+
+        cameraTable = NetworkTableInstance.getDefault().getTable(Constants.Vision.Names.realSenseCam);
+        cameraHeightPublisher = cameraTable.getDoubleTopic("Camera Height").publish();
 
         // Elevator Motor
         elevatorPrimaryMotorConfig.idleMode(IdleMode.kBrake)
@@ -169,6 +177,8 @@ public class ElevatorSubsystem extends SubsystemBase {
         zeroElevatorOnLimitSwitch();
         zeroOnUserButton();
 
+        publishCameraHeight();
+
         // Update mechanism2d
         elevatorMech2d.setLength(
                 kPixelsPerMeter * kMinElevatorHeightMeters
@@ -182,7 +192,6 @@ public class ElevatorSubsystem extends SubsystemBase {
         // SmartDashboard.putData("Elevator/Model", mech2d);
         // SmartDashboard.putNumber("Elevator/Amp",
         // elevatorPrimaryMotor.getOutputCurrent());
-        // SmartDashboard.putNumber("Elevator/Camera Height", getCurrentCameraHeight());
         // SmartDashboard.putNumber("Elevator/Amp2",
         // elevatorSecondaryMotor.getOutputCurrent());
     }
@@ -252,6 +261,15 @@ public class ElevatorSubsystem extends SubsystemBase {
                 - Elevator.Heights.LOWEST_HEIGHT.getValue();
 
         return currentPercentage * totalTravelHeight + Elevator.Heights.LOWEST_HEIGHT.getValue();
+    }
+
+    public void publishCameraHeight() {
+        cameraHeightPublisher.set(getCurrentCameraHeight());
+        Flush();
+    }
+
+    public static void Flush() {
+        NetworkTableInstance.getDefault().flush();
     }
 
     public boolean isElevatorAtSetpoint() {

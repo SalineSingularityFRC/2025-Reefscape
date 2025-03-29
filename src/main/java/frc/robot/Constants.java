@@ -415,7 +415,7 @@ public final class Constants {
 
     public static class Heights {
 
-      // From the ground (in)
+      // From the ground (inches)
       public static ConfigDouble LOWEST_HEIGHT = new ConfigDouble("Elevator/Heights/Lowest Height", 12);
       public static ConfigDouble HIGHEST_HEIGHT = new ConfigDouble("Elevator/Positions/Highest Height", 72);
       public static ConfigDouble DEADZONE = new ConfigDouble("Elevator/Positions/Deadzone Intake See Elevator", 7.0);
