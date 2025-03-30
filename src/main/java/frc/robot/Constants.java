@@ -469,7 +469,7 @@ public final class Constants {
       public static ConfigDouble intakeDistance = new ConfigDouble("Intake Sensor Min Distance", 100);
       public static ConfigDouble shooterDistance = new ConfigDouble("Shooter Sensor Min Distance", 100);
       public static ConfigDouble troughSenserDistance = new ConfigDouble("Trough Sensor Min Distance", 150);
-      public static ConfigBoolean overideElevator = new ConfigBoolean("Elevator Overided", false);
+      public static ConfigBoolean laserCanLogicOverride = new ConfigBoolean("IMPORTANT LaserCan / Elevator Override", false);
     }
 
     public static class LeftMotor {

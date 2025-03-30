@@ -30,7 +30,7 @@ public class IntakeSubsystem extends SubsystemBase {
     private double troughSenserDistance;
     private final VelocityTorqueCurrentFOC slowVelocityRequest, fastVelocityRequest;
     private final VelocityTorqueCurrentFOC shooterVelocityRequest;
-    private boolean elevatorOveride = false;
+    private boolean laserCanLogicOverride = false;
 
     private static final int LASER_CAN_NO_MEASUREMENT = -1;
     
@@ -42,7 +42,7 @@ public class IntakeSubsystem extends SubsystemBase {
             intakeDistance = Intake.Nums.intakeDistance.getValue();
             shooterDistance = Intake.Nums.shooterDistance.getValue();
             troughSenserDistance = Intake.Nums.troughSenserDistance.getValue();
-            elevatorOveride = Intake.Nums.overideElevator.getValue();
+            laserCanLogicOverride = Intake.Nums.laserCanLogicOverride.getValue();
 
             slowVelocityRequest = new VelocityTorqueCurrentFOC(Intake.Nums.motorSpeedSlow.getValue()).withSlot(0); // 30
             fastVelocityRequest = new VelocityTorqueCurrentFOC(Intake.Nums.motorSpeed.getValue()).withSlot(0); // 70
@@ -117,7 +117,7 @@ public class IntakeSubsystem extends SubsystemBase {
         public void periodic() {
             intakeDistance = Intake.Nums.intakeDistance.getValue();
             troughSenserDistance = Intake.Nums.troughSenserDistance.getValue();
-            elevatorOveride = Intake.Nums.overideElevator.getValue();
+            laserCanLogicOverride = Intake.Nums.laserCanLogicOverride.getValue();
           
             slowVelocityRequest.Velocity = Intake.Nums.motorSpeedSlow.getValue();
             fastVelocityRequest.Velocity = Intake.Nums.motorSpeed.getValue();
@@ -170,6 +170,8 @@ public class IntakeSubsystem extends SubsystemBase {
         return shooterCanSeeCoral(shooterSensor);
     }
 
+    
+
     public boolean coralInTrough(){
         return troughSensor.getMeasurement() != null && getSensorValue(troughSensor) <= troughSenserDistance;
     }
@@ -183,7 +185,7 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     BooleanSupplier elevator_can_move = () -> {
-        return elevatorOveride || ((readyToShoot() || noCoralDetected()) && intakeSensorIsFunctional());
+        return laserCanLogicOverride || ((readyToShoot() || noCoralDetected()) && intakeSensorIsFunctional());
     };
 
     public boolean intakeSensorIsFunctional() {
@@ -249,7 +251,7 @@ public class IntakeSubsystem extends SubsystemBase {
                     leftMotor.stopMotor();
                     rightMotor.stopMotor();
                     // SmartDashboard.putNumber("Intake/Target Speed", 0);
-                }).until(() -> coralInShooter() && !coralInIntake());
+                }).until(() -> (coralInShooter() && !coralInIntake()));
     }
 }
 
