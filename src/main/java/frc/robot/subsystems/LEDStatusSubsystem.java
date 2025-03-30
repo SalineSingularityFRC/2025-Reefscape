@@ -18,6 +18,10 @@ public class LEDStatusSubsystem extends SubsystemBase {
   private VictorSP ledController = new VictorSP(0);
   private final IntakeSubsystem intake;
   private ElevatorSubsystem elevator;
+  private boolean canElevatorMove;
+  private boolean isLoaded;
+  private boolean isReadyToShoot;
+  private boolean isIntaking;
 
   /**
    * Creates a new ledController.
@@ -26,6 +30,10 @@ public class LEDStatusSubsystem extends SubsystemBase {
     this.intake = intake;
     this.elevator = elevator;
     setColor(LEDColor.BLUE);
+    canElevatorMove = false;
+    isLoaded = false;
+    isReadyToShoot = false;
+    isIntaking = false;
   }
 
   @Override
@@ -57,13 +65,13 @@ public class LEDStatusSubsystem extends SubsystemBase {
   private void checkStatus() {
 
     //Orange for LOADING(Coral in intake, not in position and ready), Violet for LOADED(all variables true)
-    boolean isLoaded = false;
-    boolean isLoading = false;
-    boolean isReadyToShoot = false;
-    boolean isIntaking = false;
+    canElevatorMove = false;
+    isLoaded = false;
+    isReadyToShoot = false;
+    isIntaking = false;
 
-    if (intake.coralInIntake()) {
-      isLoading = true;
+    if (intake.elevator_can_move.getAsBoolean()) {
+      canElevatorMove = true;
     }
 
     if (intake.isMotorRunning() && intake.noCoralDetected()) {
@@ -78,7 +86,7 @@ public class LEDStatusSubsystem extends SubsystemBase {
       isLoaded = true;
     }
 
-    if (isLoading) {
+    if (!canElevatorMove) {
       setColor(LEDColor.ORANGE);
     } else if (isReadyToShoot) {
       setColor(LEDColor.VIOLET);

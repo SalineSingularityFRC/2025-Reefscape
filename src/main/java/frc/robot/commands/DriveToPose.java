@@ -120,6 +120,10 @@ public class DriveToPose extends Command {
     }
 
     public boolean isFinished() {
+        SmartDashboard.putBoolean("Tuning/rotationController at setpoint", rotationController.atSetpoint());
+        SmartDashboard.putBoolean("Tuning/xDriveController at setpoint", xDriveController.atSetpoint());
+        SmartDashboard.putBoolean("Tuning/yDriveController at setpoint", yDriveController.atSetpoint());
+        SmartDashboard.putBoolean("Tuning/Is command finished", rotationController.atSetpoint() && xDriveController.atSetpoint() && yDriveController.atSetpoint());
         return rotationController.atSetpoint() && xDriveController.atSetpoint() && yDriveController.atSetpoint();
     }
 }

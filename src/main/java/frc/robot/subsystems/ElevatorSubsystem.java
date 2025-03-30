@@ -207,16 +207,11 @@ public class ElevatorSubsystem extends SubsystemBase {
      * positions for the given setpoint.
      */
     public Command moveToTargetPosition(Setpoint setpoint) {
-        return this.runEnd(
+        return runOnce(
                 () -> {
                     if (intake.elevator_can_move.getAsBoolean()) {
                         setTargetPosition(setpoint);
-                    } else {
-                        rumbleStart.execute();
                     }
-                },
-                () -> {
-                    rumbleEnd.execute();
                 });
     }
 

@@ -131,7 +131,6 @@ public class AlgaeSubsystem extends SubsystemBase {
     public Command moveToPos(DoubleSupplier targetPos) {
         return new FunctionalCommand(
                 () -> {
-                    manual = false;
                     mainMotorHoldRequest.Position = targetPos.getAsDouble();
                     mainMotorAlgaeHoldRequest.Position = targetPos.getAsDouble();
                 },
@@ -177,7 +176,7 @@ public class AlgaeSubsystem extends SubsystemBase {
         return moveToIntakePos()
                 .alongWith(runMotorsToIntake().until(() -> canSeeAlgae())
                 .andThen(new WaitCommand(0.05))
-                .andThen(hold(1)));
+                .andThen(hold(2)));
     }
 
     public Command runMotorsToIntake() {

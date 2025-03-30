@@ -159,7 +159,7 @@ public class RobotContainer {
 
         // PID to nearest coral pose right
         buttonController.leftBumper()
-                .whileTrue(elevator.moveToTargetPosition(Setpoint.kFeederStation).withName("kFeederStation"));
+                .onTrue(elevator.moveToTargetPosition(Setpoint.kFeederStation).withName("kFeederStation"));
         buttonController.rightBumper().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L2_RIGHT));
         buttonController.back().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L3_RIGHT));
         buttonController.start().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L4_RIGHT));
@@ -259,14 +259,15 @@ public class RobotContainer {
     private Command makeAutoBargeScoreCommand() {
         ParallelCommandGroup commandGroup = new ParallelCommandGroup();
         commandGroup.addCommands(drive.drivetoBargePose().andThen(drive.updateRotationPIDSetpointCommand()));
-        commandGroup.addCommands(elevator.moveToTargetPosition(Setpoint.kLevel4));
-        commandGroup.andThen(drive.stopDriving()).andThen(algae.shootAlgae()).andThen(algae.hold(0));
-        return commandGroup;
+        commandGroup.addCommands(elevator.moveToTargetPosition(Setpoint.kLevel2));
+        return commandGroup.andThen(drive.stopDriving()).andThen(elevator.moveToTargetPosition(Setpoint.kLevel4))
+                .andThen(new WaitCommand(2))
+                .andThen(algae.shootAlgae());
     }
 
     private Command makeAlgaeIntakeCommand() {
         SequentialCommandGroup commandGroup = new SequentialCommandGroup();
-        commandGroup.addCommands(algae.intake().andThen(new WaitCommand(2)));
+        commandGroup.addCommands(algae.intake().andThen(new WaitCommand(1)));
         commandGroup.addCommands(algae.moveToAlgaeShoot());
         return commandGroup;
     }
@@ -282,7 +283,8 @@ public class RobotContainer {
             return new InstantCommand();
         }
 
-        ParallelDeadlineGroup commandGroup = new ParallelDeadlineGroup(elevator.moveL4RaisedSlow(Setpoint.kLevel4Raised));
+        ParallelDeadlineGroup commandGroup = new ParallelDeadlineGroup(
+                elevator.moveL4RaisedSlow(Setpoint.kLevel4Raised));
         commandGroup.addCommands(algae.moveToCoralScorePose().andThen(algae.runMotorsToIntake()));
 
         return commandGroup;

@@ -130,7 +130,7 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void teleopPeriodic() {
-    CommandScheduler.getInstance().run();
+    // CommandScheduler.getInstance().run();
   }
 
   @Override

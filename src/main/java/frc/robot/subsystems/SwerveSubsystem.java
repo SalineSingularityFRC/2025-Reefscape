@@ -117,7 +117,6 @@ public class SwerveSubsystem extends SubsystemBase {
   private DoubleLogEntry pidgeonAngularVelocityZLog;
   private DoubleLogEntry pidgeonTimeLog;
 
-
   /*
    * This constructor should create an instance of the pidgeon class, and should
    * construct four copies of the
@@ -458,7 +457,7 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   /*
-   * Returns algular speed of robot 
+   * Returns algular speed of robot
    */
   public double getAngularChassisSpeed() {
     return gyro.getAngularVelocityZWorld().getValueAsDouble();
@@ -553,9 +552,10 @@ public class SwerveSubsystem extends SubsystemBase {
     List<ReefPose> posesForSide;
 
     // if (BlueAlliance) {
-    //   posesForSide = reefPoses.stream().filter((p) -> p.side == target.side).toList();
+    // posesForSide = reefPoses.stream().filter((p) -> p.side ==
+    // target.side).toList();
     // } else {
-      posesForSide = reefPoses.stream().filter((p) -> p.side != target.side).toList();
+    posesForSide = reefPoses.stream().filter((p) -> p.side != target.side).toList();
     // }
     // return posesForSide.get(0).pose;
 
@@ -571,7 +571,8 @@ public class SwerveSubsystem extends SubsystemBase {
       return ourPose;
     }
 
-    // SmartDashboard.putString("AutoScore/Chosen Reef", ((WrappedPose2d) nearest).reefPose.name);
+    // SmartDashboard.putString("AutoScore/Chosen Reef", ((WrappedPose2d)
+    // nearest).reefPose.name);
     // SmartDashboard.putNumber("AutoScore/Chosen Reef/X", nearest.getX());
     // SmartDashboard.putNumber("AutoScore/Chosen Reef/Y", nearest.getY());
 
@@ -586,13 +587,15 @@ public class SwerveSubsystem extends SubsystemBase {
     List<ReefPose> posesForSide;
 
     // if (BlueAlliance) {
-    //  posesForSide = sourcePoses.stream().filter((p) -> p.side == target.side).toList();
+    // posesForSide = sourcePoses.stream().filter((p) -> p.side ==
+    // target.side).toList();
     // } else {
-      posesForSide = sourcePoses.stream().filter((p) -> p.side != target.side).toList();
+    posesForSide = sourcePoses.stream().filter((p) -> p.side != target.side).toList();
     // }
 
     List<Pose2d> poses = posesForSide.stream().map((rp) -> {
-      // WrappedPose2d np = new WrappedPose2d(rp.pose.getX(), rp.pose.getY(), rp.pose.getRotation());
+      // WrappedPose2d np = new WrappedPose2d(rp.pose.getX(), rp.pose.getY(),
+      // rp.pose.getRotation());
       // np.sourcePose = rp;
       // return (Pose2d) np;
       return rp.pose;
@@ -630,9 +633,11 @@ public class SwerveSubsystem extends SubsystemBase {
   // Blue alliance only since we flip if red alliance (from pathplanner)
   static List<ReefPose> sourcePoses = List.of(
       new ReefPose("Left Source", ReefFacetSide.LEFT, new Pose2d(1.395, 7.387, new Rotation2d(Math.toRadians(306.0)))),
-      new ReefPose("Right Source", ReefFacetSide.RIGHT, new Pose2d(1.480, 0.750, new Rotation2d(Math.toRadians(54.0)))));
+      new ReefPose("Right Source", ReefFacetSide.RIGHT,
+          new Pose2d(1.480, 0.750, new Rotation2d(Math.toRadians(54.0)))));
 
-  static double bargeX = 6.865;
+  static double bargeXBlue = 6.865;
+  static double bargeXRed = 10;
 
   /*
    * Drives to closest reef pose based on which side specified (left or right)
@@ -654,7 +659,8 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   /*
-   * Drives to closest coral source pose based on which side specified (left or right)
+   * Drives to closest coral source pose based on which side specified (left or
+   * right)
    */
   public Command drivetoSourcePose(AutoScoreTarget target) {
     return new DeferredCommand(() -> {
@@ -697,12 +703,12 @@ public class SwerveSubsystem extends SubsystemBase {
   public Command drivetoBargePose() {
     return new DeferredCommand(() -> {
 
-      Pose2d targetPose = new Pose2d(bargeX, supplier_position.get().getTranslation().getY(), new Rotation2d(0));
-
       if (BlueAlliance) {
-        return new DriveToPose(this, supplier_position, () -> targetPose);
+        return new DriveToPose(this, supplier_position,
+            () -> new Pose2d(bargeXBlue, supplier_position.get().getTranslation().getY(), new Rotation2d(0)));
       } else {
-        return new DriveToPose(this, supplier_position, () -> FlippingUtil.flipFieldPose(targetPose));
+        return new DriveToPose(this, supplier_position,
+            () -> new Pose2d(bargeXRed, supplier_position.get().getTranslation().getY(), new Rotation2d(Math.PI)));
       }
 
     }, Set.of(this));
