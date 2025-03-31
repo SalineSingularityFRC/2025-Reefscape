@@ -31,6 +31,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -636,8 +637,7 @@ public class SwerveSubsystem extends SubsystemBase {
       new ReefPose("Right Source", ReefFacetSide.RIGHT,
           new Pose2d(1.480, 0.750, new Rotation2d(Math.toRadians(54.0)))));
 
-  static double bargeXBlue = 6.865;
-  static double bargeXRed = 10;
+  static double bargeXBlue = 7.0;
 
   /*
    * Drives to closest reef pose based on which side specified (left or right)
@@ -707,9 +707,10 @@ public class SwerveSubsystem extends SubsystemBase {
         return new DriveToPose(this, supplier_position,
             () -> new Pose2d(bargeXBlue, supplier_position.get().getTranslation().getY(), new Rotation2d(0)));
       } else {
+        // Flipping bargeXBlue to red side
         return new DriveToPose(this, supplier_position,
-            () -> new Pose2d(bargeXRed, supplier_position.get().getTranslation().getY(), new Rotation2d(Math.PI)));
-      }
+            () -> new Pose2d(Units.feetToMeters(57.573) - bargeXBlue, supplier_position.get().getTranslation().getY(), new Rotation2d(Math.PI)));
+      } 
 
     }, Set.of(this));
   }
