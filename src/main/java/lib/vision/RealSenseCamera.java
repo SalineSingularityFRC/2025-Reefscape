@@ -1,5 +1,7 @@
 package lib.vision;
 
+import java.util.function.Supplier;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -20,8 +22,11 @@ public class RealSenseCamera {
   private final String CamName;
   private NetworkTable mainTable;
   private NetworkTable debugTable;
-  private Pose2d reefPose;
+  private Pose2d reefPose, lastPose;
   private final DoubleArrayPublisher dblArrayPub;
+  private final double poseTolerance = 0.1;
+  private final int threshold = 8;
+  private int stableCount = 0;
 
   public RealSenseCamera(String name) {
     CamName = name;
@@ -30,13 +35,14 @@ public class RealSenseCamera {
     dblArrayPub = debugTable.getDoubleArrayTopic("Stored Reef Pose").publish();
 
     reefPose = new Pose2d();
+    lastPose = new Pose2d();
   }
 
   /**
    * Returns the current reef pose from network tables
    */
-  public <Optional> Pose2d getReefPose() {
-    return reefPose;
+  public Supplier<Pose2d> getReefPose() {
+    return () -> reefPose;
   }
 
   /**
@@ -55,7 +61,7 @@ public class RealSenseCamera {
    * Updates reef pose from network tables. Currently publishing the pose again to NT since not sure if I'm getting it right
    */
   public void updateReefPose() {
-    DoubleArrayEntry poseEntry = mainTable.getDoubleArrayTopic("ReefPose").getEntry(new double[0]);
+    DoubleArrayEntry poseEntry = mainTable.getDoubleArrayTopic("L4").getEntry(new double[0]);
 
     // Can effectively ignore this for now
     publishArray(poseEntry.get());
@@ -68,4 +74,18 @@ public class RealSenseCamera {
     reefPose = new Pose2d(tran2d, new Rotation2d());
   }
 
+  /**
+   * Checks if the camera pose has consistently been under a set tolerance
+   * @return If the camera pose was under a set tolerance for a set threshold
+   */
+  public boolean isCameraPoseStable() {
+    if (reefPose.getTranslation().getDistance(lastPose.getTranslation()) < poseTolerance
+        && !reefPose.getTranslation().equals(lastPose.getTranslation())) {
+      stableCount++;
+    } else {
+      stableCount = 0;
+    }
+    lastPose = reefPose;
+    return stableCount >= threshold;
+  }
 }

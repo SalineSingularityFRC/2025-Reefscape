@@ -4,6 +4,7 @@
 package frc.robot;
 
 import java.util.Set;
+import java.util.function.BooleanSupplier;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -13,6 +14,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.kinematics.Odometry;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.math.controller.DifferentialDriveAccelerationLimiter;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -26,6 +28,7 @@ import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import lib.vision.Limelight;
 import lib.vision.RealSenseCamera;
@@ -58,7 +61,7 @@ public class RobotContainer {
     private ElevatorSubsystem elevator;
     private Limelight leftLL;
     private Limelight rightLL;
-    // private RealSenseCamera cam;
+    private RealSenseCamera cam;
     private LEDStatusSubsystem ledStatus;
     private AlgaeSubsystem algae;
     private AlgaeProcessorSubsystem algaeProcessorSubsystem;
@@ -68,7 +71,7 @@ public class RobotContainer {
         elevator = new ElevatorSubsystem(intake);
         leftLL = new Limelight(Constants.Vision.Names.leftLL);
         rightLL = new Limelight(Constants.Vision.Names.rightLL);
-        // cam = new RealSenseCamera(Constants.Vision.Names.realSenseCam);
+        cam = new RealSenseCamera(Constants.Vision.Names.realSenseCam);
         drive = new SwerveSubsystem(leftLL, rightLL);
         // climber = new ClimberSubsystem();
         ledStatus = new LEDStatusSubsystem(intake, elevator);
@@ -247,6 +250,20 @@ public class RobotContainer {
         commandGroup.addCommands(drive.drivetoReefPose(target).andThen(drive.updateRotationPIDSetpointCommand()));
         commandGroup.addCommands(elevator.moveToTargetPosition(targetToSetPoint(target)));
         return commandGroup.andThen(drive.stopDriving());
+    }
+
+    private Command makeL4AutoScoreCommand(AutoScoreTarget target) {
+        Command driveToReef = drive.drivetoReefPose(target).andThen(drive.updateRotationPIDSetpointCommand());
+        Command cameraDriveToPose = drive.cameraDriveToPose(cam);
+        BooleanSupplier driveToCameraSwitchSupply = () -> cam.isCameraPoseStable() && (drive.supplier_position.get().getTranslation().getDistance(drive.getClosestReef(target).getTranslation()) < 1);
+        Command switchToCameraDrive = new SequentialCommandGroup(
+            new WaitUntilCommand(driveToCameraSwitchSupply).deadlineWith(driveToReef),
+            cameraDriveToPose
+        );
+        return new ParallelCommandGroup(
+                switchToCameraDrive,
+                elevator.moveToTargetPosition(targetToSetPoint(target)))
+                .andThen(drive.stopDriving());
     }
 
     private Command makeAutoDriveToSourceCommand(AutoScoreTarget target) {
