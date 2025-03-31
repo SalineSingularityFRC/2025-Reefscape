@@ -556,7 +556,7 @@ public class SwerveSubsystem extends SubsystemBase {
     // posesForSide = reefPoses.stream().filter((p) -> p.side ==
     // target.side).toList();
     // } else {
-    posesForSide = reefPoses.stream().filter((p) -> p.side != target.side).toList();
+    posesForSide = reefPosesBlue.stream().filter((p) -> p.side != target.side).toList();
     // }
     // return posesForSide.get(0).pose;
 
@@ -591,7 +591,7 @@ public class SwerveSubsystem extends SubsystemBase {
     // posesForSide = sourcePoses.stream().filter((p) -> p.side ==
     // target.side).toList();
     // } else {
-    posesForSide = sourcePoses.stream().filter((p) -> p.side != target.side).toList();
+    posesForSide = sourcePosesBlue.stream().filter((p) -> p.side != target.side).toList();
     // }
 
     List<Pose2d> poses = posesForSide.stream().map((rp) -> {
@@ -617,7 +617,7 @@ public class SwerveSubsystem extends SubsystemBase {
   };
 
   // Blue alliance only since we flip if red alliance (from pathplanner)
-  static List<ReefPose> reefPoses = List.of(
+  static List<ReefPose> reefPosesBlue = List.of(
       new ReefPose("A", ReefFacetSide.LEFT, new Pose2d(3.250, 4.193, new Rotation2d(Math.toRadians(0)))),
       new ReefPose("B", ReefFacetSide.RIGHT, new Pose2d(3.250, 3.863, new Rotation2d(Math.toRadians(0)))),
       new ReefPose("C", ReefFacetSide.LEFT, new Pose2d(3.735, 3.044, new Rotation2d(Math.toRadians(60.0)))),
@@ -632,11 +632,12 @@ public class SwerveSubsystem extends SubsystemBase {
       new ReefPose("L", ReefFacetSide.RIGHT, new Pose2d(3.725, 5.029, new Rotation2d(Math.toRadians(300.0)))));
 
   // Blue alliance only since we flip if red alliance (from pathplanner)
-  static List<ReefPose> sourcePoses = List.of(
+  static List<ReefPose> sourcePosesBlue = List.of(
       new ReefPose("Left Source", ReefFacetSide.LEFT, new Pose2d(1.395, 7.387, new Rotation2d(Math.toRadians(306.0)))),
       new ReefPose("Right Source", ReefFacetSide.RIGHT,
           new Pose2d(1.480, 0.750, new Rotation2d(Math.toRadians(54.0)))));
 
+  // Blue alliance only since we flip if red alliance
   static double bargeXBlue = 7.0;
 
   /*
@@ -707,7 +708,7 @@ public class SwerveSubsystem extends SubsystemBase {
         return new DriveToPose(this, supplier_position,
             () -> new Pose2d(bargeXBlue, supplier_position.get().getTranslation().getY(), new Rotation2d(0)));
       } else {
-        // Flipping bargeXBlue to red side
+        // Flipping bargeXBlue to red side (for 2025 field only)
         return new DriveToPose(this, supplier_position,
             () -> new Pose2d(Units.feetToMeters(57.573) - bargeXBlue, supplier_position.get().getTranslation().getY(), new Rotation2d(Math.PI)));
       } 
