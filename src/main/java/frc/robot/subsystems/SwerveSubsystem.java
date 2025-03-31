@@ -691,7 +691,7 @@ public class SwerveSubsystem extends SubsystemBase {
    */
   public Command cameraDriveToPose(RealSenseCamera cam) {
     return new DeferredCommand(() -> {
-      Pose2d targetPose = cam.getReefPose();
+      Pose2d targetPose = cam.getReefPose().get();
 
       return new CameraDriveToPose(this, supplier_position, () -> targetPose);
 

@@ -357,6 +357,8 @@ public final class Constants {
     public static ConfigDouble PID_DRIVE_MAX_ROTATION_SPEED = new ConfigDouble("Drive/PID/Max Rotation", 2);
     public static ConfigDouble PID_DRIVE_MAX_DRIVE_X_SPEED = new ConfigDouble("Drive/PID/Max Drive X", 2);
     public static ConfigDouble PID_DRIVE_MAX_DRIVE_Y_SPEED = new ConfigDouble("Drive/PID/Max Drive Y", 2);
+
+    public static ConfigDouble L4_PID_DRIVE_POSE_TOLERANCE =  new ConfigDouble(, 0.1);
   }
 
   public static class Algae {
