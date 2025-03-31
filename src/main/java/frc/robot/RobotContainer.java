@@ -259,7 +259,7 @@ public class RobotContainer {
         Pose2d closestReef = drive.isBlueAlliance() ? drive.getClosestReef(target)
                 : FlippingUtil.flipFieldPose(drive.getClosestReef(target));
         BooleanSupplier driveToCameraSwitchSupply = () -> camera.isCameraPoseStable() && (drive.supplier_position.get()
-                .getTranslation().getDistance(closestReef.getTranslation()) < 1);
+                .getTranslation().getDistance(closestReef.getTranslation()) < Constants.Drive.L4_PID_DRIVE_ROBOT_DISTANCE_TO_REEF.getValue());
         Command switchToCameraDrive = new SequentialCommandGroup(
                 new WaitUntilCommand(driveToCameraSwitchSupply).deadlineFor(driveToReef),
                 cameraDriveToPose);

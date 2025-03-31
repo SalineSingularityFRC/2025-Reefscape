@@ -11,6 +11,7 @@ import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.TimestampedDoubleArray;
+import frc.robot.Constants;
 import frc.robot.subsystems.ElevatorSubsystem;
 
 /**
@@ -24,7 +25,6 @@ public class RealSenseCamera {
   private NetworkTable debugTable;
   private Pose2d reefPose, lastPose;
   private final DoubleArrayPublisher dblArrayPub;
-  private final double poseTolerance = 0.1;
   private final int threshold = 8;
   private int stableCount = 0;
 
@@ -79,13 +79,13 @@ public class RealSenseCamera {
    * @return If the camera pose was under a set tolerance for a set threshold
    */
   public boolean isCameraPoseStable() {
-    if (reefPose.getTranslation().getDistance(lastPose.getTranslation()) < poseTolerance
+    if (reefPose.getTranslation().getDistance(lastPose.getTranslation()) < Constants.Drive.L4_PID_DRIVE_POSE_TOLERANCE.getValue()
         && !reefPose.getTranslation().equals(lastPose.getTranslation())) {
       stableCount++;
     } else {
       stableCount = 0;
     }
     lastPose = reefPose;
-    return stableCount >= threshold;
+    return stableCount >= Constants.Drive.L4_PID_DRIVE_STABLE_COUNT_THRESHOLD.getValue();
   }
 }
