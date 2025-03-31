@@ -158,14 +158,14 @@ public class RobotContainer {
         buttonController.a().whileTrue(makeAutoBargeScoreCommand());
         buttonController.b().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L2_LEFT));
         buttonController.x().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L3_LEFT));
-        buttonController.y().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L4_LEFT));
+        buttonController.y().whileTrue(makeL4AutoScoreCommand(AutoScoreTarget.L4_LEFT, cam));
 
         // PID to nearest coral pose right
         buttonController.leftBumper()
                 .onTrue(elevator.moveToTargetPosition(Setpoint.kFeederStation).withName("kFeederStation"));
         buttonController.rightBumper().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L2_RIGHT));
         buttonController.back().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L3_RIGHT));
-        buttonController.start().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L4_RIGHT));
+        buttonController.start().whileTrue(makeL4AutoScoreCommand(AutoScoreTarget.L4_RIGHT, cam));
 
         // PID to coral source
         buttonController.button(11).whileTrue(makeAutoDriveToSourceCommand(AutoScoreTarget.L1_LEFT));
@@ -252,14 +252,14 @@ public class RobotContainer {
         return commandGroup.andThen(drive.stopDriving());
     }
 
-    private Command makeL4AutoScoreCommand(AutoScoreTarget target) {
+    private Command makeL4AutoScoreCommand(AutoScoreTarget target, RealSenseCamera camera) {
         Command driveToReef = drive.drivetoReefPose(target).andThen(drive.updateRotationPIDSetpointCommand());
         Command cameraDriveToPose = drive.cameraDriveToPose(cam);
-        BooleanSupplier driveToCameraSwitchSupply = () -> cam.isCameraPoseStable() && (drive.supplier_position.get().getTranslation().getDistance(drive.getClosestReef(target).getTranslation()) < 1);
+        BooleanSupplier driveToCameraSwitchSupply = () -> camera.isCameraPoseStable() && (drive.supplier_position.get()
+                .getTranslation().getDistance(drive.getClosestReef(target).getTranslation()) < 1);
         Command switchToCameraDrive = new SequentialCommandGroup(
-            new WaitUntilCommand(driveToCameraSwitchSupply).deadlineWith(driveToReef),
-            cameraDriveToPose
-        );
+                new WaitUntilCommand(driveToCameraSwitchSupply).deadlineFor(driveToReef),
+                cameraDriveToPose);
         return new ParallelCommandGroup(
                 switchToCameraDrive,
                 elevator.moveToTargetPosition(targetToSetPoint(target)))
