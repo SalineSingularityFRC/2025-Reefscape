@@ -7,6 +7,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.networktables.DoubleArrayEntry;
 import edu.wpi.first.networktables.DoubleArrayPublisher;
+import edu.wpi.first.networktables.DoubleEntry;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -22,6 +23,9 @@ public class RealSenseCamera {
   private final String CamName;
   private NetworkTable mainTable;
   private NetworkTable debugTable;
+  private NetworkTable poseInfoTable;
+  private DoubleEntry xPoseEntry;
+  private DoubleEntry yPoseEntry;
   private Pose2d reefPose, lastPose;
   private final DoubleArrayPublisher dblArrayPub;
   private final double poseTolerance = 0.1;
@@ -31,6 +35,11 @@ public class RealSenseCamera {
   public RealSenseCamera(String name) {
     CamName = name;
     mainTable = NetworkTableInstance.getDefault().getTable(CamName);
+    poseInfoTable = mainTable.getSubTable("L4");
+    xPoseEntry = poseInfoTable.getDoubleTopic("0").getEntry(-1);
+    yPoseEntry = poseInfoTable.getDoubleTopic("1").getEntry(-1);
+
+    // Not needed
     debugTable = NetworkTableInstance.getDefault().getTable("Camera Debug Table");
     dblArrayPub = debugTable.getDoubleArrayTopic("Stored Reef Pose").publish();
 
@@ -58,20 +67,21 @@ public class RealSenseCamera {
   }
 
   /**
-   * Updates reef pose from network tables. Currently publishing the pose again to NT since not sure if I'm getting it right
+   * Updates reef pose from network tables
    */
   public void updateReefPose() {
-    DoubleArrayEntry poseEntry = mainTable.getDoubleArrayTopic("L4").getEntry(new double[0]);
+    // DoubleArrayEntry poseEntry = mainTable.getDoubleArrayTopic("L4").getEntry(new double[0]);
 
-    // Can effectively ignore this for now
-    publishArray(poseEntry.get());
+    // // Can effectively ignore this for now
+    // publishArray(poseEntry.get());
 
-    TimestampedDoubleArray tsValue = poseEntry.getAtomic();
-    double[] poseArray = tsValue.value;
-    long timestamp = tsValue.timestamp;
-    Translation2d tran2d = new Translation2d(poseArray[0], poseArray[1]);
+    // TimestampedDoubleArray tsValue = poseEntry.getAtomic();
+    // double[] poseArray = tsValue.value;
+    // long timestamp = tsValue.timestamp;
+    // Translation2d tran2d = new Translation2d(poseArray[0], poseArray[1]);
 
-    reefPose = new Pose2d(tran2d, new Rotation2d());
+    Translation2d trans2d = new Translation2d(xPoseEntry.get(), yPoseEntry.get());
+    reefPose = new Pose2d(trans2d, new Rotation2d());
   }
 
   /**
