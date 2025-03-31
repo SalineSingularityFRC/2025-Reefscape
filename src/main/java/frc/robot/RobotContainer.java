@@ -9,6 +9,7 @@ import java.util.function.BooleanSupplier;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.util.FlippingUtil;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -255,8 +256,10 @@ public class RobotContainer {
     private Command makeL4AutoScoreCommand(AutoScoreTarget target, RealSenseCamera camera) {
         Command driveToReef = drive.drivetoReefPose(target).andThen(drive.updateRotationPIDSetpointCommand());
         Command cameraDriveToPose = drive.cameraDriveToPose(cam);
+        Pose2d closestReef = drive.isBlueAlliance() ? drive.getClosestReef(target)
+                : FlippingUtil.flipFieldPose(drive.getClosestReef(target));
         BooleanSupplier driveToCameraSwitchSupply = () -> camera.isCameraPoseStable() && (drive.supplier_position.get()
-                .getTranslation().getDistance(drive.getClosestReef(target).getTranslation()) < 1);
+                .getTranslation().getDistance(closestReef.getTranslation()) < 1);
         Command switchToCameraDrive = new SequentialCommandGroup(
                 new WaitUntilCommand(driveToCameraSwitchSupply).deadlineFor(driveToReef),
                 cameraDriveToPose);
