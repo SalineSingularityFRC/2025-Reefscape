@@ -176,7 +176,7 @@ public class AlgaeSubsystem extends SubsystemBase {
         return moveToIntakePos()
                 .alongWith(runMotorsToIntake().until(() -> canSeeAlgae())
                 .andThen(new WaitCommand(0.05))
-                .andThen(hold(4)));
+                .andThen(hold(0.5)));
     }
 
     public Command runMotorsToIntake() {
@@ -217,6 +217,7 @@ public class AlgaeSubsystem extends SubsystemBase {
     public boolean canSeeAlgae() {
         SmartDashboard.putBoolean("Algae/Can see algae",
                 sensor.getMeasurement() != null && getSensorValue(sensor) <= sensingDistance);
+        SmartDashboard.putNumber("Algae/Algae Sensor Distnace", getSensorValue(sensor));        
         return sensor.getMeasurement() != null && getSensorValue(sensor) <= sensingDistance;
     }
 

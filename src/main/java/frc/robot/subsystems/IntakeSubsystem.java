@@ -192,6 +192,7 @@ public class IntakeSubsystem extends SubsystemBase {
         // return false;
 
         int sensorValue = getSensorValue(sensor);
+        SmartDashboard.putNumber("Intake/Intake Sensor Distance", sensorValue);
         return sensorValue <= intakeDistance && sensorValue != LASER_CAN_NO_MEASUREMENT;
     }
 

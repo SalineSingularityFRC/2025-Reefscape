@@ -178,7 +178,7 @@ public class RobotContainer {
         // Intaking and shooting coral logic
         buttonController.rightStick().whileTrue(intake.intakeCoral().withName("intakeCoral"));
         buttonController.leftStick()
-                .whileTrue(intake.shootCoral().withName("shootCoral").andThen(makeCoralHelpScoreCommand()));
+                .whileTrue(intake.shootCoral().withName("shootCoral").alongWith(makeCoralHelpScoreCommand()));
         // buttonController.leftStick().whileTrue(algae.moveToCoralScorePose().withName("Algae
         // Hinge to Coral Pose"));
         buttonController.leftStick().whileFalse(algae.moveToZero());
@@ -279,6 +279,7 @@ public class RobotContainer {
         ParallelCommandGroup commandGroup = new ParallelCommandGroup();
         commandGroup.addCommands(drive.driveCloseToBargePose().andThen(drive.stopDriving())
                 .andThen(drive.updateRotationPIDSetpointCommand()));
+        commandGroup.addCommands(algae.moveToAlgaeShoot());
         commandGroup.addCommands(elevator.moveToTargetPosition(Setpoint.kLevel2));
         return commandGroup.andThen(elevator.moveToTargetPosition(Setpoint.kLevel4)).andThen(new WaitCommand(1))
                 .andThen(drive.driveToBargePose()).andThen(drive.stopDriving())
