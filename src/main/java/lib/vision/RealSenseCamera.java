@@ -33,9 +33,9 @@ public class RealSenseCamera {
   private DoubleArrayEntry poseEntry;
   private DoubleTopic timestampTopic;
   private DoubleEntry timestampEntry;
-  private Pose2d reefPose, lastPose;
+  private Pose2d finalReefPose;
+  private Translation2d lastTranslation2d;
   private final DoubleArrayPublisher dblArrayPub;
-  private final int threshold = 8;
   private int stableCount = 0;
   private double lastTimestamp;
   private Timer timer;
@@ -53,8 +53,8 @@ public class RealSenseCamera {
     debugTable = NetworkTableInstance.getDefault().getTable("Camera Debug Table");
     dblArrayPub = debugTable.getDoubleArrayTopic("Stored Reef Pose").publish();
 
-    reefPose = new Pose2d();
-    lastPose = new Pose2d();
+    finalReefPose = new Pose2d();
+    lastTranslation2d = new Translation2d();
 
     timer = new Timer();
     timer.start();
@@ -64,8 +64,8 @@ public class RealSenseCamera {
   /**
    * Returns the current reef pose from network tables
    */
-  public Supplier<Pose2d> getReefPose() {
-    return () -> reefPose;
+  public Supplier<Pose2d> getFinalReefPose() {
+    return () -> finalReefPose;
   }
 
   /**
@@ -108,12 +108,12 @@ public class RealSenseCamera {
     }
     lastTimestamp = currentTimestamp;
 
-    if (currentTimestamp == 0 || timer.hasElapsed(5) || !isCameraPoseStable()) { // make constants thing later
-      reefPose = null;
+    if (currentTimestamp == 0 || timer.hasElapsed(5) || !isCameraPoseStable(trans2d)) { // make constants thing later
+      finalReefPose = null;
       SmartDashboard.putBoolean("realsensecamera/good", false); // MAKE CONSTANTS LATER
     } else {
-      reefPose = new Pose2d(trans2d, new Rotation2d());
-      SmartDashboard.putBoolean("realsensecamera/good", reefPose.getX() < 1); // MAKE CONSTANTS LATER
+      finalReefPose = new Pose2d(trans2d, new Rotation2d());
+      SmartDashboard.putBoolean("realsensecamera/good", finalReefPose.getX() < 1); // MAKE CONSTANTS LATER
     }
   }
 
@@ -122,18 +122,17 @@ public class RealSenseCamera {
    * 
    * @return If the camera pose was under a set tolerance for a set threshold
    */
-  private boolean isCameraPoseStable() {
+  private boolean isCameraPoseStable(Translation2d poseTranslation2d) {
     SmartDashboard.putNumber("realsensecamera/stableCount", stableCount);
-    if (reefPose == null) return false;
 
-    if (reefPose.getTranslation().getDistance(lastPose.getTranslation()) < Constants.Drive.L4_PID_DRIVE_POSE_TOLERANCE
+    if (poseTranslation2d.getDistance(lastTranslation2d) < Constants.Drive.L4_PID_DRIVE_POSE_TOLERANCE
         .getValue()
-        && !reefPose.getTranslation().equals(lastPose.getTranslation())) {
+        && !poseTranslation2d.equals(lastTranslation2d)) {
       stableCount++;
     } else {
       stableCount = 0;
     }
-    lastPose = reefPose;
+    lastTranslation2d = poseTranslation2d;
     return stableCount >= Constants.Drive.L4_PID_DRIVE_STABLE_COUNT_THRESHOLD.getValue();
   }
 }
