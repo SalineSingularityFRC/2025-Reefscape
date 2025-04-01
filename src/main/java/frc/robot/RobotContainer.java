@@ -4,15 +4,18 @@
 package frc.robot;
 
 import java.util.Set;
+import java.util.function.BooleanSupplier;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.util.FlippingUtil;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.kinematics.Odometry;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.math.controller.DifferentialDriveAccelerationLimiter;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -26,6 +29,7 @@ import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import lib.vision.Limelight;
 import lib.vision.RealSenseCamera;
@@ -58,7 +62,7 @@ public class RobotContainer {
     private ElevatorSubsystem elevator;
     private Limelight leftLL;
     private Limelight rightLL;
-    // private RealSenseCamera cam;
+    private RealSenseCamera cam;
     private LEDStatusSubsystem ledStatus;
     private AlgaeSubsystem algae;
     private AlgaeProcessorSubsystem algaeProcessorSubsystem;
@@ -68,7 +72,7 @@ public class RobotContainer {
         elevator = new ElevatorSubsystem(intake);
         leftLL = new Limelight(Constants.Vision.Names.leftLL);
         rightLL = new Limelight(Constants.Vision.Names.rightLL);
-        // cam = new RealSenseCamera(Constants.Vision.Names.realSenseCam);
+        cam = new RealSenseCamera(Constants.Vision.Names.realSenseCam);
         drive = new SwerveSubsystem(leftLL, rightLL);
         // climber = new ClimberSubsystem();
         ledStatus = new LEDStatusSubsystem(intake, elevator);
@@ -257,6 +261,22 @@ public class RobotContainer {
         return commandGroup.andThen(drive.stopDriving());
     }
 
+    private Command makeL4AutoScoreCommand(AutoScoreTarget target, RealSenseCamera camera) {
+        Command driveToReef = drive.drivetoReefPose(target).andThen(drive.updateRotationPIDSetpointCommand());
+        Command cameraDriveToPose = drive.cameraDriveToPose(cam);
+        Pose2d closestReef = drive.isBlueAlliance() ? drive.getClosestReef(target)
+                : FlippingUtil.flipFieldPose(drive.getClosestReef(target));
+        BooleanSupplier driveToCameraSwitchSupply = () -> camera.isCameraPoseStable() && (drive.supplier_position.get()
+                .getTranslation().getDistance(closestReef.getTranslation()) < Constants.Drive.L4_PID_DRIVE_ROBOT_DISTANCE_TO_REEF.getValue());
+        Command switchToCameraDrive = new SequentialCommandGroup(
+                new WaitUntilCommand(driveToCameraSwitchSupply).deadlineFor(driveToReef),
+                cameraDriveToPose);
+        return new ParallelCommandGroup(
+                switchToCameraDrive,
+                elevator.moveToTargetPosition(targetToSetPoint(target)))
+                .andThen(drive.stopDriving());
+    }
+
     private Command makeAutoDriveToSourceCommand(AutoScoreTarget target) {
         ParallelCommandGroup commandGroup = new ParallelCommandGroup();
         commandGroup.addCommands(drive.drivetoSourcePose(target).andThen(drive.updateRotationPIDSetpointCommand()));
@@ -266,11 +286,13 @@ public class RobotContainer {
 
     private Command makeAutoBargeScoreCommand() {
         ParallelCommandGroup commandGroup = new ParallelCommandGroup();
-        commandGroup.addCommands(drive.drivetoBargePose().andThen(drive.updateRotationPIDSetpointCommand()));
+        commandGroup.addCommands(drive.driveCloseToBargePose().andThen(drive.stopDriving())
+                .andThen(drive.updateRotationPIDSetpointCommand()));
         commandGroup.addCommands(elevator.moveToTargetPosition(Setpoint.kLevel2));
-        return commandGroup.andThen(drive.stopDriving()).andThen(elevator.moveToTargetPosition(Setpoint.kLevel4))
-                .andThen(new WaitCommand(1))
-                .andThen(algae.shootAlgae());
+        return commandGroup.andThen(elevator.moveToTargetPosition(Setpoint.kLevel4)).andThen(new WaitCommand(1))
+                .andThen(drive.driveToBargePose()).andThen(drive.stopDriving())
+                .andThen(drive.updateRotationPIDSetpointCommand())
+                .andThen(new WaitCommand(1)).andThen(algae.shootAlgae());
     }
 
     private Command makeAlgaeIntakeCommand() {

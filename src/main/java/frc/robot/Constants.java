@@ -357,6 +357,10 @@ public final class Constants {
     public static ConfigDouble PID_DRIVE_MAX_ROTATION_SPEED = new ConfigDouble("Drive/PID/Max Rotation", 2);
     public static ConfigDouble PID_DRIVE_MAX_DRIVE_X_SPEED = new ConfigDouble("Drive/PID/Max Drive X", 2);
     public static ConfigDouble PID_DRIVE_MAX_DRIVE_Y_SPEED = new ConfigDouble("Drive/PID/Max Drive Y", 2);
+
+    public static ConfigDouble L4_PID_DRIVE_POSE_TOLERANCE =  new ConfigDouble("L4PIDDrive/Drive Pose Tolerance", 0.1);
+    public static ConfigDouble L4_PID_DRIVE_STABLE_COUNT_THRESHOLD =  new ConfigDouble("L4PIDDrive/Stable Count Threshold", 8);
+    public static ConfigDouble L4_PID_DRIVE_ROBOT_DISTANCE_TO_REEF = new ConfigDouble("L4PIDDrive/Reef to Robot Distance", 1);
   }
 
   public static class Algae {
