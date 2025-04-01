@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.6230785472972975,
-        "y": 0.6750844594594594
+        "x": 1.48,
+        "y": 0.75
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.164707780152469,
-        "y": 2.4087858953786956
+        "x": 3.5590721967741903,
+        "y": 2.808862001780816
       },
       "isLocked": false,
       "linkedName": "Better_CS2"
@@ -20,8 +20,8 @@
         "y": 2.917
       },
       "prevControl": {
-        "x": 3.4972155619491505,
-        "y": 2.7247269302352137
+        "x": 3.368593417278179,
+        "y": 2.646152230680202
       },
       "nextControl": null,
       "isLocked": false,
@@ -61,7 +61,7 @@
   "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 4.865,
-    "maxAcceleration": 5.0,
+    "maxAcceleration": 4.5,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 673.0,
     "nominalVoltage": 12.0,

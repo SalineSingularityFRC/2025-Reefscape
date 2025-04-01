@@ -3,40 +3,40 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.0744897959183675,
-        "y": 0.8948022959183664
+        "x": 5.85,
+        "y": 4.193
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.842920918367347,
-        "y": 1.0291135204081625
+        "x": 6.811483491423372,
+        "y": 4.187572348329607
       },
       "isLocked": false,
-      "linkedName": "CS_2"
+      "linkedName": "H"
     },
     {
       "anchor": {
-        "x": 3.934,
-        "y": 2.738
+        "x": 7.254000000000001,
+        "y": 4.193
       },
       "prevControl": {
-        "x": 3.0453035714285717,
-        "y": 1.2754323979591833
+        "x": 6.612213374143318,
+        "y": 4.194495833097031
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "D"
+      "linkedName": "Algae Move Away"
     }
   ],
   "rotationTargets": [],
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 0.5029850746268658,
+      "minWaypointRelativePos": 0.7473945409429281,
       "maxWaypointRelativePos": 1.0,
       "constraints": {
         "maxVelocity": 2.0,
-        "maxAcceleration": 2.5,
+        "maxAcceleration": 4.5,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 673.0,
         "nominalVoltage": 12.0,
@@ -56,13 +56,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 59.99999999999999
+    "rotation": 180.0
   },
   "reversed": false,
-  "folder": "CS_2 to Reef",
+  "folder": "Algae Scoring",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 54.0
+    "rotation": 180.0
   },
   "useDefaultConstraints": true
 }

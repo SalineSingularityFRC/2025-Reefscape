@@ -49,9 +49,46 @@
           }
         },
         {
-          "type": "path",
+          "type": "sequential",
           "data": {
-            "pathName": "H Forward"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Move Away From Reef"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "L2"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Move To Algae Intake"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Pickup Algae"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Stop Driving"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Intake Algae"
+                }
+              }
+            ]
           }
         },
         {
@@ -65,7 +102,7 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "H Forward - CS_1"
+                        "pathName": "H to Barge"
                       }
                     },
                     {
@@ -77,67 +114,29 @@
                   ]
                 }
               },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Feeder Station"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Stop Driving"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Wait For Coral"
-          }
-        },
-        {
-          "type": "parallel",
-          "data": {
-            "commands": [
               {
                 "type": "sequential",
                 "data": {
                   "commands": [
                     {
-                      "type": "parallel",
+                      "type": "wait",
                       "data": {
-                        "commands": [
-                          {
-                            "type": "path",
-                            "data": {
-                              "pathName": "CS_1 - B"
-                            }
-                          },
-                          {
-                            "type": "named",
-                            "data": {
-                              "name": "Intake Coral"
-                            }
-                          }
-                        ]
+                        "waitTime": 0.5
                       }
                     },
                     {
                       "type": "named",
                       "data": {
-                        "name": "Stop Driving"
+                        "name": "L4"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "Move Hinge Barge"
                       }
                     }
                   ]
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "L4"
                 }
               }
             ]
@@ -152,7 +151,13 @@
         {
           "type": "named",
           "data": {
-            "name": "Shoot Coral"
+            "name": "Shoot Algae"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Move Hinge Zero"
           }
         }
       ]

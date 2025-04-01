@@ -79,6 +79,7 @@ public class Robot extends LoggedRobot {
     m_robotContainer.updateOdometry();
     // m_robotContainer.updateCamData();
     m_robotContainer.updateMatchTime();
+    m_robotContainer.updateCamera();
   }
 
   @Override
@@ -130,7 +131,7 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void teleopPeriodic() {
-    CommandScheduler.getInstance().run();
+    // CommandScheduler.getInstance().run();
   }
 
   @Override

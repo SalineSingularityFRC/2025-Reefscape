@@ -131,7 +131,6 @@ public class AlgaeSubsystem extends SubsystemBase {
     public Command moveToPos(DoubleSupplier targetPos) {
         return new FunctionalCommand(
                 () -> {
-                    manual = false;
                     mainMotorHoldRequest.Position = targetPos.getAsDouble();
                     mainMotorAlgaeHoldRequest.Position = targetPos.getAsDouble();
                 },
@@ -165,7 +164,7 @@ public class AlgaeSubsystem extends SubsystemBase {
     }
 
     public Command shootAlgae() {
-        return spitAlgaeMotor().until(() -> !canSeeAlgae())
+        return runMotorsToSpit().until(() -> !canSeeAlgae())
                 .andThen(new WaitCommand(0.05)).andThen(hold(0));
     }
 
@@ -175,12 +174,12 @@ public class AlgaeSubsystem extends SubsystemBase {
 
     public Command intake() {
         return moveToIntakePos()
-                .alongWith(intakeAlgaeMotor().until(() -> canSeeAlgae())
+                .alongWith(runMotorsToIntake().until(() -> canSeeAlgae())
                 .andThen(new WaitCommand(0.05))
-                .andThen(hold(1)));
+                .andThen(hold(4)));
     }
 
-    public Command intakeAlgaeMotor() {
+    public Command runMotorsToIntake() {
         return runEnd(() -> {
             manual = true;
             algaeMotor.setControl(intakeSpeedRequest); // If algae is in system, make motor speed fast, otherwise slow
@@ -194,7 +193,7 @@ public class AlgaeSubsystem extends SubsystemBase {
         });
     }
 
-    public Command spitAlgaeMotor() {
+    public Command runMotorsToSpit() {
         return runEnd(() -> {
             algaeMotor.setControl(outtakeSpeedRequest);
         }, () -> {

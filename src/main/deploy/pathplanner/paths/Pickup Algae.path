@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.85,
+        "x": 7.254000000000001,
         "y": 4.193
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.677272832037639,
-        "y": 4.373735512414418
+        "x": 8.254000000000001,
+        "y": 4.193
       },
       "isLocked": false,
-      "linkedName": "H"
+      "linkedName": "Algae Move Away"
     },
     {
       "anchor": {
-        "x": 5.8,
-        "y": 4.193
+        "x": 5.85,
+        "y": 4.035
       },
       "prevControl": {
-        "x": 6.031241945763,
-        "y": 3.989940193194402
+        "x": 4.85,
+        "y": 4.035
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "H Forward"
+      "linkedName": "H - Algae"
     }
   ],
   "rotationTargets": [],
@@ -45,7 +45,7 @@
     "rotation": 180.0
   },
   "reversed": false,
-  "folder": "Path Adjustments",
+  "folder": "Algae Scoring",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 180.0

@@ -3,40 +3,45 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.0744897959183675,
-        "y": 0.8948022959183664
+        "x": 5.084,
+        "y": 5.289
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.842920918367347,
-        "y": 1.0291135204081625
+        "x": 3.5341709418301717,
+        "y": 6.12738118495244
       },
       "isLocked": false,
-      "linkedName": "CS_2"
+      "linkedName": "Fudge J"
     },
     {
       "anchor": {
-        "x": 3.934,
-        "y": 2.738
+        "x": 1.48,
+        "y": 7.27
       },
       "prevControl": {
-        "x": 3.0453035714285717,
-        "y": 1.2754323979591833
+        "x": 1.7375981105724885,
+        "y": 7.123380681901294
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "D"
+      "linkedName": "Better_CS1"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.7904509283819623,
+      "rotationDegrees": -54.0
+    }
+  ],
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 0.5029850746268658,
+      "minWaypointRelativePos": 0.625838926174495,
       "maxWaypointRelativePos": 1.0,
       "constraints": {
-        "maxVelocity": 2.0,
-        "maxAcceleration": 2.5,
+        "maxVelocity": 1.5,
+        "maxAcceleration": 2.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 673.0,
         "nominalVoltage": 12.0,
@@ -56,13 +61,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 59.99999999999999
+    "rotation": -54.0
   },
   "reversed": false,
-  "folder": "CS_2 to Reef",
+  "folder": "To CS_1",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 54.0
+    "rotation": -119.99999999999999
   },
   "useDefaultConstraints": true
 }

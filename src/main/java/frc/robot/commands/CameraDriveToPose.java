@@ -10,14 +10,13 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.Drive;
 import frc.robot.subsystems.SwerveSubsystem;
 import static frc.robot.Constants.Drive;
 
 /**
- * A command that takes in a robot relative pose from the camera and drives the robot to it via PID
+ * A command that takes in a field relative pose and drives the robot to it via PID
  */
 public class CameraDriveToPose extends Command {
     private final SwerveSubsystem m_swerve;
@@ -90,26 +89,25 @@ public class CameraDriveToPose extends Command {
         //     errorR =+ 2* Math.PI;
         // }
 
-        SmartDashboard.putNumber("Tuning/Error", errorR);
-
+        // Accounting for most efficient way to turn
         double drCC = rotationController.calculate(targetPose.getRotation().getRadians(), currentPose.getRotation().getRadians());
         double drCCW = rotationController.calculate(currentPose.getRotation().getRadians(), targetPose.getRotation().getRadians());
-        SmartDashboard.putNumber("Tuning/Current Rot", currentPose.getRotation().getRadians());
-        SmartDashboard.putNumber("Tuning/Targ rot", targetPose.getRotation().getRadians());
         
         double dr = Math.abs(drCC) > Math.abs(drCCW) ? drCCW: drCC;
-        double dx = xDriveController.calculate(currentPose.getTranslation().getX(), targetPose.getTranslation().getX());
-        double dy = yDriveController.calculate(currentPose.getTranslation().getY(), targetPose.getTranslation().getY());
+        double dx = xDriveController.calculate(currentPose.getTranslation().getX(), currentPose.getTranslation().getX() + targetPose.getTranslation().getX());
+        double dy = yDriveController.calculate(currentPose.getTranslation().getY(), currentPose.getTranslation().getY() + targetPose.getTranslation().getY());
 
         dr = - MathUtil.clamp(dr, -Drive.PID_DRIVE_MAX_ROTATION_SPEED.getValue(), Drive.PID_DRIVE_MAX_ROTATION_SPEED.getValue());
         dx = MathUtil.clamp(dx, -Drive.PID_DRIVE_MAX_DRIVE_X_SPEED.getValue(), Drive.PID_DRIVE_MAX_DRIVE_X_SPEED.getValue()); 
         dy = MathUtil.clamp(dy, -Drive.PID_DRIVE_MAX_DRIVE_Y_SPEED.getValue(), Drive.PID_DRIVE_MAX_DRIVE_Y_SPEED.getValue()); 
 
-        SmartDashboard.putNumber("Tuning/dr", dr);
-        SmartDashboard.putNumber("Tuning/dx", dx);
-        SmartDashboard.putNumber("Tuning/dy", dy);
+        // Invert drive inputs if on red alliance since field centric
+        if(!m_swerve.isBlueAlliance()) {
+            dx*=-1;
+            dy*=-1;
+        }
 
-        m_swerve.drive(dr, dx, dy, false, 1.0);
+        m_swerve.drive(dr, dx, dy, true, 1.0);
     }
 
     public boolean isFinished() {

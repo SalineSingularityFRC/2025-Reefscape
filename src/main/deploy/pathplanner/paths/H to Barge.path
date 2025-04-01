@@ -4,31 +4,36 @@
     {
       "anchor": {
         "x": 5.85,
-        "y": 4.193
+        "y": 4.035
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.677272832037639,
-        "y": 4.373735512414418
+        "x": 7.839000000000001,
+        "y": 3.8689999999999993
       },
       "isLocked": false,
-      "linkedName": "H"
+      "linkedName": "H - Algae"
     },
     {
       "anchor": {
-        "x": 5.8,
-        "y": 4.193
+        "x": 7.67325,
+        "y": 5.1267499999999995
       },
       "prevControl": {
-        "x": 6.031241945763,
-        "y": 3.989940193194402
+        "x": 6.338589122040545,
+        "y": 4.914998694652971
       },
       "nextControl": null,
-      "isLocked": false,
-      "linkedName": "H Forward"
+      "isLocked": true,
+      "linkedName": null
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.18838174273860775,
+      "rotationDegrees": 180.0
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
@@ -42,10 +47,10 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": 0.0
   },
   "reversed": false,
-  "folder": "Path Adjustments",
+  "folder": "Algae Scoring",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 180.0
