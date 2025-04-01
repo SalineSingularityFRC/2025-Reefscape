@@ -718,7 +718,7 @@ public class SwerveSubsystem extends SubsystemBase {
       // });
 
       return new CameraDriveToPose(this, () -> {
-        Pose2d targetPose = cam.getReefPose().get();
+        Pose2d targetPose = cam.getFinalReefPose().get();
         Pose2d robotPose = supplier_position.get();
 
         if (targetPose == null) {
