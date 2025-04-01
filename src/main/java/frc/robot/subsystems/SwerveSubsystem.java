@@ -639,6 +639,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
   // Blue alliance only since we flip if red alliance
   static double bargeXBlue = 7.0;
+  static double bargeXFarBlue = bargeXBlue - 0.5;
 
   /*
    * Drives to closest reef pose based on which side specified (left or right)
@@ -699,9 +700,9 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   /*
-   * Drives to barge start point. (RobotX, RobotY) -> (BargePoseX, RobotY)
+   * Drives to barge shoot point. (RobotX, RobotY) -> (BargePoseX, RobotY)
    */
-  public Command drivetoBargePose() {
+  public Command driveToBargePose() {
     return new DeferredCommand(() -> {
 
       if (BlueAlliance) {
@@ -711,6 +712,24 @@ public class SwerveSubsystem extends SubsystemBase {
         // Flipping bargeXBlue to red side (for 2025 field only)
         return new DriveToPose(this, supplier_position,
             () -> new Pose2d(Units.feetToMeters(57.573) - bargeXBlue, supplier_position.get().getTranslation().getY(), new Rotation2d(Math.PI)));
+      } 
+
+    }, Set.of(this));
+  }
+
+  /*
+   * Drives close to barge shoot point. (RobotX, RobotY) -> (BargePoseX, RobotY)
+   */
+  public Command driveCloseToBargePose() {
+    return new DeferredCommand(() -> {
+
+      if (BlueAlliance) {
+        return new DriveToPose(this, supplier_position,
+            () -> new Pose2d(bargeXFarBlue, supplier_position.get().getTranslation().getY(), new Rotation2d(0)));
+      } else {
+        // Flipping bargeXFarBlue to red side (for 2025 field only)
+        return new DriveToPose(this, supplier_position,
+            () -> new Pose2d(Units.feetToMeters(57.573) - bargeXFarBlue, supplier_position.get().getTranslation().getY(), new Rotation2d(Math.PI)));
       } 
 
     }, Set.of(this));
