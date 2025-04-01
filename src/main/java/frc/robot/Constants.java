@@ -467,6 +467,7 @@ public final class Constants {
 
   public static class Intake {
     public static class Nums {
+      public static ConfigDouble conveyorSpeed = new ConfigDouble("Conveyor Motor Speed", .5);
       public static ConfigDouble motorSpeed = new ConfigDouble("Intake Motor Speed", 70);
       public static ConfigDouble motorSpeedSlow = new ConfigDouble("Intake Motor Speed Slow", 35);
       public static ConfigDouble shooterSpeed = new ConfigDouble("Shooter Motor Speed", 65);

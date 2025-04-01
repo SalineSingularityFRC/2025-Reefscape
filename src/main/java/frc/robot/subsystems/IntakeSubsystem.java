@@ -30,6 +30,7 @@ public class IntakeSubsystem extends SubsystemBase {
     private double troughSenserDistance;
     private final VelocityTorqueCurrentFOC slowVelocityRequest, fastVelocityRequest;
     private final VelocityTorqueCurrentFOC shooterVelocityRequest;
+    private TalonFX conveyorMotor;
     private boolean laserCanLogicOverride = false;
 
     private static final int LASER_CAN_NO_MEASUREMENT = -1;
@@ -38,6 +39,7 @@ public class IntakeSubsystem extends SubsystemBase {
             troughSensor = new LaserCan(Constants.CanId.Intake.TROUGH_LASER);
             intakeSensor = new LaserCan(Constants.CanId.Intake.INTAKE_LASER);
             shooterSensor = new LaserCan(Constants.CanId.Intake.SHOOTER_LASER);
+            conveyorMotor = new TalonFX(Constants.CanId.Algae.ALGAE_MOTOR);
     
             intakeDistance = Intake.Nums.intakeDistance.getValue();
             shooterDistance = Intake.Nums.shooterDistance.getValue();
@@ -241,12 +243,25 @@ public class IntakeSubsystem extends SubsystemBase {
                 () -> {
                     leftMotor.setControl(coralInShooter() || laserCanLogicOverride ? slowVelocityRequest: fastVelocityRequest);
                     rightMotor.setControl(coralInShooter() || laserCanLogicOverride ? slowVelocityRequest: fastVelocityRequest);
+                    conveyorMotor.set(Intake.Nums.conveyorSpeed.getValue());
                 },
                 () -> {
+                    conveyorMotor.stopMotor();
                     leftMotor.stopMotor();
                     rightMotor.stopMotor();
                     // SmartDashboard.putNumber("Intake/Target Speed", 0);
-                }).until(() -> (coralInShooter() && !coralInIntake()));
+                }).until(() -> coralInShooter() && !coralInIntake());
+
+    
+    }
+    public Command conveyorReverse() {
+        return runEnd(
+            () -> {
+                conveyorMotor.set(-1 * Intake.Nums.conveyorSpeed.getValue());
+            },
+            () -> {
+                conveyorMotor.set(0);
+            });           
     }
 }
 
