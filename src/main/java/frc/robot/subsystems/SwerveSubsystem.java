@@ -245,9 +245,9 @@ public class SwerveSubsystem extends SubsystemBase {
     );
 
     publisher = table.getStructTopic("Final Odometry Position", Pose2d.struct).publish();
-    rotationController = new PIDController(Constants.PidGains.rotationCorrection.rotation.P,
-        Constants.PidGains.rotationCorrection.rotation.I,
-        Constants.PidGains.rotationCorrection.rotation.D);
+    rotationController = new PIDController(Constants.Drive.ROTATION_CORRECTION_KP.getValue(),
+        Constants.Drive.ROTATION_CORRECTION_KP.getValue(),
+        Constants.Drive.ROTATION_CORRECTION_KP.getValue());
     rotationController.setTolerance(0.5);
     // feedforwardRotation = new SimpleMotorFeedforward(0.05, 0);
 
@@ -748,8 +748,9 @@ public class SwerveSubsystem extends SubsystemBase {
       } else {
         // Flipping bargeXFarBlue to red side (for 2025 field only)
         return new DriveToPose(this, supplier_position,
-            () -> new Pose2d(Units.feetToMeters(57.573) - bargeXFarBlue, supplier_position.get().getTranslation().getY(), new Rotation2d(Math.PI)));
-      } 
+            () -> new Pose2d(Units.feetToMeters(57.573) - bargeXFarBlue,
+                supplier_position.get().getTranslation().getY(), new Rotation2d(Math.PI)));
+      }
 
     }, Set.of(this));
   }

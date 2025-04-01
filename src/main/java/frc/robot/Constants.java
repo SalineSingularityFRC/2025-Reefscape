@@ -186,10 +186,6 @@ public final class Constants {
       public static final PID rotation = new PID(3, 0, 0);
     }
 
-    public static final class rotationCorrection {
-      public static final PID rotation = new PID(0.085, 0, 0);
-    }
-
     public static final class Limelight {
       public static final PID DRIVE_CONTROLLER = new PID(0.0025, 0, 0);
       public static final PID TURN_CONTROLLER = new PID(0.01, 0, 0);
@@ -337,6 +333,10 @@ public final class Constants {
   }
 
   public static class Drive {
+    public static ConfigDouble ROTATION_CORRECTION_KP = new ConfigDouble("Drive/PID/Rotation Correction kP", 0.085);
+    public static ConfigDouble ROTATION_CORRECTION_KI = new ConfigDouble("Drive/PID/Rotation Correction kI", 0.0);
+    public static ConfigDouble ROTATION_CORRECTION_KD = new ConfigDouble("Drive/PID/Rotation Correction kD", 0.0);
+
     public static ConfigInt PID_DRIVE_TUNING = new ConfigInt("Drive/PID/Tuning Enabled", 0);
 
     public static ConfigDouble PID_DRIVE_ROTATION_KP = new ConfigDouble("Drive/PID/Rotation kP", 0.1);
