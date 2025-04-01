@@ -230,6 +230,10 @@ public class RobotContainer {
         this.drive.updateOdometry();
     }
 
+    protected void updateCamera() {
+        cam.updateReefPose();
+    }
+
     protected void updateMatchTime() {
         SmartDashboard.putNumber("Elastic/Match Time", DriverStation.getMatchTime());
     }
@@ -254,19 +258,11 @@ public class RobotContainer {
     }
 
     private Command makeL4AutoScoreCommand(AutoScoreTarget target, RealSenseCamera camera) {
-        Command driveToReef = drive.drivetoReefPose(target).andThen(drive.updateRotationPIDSetpointCommand());
-        Command cameraDriveToPose = drive.cameraDriveToPose(cam);
-        Pose2d closestReef = drive.isBlueAlliance() ? drive.getClosestReef(target)
-                : FlippingUtil.flipFieldPose(drive.getClosestReef(target));
-        BooleanSupplier driveToCameraSwitchSupply = () -> camera.isCameraPoseStable() && (drive.supplier_position.get()
-                .getTranslation().getDistance(closestReef.getTranslation()) < Constants.Drive.L4_PID_DRIVE_ROBOT_DISTANCE_TO_REEF.getValue());
-        Command switchToCameraDrive = new SequentialCommandGroup(
-                new WaitUntilCommand(driveToCameraSwitchSupply).deadlineFor(driveToReef),
-                cameraDriveToPose);
-        return new ParallelCommandGroup(
-                switchToCameraDrive,
-                elevator.moveToTargetPosition(targetToSetPoint(target)))
-                .andThen(drive.stopDriving());
+        Command driveToReef = drive.cameraDriveToPose(camera, target).andThen(drive.updateRotationPIDSetpointCommand());
+        ParallelCommandGroup commandGroup = new ParallelCommandGroup();
+        commandGroup.addCommands(driveToReef);
+        commandGroup.addCommands(elevator.moveToTargetPosition(targetToSetPoint(target)));
+        return commandGroup.andThen(drive.stopDriving());
     }
 
     private Command makeAutoDriveToSourceCommand(AutoScoreTarget target) {

@@ -572,12 +572,18 @@ public class SwerveSubsystem extends SubsystemBase {
       return ourPose;
     }
 
+    if (BlueAlliance) {
+      return nearest;
+      // return AutoBuilder.pathfindToPose(targetPose, constraints, 0);
+    } else {
+      return FlippingUtil.flipFieldPose(nearest);
+      // return AutoBuilder.pathfindToPoseFlipped(targetPose, constraints, 0);
+    }
+
     // SmartDashboard.putString("AutoScore/Chosen Reef", ((WrappedPose2d)
     // nearest).reefPose.name);
     // SmartDashboard.putNumber("AutoScore/Chosen Reef/X", nearest.getX());
     // SmartDashboard.putNumber("AutoScore/Chosen Reef/Y", nearest.getY());
-
-    return nearest;
   }
 
   /*
@@ -648,13 +654,16 @@ public class SwerveSubsystem extends SubsystemBase {
       Pose2d targetPose = getClosestReef(target);
       // PathConstraints constraints = new PathConstraints(1.5, 1.5, .5, .5);
 
-      if (BlueAlliance) {
-        return new DriveToPose(this, supplier_position, () -> targetPose);
-        // return AutoBuilder.pathfindToPose(targetPose, constraints, 0);
-      } else {
-        return new DriveToPose(this, supplier_position, () -> FlippingUtil.flipFieldPose(targetPose));
-        // return AutoBuilder.pathfindToPoseFlipped(targetPose, constraints, 0);
-      }
+      // if (BlueAlliance) {
+      // return new DriveToPose(this, supplier_position, () -> targetPose);
+      // // return AutoBuilder.pathfindToPose(targetPose, constraints, 0);
+      // } else {
+      // return new DriveToPose(this, supplier_position, () ->
+      // FlippingUtil.flipFieldPose(targetPose));
+      // // return AutoBuilder.pathfindToPoseFlipped(targetPose, constraints, 0);
+      // }
+
+      return new DriveToPose(this, supplier_position, () -> targetPose);
 
     }, Set.of(this));
   }
@@ -689,11 +698,20 @@ public class SwerveSubsystem extends SubsystemBase {
   /**
    * Drives to pose supplied by camera
    */
-  public Command cameraDriveToPose(RealSenseCamera cam) {
+  public Command cameraDriveToPose(RealSenseCamera cam, AutoScoreTarget closestTarget) {
     return new DeferredCommand(() -> {
-      Pose2d targetPose = cam.getReefPose().get();
+      Pose2d closestTargetPose = getClosestReef(closestTarget);
 
-      return new CameraDriveToPose(this, supplier_position, () -> targetPose);
+      return new CameraDriveToPose(this, supplier_position, () -> {
+        Pose2d targetPose = cam.getReefPose().get();
+        Pose2d robotPose = supplier_position.get();
+        if (targetPose == null) {
+          return closestTargetPose;
+        }
+
+        Pose2d newRobotPose = robotPose.plus(new Transform2d(targetPose.getX(), targetPose.getY(), new Rotation2d(0)));
+        return new Pose2d(newRobotPose.getX(), newRobotPose.getY(), closestTargetPose.getRotation());
+      });
 
     }, Set.of(this));
   }
@@ -710,8 +728,9 @@ public class SwerveSubsystem extends SubsystemBase {
       } else {
         // Flipping bargeXBlue to red side (for 2025 field only)
         return new DriveToPose(this, supplier_position,
-            () -> new Pose2d(Units.feetToMeters(57.573) - bargeXBlue, supplier_position.get().getTranslation().getY(), new Rotation2d(Math.PI)));
-      } 
+            () -> new Pose2d(Units.feetToMeters(57.573) - bargeXBlue, supplier_position.get().getTranslation().getY(),
+                new Rotation2d(Math.PI)));
+      }
 
     }, Set.of(this));
   }
