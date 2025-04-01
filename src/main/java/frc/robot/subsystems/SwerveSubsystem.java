@@ -55,6 +55,7 @@ import lib.vision.RealSenseCamera;
 import frc.robot.SwerveClasses.SwerveModule;
 import frc.robot.SwerveClasses.SwerveOdometry;
 import frc.robot.commands.CameraDriveToPose;
+import frc.robot.commands.CameraDriveToPose.PoseAndTarget;
 import frc.robot.commands.DriveToPose;
 
 /*
@@ -703,15 +704,42 @@ public class SwerveSubsystem extends SubsystemBase {
     return new DeferredCommand(() -> {
       Pose2d closestTargetPose = getClosestReef(closestTarget);
 
-      return new CameraDriveToPose(this, supplier_position, () -> {
+      // return new CameraDriveToPose(this, supplier_position, () -> {
+      // Pose2d targetPose = cam.getReefPose().get();
+      // Pose2d robotPose = supplier_position.get();
+      // if (targetPose == null) {
+      // return closestTargetPose;
+      // }
+
+      // Pose2d newRobotPose = robotPose.plus(new Transform2d(targetPose.getX(),
+      // targetPose.getY(), new Rotation2d(0)));
+      // return new Pose2d(newRobotPose.getX(), newRobotPose.getY(),
+      // closestTargetPose.getRotation());
+      // });
+
+      return new CameraDriveToPose(this, () -> {
         Pose2d targetPose = cam.getReefPose().get();
         Pose2d robotPose = supplier_position.get();
+
         if (targetPose == null) {
-          return closestTargetPose;
+          // If we don't see a camera reading, use the robot position and the auto reef
+          // target
+          SmartDashboard.putString("realsensecamera/pidmode", "normal");
+          return new PoseAndTarget(robotPose, closestTargetPose);
         }
 
-        Pose2d newRobotPose = robotPose.plus(new Transform2d(targetPose.getX(), targetPose.getY(), new Rotation2d(0)));
-        return new Pose2d(newRobotPose.getX(), newRobotPose.getY(), closestTargetPose.getRotation());
+        // We make the robot 0,0,currentHeading
+        // We make the target to be the reef pole position according to the camera, but
+        // use the target heading of our auto reef position
+        SmartDashboard.putString("realsensecamera/pidmode", "camera");
+        return new PoseAndTarget(
+            new Pose2d(0, 0, robotPose.getRotation()),
+            new Pose2d(targetPose.getX(), targetPose.getY(), closestTargetPose.getRotation()));
+
+        // Pose2d newRobotPose = robotPose.plus(new Transform2d(targetPose.getX(),
+        // targetPose.getY(), new Rotation2d(0)));
+        // return new Pose2d(newRobotPose.getX(), newRobotPose.getY(),
+        // closestTargetPose.getRotation());
       });
 
     }, Set.of(this));
@@ -748,8 +776,9 @@ public class SwerveSubsystem extends SubsystemBase {
       } else {
         // Flipping bargeXFarBlue to red side (for 2025 field only)
         return new DriveToPose(this, supplier_position,
-            () -> new Pose2d(Units.feetToMeters(57.573) - bargeXFarBlue, supplier_position.get().getTranslation().getY(), new Rotation2d(Math.PI)));
-      } 
+            () -> new Pose2d(Units.feetToMeters(57.573) - bargeXFarBlue,
+                supplier_position.get().getTranslation().getY(), new Rotation2d(Math.PI)));
+      }
 
     }, Set.of(this));
   }

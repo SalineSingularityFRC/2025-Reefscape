@@ -39,7 +39,6 @@ import frc.robot.commands.DriveController;
 import frc.robot.commands.DriveToPose;
 import frc.robot.commands.RumbleCommandStart;
 import frc.robot.commands.RumbleCommandStop;
-import frc.robot.subsystems.AlgaeProcessorSubsystem;
 import frc.robot.subsystems.AlgaeSubsystem;
 // import frc.robot.subsystems.AlgaeSubsystem;
 import frc.robot.subsystems.ClimberSubsystem;
@@ -65,7 +64,6 @@ public class RobotContainer {
     private RealSenseCamera cam;
     private LEDStatusSubsystem ledStatus;
     private AlgaeSubsystem algae;
-    private AlgaeProcessorSubsystem algaeProcessorSubsystem;
 
     protected RobotContainer() {
         intake = new IntakeSubsystem();
@@ -78,7 +76,6 @@ public class RobotContainer {
         ledStatus = new LEDStatusSubsystem(intake, elevator);
         // trough = new TroughSubsystem();
         algae = new AlgaeSubsystem();
-        algaeProcessorSubsystem = new AlgaeProcessorSubsystem();
 
         driveController = new CommandXboxController(Constants.Gamepad.Controller.DRIVE);
         buttonController = new CommandXboxController(Constants.Gamepad.Controller.BUTTON);
@@ -160,8 +157,6 @@ public class RobotContainer {
         thirdController.povUp().onFalse(algae.mainMotorHoldCommand());
 
         thirdController.a().onTrue(algae.moveToAlgaeShoot());
-        thirdController.leftBumper().whileTrue(algaeProcessorSubsystem.intakeProcessor());
-        thirdController.rightBumper().whileTrue(algaeProcessorSubsystem.spitProcessor());
 
         // PID to nearest coral pose left and score into barge
         buttonController.a().whileTrue(makeAutoBargeScoreCommand());

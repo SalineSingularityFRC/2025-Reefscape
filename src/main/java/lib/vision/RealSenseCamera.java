@@ -126,9 +126,10 @@ public class RealSenseCamera {
     SmartDashboard.putNumber("realsensecamera/stableCount", stableCount);
     if (reefPose == null) return false;
 
-    if (reefPose.getTranslation().getDistance(lastPose.getTranslation()) < Constants.Drive.L4_PID_DRIVE_POSE_TOLERANCE
-        .getValue()
-        && !reefPose.getTranslation().equals(lastPose.getTranslation())) {
+    double distance = reefPose.getTranslation().getDistance(lastPose.getTranslation());
+    SmartDashboard.putNumber("realsensecamera/stableCountDistance", distance);
+
+    if (distance < Constants.Drive.L4_PID_DRIVE_POSE_TOLERANCE.getValue()) {
       stableCount++;
     } else {
       stableCount = 0;
