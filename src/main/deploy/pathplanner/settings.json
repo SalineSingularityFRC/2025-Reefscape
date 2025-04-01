@@ -3,13 +3,14 @@
   "robotLength": 0.876,
   "holonomicMode": true,
   "pathFolders": [
+    "CS_1 To Reef",
+    "CS_2 to Reef",
+    "Algae Scoring",
     "Path Adjustments",
     "Start",
     "Straight Tests",
     "To CS_1",
-    "To CS_2",
-    "CS_1 To Reef",
-    "CS_2 to Reef"
+    "To CS_2"
   ],
   "autoFolders": [
     "Center",
