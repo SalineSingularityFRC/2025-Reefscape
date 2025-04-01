@@ -1,6 +1,6 @@
 {
-  "robotWidth": 0.868,
-  "robotLength": 0.876,
+  "robotWidth": 0.8636,
+  "robotLength": 0.8636,
   "holonomicMode": true,
   "pathFolders": [
     "CS_1 To Reef",
