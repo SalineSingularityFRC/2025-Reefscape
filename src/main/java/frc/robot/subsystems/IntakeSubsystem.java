@@ -6,6 +6,7 @@ import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.spark.ClosedLoopSlot;
+import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkClosedLoopController;
@@ -38,6 +39,7 @@ public class IntakeSubsystem extends SubsystemBase {
     private final VelocityTorqueCurrentFOC slowVelocityRequest, fastVelocityRequest;
     private final VelocityTorqueCurrentFOC shooterVelocityRequest;
     private SparkFlex conveyorMotor;
+    private SparkClosedLoopController conveyorClosedLoopController;
     private boolean laserCanLogicOverride = false;
     public static final SparkFlexConfig motorConfig = new SparkFlexConfig();
 
@@ -63,6 +65,8 @@ public class IntakeSubsystem extends SubsystemBase {
                 .maxVelocity(Constants.Processor.MotorStuff.MAX_VELOCITY_RPM.getValue())
                 .maxAcceleration(Constants.Processor.MotorStuff.MAX_ACCEL_RPM_PER_S.getValue())
                 .allowedClosedLoopError(Constants.Processor.MotorStuff.MAX_CONTROL_ERROR_IN_COUNTS.getValue());
+        
+        conveyorClosedLoopController = conveyorMotor.getClosedLoopController();
 
         conveyorMotor.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
@@ -297,7 +301,8 @@ public class IntakeSubsystem extends SubsystemBase {
                             coralInShooter() || laserCanLogicOverride ? slowVelocityRequest : fastVelocityRequest);
                     rightMotor.setControl(
                             coralInShooter() || laserCanLogicOverride ? slowVelocityRequest : fastVelocityRequest);
-                    conveyorMotor.set(Intake.Nums.conveyorSpeed.getValue());
+                    // conveyorMotor.set(Intake.Nums.conveyorSpeed.getValue());
+                    conveyorClosedLoopController.setReference(Intake.Nums.conveyorSpeed.getValue(), ControlType.kVelocity, ClosedLoopSlot.kSlot0);
                 },
                 () -> {
                     conveyorMotor.stopMotor();
@@ -311,10 +316,12 @@ public class IntakeSubsystem extends SubsystemBase {
     public Command conveyorReverse() {
         return runEnd(
                 () -> {
-                    conveyorMotor.set(-1 * Intake.Nums.conveyorSpeed.getValue());
+                    // conveyorMotor.set(-1 * Intake.Nums.conveyorSpeed.getValue());
+                    conveyorClosedLoopController.setReference(-Intake.Nums.conveyorSpeed.getValue(), ControlType.kVelocity, ClosedLoopSlot.kSlot0);
                 },
                 () -> {
-                    conveyorMotor.set(0);
+                    // conveyorMotor.set(0);
+                    conveyorMotor.stopMotor();
                 });
     }
 }
