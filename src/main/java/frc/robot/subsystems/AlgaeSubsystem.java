@@ -176,7 +176,7 @@ public class AlgaeSubsystem extends SubsystemBase {
         return moveToIntakePos()
                 .alongWith(runMotorsToIntake().until(() -> canSeeAlgae())
                 .andThen(new WaitCommand(0.05))
-                .andThen(hold(2)));
+                .andThen(hold(4)));
     }
 
     public Command runMotorsToIntake() {

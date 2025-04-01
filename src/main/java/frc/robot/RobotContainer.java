@@ -281,7 +281,7 @@ public class RobotContainer {
         commandGroup.addCommands(drive.driveCloseToBargePose().andThen(drive.stopDriving())
                 .andThen(drive.updateRotationPIDSetpointCommand()));
         commandGroup.addCommands(elevator.moveToTargetPosition(Setpoint.kLevel2));
-        return commandGroup.andThen(elevator.moveToTargetPosition(Setpoint.kLevel4))
+        return commandGroup.andThen(elevator.moveToTargetPosition(Setpoint.kLevel4)).andThen(new WaitCommand(1))
                 .andThen(drive.driveToBargePose()).andThen(drive.stopDriving())
                 .andThen(drive.updateRotationPIDSetpointCommand())
                 .andThen(new WaitCommand(1)).andThen(algae.shootAlgae());
