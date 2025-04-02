@@ -87,16 +87,18 @@ public class RobotContainer {
         NamedCommands.registerCommand("Feeder Station", elevator.targetPosition(Setpoint.kFeederStation));
         NamedCommands.registerCommand("L4", elevator.targetPosition(Setpoint.kLevel4));
         NamedCommands.registerCommand("L2", elevator.targetPosition(Setpoint.kLevel2));
+        NamedCommands.registerCommand("L3", elevator.targetPosition(Setpoint.kLevel3));
         NamedCommands.registerCommand("Pre-L4", elevator.autonTargetPosition(Setpoint.kLevel4));
 
         NamedCommands.registerCommand("Intake Coral", intake.intakeCoral());
-        NamedCommands.registerCommand("Shoot Coral", intake.shootCoral());
+        NamedCommands.registerCommand("Shoot Coral", intake.shootCoral().alongWith(makeCoralHelpScoreCommand()));
         NamedCommands.registerCommand("Wait For Coral", intake.waitUntilCoral());
 
         NamedCommands.registerCommand("Move Hinge Coral", algae.moveToCoralScorePose());
         NamedCommands.registerCommand("Move Hinge Zero", algae.moveToZero());
         NamedCommands.registerCommand("Move To Algae Intake", algae.moveToIntakePos());
         NamedCommands.registerCommand("Move Hinge Barge", algae.moveToAlgaeShoot());
+        NamedCommands.registerCommand("Auto Barge Score", makeAutoBargeScoreCommand());
 
         NamedCommands.registerCommand("Intake Algae", algae.intake());
         NamedCommands.registerCommand("Shoot ALgae", algae.shootAlgae());
@@ -113,7 +115,7 @@ public class RobotContainer {
         autoChooser = AutoBuilder.buildAutoChooserWithOptionsModifier(
                 (stream) -> isCompetition
                         ? stream.filter(
-                                auto -> (auto.getName().startsWith("Fudge") || auto.getName().startsWith("No Kick")
+                                auto -> (auto.getName().startsWith("Fudge") || auto.getName().startsWith("Kick")
                                         || auto.getName().startsWith("Bottom") || auto.getName().startsWith("Top")
                                         || auto.getName().startsWith("Center")))
                         : stream);

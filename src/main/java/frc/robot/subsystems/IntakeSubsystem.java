@@ -301,8 +301,8 @@ public class IntakeSubsystem extends SubsystemBase {
                             coralInShooter() || laserCanLogicOverride ? slowVelocityRequest : fastVelocityRequest);
                     rightMotor.setControl(
                             coralInShooter() || laserCanLogicOverride ? slowVelocityRequest : fastVelocityRequest);
-                    // conveyorMotor.set(Intake.Nums.conveyorSpeed.getValue());
-                    conveyorClosedLoopController.setReference(Intake.Nums.conveyorSpeed.getValue(), ControlType.kVelocity, ClosedLoopSlot.kSlot0);
+                    conveyorMotor.set(Intake.Nums.conveyorSpeed.getValue());
+                    // conveyorClosedLoopController.setReference(Intake.Nums.conveyorSpeed.getValue(), ControlType.kVelocity, ClosedLoopSlot.kSlot0);
                 },
                 () -> {
                     conveyorMotor.stopMotor();
@@ -316,8 +316,8 @@ public class IntakeSubsystem extends SubsystemBase {
     public Command conveyorReverse() {
         return runEnd(
                 () -> {
-                    // conveyorMotor.set(-1 * Intake.Nums.conveyorSpeed.getValue());
-                    conveyorClosedLoopController.setReference(-Intake.Nums.conveyorSpeed.getValue(), ControlType.kVelocity, ClosedLoopSlot.kSlot0);
+                    conveyorMotor.set(-1 * Intake.Nums.conveyorSpeed.getValue());
+                    // conveyorClosedLoopController.setReference(-Intake.Nums.conveyorSpeed.getValue(), ControlType.kVelocity, ClosedLoopSlot.kSlot0);
                 },
                 () -> {
                     // conveyorMotor.set(0);
