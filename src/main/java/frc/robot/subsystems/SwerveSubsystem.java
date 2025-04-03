@@ -56,6 +56,7 @@ import frc.robot.SwerveClasses.SwerveModule;
 import frc.robot.SwerveClasses.SwerveOdometry;
 import frc.robot.commands.CameraDriveToPose;
 import frc.robot.commands.CameraDriveToPose.PoseAndTarget;
+import frc.robot.commands.DriveToBargePose;
 import frc.robot.commands.DriveToPose;
 
 /*
@@ -752,11 +753,11 @@ public class SwerveSubsystem extends SubsystemBase {
     return new DeferredCommand(() -> {
 
       if (BlueAlliance) {
-        return new DriveToPose(this, supplier_position,
+        return new DriveToBargePose(this, supplier_position,
             () -> new Pose2d(bargeXBlue, supplier_position.get().getTranslation().getY(), new Rotation2d(0)));
       } else {
         // Flipping bargeXBlue to red side (for 2025 field only)
-        return new DriveToPose(this, supplier_position,
+        return new DriveToBargePose(this, supplier_position,
             () -> new Pose2d(Units.feetToMeters(57.573) - bargeXBlue, supplier_position.get().getTranslation().getY(),
                 new Rotation2d(Math.PI)));
       }

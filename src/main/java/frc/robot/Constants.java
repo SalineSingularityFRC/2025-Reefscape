@@ -353,6 +353,7 @@ public final class Constants {
     public static ConfigDouble PID_DRIVE_Y_KI = new ConfigDouble("Drive/PID/Y kI", 0);
     public static ConfigDouble PID_DRIVE_Y_KD = new ConfigDouble("Drive/PID/Y kD", 0);
     public static ConfigDouble PID_DRIVE_Y_TOLERANCE = new ConfigDouble("Drive/PID/Y Tolerance", 1);
+    public static ConfigDouble PID_DRIVE_Y_BARGE_TOLERANCE = new ConfigDouble("Drive/PID/Y Tolerance Barge", 0.7);
     
     public static ConfigDouble PID_DRIVE_MAX_ROTATION_SPEED = new ConfigDouble("Drive/PID/Max Rotation", 2);
     public static ConfigDouble PID_DRIVE_MAX_DRIVE_X_SPEED = new ConfigDouble("Drive/PID/Max Drive X", 2);

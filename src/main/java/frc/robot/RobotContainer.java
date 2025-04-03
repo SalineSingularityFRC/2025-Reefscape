@@ -158,7 +158,8 @@ public class RobotContainer {
         thirdController.povDown().whileTrue(algae.manualControlBackwards());
         thirdController.povUp().onFalse(algae.mainMotorHoldCommand());
 
-        thirdController.a().onTrue(algae.moveToAlgaeShoot());
+        thirdController.a().whileTrue(algae.moveToAlgaeShoot());
+        thirdController.b().whileTrue(algae.manualIntake());
 
         // PID to nearest coral pose left and score into barge
         buttonController.a().whileTrue(makeAutoBargeScoreCommand());

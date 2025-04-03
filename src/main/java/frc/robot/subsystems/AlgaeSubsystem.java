@@ -179,6 +179,13 @@ public class AlgaeSubsystem extends SubsystemBase {
                 .andThen(hold(0.5)));
     }
 
+    public Command manualIntake() {
+        return moveToIntakePos()
+                .alongWith(runMotorsToIntake())
+                .andThen(new WaitCommand(0.05))
+                .andThen(hold(0.5));
+    }
+
     public Command runMotorsToIntake() {
         return runEnd(() -> {
             manual = true;
