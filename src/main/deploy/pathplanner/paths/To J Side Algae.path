@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.581377551020409,
-        "y": 5.879241071428571
+        "x": 5.432142857142858,
+        "y": 6.729878826530612
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.3173761263134125,
-        "y": 5.451832070493659
+        "x": 5.168141432435862,
+        "y": 6.302469825595701
       },
       "isLocked": false,
       "linkedName": "Pre-J Side"
@@ -62,7 +62,7 @@
   "folder": "Algae Scoring",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -119.99999999999999
+    "rotation": -54.0
   },
   "useDefaultConstraints": true
 }
