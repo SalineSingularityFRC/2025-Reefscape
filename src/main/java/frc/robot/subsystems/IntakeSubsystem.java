@@ -292,6 +292,18 @@ public class IntakeSubsystem extends SubsystemBase {
                 }).until(() -> (!coralInShooter() && !coralInIntake()) && !laserCanLogicOverride);
     }
 
+    public Command shootL1Coral() {
+        return runEnd(
+                () -> {
+                    leftMotor.setControl(shooterVelocityRequest);
+                    rightMotor.setControl(slowVelocityRequest);
+                },
+                () -> {
+                    leftMotor.stopMotor();
+                    rightMotor.stopMotor();
+                }).until(() -> (!coralInShooter() && !coralInIntake()) && !laserCanLogicOverride);
+    }
+
     // ONLY ADD SMARTDASHBOARD FOR DEBUGGGING, causes delay in CAN first time you
     // run the command
     public Command intakeCoral() {

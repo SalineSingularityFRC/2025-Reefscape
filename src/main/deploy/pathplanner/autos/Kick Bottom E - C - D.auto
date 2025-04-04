@@ -85,9 +85,22 @@
           "data": {
             "commands": [
               {
-                "type": "named",
+                "type": "sequential",
                 "data": {
-                  "name": "Wait For Coral"
+                  "commands": [
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "Wait For Coral"
+                      }
+                    },
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 0.2
+                      }
+                    }
+                  ]
                 }
               },
               {
