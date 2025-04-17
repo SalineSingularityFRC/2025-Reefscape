@@ -378,6 +378,12 @@ public final class Constants {
     public static final ConfigDouble kSMainAlgaeInside = new ConfigDouble("Algae/kSMainAlgaeInside", 2.5);
     public static final ConfigDouble kVMainAlgaeInside = new ConfigDouble("Algae/kVMainAlgaeInside", 2.0);
 
+    // Algae zero PIDs
+    public static final ConfigDouble kPMainAlgaeDown = new ConfigDouble("Algae/kPMainAlgaeDown", 10);
+    public static final ConfigDouble kDMainAlgaeDown = new ConfigDouble("Algae/kDMainAlgaeDown", 0);
+    public static final ConfigDouble kSMainAlgaeDown = new ConfigDouble("Algae/kSMainAlgaeDown", 2.5);
+    public static final ConfigDouble kVMainAlgaeDown = new ConfigDouble("Algae/kVMainAlgaeDown", 0);
+
     public static final ConfigDouble kPAlgae = new ConfigDouble("Algae/kPAlgae", 1);
     public static final ConfigDouble kDAlgae = new ConfigDouble("Algae/kDAlgae", 0);
     public static final ConfigDouble kP1Algae = new ConfigDouble("Algae/kP1Algae", 5);
