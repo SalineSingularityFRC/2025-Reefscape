@@ -550,17 +550,17 @@ public class SwerveSubsystem extends SubsystemBase {
   /*
    * Gets closest reef pose based on which side specified (left or right)
    */
-  public Pose2d getClosestReef(AutoScoreTarget target) {
+  public Pose2d getClosestPose(AutoScoreTarget target) {
 
-    List<ReefPose> posesForSide;
+    List<GeneralPose> posesForSide;
 
-    // if (BlueAlliance) {
-    // posesForSide = reefPoses.stream().filter((p) -> p.side ==
-    // target.side).toList();
-    // } else {
-    posesForSide = reefPosesBlue.stream().filter((p) -> p.side != target.side).toList();
-    // }
-    // return posesForSide.get(0).pose;
+    if (target.object == TargetObject.CORAL) {
+      posesForSide = reefPosesBlue.stream().filter((p) -> p.side != target.side).toList();
+    } else if (target.object == TargetObject.CORAL_SOURCE) {
+      posesForSide = sourcePosesBlue.stream().filter((p) -> p.side != target.side).toList();
+    } else {
+      posesForSide = algaePosesBlue;
+    }
 
     List<Pose2d> poses = posesForSide.stream().map((rp) -> {
       return rp.pose;
@@ -593,7 +593,7 @@ public class SwerveSubsystem extends SubsystemBase {
    */
   public Pose2d getClosestSource(AutoScoreTarget target) {
 
-    List<ReefPose> posesForSide;
+    List<GeneralPose> posesForSide;
 
     // if (BlueAlliance) {
     // posesForSide = sourcePoses.stream().filter((p) -> p.side ==
@@ -621,28 +621,31 @@ public class SwerveSubsystem extends SubsystemBase {
     return nearest;
   }
 
-  record ReefPose(String name, ReefFacetSide side, Pose2d pose) {
+  record GeneralPose(String name, FacetSide side, Pose2d pose) {
   };
 
   // Blue alliance only since we flip if red alliance (from pathplanner)
-  static List<ReefPose> reefPosesBlue = List.of(
-      new ReefPose("A", ReefFacetSide.LEFT, new Pose2d(3.20, 4.193, new Rotation2d(Math.toRadians(0)))),
-      new ReefPose("B", ReefFacetSide.RIGHT, new Pose2d(3.20, 3.863, new Rotation2d(Math.toRadians(0)))),
-      new ReefPose("C", ReefFacetSide.LEFT, new Pose2d(3.701, 2.999, new Rotation2d(Math.toRadians(60.0)))),
-      new ReefPose("D", ReefFacetSide.RIGHT, new Pose2d(3.992, 2.835, new Rotation2d(Math.toRadians(60.0)))),
-      new ReefPose("E", ReefFacetSide.LEFT, new Pose2d(4.984, 2.827, new Rotation2d(Math.toRadians(120.0)))),
-      new ReefPose("F", ReefFacetSide.RIGHT, new Pose2d(5.275, 2.992, new Rotation2d(Math.toRadians(120.0)))),
-      new ReefPose("G", ReefFacetSide.LEFT, new Pose2d(5.750, 3.863, new Rotation2d(Math.toRadians(180.0)))),
-      new ReefPose("H", ReefFacetSide.RIGHT, new Pose2d(5.750, 4.19, new Rotation2d(Math.toRadians(180.0)))),
-      new ReefPose("I", ReefFacetSide.LEFT, new Pose2d(5.246, 5.014, new Rotation2d(Math.toRadians(240.0)))),
-      new ReefPose("J", ReefFacetSide.RIGHT, new Pose2d(4.962, 5.170, new Rotation2d(Math.toRadians(240.0)))),
-      new ReefPose("K", ReefFacetSide.LEFT, new Pose2d(4.014, 5.163, new Rotation2d(Math.toRadians(300.0)))),
-      new ReefPose("L", ReefFacetSide.RIGHT, new Pose2d(3.731, 5.014, new Rotation2d(Math.toRadians(300.0)))));
+  static List<GeneralPose> reefPosesBlue = List.of(
+      new GeneralPose("A", FacetSide.LEFT, new Pose2d(3.20, 4.193, new Rotation2d(Math.toRadians(0)))),
+      new GeneralPose("B", FacetSide.RIGHT, new Pose2d(3.20, 3.863, new Rotation2d(Math.toRadians(0)))),
+      new GeneralPose("C", FacetSide.LEFT, new Pose2d(3.701, 2.999, new Rotation2d(Math.toRadians(60.0)))),
+      new GeneralPose("D", FacetSide.RIGHT, new Pose2d(3.992, 2.835, new Rotation2d(Math.toRadians(60.0)))),
+      new GeneralPose("E", FacetSide.LEFT, new Pose2d(4.984, 2.827, new Rotation2d(Math.toRadians(120.0)))),
+      new GeneralPose("F", FacetSide.RIGHT, new Pose2d(5.275, 2.992, new Rotation2d(Math.toRadians(120.0)))),
+      new GeneralPose("G", FacetSide.LEFT, new Pose2d(5.750, 3.863, new Rotation2d(Math.toRadians(180.0)))),
+      new GeneralPose("H", FacetSide.RIGHT, new Pose2d(5.750, 4.19, new Rotation2d(Math.toRadians(180.0)))),
+      new GeneralPose("I", FacetSide.LEFT, new Pose2d(5.246, 5.014, new Rotation2d(Math.toRadians(240.0)))),
+      new GeneralPose("J", FacetSide.RIGHT, new Pose2d(4.962, 5.170, new Rotation2d(Math.toRadians(240.0)))),
+      new GeneralPose("K", FacetSide.LEFT, new Pose2d(4.014, 5.163, new Rotation2d(Math.toRadians(300.0)))),
+      new GeneralPose("L", FacetSide.RIGHT, new Pose2d(3.731, 5.014, new Rotation2d(Math.toRadians(300.0)))));
+
+  static List<GeneralPose> algaePosesBlue = List.of(
+      new GeneralPose("AB", FacetSide.MIDDLE, new Pose2d(3.20, 4.028, new Rotation2d(Math.toRadians(0)))));
 
   // Blue alliance only since we flip if red alliance (from pathplanner)
-  static List<ReefPose> sourcePosesBlue = List.of(
-      new ReefPose("Left Source", ReefFacetSide.LEFT, new Pose2d(1.395, 7.387, new Rotation2d(Math.toRadians(306.0)))),
-      new ReefPose("Right Source", ReefFacetSide.RIGHT,
+  static List<GeneralPose> sourcePosesBlue = List.of(
+      new GeneralPose("Left Source", FacetSide.LEFT, new Pose2d(1.395, 7.387, new Rotation2d(Math.toRadians(306.0)))),
+      new GeneralPose("Right Source", FacetSide.RIGHT,
           new Pose2d(1.480, 0.750, new Rotation2d(Math.toRadians(54.0)))));
 
   // Blue alliance only since we flip if red alliance
@@ -652,9 +655,9 @@ public class SwerveSubsystem extends SubsystemBase {
   /*
    * Drives to closest reef pose based on which side specified (left or right)
    */
-  public Command drivetoReefPose(AutoScoreTarget target) {
+  public Command driveToPose(AutoScoreTarget target) {
     return new DeferredCommand(() -> {
-      Pose2d targetPose = getClosestReef(target);
+      Pose2d targetPose = getClosestPose(target);
       // PathConstraints constraints = new PathConstraints(1.5, 1.5, .5, .5);
 
       // if (BlueAlliance) {
@@ -703,7 +706,7 @@ public class SwerveSubsystem extends SubsystemBase {
    */
   public Command cameraDriveToPose(RealSenseCamera cam, AutoScoreTarget closestTarget) {
     return new DeferredCommand(() -> {
-      Pose2d closestTargetPose = getClosestReef(closestTarget);
+      Pose2d closestTargetPose = getClosestPose(closestTarget);
 
       // return new CameraDriveToPose(this, supplier_position, () -> {
       // Pose2d targetPose = cam.getReefPose().get();
@@ -784,24 +787,39 @@ public class SwerveSubsystem extends SubsystemBase {
     }, Set.of(this));
   }
 
-  enum ReefFacetSide {
-    LEFT, RIGHT
+  enum FacetSide {
+    LEFT, RIGHT, MIDDLE
+  }
+
+  enum TargetObject {
+    ALGAE, CORAL, CORAL_SOURCE
   }
 
   public static enum AutoScoreTarget {
-    L4_LEFT(ReefFacetSide.LEFT),
-    L4_RIGHT(ReefFacetSide.RIGHT),
-    L3_LEFT(ReefFacetSide.LEFT),
-    L3_RIGHT(ReefFacetSide.RIGHT),
-    L2_LEFT(ReefFacetSide.LEFT),
-    L2_RIGHT(ReefFacetSide.RIGHT),
-    L1_LEFT(ReefFacetSide.LEFT),
-    L1_RIGHT(ReefFacetSide.RIGHT);
+    // For Coral Scoring
+    L4_LEFT(FacetSide.LEFT, TargetObject.CORAL),
+    L4_RIGHT(FacetSide.RIGHT, TargetObject.CORAL),
+    L3_LEFT(FacetSide.LEFT, TargetObject.CORAL),
+    L3_RIGHT(FacetSide.RIGHT, TargetObject.CORAL),
+    L2_LEFT(FacetSide.LEFT, TargetObject.CORAL),
+    L2_RIGHT(FacetSide.RIGHT, TargetObject.CORAL),
+    L1_LEFT(FacetSide.LEFT, TargetObject.CORAL),
+    L1_RIGHT(FacetSide.RIGHT, TargetObject.CORAL),
+    
+    // For Algae
+    L1_MIDDLE(FacetSide.MIDDLE, TargetObject.ALGAE),
+    L2_MIDDLE(FacetSide.MIDDLE, TargetObject.ALGAE),
 
-    public ReefFacetSide side;
+    // For Coral Source
+    LEFT_SOURCE(FacetSide.LEFT, TargetObject.CORAL_SOURCE),
+    RIGHT_SOURCE(FacetSide.RIGHT, TargetObject.CORAL_SOURCE);
 
-    AutoScoreTarget(ReefFacetSide side) {
+    public FacetSide side;
+    public TargetObject object;
+
+    AutoScoreTarget(FacetSide side, TargetObject object) {
       this.side = side;
+      this.object = object;
     }
   }
 }

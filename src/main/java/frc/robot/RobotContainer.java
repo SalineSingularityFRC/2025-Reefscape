@@ -162,6 +162,8 @@ public class RobotContainer {
         thirdController.b().whileTrue(algae.manualIntake());
         thirdController.y().whileTrue(intake.shootL1Coral());
 
+        thirdController.x().whileTrue(makeAutoAlgaeIntakeCommand(AutoScoreTarget.L1_MIDDLE));
+
         // PID to nearest coral pose left and score into barge
         buttonController.a().whileTrue(makeAutoBargeScoreCommand());
         buttonController.b().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L2_LEFT));
@@ -259,8 +261,16 @@ public class RobotContainer {
 
     private Command makeAutoScoreCommand(AutoScoreTarget target) {
         ParallelCommandGroup commandGroup = new ParallelCommandGroup();
-        commandGroup.addCommands(drive.drivetoReefPose(target).andThen(drive.updateRotationPIDSetpointCommand()));
+        commandGroup.addCommands(drive.driveToPose(target).andThen(drive.updateRotationPIDSetpointCommand()));
         commandGroup.addCommands(elevator.moveToTargetPosition(targetToSetPoint(target)));
+        return commandGroup.andThen(drive.stopDriving());
+    }
+    
+    private Command makeAutoAlgaeIntakeCommand(AutoScoreTarget target) {
+        ParallelCommandGroup commandGroup = new ParallelCommandGroup();
+        commandGroup.addCommands(drive.driveToPose(target).andThen(drive.updateRotationPIDSetpointCommand()));
+        commandGroup.addCommands(elevator.moveToTargetPosition(targetToSetPoint(target)));
+        commandGroup.addCommands(makeAlgaeIntakeCommand());
         return commandGroup.andThen(drive.stopDriving());
     }
 
@@ -325,9 +335,11 @@ public class RobotContainer {
             case L3_RIGHT:
                 return Setpoint.kLevel3;
             case L2_LEFT:
+            case L2_MIDDLE:
             case L2_RIGHT:
                 return Setpoint.kLevel2;
             case L1_LEFT:
+            case L1_MIDDLE:
             case L1_RIGHT:
                 return Setpoint.kLevel1;
             default:
