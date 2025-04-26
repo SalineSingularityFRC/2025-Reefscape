@@ -1,14 +1,12 @@
 package lib.pose;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import frc.robot.subsystems.ElevatorSubsystem.Setpoint;
-import lib.pose.ScoreConfig.FacetSide;
+import lib.pose.ScoreConfig.TargetState;
 
 public class GeneralPose {
     private final String name;
-    private final FacetSide side;
-    private final Pose2d pose;
-    private final Setpoint setpoint;
+    private Pose2d pose;
+    private TargetState targetState;
 
     /**
      * Creates a new GeneralPose.
@@ -17,51 +15,41 @@ public class GeneralPose {
      * @param side the facet side; must not be null
      * @param pose the 2D pose; must not be null
      */
-    public GeneralPose(String name, FacetSide side, Pose2d pose, Setpoint setpoint) {
-        if (name == null || side == null || pose == null) {
-            throw new NullPointerException("GeneralPose parameters must not be null");
+    public GeneralPose(String name, Pose2d pose, TargetState targetState) {
+        if (name == null || pose == null) {
+            throw new NullPointerException("Name and Pose2d parameters must not be null");
         }
         this.name = name;
-        this.side = side;
         this.pose = pose;
-        this.setpoint = setpoint;
+        this.targetState = targetState;
     }
 
     public String getName() {
         return name;
     }
 
-    public FacetSide getSide() {
-        return side;
-    }
-
-    public Pose2d getPose() {
+    public Pose2d getPose2d() {
         return pose;
     }
 
-    public Setpoint getSetpoint() {
-        return setpoint;
+    public TargetState getTargetState() {
+        return targetState;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (!(o instanceof GeneralPose))
-            return false;
-        GeneralPose that = (GeneralPose) o;
-        return name.equals(that.name)
-                && side == that.side
-                && pose.equals(that.pose)
-                && setpoint.equals(that.setpoint);
+    public void setTargetState(TargetState targetState) {
+        this.targetState = targetState;
+    }
+
+    public void setPose2d(Pose2d pose) {
+        this.pose = pose;
     }
 
     @Override
     public String toString() {
         return "GeneralPose[" +
                 "name=" + name +
-                ", side=" + side +
                 ", pose=" + pose +
+                ", setpoint=" + targetState +
                 ']';
     }
 }

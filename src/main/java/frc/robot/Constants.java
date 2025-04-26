@@ -1,7 +1,5 @@
 package frc.robot;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import com.pathplanner.lib.config.ModuleConfig;
@@ -19,6 +17,8 @@ import edu.wpi.first.wpilibj.RobotBase;
 import frc.robot.subsystems.ElevatorSubsystem.Setpoint;
 import lib.pose.GeneralPose;
 import lib.pose.ScoreConfig.FacetSide;
+import lib.pose.ScoreConfig.TargetObject;
+import lib.pose.ScoreConfig.TargetState;
 
 /*
  * This class should hold any static configuration data about the robot
@@ -316,32 +316,31 @@ public final class Constants {
 
   public static class Poses {
     // Blue alliance only since we flip if red alliance (from pathplanner)
-    public static List<GeneralPose> reefPosesBlue = List.of(
-        new GeneralPose("A", FacetSide.LEFT, new Pose2d(3.20, 4.193, new Rotation2d(Math.toRadians(0))), null),
-        new GeneralPose("B", FacetSide.RIGHT, new Pose2d(3.20, 3.863, new Rotation2d(Math.toRadians(0))), null),
-        new GeneralPose("C", FacetSide.LEFT, new Pose2d(3.701, 2.999, new Rotation2d(Math.toRadians(60.0))), null),
-        new GeneralPose("D", FacetSide.RIGHT, new Pose2d(3.992, 2.835, new Rotation2d(Math.toRadians(60.0))), null),
-        new GeneralPose("E", FacetSide.LEFT, new Pose2d(4.984, 2.827, new Rotation2d(Math.toRadians(120.0))), null),
-        new GeneralPose("F", FacetSide.RIGHT, new Pose2d(5.275, 2.992, new Rotation2d(Math.toRadians(120.0))), null),
-        new GeneralPose("G", FacetSide.LEFT, new Pose2d(5.750, 3.863, new Rotation2d(Math.toRadians(180.0))), null),
-        new GeneralPose("H", FacetSide.RIGHT, new Pose2d(5.750, 4.19, new Rotation2d(Math.toRadians(180.0))), null),
-        new GeneralPose("I", FacetSide.LEFT, new Pose2d(5.246, 5.014, new Rotation2d(Math.toRadians(240.0))), null),
-        new GeneralPose("J", FacetSide.RIGHT, new Pose2d(4.962, 5.170, new Rotation2d(Math.toRadians(240.0))), null),
-        new GeneralPose("K", FacetSide.LEFT, new Pose2d(4.014, 5.163, new Rotation2d(Math.toRadians(300.0))), null),
-        new GeneralPose("L", FacetSide.RIGHT, new Pose2d(3.731, 5.014, new Rotation2d(Math.toRadians(300.0))), null));
+    public static List<GeneralPose> generalPoses = List.of(
+      // Reef poses
+      new GeneralPose("A", new Pose2d(3.20, 4.193, new Rotation2d(Math.toRadians(0))), TargetState.CORAL_LEFT),
+      new GeneralPose("B", new Pose2d(3.20, 3.863, new Rotation2d(Math.toRadians(0))), TargetState.CORAL_RIGHT),
+      new GeneralPose("C", new Pose2d(3.701, 2.999, new Rotation2d(Math.toRadians(60.0))), TargetState.CORAL_LEFT),
+      new GeneralPose("D", new Pose2d(3.992, 2.835, new Rotation2d(Math.toRadians(60.0))), TargetState.CORAL_RIGHT),
+      new GeneralPose("E", new Pose2d(4.984, 2.827, new Rotation2d(Math.toRadians(120.0))), TargetState.CORAL_LEFT),
+      new GeneralPose("F", new Pose2d(5.275, 2.992, new Rotation2d(Math.toRadians(120.0))), TargetState.CORAL_RIGHT),
+      new GeneralPose("G", new Pose2d(5.750, 3.863, new Rotation2d(Math.toRadians(180.0))), TargetState.CORAL_LEFT),
+      new GeneralPose("H", new Pose2d(5.750, 4.19, new Rotation2d(Math.toRadians(180.0))), TargetState.CORAL_RIGHT),
+      new GeneralPose("I", new Pose2d(5.246, 5.014, new Rotation2d(Math.toRadians(240.0))), TargetState.CORAL_LEFT),
+      new GeneralPose("J", new Pose2d(4.962, 5.170, new Rotation2d(Math.toRadians(240.0))), TargetState.CORAL_RIGHT),
+      new GeneralPose("K", new Pose2d(4.014, 5.163, new Rotation2d(Math.toRadians(300.0))), TargetState.CORAL_LEFT),
+      new GeneralPose("L", new Pose2d(3.731, 5.014, new Rotation2d(Math.toRadians(300.0))), TargetState.CORAL_RIGHT),
 
-    public static List<GeneralPose> algaePosesBlue = List.of(
-        new GeneralPose("AB", FacetSide.MIDDLE, new Pose2d(3.20, 4.028, new Rotation2d(Math.toRadians(0))),
-            Setpoint.kFeederStation));
+      // Algae poses
+      new GeneralPose("AB", new Pose2d(3.20, 4.028, new Rotation2d(Math.toRadians(0))), TargetState.ALGAE_LOWER),
 
-    // Blue alliance only since we flip if red alliance (from pathplanner)
-    public static List<GeneralPose> sourcePosesBlue = List.of(
-        new GeneralPose("Left Source", FacetSide.LEFT, new Pose2d(1.395, 7.387, new Rotation2d(Math.toRadians(306.0))),
-            null),
-        new GeneralPose("Right Source", FacetSide.RIGHT,
-            new Pose2d(1.480, 0.750, new Rotation2d(Math.toRadians(54.0))), null));
+      // Coral source poses
+      new GeneralPose("Left Source", new Pose2d(1.395, 7.387, new Rotation2d(Math.toRadians(306.0))),
+          TargetState.LEFT_SOURCE),
+      new GeneralPose("Right Source", new Pose2d(1.480, 0.750, new Rotation2d(Math.toRadians(54.0))),
+          TargetState.RIGHT_SOURCE));
 
-    // Blue alliance only since we flip if red alliance
+    // Barge scoring poses
     public static double bargeXBlue = 7.95;
     public static double bargeXFarBlue = bargeXBlue - 0.5;
   }

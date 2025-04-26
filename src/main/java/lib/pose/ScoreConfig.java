@@ -1,5 +1,7 @@
 package lib.pose;
 
+import frc.robot.subsystems.ElevatorSubsystem.Setpoint;
+
 /**
  * Container for scoring-related enums.
  */
@@ -9,43 +11,54 @@ public final class ScoreConfig {
 
     /** Indicates which facet of the reef to score on. */
     public enum FacetSide {
-        LEFT, 
-        RIGHT, 
-        MIDDLE;
+        LEFT,
+        MIDDLE,
+        RIGHT;
     }
 
-    /** What kind of object the robot is scoring / going to. */
+    /** The object the robot is scoring / going to. */
     public enum TargetObject {
         ALGAE, 
         CORAL, 
         CORAL_SOURCE;
     }
 
-    public enum Target {
-        // For Coral Scoring
-        L4_LEFT(FacetSide.LEFT, TargetObject.CORAL),
-        L4_RIGHT(FacetSide.RIGHT, TargetObject.CORAL),
-        L3_LEFT(FacetSide.LEFT, TargetObject.CORAL),
-        L3_RIGHT(FacetSide.RIGHT, TargetObject.CORAL),
-        L2_LEFT(FacetSide.LEFT, TargetObject.CORAL),
-        L2_RIGHT(FacetSide.RIGHT, TargetObject.CORAL),
-        L1_LEFT(FacetSide.LEFT, TargetObject.CORAL),
-        L1_RIGHT(FacetSide.RIGHT, TargetObject.CORAL),
+    /** Goal state */
+    public enum TargetState {
 
-        // For Algae
-        L1_MIDDLE(FacetSide.MIDDLE, TargetObject.ALGAE),
-        L2_MIDDLE(FacetSide.MIDDLE, TargetObject.ALGAE),
+        // For coral scoring (buttons)
+        L4_LEFT(FacetSide.LEFT, TargetObject.CORAL, Setpoint.kLevel4),
+        L4_RIGHT(FacetSide.RIGHT, TargetObject.CORAL, Setpoint.kLevel4),
+        L3_LEFT(FacetSide.LEFT, TargetObject.CORAL, Setpoint.kLevel3),
+        L3_RIGHT(FacetSide.RIGHT, TargetObject.CORAL, Setpoint.kLevel3),
+        L2_LEFT(FacetSide.LEFT, TargetObject.CORAL, Setpoint.kLevel2),
+        L2_RIGHT(FacetSide.RIGHT, TargetObject.CORAL, Setpoint.kLevel2),
+        L1_LEFT(FacetSide.LEFT, TargetObject.CORAL, Setpoint.kFeederStation),
+        L1_RIGHT(FacetSide.RIGHT, TargetObject.CORAL, Setpoint.kFeederStation),
+
+        // For general side coral (general pose)
+        CORAL_LEFT(FacetSide.LEFT, TargetObject.CORAL, null),
+        CORAL_RIGHT(FacetSide.RIGHT, TargetObject.CORAL, null),
+
+        // For algae (buttons)
+        ALGAE_BUTTON(FacetSide.MIDDLE, TargetObject.ALGAE, null),
+
+        // For algae (general pose)
+        ALGAE_LOWER(FacetSide.MIDDLE, TargetObject.ALGAE, Setpoint.kFeederStation),
+        ALGAE_UPPER(FacetSide.MIDDLE, TargetObject.ALGAE, Setpoint.kLevel2),
 
         // For Coral Source
-        LEFT_SOURCE(FacetSide.LEFT, TargetObject.CORAL_SOURCE),
-        RIGHT_SOURCE(FacetSide.RIGHT, TargetObject.CORAL_SOURCE);
+        LEFT_SOURCE(FacetSide.LEFT, TargetObject.CORAL_SOURCE, Setpoint.kFeederStation),
+        RIGHT_SOURCE(FacetSide.RIGHT, TargetObject.CORAL_SOURCE, Setpoint.kFeederStation);
 
         private final FacetSide side;
-        public final TargetObject object;
+        private final TargetObject object;
+        private final Setpoint setpoint;
 
-        Target(FacetSide side, TargetObject object) {
+        TargetState(FacetSide side, TargetObject object, Setpoint setpoint) {
             this.side = side;
             this.object = object;
+            this.setpoint = setpoint;
         }
 
         public FacetSide getSide() {
@@ -54,6 +67,10 @@ public final class ScoreConfig {
 
         public TargetObject getObject() {
             return object;
+        }
+
+        public Setpoint getSetpoint() {
+            return setpoint;
         }
     }
 }

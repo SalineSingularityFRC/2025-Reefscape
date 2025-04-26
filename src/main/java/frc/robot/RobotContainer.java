@@ -3,52 +3,33 @@
 // the WPILib BSD license file in the root directory of this project.
 package frc.robot;
 
-import java.util.Set;
-import java.util.function.BooleanSupplier;
-
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-import com.pathplanner.lib.commands.PathPlannerAuto;
-import com.pathplanner.lib.util.FlippingUtil;
-
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.kinematics.Odometry;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.math.controller.DifferentialDriveAccelerationLimiter;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
-import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
-import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import lib.pose.ScoreConfig.Target;
+import lib.pose.ScoreConfig.TargetObject;
+import lib.pose.ScoreConfig.TargetState;
 import lib.vision.Limelight;
 import lib.vision.RealSenseCamera;
 import frc.robot.commands.ButtonDriveController;
-import frc.robot.commands.CameraDriveToPose;
 import frc.robot.commands.DriveController;
-import frc.robot.commands.DriveToPose;
 import frc.robot.commands.RumbleCommandStart;
 import frc.robot.commands.RumbleCommandStop;
 import frc.robot.subsystems.AlgaeSubsystem;
-// import frc.robot.subsystems.AlgaeSubsystem;
-import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem.Setpoint;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.LEDStatusSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
-import frc.robot.subsystems.TroughSubsystem;
 
 public class RobotContainer {
     private SwerveSubsystem drive;
@@ -162,24 +143,24 @@ public class RobotContainer {
         thirdController.b().whileTrue(algae.manualIntake());
         thirdController.y().whileTrue(intake.shootL1Coral());
 
-        thirdController.x().whileTrue(makeAutoAlgaeIntakeCommand(Target.L1_MIDDLE));
+        thirdController.x().whileTrue(makeAutoAlgaeIntakeCommand(TargetState.ALGAE_BUTTON));
 
         // PID to nearest coral pose left and score into barge
         buttonController.a().whileTrue(makeAutoBargeScoreCommand());
-        buttonController.b().whileTrue(makeAutoScoreCommand(Target.L2_LEFT));
-        buttonController.x().whileTrue(makeAutoScoreCommand(Target.L3_LEFT));
-        buttonController.y().whileTrue(makeAutoScoreCommand(Target.L4_LEFT));
+        buttonController.b().whileTrue(makeAutoScoreCommand(TargetState.L2_LEFT));
+        buttonController.x().whileTrue(makeAutoScoreCommand(TargetState.L3_LEFT));
+        buttonController.y().whileTrue(makeAutoScoreCommand(TargetState.L4_LEFT));
 
         // PID to nearest coral pose right
         buttonController.leftBumper()
                 .onTrue(elevator.moveToTargetPosition(Setpoint.kFeederStation).withName("kFeederStation"));
-        buttonController.rightBumper().whileTrue(makeAutoScoreCommand(Target.L2_RIGHT));
-        buttonController.back().whileTrue(makeAutoScoreCommand(Target.L3_RIGHT));
-        buttonController.start().whileTrue(makeAutoScoreCommand(Target.L4_RIGHT));
+        buttonController.rightBumper().whileTrue(makeAutoScoreCommand(TargetState.L2_RIGHT));
+        buttonController.back().whileTrue(makeAutoScoreCommand(TargetState.L3_RIGHT));
+        buttonController.start().whileTrue(makeAutoScoreCommand(TargetState.L4_RIGHT));
 
         // PID to coral source
-        buttonController.button(11).whileTrue(makeAutoDriveToSourceCommand(Target.L1_LEFT));
-        buttonController.button(12).whileTrue(makeAutoDriveToSourceCommand(Target.L1_RIGHT));
+        buttonController.button(11).whileTrue(makeAutoDriveToSourceCommand(TargetState.L1_LEFT));
+        buttonController.button(12).whileTrue(makeAutoDriveToSourceCommand(TargetState.L1_RIGHT));
 
         // Intaking and shooting coral logic
         buttonController.rightStick().whileTrue(intake.intakeCoral().withName("intakeCoral"));
@@ -259,14 +240,20 @@ public class RobotContainer {
         this.drive.updateRotationPIDSetpoint();
     }
 
-    private Command makeAutoScoreCommand(Target target) {
+    private Command makeAutoScoreCommand(TargetState target) {
         ParallelCommandGroup commandGroup = new ParallelCommandGroup();
+        
+        if (target.getObject() == TargetObject.ALGAE) {
+            commandGroup.addCommands(makeAlgaeCommand());
+        } 
+
+        GeneralPose pose = drive.filter(target);
         commandGroup.addCommands(drive.driveToPose(target).andThen(drive.updateRotationPIDSetpointCommand()));
         commandGroup.addCommands(elevator.moveToTargetPosition(targetToSetPoint(target)));
         return commandGroup.andThen(drive.stopDriving());
     }
     
-    private Command makeAutoAlgaeIntakeCommand(Target target) {
+    private Command makeAutoAlgaeIntakeCommand(TargetState target) {
         ParallelCommandGroup commandGroup = new ParallelCommandGroup();
         commandGroup.addCommands(drive.driveToPose(target).andThen(drive.updateRotationPIDSetpointCommand()));
         commandGroup.addCommands(elevator.moveToTargetPosition(targetToSetPoint(target)));
@@ -274,20 +261,13 @@ public class RobotContainer {
         return commandGroup.andThen(drive.stopDriving());
     }
 
-    private Command makeL4AutoScoreCommand(Target target, RealSenseCamera camera) {
-        Command driveToReef = drive.cameraDriveToPose(camera, target).andThen(drive.updateRotationPIDSetpointCommand());
-        ParallelCommandGroup commandGroup = new ParallelCommandGroup();
-        commandGroup.addCommands(driveToReef);
-        commandGroup.addCommands(elevator.moveToTargetPosition(targetToSetPoint(target)));
-        return commandGroup.andThen(drive.stopDriving());
-    }
-
-    private Command makeAutoDriveToSourceCommand(Target target) {
-        ParallelCommandGroup commandGroup = new ParallelCommandGroup();
-        commandGroup.addCommands(drive.drivetoSourcePose(target).andThen(drive.updateRotationPIDSetpointCommand()));
-        commandGroup.addCommands(elevator.moveToTargetPosition(targetToSetPoint(target)));
-        return commandGroup.andThen(drive.stopDriving());
-    }
+    // private Command makeL4AutoScoreCommand(TargetState target, RealSenseCamera camera) {
+    //     Command driveToReef = drive.cameraDriveToPose(camera, target).andThen(drive.updateRotationPIDSetpointCommand());
+    //     ParallelCommandGroup commandGroup = new ParallelCommandGroup();
+    //     commandGroup.addCommands(driveToReef);
+    //     commandGroup.addCommands(elevator.moveToTargetPosition(targetToSetPoint(target)));
+    //     return commandGroup.andThen(drive.stopDriving());
+    // }
 
     private Command makeAutoBargeScoreCommand() {
         ParallelCommandGroup commandGroup = new ParallelCommandGroup();
@@ -326,7 +306,7 @@ public class RobotContainer {
         return commandGroup;
     }
 
-    private Setpoint targetToSetPoint(Target target) {
+    private Setpoint targetToSetPoint(TargetState target) {
         switch (target) {
             case L4_LEFT:
             case L4_RIGHT:
@@ -335,11 +315,9 @@ public class RobotContainer {
             case L3_RIGHT:
                 return Setpoint.kLevel3;
             case L2_LEFT:
-            case L2_MIDDLE:
             case L2_RIGHT:
                 return Setpoint.kLevel2;
             case L1_LEFT:
-            case L1_MIDDLE:
             case L1_RIGHT:
                 return Setpoint.kLevel1;
             default:
