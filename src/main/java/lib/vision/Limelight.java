@@ -49,6 +49,11 @@ public class Limelight {
    */
   public void setPoseNT(LimelightHelpers.PoseEstimate poseEstimate) {
     pose2dpublisher.set(poseEstimate.pose);
+    Flush();
+  }
+
+  public static void Flush() {
+    NetworkTableInstance.getDefault().flush();
   }
 
   /**
@@ -68,7 +73,8 @@ public class Limelight {
     }
 
     // } else {
-    //   stdDevs = stdDevs.times(1 + (avgDist / Constants.Vision.KalmanDivisor.getValue()));
+    // stdDevs = stdDevs.times(1 + (avgDist /
+    // Constants.Vision.KalmanDivisor.getValue()));
     // }
 
     return stdDevs;

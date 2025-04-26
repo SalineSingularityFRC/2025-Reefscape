@@ -4,23 +4,32 @@
 package frc.robot;
 
 import java.util.Set;
+import java.util.function.BooleanSupplier;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.util.FlippingUtil;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.kinematics.Odometry;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.math.controller.DifferentialDriveAccelerationLimiter;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.DeferredCommand;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import lib.vision.Limelight;
 import lib.vision.RealSenseCamera;
@@ -30,7 +39,6 @@ import frc.robot.commands.DriveController;
 import frc.robot.commands.DriveToPose;
 import frc.robot.commands.RumbleCommandStart;
 import frc.robot.commands.RumbleCommandStop;
-import frc.robot.subsystems.AlgaeProcessorSubsystem;
 import frc.robot.subsystems.AlgaeSubsystem;
 // import frc.robot.subsystems.AlgaeSubsystem;
 import frc.robot.subsystems.ClimberSubsystem;
@@ -53,23 +61,21 @@ public class RobotContainer {
     private ElevatorSubsystem elevator;
     private Limelight leftLL;
     private Limelight rightLL;
-    // private RealSenseCamera cam;
+    private RealSenseCamera cam;
     private LEDStatusSubsystem ledStatus;
     private AlgaeSubsystem algae;
-    private AlgaeProcessorSubsystem algaeProcessorSubsystem;
 
     protected RobotContainer() {
         intake = new IntakeSubsystem();
         elevator = new ElevatorSubsystem(intake);
         leftLL = new Limelight(Constants.Vision.Names.leftLL);
         rightLL = new Limelight(Constants.Vision.Names.rightLL);
-        // cam = new RealSenseCamera(Constants.Vision.Names.realSenseCam);
+        cam = new RealSenseCamera(Constants.Vision.Names.realSenseCam);
         drive = new SwerveSubsystem(leftLL, rightLL);
         // climber = new ClimberSubsystem();
         ledStatus = new LEDStatusSubsystem(intake, elevator);
         // trough = new TroughSubsystem();
         algae = new AlgaeSubsystem();
-        algaeProcessorSubsystem = new AlgaeProcessorSubsystem();
 
         driveController = new CommandXboxController(Constants.Gamepad.Controller.DRIVE);
         buttonController = new CommandXboxController(Constants.Gamepad.Controller.BUTTON);
@@ -81,12 +87,22 @@ public class RobotContainer {
         NamedCommands.registerCommand("Feeder Station", elevator.targetPosition(Setpoint.kFeederStation));
         NamedCommands.registerCommand("L4", elevator.targetPosition(Setpoint.kLevel4));
         NamedCommands.registerCommand("L2", elevator.targetPosition(Setpoint.kLevel2));
+        NamedCommands.registerCommand("L3", elevator.targetPosition(Setpoint.kLevel3));
         NamedCommands.registerCommand("Pre-L4", elevator.autonTargetPosition(Setpoint.kLevel4));
+
         NamedCommands.registerCommand("Intake Coral", intake.intakeCoral());
-        NamedCommands.registerCommand("Shoot Coral", intake.shootCoral());
+        NamedCommands.registerCommand("Shoot Coral", intake.shootCoral().alongWith(makeCoralHelpScoreCommand()));
         NamedCommands.registerCommand("Wait For Coral", intake.waitUntilCoral());
+
         NamedCommands.registerCommand("Move Hinge Coral", algae.moveToCoralScorePose());
         NamedCommands.registerCommand("Move Hinge Zero", algae.moveToZero());
+        NamedCommands.registerCommand("Move To Algae Intake", algae.moveToIntakePos());
+        NamedCommands.registerCommand("Move Hinge Barge", algae.moveToAlgaeShoot());
+        NamedCommands.registerCommand("Auto Barge Score", makeAutoBargeScoreCommand());
+
+        NamedCommands.registerCommand("Intake Algae", algae.intake());
+        NamedCommands.registerCommand("Shoot ALgae", algae.shootAlgae());
+
         NamedCommands.registerCommand("RumbleCommantStart", new RumbleCommandStart(driveController));
         NamedCommands.registerCommand("RumbleCommantStop", new RumbleCommandStop(driveController));
 
@@ -99,7 +115,7 @@ public class RobotContainer {
         autoChooser = AutoBuilder.buildAutoChooserWithOptionsModifier(
                 (stream) -> isCompetition
                         ? stream.filter(
-                                auto -> (auto.getName().startsWith("Fudge") || auto.getName().startsWith("No Kick")
+                                auto -> (auto.getName().startsWith("Fudge") || auto.getName().startsWith("Kick")
                                         || auto.getName().startsWith("Bottom") || auto.getName().startsWith("Top")
                                         || auto.getName().startsWith("Center")))
                         : stream);
@@ -128,11 +144,11 @@ public class RobotContainer {
         // Need to rewrite CameraDriveToPose to be robot centric
         // driveController.rightTrigger().whileTrue(drive.cameraDriveToPose(cam));
 
+        // Reset gryo
         driveController.rightBumper().onTrue(drive.resetGyroCommand());
 
-        // TEMPORARY ALGAE COMMAND BUTTON STUFF \\
-        driveController.leftTrigger().whileTrue(algae.intake().withName("intakeAlgae"));
-        // driveController.leftTrigger().onFalse(algae.hold(3));
+        // Algae controls
+        driveController.leftTrigger().whileTrue(makeAlgaeIntakeCommand());
         driveController.leftBumper().whileTrue(algae.moveToZero().withName("returnToHomePosAlgae"));
         driveController.rightTrigger().whileTrue(algae.shootAlgae().withName("shootAlgae"));
         driveController.rightTrigger().onFalse(algae.hold(0));
@@ -142,20 +158,21 @@ public class RobotContainer {
         thirdController.povDown().whileTrue(algae.manualControlBackwards());
         thirdController.povUp().onFalse(algae.mainMotorHoldCommand());
 
-        thirdController.a().onTrue(algae.moveToAlgaeShoot().withName("movetointakepos"));
-        thirdController.leftBumper().whileTrue(algaeProcessorSubsystem.intakeProcessor());
-        thirdController.rightBumper().whileTrue(algaeProcessorSubsystem.spitProcessor());
+        thirdController.a().whileTrue(algae.moveToAlgaeShoot());
+        thirdController.b().whileTrue(algae.manualIntake());
+        thirdController.y().whileTrue(intake.shootL1Coral());
 
-        // PID to nearest coral pose left
-        // buttonController.a().whileTrue(elevator.moveToTargetPosition(Setpoint.kFeederStation).withName("kFeederStation"));
-        buttonController.a().onTrue(algaeProcessorSubsystem.setDutyCycle(0));
+        thirdController.x().whileTrue(makeAutoAlgaeIntakeCommand(AutoScoreTarget.L1_MIDDLE));
+
+        // PID to nearest coral pose left and score into barge
+        buttonController.a().whileTrue(makeAutoBargeScoreCommand());
         buttonController.b().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L2_LEFT));
         buttonController.x().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L3_LEFT));
         buttonController.y().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L4_LEFT));
 
         // PID to nearest coral pose right
         buttonController.leftBumper()
-                .whileTrue(elevator.moveToTargetPosition(Setpoint.kFeederStation).withName("kFeederStation"));
+                .onTrue(elevator.moveToTargetPosition(Setpoint.kFeederStation).withName("kFeederStation"));
         buttonController.rightBumper().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L2_RIGHT));
         buttonController.back().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L3_RIGHT));
         buttonController.start().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L4_RIGHT));
@@ -166,10 +183,10 @@ public class RobotContainer {
 
         // Intaking and shooting coral logic
         buttonController.rightStick().whileTrue(intake.intakeCoral().withName("intakeCoral"));
-        buttonController.leftStick().whileTrue(intake.shootCoral().withName("shootCoral"));
-        buttonController.leftStick().whileTrue(algae.moveToCoralScorePose().withName("Algae Hinge to Coral Pose"));
-        // buttonController.leftStick().onTrue(elevator.moveToTargetPosition(Setpoint.kLevel4Raised).withName("Raised
-        // Elevator L4 Shoot Pose"));
+        buttonController.leftStick()
+                .whileTrue(intake.shootCoral().withName("shootCoral").alongWith(makeCoralHelpScoreCommand()));
+        // buttonController.leftStick().whileTrue(algae.moveToCoralScorePose().withName("Algae
+        // Hinge to Coral Pose"));
         buttonController.leftStick().whileFalse(algae.moveToZero());
 
         // driveController.povRight().onTrue(drive.xMode());
@@ -222,6 +239,10 @@ public class RobotContainer {
         this.drive.updateOdometry();
     }
 
+    protected void updateCamera() {
+        cam.updateReefPose();
+    }
+
     protected void updateMatchTime() {
         SmartDashboard.putNumber("Elastic/Match Time", DriverStation.getMatchTime());
     }
@@ -240,7 +261,23 @@ public class RobotContainer {
 
     private Command makeAutoScoreCommand(AutoScoreTarget target) {
         ParallelCommandGroup commandGroup = new ParallelCommandGroup();
-        commandGroup.addCommands(drive.drivetoReefPose(target).andThen(drive.updateRotationPIDSetpointCommand()));
+        commandGroup.addCommands(drive.driveToPose(target).andThen(drive.updateRotationPIDSetpointCommand()));
+        commandGroup.addCommands(elevator.moveToTargetPosition(targetToSetPoint(target)));
+        return commandGroup.andThen(drive.stopDriving());
+    }
+    
+    private Command makeAutoAlgaeIntakeCommand(AutoScoreTarget target) {
+        ParallelCommandGroup commandGroup = new ParallelCommandGroup();
+        commandGroup.addCommands(drive.driveToPose(target).andThen(drive.updateRotationPIDSetpointCommand()));
+        commandGroup.addCommands(elevator.moveToTargetPosition(targetToSetPoint(target)));
+        commandGroup.addCommands(makeAlgaeIntakeCommand());
+        return commandGroup.andThen(drive.stopDriving());
+    }
+
+    private Command makeL4AutoScoreCommand(AutoScoreTarget target, RealSenseCamera camera) {
+        Command driveToReef = drive.cameraDriveToPose(camera, target).andThen(drive.updateRotationPIDSetpointCommand());
+        ParallelCommandGroup commandGroup = new ParallelCommandGroup();
+        commandGroup.addCommands(driveToReef);
         commandGroup.addCommands(elevator.moveToTargetPosition(targetToSetPoint(target)));
         return commandGroup.andThen(drive.stopDriving());
     }
@@ -252,6 +289,43 @@ public class RobotContainer {
         return commandGroup.andThen(drive.stopDriving());
     }
 
+    private Command makeAutoBargeScoreCommand() {
+        ParallelCommandGroup commandGroup = new ParallelCommandGroup();
+        commandGroup.addCommands(drive.driveCloseToBargePose().andThen(drive.stopDriving())
+                .andThen(drive.updateRotationPIDSetpointCommand()));
+        commandGroup.addCommands(algae.moveToAlgaeShoot());
+        commandGroup.addCommands(elevator.moveToTargetPosition(Setpoint.kLevel2));
+        return commandGroup.andThen(elevator.moveToTargetPosition(Setpoint.kLevel4)).andThen(new WaitCommand(1))
+                .andThen(drive.driveToBargePose()).andThen(drive.stopDriving())
+                .andThen(drive.updateRotationPIDSetpointCommand())
+                .andThen(new WaitCommand(0.5)).andThen(algae.shootAlgae());
+    }
+
+    private Command makeAlgaeIntakeCommand() {
+        SequentialCommandGroup commandGroup = new SequentialCommandGroup();
+        commandGroup.addCommands(algae.intake().andThen(new WaitCommand(1)));
+        commandGroup.addCommands(algae.moveToAlgaeShoot());
+        return commandGroup;
+    }
+
+    private Command makeCoralHelpScoreCommand() {
+        return new ConditionalCommand(coralHelpScoreCommand(true), coralHelpScoreCommand(false),
+                elevator::isElevatorAtL4);
+    }
+
+    private Command coralHelpScoreCommand(boolean wantHelp) {
+
+        if (!wantHelp) {
+            return new InstantCommand();
+        }
+
+        ParallelDeadlineGroup commandGroup = new ParallelDeadlineGroup(
+                elevator.moveL4RaisedSlow(Setpoint.kLevel4Raised));
+        commandGroup.addCommands(algae.moveToCoralScorePose().andThen(algae.runMotorsToIntake()));
+
+        return commandGroup;
+    }
+
     private Setpoint targetToSetPoint(AutoScoreTarget target) {
         switch (target) {
             case L4_LEFT:
@@ -261,9 +335,11 @@ public class RobotContainer {
             case L3_RIGHT:
                 return Setpoint.kLevel3;
             case L2_LEFT:
+            case L2_MIDDLE:
             case L2_RIGHT:
                 return Setpoint.kLevel2;
             case L1_LEFT:
+            case L1_MIDDLE:
             case L1_RIGHT:
                 return Setpoint.kLevel1;
             default:

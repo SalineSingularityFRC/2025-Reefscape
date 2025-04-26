@@ -13,6 +13,9 @@ import frc.robot.Constants.Elevator;
 import frc.robot.commands.RumbleCommandStart;
 import frc.robot.commands.RumbleCommandStop;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 
@@ -49,6 +52,8 @@ public class ElevatorSubsystem extends SubsystemBase {
     private RumbleCommandStart rumbleStart;
 
     private IntakeSubsystem intake;
+    private NetworkTable cameraTable;
+    private final DoublePublisher cameraHeightPublisher;
 
     /** Elevator setpoints */
     public enum Setpoint {
@@ -98,6 +103,9 @@ public class ElevatorSubsystem extends SubsystemBase {
         rumbleStart = new RumbleCommandStart(new CommandXboxController(Constants.Gamepad.Controller.DRIVE));
         rumbleEnd = new RumbleCommandStop(new CommandXboxController(Constants.Gamepad.Controller.DRIVE));
 
+        cameraTable = NetworkTableInstance.getDefault().getTable(Constants.Vision.Names.realSenseCam);
+        cameraHeightPublisher = cameraTable.getDoubleTopic("Camera Height").publish();
+
         // Elevator Motor
         elevatorPrimaryMotorConfig.idleMode(IdleMode.kBrake)
                 // .smartCurrentLimit(Elevator.PrimaryMotor.MAX_CURRENT_IN_A.getValue());
@@ -106,9 +114,11 @@ public class ElevatorSubsystem extends SubsystemBase {
                 .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
                 // Set PID values for position control
                 .pidf(Elevator.PrimaryMotor.KPUP.getValue(), Elevator.PrimaryMotor.KIUP.getValue(),
-                        Elevator.PrimaryMotor.KDUP.getValue(), Elevator.PrimaryMotor.KFUP.getValue(), ClosedLoopSlot.kSlot0)
+                        Elevator.PrimaryMotor.KDUP.getValue(), Elevator.PrimaryMotor.KFUP.getValue(),
+                        ClosedLoopSlot.kSlot0)
                 .pidf(Elevator.PrimaryMotor.KPDOWN.getValue(), Elevator.PrimaryMotor.KIDOWN.getValue(),
-                    Elevator.PrimaryMotor.KDDOWN.getValue(), Elevator.PrimaryMotor.KFDOWN.getValue(), ClosedLoopSlot.kSlot1)
+                        Elevator.PrimaryMotor.KDDOWN.getValue(), Elevator.PrimaryMotor.KFDOWN.getValue(),
+                        ClosedLoopSlot.kSlot1)
                 .outputRange(Elevator.PrimaryMotor.MIN_POWER.getValue(),
                         Elevator.PrimaryMotor.MAX_POWER.getValue()).maxMotion
                 // Set MAXMotion parameters for position control
@@ -167,6 +177,8 @@ public class ElevatorSubsystem extends SubsystemBase {
         zeroElevatorOnLimitSwitch();
         zeroOnUserButton();
 
+        publishCameraHeight();
+
         // Update mechanism2d
         elevatorMech2d.setLength(
                 kPixelsPerMeter * kMinElevatorHeightMeters
@@ -174,12 +186,14 @@ public class ElevatorSubsystem extends SubsystemBase {
                                 * (elevatorEncoder.getPosition() / kElevatorGearing)
                                 * (kElevatorDrumRadius * 2.0 * Math.PI));
 
-        // SmartDashboard.putNumber("Elevator/Target Position Encoder", elevatorCurrentTarget);
+        // SmartDashboard.putNumber("Elevator/Target Position Encoder",
+        // elevatorCurrentTarget);
         SmartDashboard.putNumber("Elevator/Actual Position", elevatorEncoder.getPosition());
         // SmartDashboard.putData("Elevator/Model", mech2d);
-        // SmartDashboard.putNumber("Elevator/Amp", elevatorPrimaryMotor.getOutputCurrent());
-        // SmartDashboard.putNumber("Elevator/Camera Height", getCurrentCameraHeight());
-        // SmartDashboard.putNumber("Elevator/Amp2", elevatorSecondaryMotor.getOutputCurrent());
+        // SmartDashboard.putNumber("Elevator/Amp",
+        // elevatorPrimaryMotor.getOutputCurrent());
+        // SmartDashboard.putNumber("Elevator/Amp2",
+        // elevatorSecondaryMotor.getOutputCurrent());
     }
 
     // Sometimes intake sensor sees top of elevator
@@ -193,16 +207,11 @@ public class ElevatorSubsystem extends SubsystemBase {
      * positions for the given setpoint.
      */
     public Command moveToTargetPosition(Setpoint setpoint) {
-        return this.runEnd(
+        return runOnce(
                 () -> {
                     if (intake.elevator_can_move.getAsBoolean()) {
                         setTargetPosition(setpoint);
-                    } else {
-                        rumbleStart.execute();
                     }
-                },
-                () -> {
-                    rumbleEnd.execute();
                 });
     }
 
@@ -224,13 +233,18 @@ public class ElevatorSubsystem extends SubsystemBase {
                 elevatorCurrentTarget = Elevator.Positions.L4_COUNTS.getValue();
                 break;
             case kLevel4Raised:
-                elevatorCurrentTarget = Elevator.Positions.L4_COUNTS.getValue() + Elevator.Positions.L4_COUNTS_ADDITIONAL_RAISE.getValue();
+                elevatorCurrentTarget = Elevator.Positions.L4_COUNTS.getValue()
+                        + Elevator.Positions.L4_COUNTS_ADDITIONAL_RAISE.getValue();
         }
     }
 
-    public Boolean isAtSetpoint() {
-        return Math.abs(elevatorCurrentTarget
+    public Boolean isAtSetpoint(double setpointInCounts) {
+        return Math.abs(setpointInCounts
                 - elevatorEncoder.getPosition()) < Elevator.PrimaryMotor.MAX_CONTROL_ERROR_IN_COUNTS.getValue();
+    }
+
+    public boolean isAtSetpoint() {
+        return isAtSetpoint(elevatorCurrentTarget);
     }
 
     public double getCurrentCameraHeight() {
@@ -244,6 +258,15 @@ public class ElevatorSubsystem extends SubsystemBase {
         return currentPercentage * totalTravelHeight + Elevator.Heights.LOWEST_HEIGHT.getValue();
     }
 
+    public void publishCameraHeight() {
+        cameraHeightPublisher.set(getCurrentCameraHeight());
+        Flush();
+    }
+
+    public static void Flush() {
+        NetworkTableInstance.getDefault().flush();
+    }
+
     public boolean isElevatorAtSetpoint() {
 
         if (elevatorCurrentTarget == Elevator.Positions.L1_COUNTS.getValue()
@@ -253,6 +276,15 @@ public class ElevatorSubsystem extends SubsystemBase {
             return true;
         }
         return false;
+    }
+
+    public boolean isElevatorAtL4() {
+        return isAtSetpoint(Elevator.Positions.L4_COUNTS.getValue());
+    }
+
+    public boolean isElevatorAtL4Raised() {
+        return isAtSetpoint(Elevator.Positions.L4_COUNTS.getValue()
+                + Elevator.Positions.L4_COUNTS_ADDITIONAL_RAISE.getValue());
     }
 
     public Command targetPosition(Setpoint setpoint) {
@@ -271,14 +303,14 @@ public class ElevatorSubsystem extends SubsystemBase {
                 },
                 this);
     }
-    
+
     /**
-     * Run once command to set the setpoint and then 
+     * Run once command to set the setpoint and then
      */
     public Command autonTargetPosition(Setpoint setpoint) {
         return runOnce(() -> {
-                setTargetPosition(setpoint);
-            
+            setTargetPosition(setpoint);
+
         });
     }
 
@@ -292,10 +324,12 @@ public class ElevatorSubsystem extends SubsystemBase {
     private void moveToSetpoint() {
         if (elevatorCurrentTarget > elevatorEncoder.getPosition()) {
             elevatorClosedLoopController.setReference(
-                elevatorCurrentTarget, ControlType.kPosition, ClosedLoopSlot.kSlot0, Constants.Elevator.PrimaryMotor.arbFF.getValue());
+                    elevatorCurrentTarget, ControlType.kPosition, ClosedLoopSlot.kSlot0,
+                    Constants.Elevator.PrimaryMotor.arbFF.getValue());
         } else {
             elevatorClosedLoopController.setReference(
-                elevatorCurrentTarget, ControlType.kPosition, ClosedLoopSlot.kSlot1, Constants.Elevator.PrimaryMotor.arbFF.getValue());
+                    elevatorCurrentTarget, ControlType.kPosition, ClosedLoopSlot.kSlot1,
+                    Constants.Elevator.PrimaryMotor.arbFF.getValue());
         }
     }
 
@@ -349,6 +383,24 @@ public class ElevatorSubsystem extends SubsystemBase {
                         * 60.0,
                 RobotController.getBatteryVoltage(),
                 0.02);
+    }
+
+    public Command moveL4RaisedSlow(Setpoint setpoint) {
+        return new FunctionalCommand(
+                () -> {
+
+                }, () -> {
+                    double speed = Elevator.PrimaryMotor.L4_RAISE_SPEED.getValue();
+                    elevatorPrimaryMotor.set(speed);
+                    manual = true;
+                },
+                (interrupted) -> {
+                    elevatorPrimaryMotor.stopMotor();
+                    manual = false;
+                    elevatorCurrentTarget = elevatorEncoder.getPosition();
+                }, () -> {
+                    return isElevatorAtL4Raised();
+                }, this).onlyWhile(() -> intake.elevator_can_move.getAsBoolean());
     }
 
     public Command runMotors(boolean reverse) {

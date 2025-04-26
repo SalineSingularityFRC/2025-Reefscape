@@ -3,45 +3,40 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.02920918367347,
-        "y": 5.3046875
+        "x": 5.432142857142858,
+        "y": 6.729878826530612
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.763900525003378,
-        "y": 6.1306131479604735
+        "x": 5.168141432435862,
+        "y": 6.302469825595701
       },
       "isLocked": false,
-      "linkedName": "J"
+      "linkedName": "Pre-J Side"
     },
     {
       "anchor": {
-        "x": 1.48,
-        "y": 7.27
+        "x": 5.163520408163266,
+        "y": 5.2076849489795904
       },
       "prevControl": {
-        "x": 1.6308300446333122,
-        "y": 7.070625233201608
+        "x": 5.030029371898188,
+        "y": 4.990528415944791
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Better_CS1"
+      "linkedName": null
     }
   ],
-  "rotationTargets": [
-    {
-      "waypointRelativePos": 0.7904509283819623,
-      "rotationDegrees": -54.0
-    }
-  ],
+  "rotationTargets": [],
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 0.625838926174495,
+      "minWaypointRelativePos": 0,
       "maxWaypointRelativePos": 1.0,
       "constraints": {
-        "maxVelocity": 1.5,
-        "maxAcceleration": 2.0,
+        "maxVelocity": 1.0,
+        "maxAcceleration": 4.5,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 673.0,
         "nominalVoltage": 12.0,
@@ -61,13 +56,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -54.0
+    "rotation": -119.99999999999999
   },
   "reversed": false,
-  "folder": "To CS_1",
+  "folder": "Algae Scoring",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -119.99999999999999
+    "rotation": -54.0
   },
   "useDefaultConstraints": true
 }

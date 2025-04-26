@@ -186,10 +186,6 @@ public final class Constants {
       public static final PID rotation = new PID(3, 0, 0);
     }
 
-    public static final class rotationCorrection {
-      public static final PID rotation = new PID(0.085, 0, 0);
-    }
-
     public static final class Limelight {
       public static final PID DRIVE_CONTROLLER = new PID(0.0025, 0, 0);
       public static final PID TURN_CONTROLLER = new PID(0.01, 0, 0);
@@ -310,7 +306,7 @@ public final class Constants {
 
     public class Names {
       // Switched top and left IRL (need to rename)
-      public static final String leftLL = "limelight-top";
+      public static final String leftLL = "limelight-left";
       public static final String rightLL = "limelight-right";
       public static final String realSenseCam = "real-sense-camera";
     }
@@ -337,6 +333,10 @@ public final class Constants {
   }
 
   public static class Drive {
+    public static ConfigDouble ROTATION_CORRECTION_KP = new ConfigDouble("Drive/PID/Rotation Correction kP", 0.085);
+    public static ConfigDouble ROTATION_CORRECTION_KI = new ConfigDouble("Drive/PID/Rotation Correction kI", 0.0);
+    public static ConfigDouble ROTATION_CORRECTION_KD = new ConfigDouble("Drive/PID/Rotation Correction kD", 0.0);
+
     public static ConfigInt PID_DRIVE_TUNING = new ConfigInt("Drive/PID/Tuning Enabled", 0);
 
     public static ConfigDouble PID_DRIVE_ROTATION_KP = new ConfigDouble("Drive/PID/Rotation kP", 0.1);
@@ -353,10 +353,15 @@ public final class Constants {
     public static ConfigDouble PID_DRIVE_Y_KI = new ConfigDouble("Drive/PID/Y kI", 0);
     public static ConfigDouble PID_DRIVE_Y_KD = new ConfigDouble("Drive/PID/Y kD", 0);
     public static ConfigDouble PID_DRIVE_Y_TOLERANCE = new ConfigDouble("Drive/PID/Y Tolerance", 1);
+    public static ConfigDouble PID_DRIVE_Y_BARGE_TOLERANCE = new ConfigDouble("Drive/PID/Y Tolerance Barge", 0.7);
     
     public static ConfigDouble PID_DRIVE_MAX_ROTATION_SPEED = new ConfigDouble("Drive/PID/Max Rotation", 2);
     public static ConfigDouble PID_DRIVE_MAX_DRIVE_X_SPEED = new ConfigDouble("Drive/PID/Max Drive X", 2);
     public static ConfigDouble PID_DRIVE_MAX_DRIVE_Y_SPEED = new ConfigDouble("Drive/PID/Max Drive Y", 2);
+
+    public static ConfigDouble L4_PID_DRIVE_POSE_TOLERANCE =  new ConfigDouble("L4PIDDrive/Drive Pose Tolerance", 0.1);
+    public static ConfigDouble L4_PID_DRIVE_STABLE_COUNT_THRESHOLD =  new ConfigDouble("L4PIDDrive/Stable Count Threshold", 8);
+    public static ConfigDouble L4_PID_DRIVE_ROBOT_DISTANCE_TO_REEF = new ConfigDouble("L4PIDDrive/Reef to Robot Distance", 1);
   }
 
   public static class Algae {
@@ -372,6 +377,12 @@ public final class Constants {
     public static final ConfigDouble kDMainAlgaeInside = new ConfigDouble("Algae/kDMainAlgaeInside", 0);
     public static final ConfigDouble kSMainAlgaeInside = new ConfigDouble("Algae/kSMainAlgaeInside", 2.5);
     public static final ConfigDouble kVMainAlgaeInside = new ConfigDouble("Algae/kVMainAlgaeInside", 2.0);
+
+    // Algae zero PIDs
+    public static final ConfigDouble kPMainAlgaeDown = new ConfigDouble("Algae/kPMainAlgaeDown", 10);
+    public static final ConfigDouble kDMainAlgaeDown = new ConfigDouble("Algae/kDMainAlgaeDown", 0);
+    public static final ConfigDouble kSMainAlgaeDown = new ConfigDouble("Algae/kSMainAlgaeDown", 2.5);
+    public static final ConfigDouble kVMainAlgaeDown = new ConfigDouble("Algae/kVMainAlgaeDown", 0);
 
     public static final ConfigDouble kPAlgae = new ConfigDouble("Algae/kPAlgae", 1);
     public static final ConfigDouble kDAlgae = new ConfigDouble("Algae/kDAlgae", 0);
@@ -415,7 +426,7 @@ public final class Constants {
 
     public static class Heights {
 
-      // From the ground (in)
+      // From the ground (inches)
       public static ConfigDouble LOWEST_HEIGHT = new ConfigDouble("Elevator/Heights/Lowest Height", 12);
       public static ConfigDouble HIGHEST_HEIGHT = new ConfigDouble("Elevator/Positions/Highest Height", 72);
       public static ConfigDouble DEADZONE = new ConfigDouble("Elevator/Positions/Deadzone Intake See Elevator", 7.0);
@@ -432,6 +443,7 @@ public final class Constants {
 
     public static class PrimaryMotor {
       public static ConfigDouble RAISE_SPEED = new ConfigDouble("Elevator/Primary Motor/RAISE_SPEED", 0.3);
+      public static ConfigDouble L4_RAISE_SPEED = new ConfigDouble("Elevator/Primary Motor/L4_RAISE_SPEED", 0.1);
       public static ConfigDouble LOWER_SPEED = new ConfigDouble("Elevator/Primary Motor/LOWER_SPEED", 0.2);
       public static ConfigInt INVERTED = new ConfigInt("Elevator/Primary Motor/ INVERTED MOTOR", 1);
       public static ConfigInt CAN_ID = new ConfigInt("Elevator/Primary Motor/CAN ID", 40);
@@ -462,13 +474,14 @@ public final class Constants {
 
   public static class Intake {
     public static class Nums {
+      public static ConfigDouble conveyorSpeed = new ConfigDouble("Conveyor Motor Speed", .5);
       public static ConfigDouble motorSpeed = new ConfigDouble("Intake Motor Speed", 70);
       public static ConfigDouble motorSpeedSlow = new ConfigDouble("Intake Motor Speed Slow", 35);
       public static ConfigDouble shooterSpeed = new ConfigDouble("Shooter Motor Speed", 65);
       public static ConfigDouble intakeDistance = new ConfigDouble("Intake Sensor Min Distance", 100);
       public static ConfigDouble shooterDistance = new ConfigDouble("Shooter Sensor Min Distance", 100);
       public static ConfigDouble troughSenserDistance = new ConfigDouble("Trough Sensor Min Distance", 150);
-      public static ConfigBoolean overideElevator = new ConfigBoolean("Elevator Overided", false);
+      public static ConfigBoolean laserCanLogicOverride = new ConfigBoolean("IMPORTANT LaserCan / Elevator Override", false);
     }
 
     public static class LeftMotor {
