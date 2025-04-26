@@ -31,6 +31,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import lib.pose.ScoreConfig.Target;
 import lib.vision.Limelight;
 import lib.vision.RealSenseCamera;
 import frc.robot.commands.ButtonDriveController;
@@ -47,7 +48,6 @@ import frc.robot.subsystems.ElevatorSubsystem.Setpoint;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.LEDStatusSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
-import frc.robot.subsystems.SwerveSubsystem.AutoScoreTarget;
 import frc.robot.subsystems.TroughSubsystem;
 
 public class RobotContainer {
@@ -162,24 +162,24 @@ public class RobotContainer {
         thirdController.b().whileTrue(algae.manualIntake());
         thirdController.y().whileTrue(intake.shootL1Coral());
 
-        thirdController.x().whileTrue(makeAutoAlgaeIntakeCommand(AutoScoreTarget.L1_MIDDLE));
+        thirdController.x().whileTrue(makeAutoAlgaeIntakeCommand(Target.L1_MIDDLE));
 
         // PID to nearest coral pose left and score into barge
         buttonController.a().whileTrue(makeAutoBargeScoreCommand());
-        buttonController.b().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L2_LEFT));
-        buttonController.x().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L3_LEFT));
-        buttonController.y().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L4_LEFT));
+        buttonController.b().whileTrue(makeAutoScoreCommand(Target.L2_LEFT));
+        buttonController.x().whileTrue(makeAutoScoreCommand(Target.L3_LEFT));
+        buttonController.y().whileTrue(makeAutoScoreCommand(Target.L4_LEFT));
 
         // PID to nearest coral pose right
         buttonController.leftBumper()
                 .onTrue(elevator.moveToTargetPosition(Setpoint.kFeederStation).withName("kFeederStation"));
-        buttonController.rightBumper().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L2_RIGHT));
-        buttonController.back().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L3_RIGHT));
-        buttonController.start().whileTrue(makeAutoScoreCommand(AutoScoreTarget.L4_RIGHT));
+        buttonController.rightBumper().whileTrue(makeAutoScoreCommand(Target.L2_RIGHT));
+        buttonController.back().whileTrue(makeAutoScoreCommand(Target.L3_RIGHT));
+        buttonController.start().whileTrue(makeAutoScoreCommand(Target.L4_RIGHT));
 
         // PID to coral source
-        buttonController.button(11).whileTrue(makeAutoDriveToSourceCommand(AutoScoreTarget.L1_LEFT));
-        buttonController.button(12).whileTrue(makeAutoDriveToSourceCommand(AutoScoreTarget.L1_RIGHT));
+        buttonController.button(11).whileTrue(makeAutoDriveToSourceCommand(Target.L1_LEFT));
+        buttonController.button(12).whileTrue(makeAutoDriveToSourceCommand(Target.L1_RIGHT));
 
         // Intaking and shooting coral logic
         buttonController.rightStick().whileTrue(intake.intakeCoral().withName("intakeCoral"));
@@ -259,14 +259,14 @@ public class RobotContainer {
         this.drive.updateRotationPIDSetpoint();
     }
 
-    private Command makeAutoScoreCommand(AutoScoreTarget target) {
+    private Command makeAutoScoreCommand(Target target) {
         ParallelCommandGroup commandGroup = new ParallelCommandGroup();
         commandGroup.addCommands(drive.driveToPose(target).andThen(drive.updateRotationPIDSetpointCommand()));
         commandGroup.addCommands(elevator.moveToTargetPosition(targetToSetPoint(target)));
         return commandGroup.andThen(drive.stopDriving());
     }
     
-    private Command makeAutoAlgaeIntakeCommand(AutoScoreTarget target) {
+    private Command makeAutoAlgaeIntakeCommand(Target target) {
         ParallelCommandGroup commandGroup = new ParallelCommandGroup();
         commandGroup.addCommands(drive.driveToPose(target).andThen(drive.updateRotationPIDSetpointCommand()));
         commandGroup.addCommands(elevator.moveToTargetPosition(targetToSetPoint(target)));
@@ -274,7 +274,7 @@ public class RobotContainer {
         return commandGroup.andThen(drive.stopDriving());
     }
 
-    private Command makeL4AutoScoreCommand(AutoScoreTarget target, RealSenseCamera camera) {
+    private Command makeL4AutoScoreCommand(Target target, RealSenseCamera camera) {
         Command driveToReef = drive.cameraDriveToPose(camera, target).andThen(drive.updateRotationPIDSetpointCommand());
         ParallelCommandGroup commandGroup = new ParallelCommandGroup();
         commandGroup.addCommands(driveToReef);
@@ -282,7 +282,7 @@ public class RobotContainer {
         return commandGroup.andThen(drive.stopDriving());
     }
 
-    private Command makeAutoDriveToSourceCommand(AutoScoreTarget target) {
+    private Command makeAutoDriveToSourceCommand(Target target) {
         ParallelCommandGroup commandGroup = new ParallelCommandGroup();
         commandGroup.addCommands(drive.drivetoSourcePose(target).andThen(drive.updateRotationPIDSetpointCommand()));
         commandGroup.addCommands(elevator.moveToTargetPosition(targetToSetPoint(target)));
@@ -326,7 +326,7 @@ public class RobotContainer {
         return commandGroup;
     }
 
-    private Setpoint targetToSetPoint(AutoScoreTarget target) {
+    private Setpoint targetToSetPoint(Target target) {
         switch (target) {
             case L4_LEFT:
             case L4_RIGHT:
