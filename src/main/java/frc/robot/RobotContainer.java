@@ -305,22 +305,24 @@ public class RobotContainer {
 
             // Base parallel: drive + elevator in parallel
             Command base = parallel(
-                    swerveSubsystem.driveToPose(generalPose.getPose2d()),
-                    elevatorSubsystem.moveToTargetPosition(generalPose.getTargetState().getSetpoint()),
-                    swerveSubsystem.updateRotationPIDSetpointCommand());
+                    swerveSubsystem.driveToPose(generalPose.getPose2d())
+                            .andThen(swerveSubsystem.stopDriving())
+                            .andThen(swerveSubsystem.updateRotationPIDSetpointCommand()),
+                    elevatorSubsystem.moveToTargetPosition(generalPose.getTargetState().getSetpoint()));
 
             // Two branches: coral vs. algae
             Command coralFlow = base;
             Command algaeFlow = base.alongWith(buildAlgaeIntakeRoutine())
-                    .andThen(swerveSubsystem.backAwayFromReef());
+                    .andThen(swerveSubsystem.backAwayFromReef())
+                    .andThen(swerveSubsystem.stopDriving())
+                    .andThen(swerveSubsystem.updateRotationPIDSetpointCommand());
 
             // Select based on TargetObject, then stop drive once done
             return select(
                     Map.of(
                             TargetObject.ALGAE, algaeFlow,
                             TargetObject.CORAL, coralFlow),
-                    () -> target.getObject())
-                    .andThen(Commands.runOnce(swerveSubsystem::stopDriving, swerveSubsystem));
+                    () -> target.getObject());
         },
                 // Declare requirements up front
                 Set.of(swerveSubsystem, elevatorSubsystem));
