@@ -372,10 +372,6 @@ public class SwerveSubsystem extends SubsystemBase {
     return swerveDriveKinematics.toChassisSpeeds(getModuleStates());
   }
 
-  public void initialize() {
-    // gyro.reset();
-  }
-
   public void logData() {
 
     // Logging total speed
@@ -571,14 +567,16 @@ public class SwerveSubsystem extends SubsystemBase {
     // Closest Pose2d to current position based on filteredPoses
     closestPose = getClosestPose2d(filteredPoses);
 
-    // Finds corresponding general pose (NOTE: Will need to change to be more efficient by keeping track of index)
+    // Finds corresponding general pose (NOTE: Will need to change to be more
+    // efficient by keeping track of index)
     targetGeneralPose = filteredPoses.stream()
         .filter(
             (p) -> p.getPose2d().equals(closestPose))
         .findFirst()
         .get();
 
-    // If already known elevator setpoint, then set the targetState to include setpoint
+    // If already known elevator setpoint, then set the targetState to include
+    // setpoint
     if (targetState.getSetpoint() != null) {
       targetGeneralPose.setTargetState(targetState);
     }
@@ -608,30 +606,35 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   // Returns position on field (flipped if red alliance)
-  public Pose2d getFieldAdjustedPose2d(Pose2d currentPose) {
-    return BlueAlliance ? currentPose : FlippingUtil.flipFieldPose(currentPose);
+  public Pose2d getFieldAdjustedPose2d(Pose2d pose) {
+    return BlueAlliance ? pose : FlippingUtil.flipFieldPose(pose);
   }
 
-  /*
-   * Drives to closest reef pose based on which side specified (left or right)
+  /**
+   * Drives to whatever Pose2d the supplier returns.
+   * 
+   * @param poseSupplier supplies the target pose at command initialization & each
+   *                     execution
    */
-  public Command driveToPose(Pose2d pose) {
-    return new DeferredCommand(() -> {
-      Pose2d targetPose = pose;
-      // PathConstraints constraints = new PathConstraints(1.5, 1.5, .5, .5);
+  public Command driveToPose(Supplier<Pose2d> poseSupplier) {
+    // Directly return your path‐following command,
+    // letting DriveToPose itself handle following the trajectory.
+    return new DriveToPose(this, supplier_position, poseSupplier);
+  }
 
-      // if (BlueAlliance) {
-      // return new DriveToPose(this, supplier_position, () -> targetPose);
-      // // return AutoBuilder.pathfindToPose(targetPose, constraints, 0);
-      // } else {
-      // return new DriveToPose(this, supplier_position, () ->
-      // FlippingUtil.flipFieldPose(targetPose));
-      // // return AutoBuilder.pathfindToPoseFlipped(targetPose, constraints, 0);
-      // }
+  /**
+   * Convenience overload for a fixed, precomputed pose.
+   */
+  public Command driveToPose(Pose2d fixedPose) {
+    // Wrap the static pose in a supplier.
+    return driveToPose(() -> fixedPose);
+  }
 
-      return new DriveToPose(this, supplier_position, () -> targetPose);
-
-    }, Set.of(this));
+  /**
+   * Not implemented for now
+   */
+  public Command backAwayFromReef() {
+    return new InstantCommand();
   }
 
   /*

@@ -3,12 +3,20 @@
 // the WPILib BSD license file in the root directory of this project.
 package frc.robot;
 
+import java.util.Map;
+import java.util.Set;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import static edu.wpi.first.wpilibj2.command.Commands.defer;
+import static edu.wpi.first.wpilibj2.command.Commands.parallel;
+import static edu.wpi.first.wpilibj2.command.Commands.select;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
@@ -16,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import lib.pose.GeneralPose;
 import lib.pose.ScoreConfig.TargetObject;
 import lib.pose.ScoreConfig.TargetState;
 import lib.vision.Limelight;
@@ -27,165 +36,159 @@ import frc.robot.commands.RumbleCommandStop;
 import frc.robot.subsystems.AlgaeSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem.Setpoint;
-import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.CoralSubsystem;
 import frc.robot.subsystems.LEDStatusSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 
 public class RobotContainer {
-    private SwerveSubsystem drive;
-    private CommandXboxController driveController;
-    private CommandXboxController buttonController;
+    private SwerveSubsystem swerveSubsystem;
+    private CommandXboxController driverController;
+    private CommandXboxController operatorController;
     private CommandXboxController thirdController;
     private SendableChooser<Command> autoChooser;
-    private IntakeSubsystem intake;
+    private CoralSubsystem coralSubsystem;
     // private CommandGenericHID simController;
-    private ElevatorSubsystem elevator;
-    private Limelight leftLL;
-    private Limelight rightLL;
-    private RealSenseCamera cam;
-    private LEDStatusSubsystem ledStatus;
-    private AlgaeSubsystem algae;
+    private ElevatorSubsystem elevatorSubsystem;
+    private Limelight leftLimelight;
+    private Limelight rightLimelight;
+    private RealSenseCamera realSenseCamera;
+    private LEDStatusSubsystem ledStatusSubsystem;
+    private AlgaeSubsystem algaeSubsystem;
 
     protected RobotContainer() {
-        intake = new IntakeSubsystem();
-        elevator = new ElevatorSubsystem(intake);
-        leftLL = new Limelight(Constants.Vision.Names.leftLL);
-        rightLL = new Limelight(Constants.Vision.Names.rightLL);
-        cam = new RealSenseCamera(Constants.Vision.Names.realSenseCam);
-        drive = new SwerveSubsystem(leftLL, rightLL);
+        coralSubsystem = new CoralSubsystem();
+        elevatorSubsystem = new ElevatorSubsystem(coralSubsystem);
+        leftLimelight = new Limelight(Constants.Vision.Names.leftLL);
+        rightLimelight = new Limelight(Constants.Vision.Names.rightLL);
+        realSenseCamera = new RealSenseCamera(Constants.Vision.Names.realSenseCam);
+        swerveSubsystem = new SwerveSubsystem(leftLimelight, rightLimelight);
         // climber = new ClimberSubsystem();
-        ledStatus = new LEDStatusSubsystem(intake, elevator);
+        ledStatusSubsystem = new LEDStatusSubsystem(coralSubsystem, elevatorSubsystem);
         // trough = new TroughSubsystem();
-        algae = new AlgaeSubsystem();
+        algaeSubsystem = new AlgaeSubsystem();
 
-        driveController = new CommandXboxController(Constants.Gamepad.Controller.DRIVE);
-        buttonController = new CommandXboxController(Constants.Gamepad.Controller.BUTTON);
+        driverController = new CommandXboxController(Constants.Gamepad.Controller.DRIVE);
+        operatorController = new CommandXboxController(Constants.Gamepad.Controller.BUTTON);
         thirdController = new CommandXboxController(Constants.Gamepad.Controller.THIRD);
 
         configureBindings();
 
-        NamedCommands.registerCommand("Stop Driving", drive.stopDriving());
-        NamedCommands.registerCommand("Feeder Station", elevator.targetPosition(Setpoint.kFeederStation));
-        NamedCommands.registerCommand("L4", elevator.targetPosition(Setpoint.kLevel4));
-        NamedCommands.registerCommand("L2", elevator.targetPosition(Setpoint.kLevel2));
-        NamedCommands.registerCommand("L3", elevator.targetPosition(Setpoint.kLevel3));
-        NamedCommands.registerCommand("Pre-L4", elevator.autonTargetPosition(Setpoint.kLevel4));
+        NamedCommands.registerCommand("Stop Driving", swerveSubsystem.stopDriving());
+        NamedCommands.registerCommand("Feeder Station", elevatorSubsystem.targetPosition(Setpoint.kFeederStation));
+        NamedCommands.registerCommand("L4", elevatorSubsystem.targetPosition(Setpoint.kLevel4));
+        NamedCommands.registerCommand("L2", elevatorSubsystem.targetPosition(Setpoint.kLevel2));
+        NamedCommands.registerCommand("L3", elevatorSubsystem.targetPosition(Setpoint.kLevel3));
+        NamedCommands.registerCommand("Pre-L4", elevatorSubsystem.autonTargetPosition(Setpoint.kLevel4));
 
-        NamedCommands.registerCommand("Intake Coral", intake.intakeCoral());
-        NamedCommands.registerCommand("Shoot Coral", intake.shootCoral().alongWith(makeCoralHelpScoreCommand()));
-        NamedCommands.registerCommand("Wait For Coral", intake.waitUntilCoral());
+        NamedCommands.registerCommand("Intake Coral", coralSubsystem.intakeCoral());
+        NamedCommands.registerCommand("Shoot Coral", coralSubsystem.shootCoral().alongWith(buildCoralAssistCommand()));
+        NamedCommands.registerCommand("Wait For Coral", coralSubsystem.waitUntilCoral());
 
-        NamedCommands.registerCommand("Move Hinge Coral", algae.moveToCoralScorePose());
-        NamedCommands.registerCommand("Move Hinge Zero", algae.moveToZero());
-        NamedCommands.registerCommand("Move To Algae Intake", algae.moveToIntakePos());
-        NamedCommands.registerCommand("Move Hinge Barge", algae.moveToAlgaeShoot());
-        NamedCommands.registerCommand("Auto Barge Score", makeAutoBargeScoreCommand());
+        NamedCommands.registerCommand("Move Hinge Coral", algaeSubsystem.moveToCoralScorePose());
+        NamedCommands.registerCommand("Move Hinge Zero", algaeSubsystem.moveToZero());
+        NamedCommands.registerCommand("Move To Algae Intake", algaeSubsystem.moveToIntakePos());
+        NamedCommands.registerCommand("Move Hinge Barge", algaeSubsystem.moveToAlgaeShoot());
+        NamedCommands.registerCommand("Auto Barge Score", buildBargeScoringRoutine());
 
-        NamedCommands.registerCommand("Intake Algae", algae.intake());
-        NamedCommands.registerCommand("Shoot ALgae", algae.shootAlgae());
+        NamedCommands.registerCommand("Intake Algae", algaeSubsystem.intake());
+        NamedCommands.registerCommand("Shoot ALgae", algaeSubsystem.shootAlgae());
 
-        NamedCommands.registerCommand("RumbleCommantStart", new RumbleCommandStart(driveController));
-        NamedCommands.registerCommand("RumbleCommantStop", new RumbleCommandStop(driveController));
+        NamedCommands.registerCommand("RumbleCommantStart", new RumbleCommandStart(driverController));
+        NamedCommands.registerCommand("RumbleCommantStop", new RumbleCommandStop(driverController));
 
         // For convenience a programmer could change this when going to competition.
-        boolean isCompetition = true;
+        final boolean filterCompetitionAutos = true;
 
         // Build an auto chooser. This will use Commands.none() as the default option.
         // As an example, this will only show autos that start with "comp" while at
         // competition as defined by the programmer
         autoChooser = AutoBuilder.buildAutoChooserWithOptionsModifier(
-                (stream) -> isCompetition
+                (stream) -> filterCompetitionAutos
                         ? stream.filter(
-                                auto -> (auto.getName().startsWith("Fudge") || auto.getName().startsWith("Kick")
-                                        || auto.getName().startsWith("Bottom") || auto.getName().startsWith("Top")
-                                        || auto.getName().startsWith("Center")))
+                                auto -> (auto.getName().startsWith("Kick") || auto.getName().startsWith("Center")))
                         : stream);
 
         SmartDashboard.putData("Auto Chooser", autoChooser);
     }
 
-    public void initialize() {
-        drive.initialize();
-    }
-
     private void configureBindings() {
         // Redundent elevator positions of drive controller
-        driveController.a().onTrue(elevator.moveToTargetPosition(Setpoint.kLevel1).withName("kLevel1"));
-        driveController.b().onTrue(elevator.moveToTargetPosition(Setpoint.kLevel2).withName("kLevel2"));
-        driveController.x().onTrue(elevator.moveToTargetPosition(Setpoint.kLevel3).withName("kLevel3"));
-        driveController.y().onTrue(elevator.moveToTargetPosition(Setpoint.kLevel4).withName("kLevel4"));
+        driverController.a().onTrue(elevatorSubsystem.moveToTargetPosition(Setpoint.kLevel1).withName("kLevel1"));
+        driverController.b().onTrue(elevatorSubsystem.moveToTargetPosition(Setpoint.kLevel2).withName("kLevel2"));
+        driverController.x().onTrue(elevatorSubsystem.moveToTargetPosition(Setpoint.kLevel3).withName("kLevel3"));
+        driverController.y().onTrue(elevatorSubsystem.moveToTargetPosition(Setpoint.kLevel4).withName("kLevel4"));
 
         // Redundent manual elevator movement and coral box intaking/shooting
-        driveController.povDown().whileTrue(elevator.runMotors(true).withName("runMotorsReverseTrue"));
-        driveController.povUp().whileTrue(elevator.runMotors(false).withName("runMotorsReverseFalse"));
-        driveController.povLeft().whileTrue(intake.intakeCoral().withName("intakeCoral"));
-        driveController.povRight().whileTrue(intake.shootCoral().withName("shootCoral"));
+        driverController.povDown().whileTrue(elevatorSubsystem.runMotors(true).withName("runMotorsReverseTrue"));
+        driverController.povUp().whileTrue(elevatorSubsystem.runMotors(false).withName("runMotorsReverseFalse"));
+        driverController.povLeft().whileTrue(coralSubsystem.intakeCoral().withName("intakeCoral"));
+        driverController.povRight().whileTrue(coralSubsystem.shootCoral().withName("shootCoral"));
 
         // Doesn't work since CameraDriveToPose PIDs to a field centric pose
         // Need to rewrite CameraDriveToPose to be robot centric
         // driveController.rightTrigger().whileTrue(drive.cameraDriveToPose(cam));
 
         // Reset gryo
-        driveController.rightBumper().onTrue(drive.resetGyroCommand());
+        driverController.rightBumper().onTrue(swerveSubsystem.resetGyroCommand());
 
         // Algae controls
-        driveController.leftTrigger().whileTrue(makeAlgaeIntakeCommand());
-        driveController.leftBumper().whileTrue(algae.moveToZero().withName("returnToHomePosAlgae"));
-        driveController.rightTrigger().whileTrue(algae.shootAlgae().withName("shootAlgae"));
-        driveController.rightTrigger().onFalse(algae.hold(0));
+        driverController.leftTrigger().whileTrue(buildAlgaeIntakeRoutine());
+        driverController.leftBumper().whileTrue(algaeSubsystem.moveToZero().withName("returnToHomePosAlgae"));
+        driverController.rightTrigger().whileTrue(algaeSubsystem.shootAlgae().withName("shootAlgae"));
+        driverController.rightTrigger().onFalse(algaeSubsystem.hold(0));
 
-        thirdController.povUp().whileTrue(algae.manualControlForward());
-        thirdController.povUp().onFalse(algae.mainMotorHoldCommand());
-        thirdController.povDown().whileTrue(algae.manualControlBackwards());
-        thirdController.povUp().onFalse(algae.mainMotorHoldCommand());
+        thirdController.povUp().whileTrue(algaeSubsystem.manualControlForward());
+        thirdController.povUp().onFalse(algaeSubsystem.mainMotorHoldCommand());
+        thirdController.povDown().whileTrue(algaeSubsystem.manualControlBackwards());
+        thirdController.povUp().onFalse(algaeSubsystem.mainMotorHoldCommand());
 
-        thirdController.a().whileTrue(algae.moveToAlgaeShoot());
-        thirdController.b().whileTrue(algae.manualIntake());
-        thirdController.y().whileTrue(intake.shootL1Coral());
+        thirdController.a().whileTrue(algaeSubsystem.moveToAlgaeShoot());
+        thirdController.b().whileTrue(algaeSubsystem.manualIntake());
+        thirdController.y().whileTrue(coralSubsystem.shootL1Coral());
 
-        thirdController.x().whileTrue(makeAutoAlgaeIntakeCommand(TargetState.ALGAE_BUTTON));
+        thirdController.x().whileTrue(buildAutoRoutine(TargetState.ALGAE_BUTTON));
 
         // PID to nearest coral pose left and score into barge
-        buttonController.a().whileTrue(makeAutoBargeScoreCommand());
-        buttonController.b().whileTrue(makeAutoScoreCommand(TargetState.L2_LEFT));
-        buttonController.x().whileTrue(makeAutoScoreCommand(TargetState.L3_LEFT));
-        buttonController.y().whileTrue(makeAutoScoreCommand(TargetState.L4_LEFT));
+        operatorController.a().whileTrue(buildBargeScoringRoutine());
+        operatorController.b().whileTrue(buildAutoRoutine(TargetState.L2_LEFT));
+        operatorController.x().whileTrue(buildAutoRoutine(TargetState.L3_LEFT));
+        operatorController.y().whileTrue(buildAutoRoutine(TargetState.L4_LEFT));
 
         // PID to nearest coral pose right
-        buttonController.leftBumper()
-                .onTrue(elevator.moveToTargetPosition(Setpoint.kFeederStation).withName("kFeederStation"));
-        buttonController.rightBumper().whileTrue(makeAutoScoreCommand(TargetState.L2_RIGHT));
-        buttonController.back().whileTrue(makeAutoScoreCommand(TargetState.L3_RIGHT));
-        buttonController.start().whileTrue(makeAutoScoreCommand(TargetState.L4_RIGHT));
+        operatorController.leftBumper()
+                .onTrue(elevatorSubsystem.moveToTargetPosition(Setpoint.kFeederStation).withName("kFeederStation"));
+        operatorController.rightBumper().whileTrue(buildAutoRoutine(TargetState.L2_RIGHT));
+        operatorController.back().whileTrue(buildAutoRoutine(TargetState.L3_RIGHT));
+        operatorController.start().whileTrue(buildAutoRoutine(TargetState.L4_RIGHT));
 
         // PID to coral source
-        buttonController.button(11).whileTrue(makeAutoDriveToSourceCommand(TargetState.L1_LEFT));
-        buttonController.button(12).whileTrue(makeAutoDriveToSourceCommand(TargetState.L1_RIGHT));
+        operatorController.button(11).whileTrue(buildAutoRoutine(TargetState.L1_LEFT));
+        operatorController.button(12).whileTrue(buildAutoRoutine(TargetState.L1_RIGHT));
 
         // Intaking and shooting coral logic
-        buttonController.rightStick().whileTrue(intake.intakeCoral().withName("intakeCoral"));
-        buttonController.leftStick()
-                .whileTrue(intake.shootCoral().withName("shootCoral").alongWith(makeCoralHelpScoreCommand()));
+        operatorController.rightStick().whileTrue(coralSubsystem.intakeCoral().withName("intakeCoral"));
+        operatorController.leftStick()
+                .whileTrue(coralSubsystem.shootCoral().withName("shootCoral").alongWith(buildCoralAssistCommand()));
         // buttonController.leftStick().whileTrue(algae.moveToCoralScorePose().withName("Algae
         // Hinge to Coral Pose"));
-        buttonController.leftStick().whileFalse(algae.moveToZero());
+        operatorController.leftStick().whileFalse(algaeSubsystem.moveToZero());
 
         // driveController.povRight().onTrue(drive.xMode());
 
         // Driving
-        drive.setDefaultCommand(
-                new DriveController(drive, () -> {
-                    return driveController.getRightX();
+        swerveSubsystem.setDefaultCommand(
+                new DriveController(swerveSubsystem, () -> {
+                    return driverController.getRightX();
                 }, () -> {
-                    return driveController.getLeftY();
+                    return driverController.getLeftY();
                 }, () -> {
-                    return driveController.getLeftX();
+                    return driverController.getLeftX();
                 },
                         Constants.SwerveModule.Speed.MAX_SPEED));
 
         // Fine adjustments for coral scroing
-        buttonController.axisGreaterThan(0, 0.1).whileTrue(
-                new ButtonDriveController(drive, () -> {
+        operatorController.axisGreaterThan(0, 0.1).whileTrue(
+                new ButtonDriveController(swerveSubsystem, () -> {
                     return 0.0;
                 }, () -> {
                     return 0.0;
@@ -193,8 +196,8 @@ public class RobotContainer {
                     return 1.0;
                 },
                         0.2));
-        buttonController.axisLessThan(0, -0.1).whileTrue(
-                new ButtonDriveController(drive, () -> {
+        operatorController.axisLessThan(0, -0.1).whileTrue(
+                new ButtonDriveController(swerveSubsystem, () -> {
                     return 0;
                 }, () -> {
                     return 0;
@@ -204,10 +207,10 @@ public class RobotContainer {
                         0.2));
 
         // Manual elevator movement
-        buttonController.axisGreaterThan(1, 0.1).whileTrue(elevator.runMotors(true)
+        operatorController.axisGreaterThan(1, 0.1).whileTrue(elevatorSubsystem.runMotors(true)
                 .withName("runMotorsReverseTrue"));
 
-        buttonController.axisLessThan(1, -0.1).whileTrue(elevator.runMotors(false)
+        operatorController.axisLessThan(1, -0.1).whileTrue(elevatorSubsystem.runMotors(false)
                 .withName("runMotorsReverseFalse"));
 
     }
@@ -217,11 +220,11 @@ public class RobotContainer {
     }
 
     protected void updateOdometry() {
-        this.drive.updateOdometry();
+        this.swerveSubsystem.updateOdometry();
     }
 
     protected void updateCamera() {
-        cam.updateReefPose();
+        realSenseCamera.updateReefPose();
     }
 
     protected void updateMatchTime() {
@@ -233,96 +236,110 @@ public class RobotContainer {
     // }
 
     protected void zeroRotation() {
-        this.drive.resetGyro();
+        this.swerveSubsystem.resetGyro();
     }
 
     protected void updateRotationPIDSetpoint() {
-        this.drive.updateRotationPIDSetpoint();
+        this.swerveSubsystem.updateRotationPIDSetpoint();
     }
 
-    private Command makeAutoScoreCommand(TargetState target) {
-        ParallelCommandGroup commandGroup = new ParallelCommandGroup();
-        
-        if (target.getObject() == TargetObject.ALGAE) {
-            commandGroup.addCommands(makeAlgaeCommand());
-        } 
+    /**
+     * Creates the full autonomous command sequence for the specified TargetState.
+     *
+     * <p>
+     * This method defers construction so that
+     * {@code drive.filterClosestState(target)}
+     * is called when the command is scheduled to calculate the closest was Pose2d.
+     *
+     * <p>
+     * Once initialized, it runs the drivetrain and elevator in parallel to move to
+     * the computed pose, selecting between coral or algae-specific routines.
+     * After the chosen routine completes, it stops the drivetrain.
+     *
+     * <p>
+     * Requirements: {@code DriveSubsystem} and {@code ElevatorSubsystem}.
+     *
+     * @param target The TargetState to reach
+     * @return A deferred, composable Command that handles pose filtering, parallel
+     *         motion and branch-specific actions.
+     */
+    public Command buildAutoRoutine(TargetState target) {
+        // Defer the entire routine so filterClosestState() is only called once
+        return defer(() -> {
+            GeneralPose generalPose = swerveSubsystem.filterClosestState(target);
 
-        GeneralPose pose = drive.filter(target);
-        commandGroup.addCommands(drive.driveToPose(target).andThen(drive.updateRotationPIDSetpointCommand()));
-        commandGroup.addCommands(elevator.moveToTargetPosition(targetToSetPoint(target)));
-        return commandGroup.andThen(drive.stopDriving());
-    }
-    
-    private Command makeAutoAlgaeIntakeCommand(TargetState target) {
-        ParallelCommandGroup commandGroup = new ParallelCommandGroup();
-        commandGroup.addCommands(drive.driveToPose(target).andThen(drive.updateRotationPIDSetpointCommand()));
-        commandGroup.addCommands(elevator.moveToTargetPosition(targetToSetPoint(target)));
-        commandGroup.addCommands(makeAlgaeIntakeCommand());
-        return commandGroup.andThen(drive.stopDriving());
+            // Base parallel: drive + elevator in parallel
+            Command base = parallel(
+                    swerveSubsystem.driveToPose(generalPose.getPose2d()),
+                    elevatorSubsystem.moveToTargetPosition(generalPose.getTargetState().getSetpoint()),
+                    swerveSubsystem.updateRotationPIDSetpointCommand());
+
+            // Two branches: coral vs. algae
+            Command coralFlow = base;
+            Command algaeFlow = base.alongWith(buildAlgaeIntakeRoutine())
+                    .andThen(swerveSubsystem.backAwayFromReef());
+
+            // Select based on TargetObject, then stop drive once done
+            return select(
+                    Map.of(
+                            TargetObject.ALGAE, algaeFlow,
+                            TargetObject.CORAL, coralFlow),
+                    () -> target.getObject())
+                    .andThen(Commands.runOnce(swerveSubsystem::stopDriving, swerveSubsystem));
+        },
+                // Declare requirements up front
+                Set.of(swerveSubsystem, elevatorSubsystem));
     }
 
-    // private Command makeL4AutoScoreCommand(TargetState target, RealSenseCamera camera) {
-    //     Command driveToReef = drive.cameraDriveToPose(camera, target).andThen(drive.updateRotationPIDSetpointCommand());
-    //     ParallelCommandGroup commandGroup = new ParallelCommandGroup();
-    //     commandGroup.addCommands(driveToReef);
-    //     commandGroup.addCommands(elevator.moveToTargetPosition(targetToSetPoint(target)));
-    //     return commandGroup.andThen(drive.stopDriving());
+    // private Command makeL4AutoScoreCommand(TargetState target, RealSenseCamera
+    // camera) {
+    // Command driveToReef = drive.cameraDriveToPose(camera,
+    // target).andThen(drive.updateRotationPIDSetpointCommand());
+    // ParallelCommandGroup commandGroup = new ParallelCommandGroup();
+    // commandGroup.addCommands(driveToReef);
+    // commandGroup.addCommands(elevator.moveToTargetPosition(targetToSetPoint(target)));
+    // return commandGroup.andThen(drive.stopDriving());
     // }
 
-    private Command makeAutoBargeScoreCommand() {
-        ParallelCommandGroup commandGroup = new ParallelCommandGroup();
-        commandGroup.addCommands(drive.driveCloseToBargePose().andThen(drive.stopDriving())
-                .andThen(drive.updateRotationPIDSetpointCommand()));
-        commandGroup.addCommands(algae.moveToAlgaeShoot());
-        commandGroup.addCommands(elevator.moveToTargetPosition(Setpoint.kLevel2));
-        return commandGroup.andThen(elevator.moveToTargetPosition(Setpoint.kLevel4)).andThen(new WaitCommand(1))
-                .andThen(drive.driveToBargePose()).andThen(drive.stopDriving())
-                .andThen(drive.updateRotationPIDSetpointCommand())
-                .andThen(new WaitCommand(0.5)).andThen(algae.shootAlgae());
+    // Drive + elevator + algae + barge scoring in one sequence:
+    private Command buildBargeScoringRoutine() {
+        return Commands.sequence(
+                // 1) Drive close to barge in parallel with elevator and algae pre-move
+                Commands.parallel(
+                        swerveSubsystem.driveCloseToBargePose()
+                                .andThen(swerveSubsystem.stopDriving())
+                                .andThen(swerveSubsystem.updateRotationPIDSetpointCommand()),
+                        algaeSubsystem.moveToAlgaeShoot(),
+                        elevatorSubsystem.moveToTargetPosition(Setpoint.kLevel2)),
+                // 2) Ramp elevator to L4, pause, then actually drive into barge
+                elevatorSubsystem.moveToTargetPosition(Setpoint.kLevel4),
+                new WaitCommand(1),
+                swerveSubsystem.driveToBargePose()
+                        .andThen(swerveSubsystem.stopDriving())
+                        .andThen(swerveSubsystem.updateRotationPIDSetpointCommand()),
+                new WaitCommand(0.5),
+                // 3) Finally shoot algae
+                algaeSubsystem.shootAlgae());
     }
 
-    private Command makeAlgaeIntakeCommand() {
-        SequentialCommandGroup commandGroup = new SequentialCommandGroup();
-        commandGroup.addCommands(algae.intake().andThen(new WaitCommand(1)));
-        commandGroup.addCommands(algae.moveToAlgaeShoot());
-        return commandGroup;
+    // Intake → delay → reposition in one sequence
+    private Command buildAlgaeIntakeRoutine() {
+        return Commands.sequence(
+                algaeSubsystem.intake(),
+                new WaitCommand(1),
+                algaeSubsystem.moveToAlgaeShoot());
     }
 
-    private Command makeCoralHelpScoreCommand() {
-        return new ConditionalCommand(coralHelpScoreCommand(true), coralHelpScoreCommand(false),
-                elevator::isElevatorAtL4);
-    }
-
-    private Command coralHelpScoreCommand(boolean wantHelp) {
-
-        if (!wantHelp) {
-            return new InstantCommand();
-        }
-
-        ParallelDeadlineGroup commandGroup = new ParallelDeadlineGroup(
-                elevator.moveL4RaisedSlow(Setpoint.kLevel4Raised));
-        commandGroup.addCommands(algae.moveToCoralScorePose().andThen(algae.runMotorsToIntake()));
-
-        return commandGroup;
-    }
-
-    private Setpoint targetToSetPoint(TargetState target) {
-        switch (target) {
-            case L4_LEFT:
-            case L4_RIGHT:
-                return Setpoint.kLevel4;
-            case L3_LEFT:
-            case L3_RIGHT:
-                return Setpoint.kLevel3;
-            case L2_LEFT:
-            case L2_RIGHT:
-                return Setpoint.kLevel2;
-            case L1_LEFT:
-            case L1_RIGHT:
-                return Setpoint.kLevel1;
-            default:
-                return Setpoint.kFeederStation;
-        }
+    // Conditional “assist” for coral scoring
+    private Command buildCoralAssistCommand() {
+        return new ConditionalCommand(
+                // if elevator at L4, run a deadline group to raise & intake
+                new ParallelDeadlineGroup(
+                        elevatorSubsystem.moveL4RaisedSlow(Setpoint.kLevel4Raised),
+                        algaeSubsystem.moveToCoralScorePose().andThen(algaeSubsystem.runMotorsToIntake())),
+                // else do nothing
+                new InstantCommand(),
+                elevatorSubsystem::isElevatorAtL4);
     }
 
 }

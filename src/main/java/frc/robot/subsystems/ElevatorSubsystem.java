@@ -51,7 +51,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     private boolean manual = false;
     private RumbleCommandStart rumbleStart;
 
-    private IntakeSubsystem intake;
+    private CoralSubsystem intake;
     private NetworkTable cameraTable;
     private final DoublePublisher cameraHeightPublisher;
 
@@ -98,7 +98,7 @@ public class ElevatorSubsystem extends SubsystemBase {
                     90));
     private RumbleCommandStop rumbleEnd;
 
-    public ElevatorSubsystem(IntakeSubsystem intake) {
+    public ElevatorSubsystem(CoralSubsystem intake) {
         // elevatorSpeed = Preferences.getDouble("Elevator Motor Speed (rpm)", 1);
         rumbleStart = new RumbleCommandStart(new CommandXboxController(Constants.Gamepad.Controller.DRIVE));
         rumbleEnd = new RumbleCommandStop(new CommandXboxController(Constants.Gamepad.Controller.DRIVE));
