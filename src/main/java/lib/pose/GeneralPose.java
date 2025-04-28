@@ -4,36 +4,43 @@ import edu.wpi.first.math.geometry.Pose2d;
 import lib.pose.ScoreConfig.TargetState;
 
 /**
- * Represents a general robot pose in 2D space, along with the associated target state
+ * Represents a general robot pose in 2D space, along with the associated target
+ * state
  * for autonomous operations.
  * <p>
- * A GeneralPose bundles together a human-readable name, a 2D pose (position and orientation),
- * and a TargetState enum describing the desired mechanism setpoint or game piece state.
- * This class is used by higher-level routines to drive the robot to specific field locations
- * and perform actions (e.g., scoring coral or intaking algae) based on the TargetState.
+ * A GeneralPose bundles together a human-readable name, a 2D pose (position and
+ * orientation),
+ * and a TargetState enum describing the desired mechanism setpoint or game
+ * piece state.
+ * This class is used by higher-level routines to drive the robot to specific
+ * field locations
+ * and perform actions (e.g., scoring coral or intaking algae) based on the
+ * TargetState.
  */
-public class GeneralPose {
+public final class GeneralPose {
     /**
      * The name of this pose (for logging or dashboard display).
      */
-    private final String name;
+    private final String m_name;
 
     /**
      * The 2D pose of the robot (x, y, rotation).
      */
-    private Pose2d pose;
+    private Pose2d m_pose;
 
     /**
      * The desired target state associated with this pose (e.g., scoring height).
      */
-    private TargetState targetState;
+    private TargetState m_targetState;
 
     /**
      * Constructs a new GeneralPose with the given name, pose, and target state.
      *
-     * @param name         a non-null, human-readable identifier for this pose
-     * @param pose         a non-null Pose2d representing the desired robot position and orientation
-     * @param targetState  a non-null TargetState indicating the mechanism setpoint or game piece state
+     * @param name        a non-null, human-readable identifier for this pose
+     * @param pose        a non-null Pose2d representing the desired robot position
+     *                    and orientation
+     * @param targetState a non-null TargetState indicating the mechanism setpoint
+     *                    or game piece state
      * @throws NullPointerException if name or pose are null
      */
     public GeneralPose(String name, Pose2d pose, TargetState targetState) {
@@ -43,9 +50,9 @@ public class GeneralPose {
         if (pose == null) {
             throw new NullPointerException("Pose2d parameter must not be null");
         }
-        this.name = name;
-        this.pose = pose;
-        this.targetState = targetState;
+        this.m_name = name;
+        this.m_pose = pose;
+        this.m_targetState = targetState;
     }
 
     /**
@@ -54,7 +61,7 @@ public class GeneralPose {
      * @return the human-readable name of the pose
      */
     public String getName() {
-        return name;
+        return m_name;
     }
 
     /**
@@ -63,20 +70,16 @@ public class GeneralPose {
      * @return the current Pose2d
      */
     public Pose2d getPose2d() {
-        return pose;
+        return m_pose;
     }
 
     /**
-     * Sets a new 2D pose for this GeneralPose.
+     * Creates a new GeneralPose with updated Pose2d
      *
-     * @param pose a non-null Pose2d to update the robot's target pose
-     * @throws NullPointerException if pose is null
+     * @param m_pose a Pose2d to update the robot's target pose
      */
-    public void setPose2d(Pose2d pose) {
-        if (pose == null) {
-            throw new NullPointerException("Pose2d parameter must not be null");
-        }
-        this.pose = pose;
+    public GeneralPose withPose2d(Pose2d newPose) {
+        return new GeneralPose(m_name, newPose, m_targetState);
     }
 
     /**
@@ -85,15 +88,15 @@ public class GeneralPose {
      * @return the current TargetState
      */
     public TargetState getTargetState() {
-        return targetState;
+        return m_targetState;
     }
 
     /**
      * Sets a new TargetState for this GeneralPose.
      *
-     * @param targetState a TargetState enum defining the desired mechanism state
+     * @param TargetState a TargetState enum defining the desired mechanism state
      */
-    public void setTargetState(TargetState targetState) {
-        this.targetState = targetState;
+    public GeneralPose withTargetState(TargetState newTargetState) {
+        return new GeneralPose(m_name, m_pose, newTargetState);
     }
 }

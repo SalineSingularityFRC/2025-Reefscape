@@ -560,12 +560,16 @@ public class SwerveSubsystem extends SubsystemBase {
     // Filter to wanted poses to compare
     filteredPoses = Constants.Poses.generalPoses.stream()
         .filter(
-            (p) -> p.getTargetState().getSide() != targetState.getSide() &&
-                p.getTargetState().getObject() != targetState.getObject())
+            (p) -> p.getTargetState().getSide() == targetState.getSide() &&
+                p.getTargetState().getObject() == targetState.getObject())
         .toList();
 
     // Closest Pose2d to current position based on filteredPoses
     closestPose = getClosestPose2d(filteredPoses);
+
+    if(closestPose == null) {
+      return null;
+    }
 
     // Finds corresponding general pose (NOTE: Will need to change to be more
     // efficient by keeping track of index)
@@ -578,11 +582,11 @@ public class SwerveSubsystem extends SubsystemBase {
     // If already known elevator setpoint, then set the targetState to include
     // setpoint
     if (targetState.getSetpoint() != null) {
-      targetGeneralPose.setTargetState(targetState);
+      targetGeneralPose = targetGeneralPose.withTargetState(targetState);
     }
 
     // Flip Pose2d if on red alliance
-    targetGeneralPose.setPose2d(getFieldAdjustedPose2d(targetGeneralPose.getPose2d()));
+    targetGeneralPose = targetGeneralPose.withPose2d(getFieldAdjustedPose2d(targetGeneralPose.getPose2d()));
 
     return targetGeneralPose;
   }

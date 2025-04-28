@@ -317,28 +317,28 @@ public final class Constants {
   public static class Poses {
     // Blue alliance only since we flip if red alliance (from pathplanner)
     public static List<GeneralPose> generalPoses = List.of(
-      // Reef poses
-      new GeneralPose("A", new Pose2d(3.20, 4.193, new Rotation2d(Math.toRadians(0))), TargetState.CORAL_LEFT),
-      new GeneralPose("B", new Pose2d(3.20, 3.863, new Rotation2d(Math.toRadians(0))), TargetState.CORAL_RIGHT),
-      new GeneralPose("C", new Pose2d(3.701, 2.999, new Rotation2d(Math.toRadians(60.0))), TargetState.CORAL_LEFT),
-      new GeneralPose("D", new Pose2d(3.992, 2.835, new Rotation2d(Math.toRadians(60.0))), TargetState.CORAL_RIGHT),
-      new GeneralPose("E", new Pose2d(4.984, 2.827, new Rotation2d(Math.toRadians(120.0))), TargetState.CORAL_LEFT),
-      new GeneralPose("F", new Pose2d(5.275, 2.992, new Rotation2d(Math.toRadians(120.0))), TargetState.CORAL_RIGHT),
-      new GeneralPose("G", new Pose2d(5.750, 3.863, new Rotation2d(Math.toRadians(180.0))), TargetState.CORAL_LEFT),
-      new GeneralPose("H", new Pose2d(5.750, 4.19, new Rotation2d(Math.toRadians(180.0))), TargetState.CORAL_RIGHT),
-      new GeneralPose("I", new Pose2d(5.246, 5.014, new Rotation2d(Math.toRadians(240.0))), TargetState.CORAL_LEFT),
-      new GeneralPose("J", new Pose2d(4.962, 5.170, new Rotation2d(Math.toRadians(240.0))), TargetState.CORAL_RIGHT),
-      new GeneralPose("K", new Pose2d(4.014, 5.163, new Rotation2d(Math.toRadians(300.0))), TargetState.CORAL_LEFT),
-      new GeneralPose("L", new Pose2d(3.731, 5.014, new Rotation2d(Math.toRadians(300.0))), TargetState.CORAL_RIGHT),
+        // Reef poses
+        new GeneralPose("A", new Pose2d(3.20, 4.193, new Rotation2d(Math.toRadians(0))), TargetState.CORAL_LEFT),
+        new GeneralPose("B", new Pose2d(3.20, 3.863, new Rotation2d(Math.toRadians(0))), TargetState.CORAL_RIGHT),
+        new GeneralPose("C", new Pose2d(3.701, 2.999, new Rotation2d(Math.toRadians(60.0))), TargetState.CORAL_LEFT),
+        new GeneralPose("D", new Pose2d(3.992, 2.835, new Rotation2d(Math.toRadians(60.0))), TargetState.CORAL_RIGHT),
+        new GeneralPose("E", new Pose2d(4.984, 2.827, new Rotation2d(Math.toRadians(120.0))), TargetState.CORAL_LEFT),
+        new GeneralPose("F", new Pose2d(5.275, 2.992, new Rotation2d(Math.toRadians(120.0))), TargetState.CORAL_RIGHT),
+        new GeneralPose("G", new Pose2d(5.750, 3.863, new Rotation2d(Math.toRadians(180.0))), TargetState.CORAL_LEFT),
+        new GeneralPose("H", new Pose2d(5.750, 4.19, new Rotation2d(Math.toRadians(180.0))), TargetState.CORAL_RIGHT),
+        new GeneralPose("I", new Pose2d(5.246, 5.014, new Rotation2d(Math.toRadians(240.0))), TargetState.CORAL_LEFT),
+        new GeneralPose("J", new Pose2d(4.962, 5.170, new Rotation2d(Math.toRadians(240.0))), TargetState.CORAL_RIGHT),
+        new GeneralPose("K", new Pose2d(4.014, 5.163, new Rotation2d(Math.toRadians(300.0))), TargetState.CORAL_LEFT),
+        new GeneralPose("L", new Pose2d(3.731, 5.014, new Rotation2d(Math.toRadians(300.0))), TargetState.CORAL_RIGHT),
 
-      // Algae poses
-      new GeneralPose("AB", new Pose2d(3.20, 4.028, new Rotation2d(Math.toRadians(0))), TargetState.ALGAE_LOWER),
+        // Algae poses
+        new GeneralPose("AB", new Pose2d(3.20, 4.028, new Rotation2d(Math.toRadians(0))), TargetState.ALGAE_LOWER),
 
-      // Coral source poses
-      new GeneralPose("Left Source", new Pose2d(1.395, 7.387, new Rotation2d(Math.toRadians(306.0))),
-          TargetState.LEFT_SOURCE),
-      new GeneralPose("Right Source", new Pose2d(1.480, 0.750, new Rotation2d(Math.toRadians(54.0))),
-          TargetState.RIGHT_SOURCE));
+        // Coral source poses
+        new GeneralPose("Left Source", new Pose2d(1.395, 7.387, new Rotation2d(Math.toRadians(306.0))),
+            TargetState.LEFT_SOURCE),
+        new GeneralPose("Right Source", new Pose2d(1.480, 0.750, new Rotation2d(Math.toRadians(54.0))),
+            TargetState.RIGHT_SOURCE));
 
     // Barge scoring poses
     public static double bargeXBlue = 7.95;
@@ -433,6 +433,12 @@ public final class Constants {
     public static ConfigDouble DEFAULT_POSE = new ConfigDouble("Algae/Default Pose", 0);
     public static ConfigDouble SHOOT_POS = new ConfigDouble("Algae/ShootPos", 40);
     public static ConfigDouble MAX_CONTROL_ERROR_IN_COUNTS = new ConfigDouble("Algae/Control Error Tolerance", 0.25);
+
+    // Wait times for barge
+    public static ConfigDouble BARGE_L4_WAIT = new ConfigDouble("Algae/Auto Barge/Wait time after L4 Raise", 1.0);
+    public static ConfigDouble BARGE_SHOOT_WAIT = new ConfigDouble("Algae/Auto Barge/Wait time after driving to barge",
+        0.5);
+
   }
 
   public static class Processor {

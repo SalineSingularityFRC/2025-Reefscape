@@ -303,6 +303,10 @@ public class RobotContainer {
         return defer(() -> {
             GeneralPose generalPose = swerveSubsystem.filterClosestState(target);
 
+            if(generalPose == null) {
+                return new InstantCommand();
+            }
+
             // Base parallel: drive + elevator in parallel
             Command base = parallel(
                     swerveSubsystem.driveToPose(generalPose.getPose2d())
@@ -328,16 +332,6 @@ public class RobotContainer {
                 Set.of(swerveSubsystem, elevatorSubsystem));
     }
 
-    // private Command makeL4AutoScoreCommand(TargetState target, RealSenseCamera
-    // camera) {
-    // Command driveToReef = drive.cameraDriveToPose(camera,
-    // target).andThen(drive.updateRotationPIDSetpointCommand());
-    // ParallelCommandGroup commandGroup = new ParallelCommandGroup();
-    // commandGroup.addCommands(driveToReef);
-    // commandGroup.addCommands(elevator.moveToTargetPosition(targetToSetPoint(target)));
-    // return commandGroup.andThen(drive.stopDriving());
-    // }
-
     /**
      * Builds the routine to score in the barge.
      * Simplified from actual: drive, elevate, and shoot algae.
@@ -351,13 +345,13 @@ public class RobotContainer {
                                 .andThen(swerveSubsystem.updateRotationPIDSetpointCommand()),
                         algaeSubsystem.moveToAlgaeShoot(),
                         elevatorSubsystem.moveToTargetPosition(Setpoint.kLevel2)),
-                // 2) Ramp elevator to L4, pause, then actually drive into barge
+                // 2) Ramp elevator to L4, pause, then actually drive to barge
                 elevatorSubsystem.moveToTargetPosition(Setpoint.kLevel4),
-                new WaitCommand(1),
+                new WaitCommand(Constants.Algae.BARGE_L4_WAIT.getValue()),
                 swerveSubsystem.driveToBargePose()
                         .andThen(swerveSubsystem.stopDriving())
                         .andThen(swerveSubsystem.updateRotationPIDSetpointCommand()),
-                new WaitCommand(0.5),
+                new WaitCommand(Constants.Algae.BARGE_SHOOT_WAIT.getValue()),
                 // 3) Finally shoot algae
                 algaeSubsystem.shootAlgae());
     }
