@@ -118,8 +118,8 @@ public class RobotContainer {
         operatorController.start().whileTrue(buildAutoRoutine(TargetState.L4_RIGHT));
 
         // PID to coral source
-        operatorController.button(11).whileTrue(buildAutoRoutine(TargetState.L1_LEFT));
-        operatorController.button(12).whileTrue(buildAutoRoutine(TargetState.L1_RIGHT));
+        operatorController.button(11).whileTrue(buildAutoRoutine(TargetState.LEFT_SOURCE));
+        operatorController.button(12).whileTrue(buildAutoRoutine(TargetState.RIGHT_SOURCE));
     }
 
     /**
