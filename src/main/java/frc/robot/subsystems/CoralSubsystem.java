@@ -28,7 +28,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.Intake;
 
-public class IntakeSubsystem extends SubsystemBase {
+public class CoralSubsystem extends SubsystemBase {
     private TalonFX rightMotor;
     private TalonFX leftMotor;
     private LaserCan troughSensor;
@@ -45,7 +45,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
     private static final int LASER_CAN_NO_MEASUREMENT = -1;
 
-    public IntakeSubsystem() {
+    public CoralSubsystem() {
         troughSensor = new LaserCan(Constants.CanId.Intake.TROUGH_LASER);
         intakeSensor = new LaserCan(Constants.CanId.Intake.INTAKE_LASER);
         shooterSensor = new LaserCan(Constants.CanId.Intake.SHOOTER_LASER);

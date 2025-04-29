@@ -1,7 +1,5 @@
 package frc.robot;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import com.pathplanner.lib.config.ModuleConfig;
@@ -16,6 +14,11 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.RobotBase;
+import frc.robot.subsystems.ElevatorSubsystem.Setpoint;
+import lib.pose.GeneralPose;
+import lib.pose.ScoreConfig.FacetSide;
+import lib.pose.ScoreConfig.TargetObject;
+import lib.pose.ScoreConfig.TargetState;
 
 /*
  * This class should hold any static configuration data about the robot
@@ -282,34 +285,64 @@ public final class Constants {
     }
 
     public boolean isFalse() {
-      return (!isTrue()); 
+      return (!isTrue());
     }
   }
 
   public static class ConfigBoolean extends Config<Boolean> {
-    public ConfigBoolean(String name, boolean defaultValue){
+    public ConfigBoolean(String name, boolean defaultValue) {
       super(name, defaultValue);
 
       Preferences.initBoolean(name, defaultValue);
     }
 
-    public Boolean getValue(){
+    public Boolean getValue() {
       return Preferences.getBoolean(name, defaultValue);
     }
   }
 
   public static class Vision {
-    public static final Vector<N3> kDefaultSingleTagStdDevs = VecBuilder.fill(0.7, 0.7,9999999);
-    public static final Vector<N3> kDefaultMultiTagStdDevs = VecBuilder.fill(0.5, 0.5,9999999);
+    public static final Vector<N3> kDefaultSingleTagStdDevs = VecBuilder.fill(0.7, 0.7, 9999999);
+    public static final Vector<N3> kDefaultMultiTagStdDevs = VecBuilder.fill(0.5, 0.5, 9999999);
     public static final ConfigDouble kKalmanDivisor = new ConfigDouble("Vision/kKalmanDivisor", 30);
     public static final ConfigDouble kMaxRotationRate = new ConfigDouble("Vision/kMaxRotationRate", 360);
 
     public class Names {
-      // Switched top and left IRL (need to rename)
       public static final String leftLL = "limelight-left";
       public static final String rightLL = "limelight-right";
       public static final String realSenseCam = "real-sense-camera";
     }
+  }
+
+  public static class Poses {
+    // Blue alliance only since we flip if red alliance (from pathplanner)
+    public static List<GeneralPose> generalPoses = List.of(
+        // Reef poses
+        new GeneralPose("A", new Pose2d(3.20, 4.193, new Rotation2d(Math.toRadians(0))), TargetState.CORAL_LEFT),
+        new GeneralPose("B", new Pose2d(3.20, 3.863, new Rotation2d(Math.toRadians(0))), TargetState.CORAL_RIGHT),
+        new GeneralPose("C", new Pose2d(3.701, 2.999, new Rotation2d(Math.toRadians(60.0))), TargetState.CORAL_LEFT),
+        new GeneralPose("D", new Pose2d(3.992, 2.835, new Rotation2d(Math.toRadians(60.0))), TargetState.CORAL_RIGHT),
+        new GeneralPose("E", new Pose2d(4.984, 2.827, new Rotation2d(Math.toRadians(120.0))), TargetState.CORAL_LEFT),
+        new GeneralPose("F", new Pose2d(5.275, 2.992, new Rotation2d(Math.toRadians(120.0))), TargetState.CORAL_RIGHT),
+        new GeneralPose("G", new Pose2d(5.750, 3.863, new Rotation2d(Math.toRadians(180.0))), TargetState.CORAL_LEFT),
+        new GeneralPose("H", new Pose2d(5.750, 4.19, new Rotation2d(Math.toRadians(180.0))), TargetState.CORAL_RIGHT),
+        new GeneralPose("I", new Pose2d(5.246, 5.014, new Rotation2d(Math.toRadians(240.0))), TargetState.CORAL_LEFT),
+        new GeneralPose("J", new Pose2d(4.962, 5.170, new Rotation2d(Math.toRadians(240.0))), TargetState.CORAL_RIGHT),
+        new GeneralPose("K", new Pose2d(4.014, 5.163, new Rotation2d(Math.toRadians(300.0))), TargetState.CORAL_LEFT),
+        new GeneralPose("L", new Pose2d(3.731, 5.014, new Rotation2d(Math.toRadians(300.0))), TargetState.CORAL_RIGHT),
+
+        // Algae poses
+        new GeneralPose("AB", new Pose2d(3.20, 4.028, new Rotation2d(Math.toRadians(0))), TargetState.ALGAE_LOWER),
+
+        // Coral source poses
+        new GeneralPose("Left Source", new Pose2d(1.395, 7.387, new Rotation2d(Math.toRadians(306.0))),
+            TargetState.LEFT_SOURCE),
+        new GeneralPose("Right Source", new Pose2d(1.480, 0.750, new Rotation2d(Math.toRadians(54.0))),
+            TargetState.RIGHT_SOURCE));
+
+    // Barge scoring poses
+    public static double bargeXBlue = 7.95;
+    public static double bargeXFarBlue = bargeXBlue - 0.5;
   }
 
   public static class LED {
@@ -354,14 +387,16 @@ public final class Constants {
     public static ConfigDouble PID_DRIVE_Y_KD = new ConfigDouble("Drive/PID/Y kD", 0);
     public static ConfigDouble PID_DRIVE_Y_TOLERANCE = new ConfigDouble("Drive/PID/Y Tolerance", 1);
     public static ConfigDouble PID_DRIVE_Y_BARGE_TOLERANCE = new ConfigDouble("Drive/PID/Y Tolerance Barge", 0.7);
-    
+
     public static ConfigDouble PID_DRIVE_MAX_ROTATION_SPEED = new ConfigDouble("Drive/PID/Max Rotation", 2);
     public static ConfigDouble PID_DRIVE_MAX_DRIVE_X_SPEED = new ConfigDouble("Drive/PID/Max Drive X", 2);
     public static ConfigDouble PID_DRIVE_MAX_DRIVE_Y_SPEED = new ConfigDouble("Drive/PID/Max Drive Y", 2);
 
-    public static ConfigDouble L4_PID_DRIVE_POSE_TOLERANCE =  new ConfigDouble("L4PIDDrive/Drive Pose Tolerance", 0.1);
-    public static ConfigDouble L4_PID_DRIVE_STABLE_COUNT_THRESHOLD =  new ConfigDouble("L4PIDDrive/Stable Count Threshold", 8);
-    public static ConfigDouble L4_PID_DRIVE_ROBOT_DISTANCE_TO_REEF = new ConfigDouble("L4PIDDrive/Reef to Robot Distance", 1);
+    public static ConfigDouble L4_PID_DRIVE_POSE_TOLERANCE = new ConfigDouble("L4PIDDrive/Drive Pose Tolerance", 0.1);
+    public static ConfigDouble L4_PID_DRIVE_STABLE_COUNT_THRESHOLD = new ConfigDouble(
+        "L4PIDDrive/Stable Count Threshold", 8);
+    public static ConfigDouble L4_PID_DRIVE_ROBOT_DISTANCE_TO_REEF = new ConfigDouble(
+        "L4PIDDrive/Reef to Robot Distance", 1);
   }
 
   public static class Algae {
@@ -370,7 +405,7 @@ public final class Constants {
     public static final ConfigDouble kDMain = new ConfigDouble("Algae/kDMain", 0);
     public static final ConfigDouble kSMain = new ConfigDouble("Algae/kSMain", 2.5);
     public static final ConfigDouble kVMain = new ConfigDouble("Algae/kVMain", 0.2);
-    
+
     // Algae inside PIDs
     public static final ConfigDouble kPMainAlgaeInside = new ConfigDouble("Algae/kPMainAlgaeInside", 200);
     public static final ConfigDouble kIMainAlgaeInside = new ConfigDouble("Algae/kIMainAlgaeInside", 1);
@@ -398,12 +433,19 @@ public final class Constants {
     public static ConfigDouble DEFAULT_POSE = new ConfigDouble("Algae/Default Pose", 0);
     public static ConfigDouble SHOOT_POS = new ConfigDouble("Algae/ShootPos", 40);
     public static ConfigDouble MAX_CONTROL_ERROR_IN_COUNTS = new ConfigDouble("Algae/Control Error Tolerance", 0.25);
+
+    // Wait times for barge
+    public static ConfigDouble BARGE_L4_WAIT = new ConfigDouble("Algae/Auto Barge/Wait time after L4 Raise", 1.0);
+    public static ConfigDouble BARGE_SHOOT_WAIT = new ConfigDouble("Algae/Auto Barge/Wait time after driving to barge",
+        0.5);
+
   }
 
   public static class Processor {
     public static ConfigDouble intakeSpeed = new ConfigDouble("Processor/intakeSpeed", 30);
     public static ConfigDouble spitSpeed = new ConfigDouble("Processor/spitSpeed", -30);
     public static ConfigDouble kP = new ConfigDouble("Processor/kP", 1);
+
     public static class MotorStuff {
       public static ConfigDouble MIN_POWER = new ConfigDouble("Elevator/Primary Motor/Min Power", -1);
       public static ConfigDouble MAX_POWER = new ConfigDouble("Elevator/Primary Motor/Max Power", 1);
@@ -433,12 +475,14 @@ public final class Constants {
     }
 
     public static class Positions {
-      public static ConfigDouble FEED_STATION_COUNTS = new ConfigDouble("Elevator/Positions/Feed Station in counts", -2);
+      public static ConfigDouble FEED_STATION_COUNTS = new ConfigDouble("Elevator/Positions/Feed Station in counts",
+          -2);
       public static ConfigDouble L1_COUNTS = new ConfigDouble("Elevator/Positions/L1 in counts", -2);
       public static ConfigDouble L2_COUNTS = new ConfigDouble("Elevator/Positions/L2 in counts", 23);
       public static ConfigDouble L3_COUNTS = new ConfigDouble("Elevator/Positions/L3 in counts", 53);
       public static ConfigDouble L4_COUNTS = new ConfigDouble("Elevator/Positions/L4 in counts", 97.5);
-      public static ConfigDouble L4_COUNTS_ADDITIONAL_RAISE = new ConfigDouble("Elevator/Positions/L4 additional raise in counts", 1);
+      public static ConfigDouble L4_COUNTS_ADDITIONAL_RAISE = new ConfigDouble(
+          "Elevator/Positions/L4 additional raise in counts", 1);
     }
 
     public static class PrimaryMotor {
@@ -456,15 +500,19 @@ public final class Constants {
       public static ConfigDouble KDDOWN = new ConfigDouble("Elevator/Primary Motor/kDDOWN", 0);
       public static ConfigDouble KFDOWN = new ConfigDouble("Elevator/Primary Motor/kFDOWN", 0);
       public static ConfigDouble arbFF = new ConfigDouble("Elevator/Primary Motor/arbFF", 0);
-  
+
       public static ConfigDouble MIN_POWER = new ConfigDouble("Elevator/Primary Motor/Min Power", -1);
       public static ConfigDouble MAX_POWER = new ConfigDouble("Elevator/Primary Motor/Max Power", 1);
-  
-      public static ConfigDouble MAX_VELOCITY_RPM = new ConfigDouble("Elevator/Primary Motor/Max Velocity in rpm", 6784);
-      public static ConfigDouble MAX_ACCEL_RPM_PER_S = new ConfigDouble("Elevator/Primary Motor/Max Accel in rpm per s", 20000);
+
+      public static ConfigDouble MAX_VELOCITY_RPM = new ConfigDouble("Elevator/Primary Motor/Max Velocity in rpm",
+          6784);
+      public static ConfigDouble MAX_ACCEL_RPM_PER_S = new ConfigDouble("Elevator/Primary Motor/Max Accel in rpm per s",
+          20000);
       public static ConfigInt MAX_CURRENT_IN_A = new ConfigInt("Elevator/Primary Motor/Max Current in A", 60);
-      public static ConfigDouble VOLTAGE_COMPENSATION_IN_V = new ConfigDouble("Elevator/Primary Motor/Voltage Compensation in V", 12);
-      public static ConfigDouble MAX_CONTROL_ERROR_IN_COUNTS = new ConfigDouble("Elevator/Primary Motor/Control Error Tolerance", 0.25);  
+      public static ConfigDouble VOLTAGE_COMPENSATION_IN_V = new ConfigDouble(
+          "Elevator/Primary Motor/Voltage Compensation in V", 12);
+      public static ConfigDouble MAX_CONTROL_ERROR_IN_COUNTS = new ConfigDouble(
+          "Elevator/Primary Motor/Control Error Tolerance", 0.25);
     }
 
     public static class SecondaryMotor {
@@ -481,7 +529,8 @@ public final class Constants {
       public static ConfigDouble intakeDistance = new ConfigDouble("Intake Sensor Min Distance", 100);
       public static ConfigDouble shooterDistance = new ConfigDouble("Shooter Sensor Min Distance", 100);
       public static ConfigDouble troughSenserDistance = new ConfigDouble("Trough Sensor Min Distance", 150);
-      public static ConfigBoolean laserCanLogicOverride = new ConfigBoolean("IMPORTANT LaserCan / Elevator Override", false);
+      public static ConfigBoolean laserCanLogicOverride = new ConfigBoolean("IMPORTANT LaserCan / Elevator Override",
+          false);
     }
 
     public static class LeftMotor {

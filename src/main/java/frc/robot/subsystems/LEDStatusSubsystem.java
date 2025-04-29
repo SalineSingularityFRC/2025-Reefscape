@@ -16,7 +16,7 @@ import frc.robot.Constants.Elevator;
 public class LEDStatusSubsystem extends SubsystemBase {
   private double currentColorPWMValue = 0.0;
   private VictorSP ledController = new VictorSP(0);
-  private final IntakeSubsystem intake;
+  private final CoralSubsystem intake;
   private ElevatorSubsystem elevator;
   private boolean canElevatorMove;
   private boolean isLoaded;
@@ -26,7 +26,7 @@ public class LEDStatusSubsystem extends SubsystemBase {
   /**
    * Creates a new ledController.
    */
-  public LEDStatusSubsystem(IntakeSubsystem intake, ElevatorSubsystem elevator) {
+  public LEDStatusSubsystem(CoralSubsystem intake, ElevatorSubsystem elevator) {
     this.intake = intake;
     this.elevator = elevator;
     setColor(LEDColor.BLUE);
