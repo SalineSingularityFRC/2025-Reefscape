@@ -3,15 +3,9 @@ package frc.robot.commands;
 import java.util.function.Supplier;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.numbers.N1;
-import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants.Drive;
 import frc.robot.subsystems.SwerveSubsystem;
 import static frc.robot.Constants.Drive;
 
@@ -25,8 +19,7 @@ public class CameraDriveToPose extends Command {
     private PIDController rotationController;
     private PIDController xDriveController;
     private PIDController yDriveController;
-    private SimpleMotorFeedforward rotationFeedForward = new SimpleMotorFeedforward(0, 0);
-
+    
     public static record PoseAndTarget(Pose2d currentPose, Pose2d targetPose) {}
 
     public CameraDriveToPose(SwerveSubsystem swerve, Supplier<PoseAndTarget> supplier) {
@@ -84,14 +77,6 @@ public class CameraDriveToPose extends Command {
         PoseAndTarget poseAndTarget = this.supplier.get();
         Pose2d currentPose = poseAndTarget.currentPose;
         Pose2d targetPose = poseAndTarget.targetPose;
-
-        double errorR = targetPose.getRotation().getRadians() - currentPose.getRotation().getRadians();
-        // errorR = ((errorR + Math.PI) % (2*Math.PI)) - Math.PI;
-        // if (errorR > Math.PI) {
-        // errorR =- 2 * Math.PI;
-        // } else if( errorR < - Math.PI) {
-        // errorR =+ 2* Math.PI;
-        // }
 
         // Accounting for most efficient way to turn
         double drCC = rotationController.calculate(targetPose.getRotation().getRadians(),

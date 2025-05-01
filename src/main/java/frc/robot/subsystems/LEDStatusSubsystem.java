@@ -9,9 +9,7 @@ package frc.robot.subsystems;
 import java.util.Map;
 
 import edu.wpi.first.wpilibj.motorcontrol.VictorSP;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.Elevator;
 
 public class LEDStatusSubsystem extends SubsystemBase {
   private double currentColorPWMValue = 0.0;
