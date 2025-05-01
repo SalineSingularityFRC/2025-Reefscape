@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -620,18 +621,18 @@ public class SwerveSubsystem extends SubsystemBase {
    * @param poseSupplier supplies the target pose at command initialization & each
    *                     execution
    */
-  public Command driveToPose(Supplier<Pose2d> poseSupplier) {
+  public Command driveToPose(Supplier<Pose2d> poseSupplier, TargetObject targetObject) {
     // Directly return your path‐following command,
     // letting DriveToPose itself handle following the trajectory.
-    return new DriveToPose(this, supplier_position, poseSupplier);
+    return new DriveToPose(this, supplier_position, poseSupplier, targetObject);
   }
 
   /**
    * Convenience overload for a fixed, precomputed pose.
    */
-  public Command driveToPose(Pose2d fixedPose) {
+  public Command driveToPose(Pose2d fixedPose, TargetObject targetObject) {
     // Wrap the static pose in a supplier.
-    return driveToPose(() -> fixedPose);
+    return driveToPose(() -> fixedPose, targetObject);
   }
 
   /**
@@ -726,12 +727,12 @@ public class SwerveSubsystem extends SubsystemBase {
       if (BlueAlliance) {
         return new DriveToPose(this, supplier_position,
             () -> new Pose2d(Constants.Poses.bargeXFarBlue, supplier_position.get().getTranslation().getY(),
-                new Rotation2d(0)));
+                new Rotation2d(0)), TargetObject.CLOSE_BARGE);
       } else {
         // Flipping bargeXFarBlue to red side (for 2025 field only)
         return new DriveToPose(this, supplier_position,
             () -> new Pose2d(Units.feetToMeters(57.573) - Constants.Poses.bargeXFarBlue,
-                supplier_position.get().getTranslation().getY(), new Rotation2d(Math.PI)));
+                supplier_position.get().getTranslation().getY(), new Rotation2d(Math.PI)), TargetObject.CLOSE_BARGE);
       }
 
     }, Set.of(this));

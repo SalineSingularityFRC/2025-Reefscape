@@ -6,6 +6,8 @@ package frc.robot;
 import java.util.Map;
 import java.util.Set;
 
+import org.opencv.photo.AlignExposures;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
@@ -20,6 +22,7 @@ import static edu.wpi.first.wpilibj2.command.Commands.select;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import lib.pose.GeneralPose;
@@ -102,20 +105,20 @@ public class RobotContainer {
      */
     private void configureAutoBindings() {
         // Auto intake algae intake from reef
-        thirdController.x().whileTrue(buildAutoRoutine(TargetState.ALGAE_BUTTON));
+        driverController.povUp().whileTrue(buildAutoRoutine(TargetState.ALGAE_BUTTON));
 
         // Auto barge score
         operatorController.a().whileTrue(buildBargeScoringRoutine());
 
         // PID + elevator to nearest coral pose left
-        operatorController.b().whileTrue(buildAutoRoutine(TargetState.L2_LEFT));
-        operatorController.x().whileTrue(buildAutoRoutine(TargetState.L3_LEFT));
-        operatorController.y().whileTrue(buildAutoRoutine(TargetState.L4_LEFT));
+        operatorController.rightBumper().whileTrue(buildAutoRoutine(TargetState.L2_LEFT));
+        operatorController.back().whileTrue(buildAutoRoutine(TargetState.L3_LEFT));
+        operatorController.start().whileTrue(buildAutoRoutine(TargetState.L4_LEFT));
 
         // PID to nearest coral pose left
-        operatorController.rightBumper().whileTrue(buildAutoRoutine(TargetState.L2_RIGHT));
-        operatorController.back().whileTrue(buildAutoRoutine(TargetState.L3_RIGHT));
-        operatorController.start().whileTrue(buildAutoRoutine(TargetState.L4_RIGHT));
+        operatorController.b().whileTrue(buildAutoRoutine(TargetState.L2_RIGHT));
+        operatorController.x().whileTrue(buildAutoRoutine(TargetState.L3_RIGHT));
+        operatorController.y().whileTrue(buildAutoRoutine(TargetState.L4_RIGHT));
 
         // PID to coral source
         operatorController.button(11).whileTrue(buildAutoRoutine(TargetState.LEFT_SOURCE));
@@ -127,14 +130,10 @@ public class RobotContainer {
      */
     private void configureElevatorBindings() {
         // Redundent elevator positions of drive controller
-        driverController.a().onTrue(elevatorSubsystem.moveToTargetPosition(Setpoint.kLevel1).withName("kLevel1"));
+        driverController.a().onTrue(elevatorSubsystem.moveToTargetPosition(Setpoint.kFeederStation).withName("kFeederStation"));
         driverController.b().onTrue(elevatorSubsystem.moveToTargetPosition(Setpoint.kLevel2).withName("kLevel2"));
         driverController.x().onTrue(elevatorSubsystem.moveToTargetPosition(Setpoint.kLevel3).withName("kLevel3"));
         driverController.y().onTrue(elevatorSubsystem.moveToTargetPosition(Setpoint.kLevel4).withName("kLevel4"));
-
-        // Redundent manual elevator movement
-        driverController.povDown().whileTrue(elevatorSubsystem.runMotors(true).withName("runMotorsReverseTrue"));
-        driverController.povUp().whileTrue(elevatorSubsystem.runMotors(false).withName("runMotorsReverseFalse"));
 
         // Elevator to feeder station after scoring on reef
         operatorController.leftBumper()
@@ -171,6 +170,7 @@ public class RobotContainer {
         driverController.leftBumper().whileTrue(algaeSubsystem.moveToZero().withName("returnToHomePosAlgae"));
         driverController.rightTrigger().whileTrue(algaeSubsystem.shootAlgae().withName("shootAlgae"));
         driverController.rightTrigger().onFalse(algaeSubsystem.hold(0));
+        driverController.povDown().whileTrue(algaeSubsystem.moveToAlgaeShoot());
 
         // After releasing shoot button, hinge goes to zero position
         operatorController.leftStick().whileFalse(algaeSubsystem.moveToZero());
@@ -266,7 +266,8 @@ public class RobotContainer {
         SendableChooser<Command> chooser = AutoBuilder.buildAutoChooserWithOptionsModifier(
                 (stream) -> filterCompetitionAutos
                         ? stream.filter(
-                                auto -> (auto.getName().startsWith("Kick") || auto.getName().startsWith("Center")))
+                                auto -> (auto.getName().startsWith("Kick") || auto.getName().startsWith("Center")
+                                        || auto.getName().startsWith("Choreo")))
                         : stream);
         return chooser;
     }
@@ -303,33 +304,29 @@ public class RobotContainer {
         return defer(() -> {
             GeneralPose generalPose = swerveSubsystem.filterClosestState(target);
 
-            if(generalPose == null) {
+            if (generalPose == null) {
                 return new InstantCommand();
             }
 
             // Base parallel: drive + elevator in parallel
             Command base = parallel(
-                    swerveSubsystem.driveToPose(generalPose.getPose2d())
+                    swerveSubsystem.driveToPose(generalPose.getPose2d(), generalPose.getTargetState().getObject())
                             .andThen(swerveSubsystem.stopDriving())
                             .andThen(swerveSubsystem.updateRotationPIDSetpointCommand()),
                     elevatorSubsystem.moveToTargetPosition(generalPose.getTargetState().getSetpoint()));
 
-            // Two branches: coral vs. algae
-            Command coralFlow = base;
-            Command algaeFlow = base.alongWith(buildAlgaeIntakeRoutine())
-                    .andThen(swerveSubsystem.backAwayFromReef())
-                    .andThen(swerveSubsystem.stopDriving())
-                    .andThen(swerveSubsystem.updateRotationPIDSetpointCommand());
+            if (target.getObject() == TargetObject.ALGAE) {
+                base = base.alongWith(buildAlgaeIntakeRoutine())
+                        .andThen(swerveSubsystem.backAwayFromReef())
+                        .andThen(swerveSubsystem.stopDriving())
+                        .andThen(swerveSubsystem.updateRotationPIDSetpointCommand());
+            }
 
             // Select based on TargetObject, then stop drive once done
-            return select(
-                    Map.of(
-                            TargetObject.ALGAE, algaeFlow,
-                            TargetObject.CORAL, coralFlow),
-                    () -> target.getObject());
+            return base;
         },
                 // Declare requirements up front
-                Set.of(swerveSubsystem, elevatorSubsystem));
+                Set.of(swerveSubsystem, elevatorSubsystem, algaeSubsystem));
     }
 
     /**
@@ -363,7 +360,7 @@ public class RobotContainer {
     private Command buildAlgaeIntakeRoutine() {
         return Commands.sequence(
                 algaeSubsystem.intake(),
-                new WaitCommand(1),
+                new WaitCommand(0.2),
                 algaeSubsystem.moveToAlgaeShoot());
     }
 

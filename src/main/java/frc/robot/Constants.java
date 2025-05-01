@@ -332,7 +332,8 @@ public final class Constants {
         new GeneralPose("L", new Pose2d(3.731, 5.014, new Rotation2d(Math.toRadians(300.0))), TargetState.CORAL_RIGHT),
 
         // Algae poses
-        new GeneralPose("AB", new Pose2d(3.20, 4.028, new Rotation2d(Math.toRadians(0))), TargetState.ALGAE_LOWER),
+        new GeneralPose("AB", new Pose2d(3.20, 4.028, new Rotation2d(Math.toRadians(0))), TargetState.ALGAE_UPPER),
+        new GeneralPose("KL", new Pose2d(3.828, 5.178, new Rotation2d(Math.toRadians(300.0))), TargetState.ALGAE_LOWER),
 
         // Coral source poses
         new GeneralPose("Left Source", new Pose2d(1.395, 7.387, new Rotation2d(Math.toRadians(306.0))),
@@ -391,6 +392,10 @@ public final class Constants {
     public static ConfigDouble PID_DRIVE_MAX_ROTATION_SPEED = new ConfigDouble("Drive/PID/Max Rotation", 2);
     public static ConfigDouble PID_DRIVE_MAX_DRIVE_X_SPEED = new ConfigDouble("Drive/PID/Max Drive X", 2);
     public static ConfigDouble PID_DRIVE_MAX_DRIVE_Y_SPEED = new ConfigDouble("Drive/PID/Max Drive Y", 2);
+
+    // For algae intaking
+    public static ConfigDouble PID_DRIVE_MAX_DRIVE_ALGAE_X_SPEED = new ConfigDouble("Drive/PID/Max Drive Algae X", 1.5);
+    public static ConfigDouble PID_DRIVE_MAX_DRIVE_ALGAE_Y_SPEED = new ConfigDouble("Drive/PID/Max Drive Algae Y", 1.5);
 
     public static ConfigDouble L4_PID_DRIVE_POSE_TOLERANCE = new ConfigDouble("L4PIDDrive/Drive Pose Tolerance", 0.1);
     public static ConfigDouble L4_PID_DRIVE_STABLE_COUNT_THRESHOLD = new ConfigDouble(

@@ -37,7 +37,8 @@ public final class ScoreConfig {
         /** Represents the coral game piece placed on the reef. */
         CORAL,
         /** Represents the coral source objects used for intake routines. */
-        CORAL_SOURCE;
+        CORAL_SOURCE,
+        CLOSE_BARGE;
     }
 
     /**
