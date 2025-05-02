@@ -25,10 +25,10 @@ import lib.pose.ScoreConfig.TargetObject;
 import lib.pose.ScoreConfig.TargetState;
 import lib.vision.Limelight;
 import lib.vision.RealSenseCamera;
-import frc.robot.commands.ButtonDriveController;
-import frc.robot.commands.DriveController;
 import frc.robot.commands.RumbleCommandStart;
 import frc.robot.commands.RumbleCommandStop;
+import frc.robot.commands.controller.ButtonDriveController;
+import frc.robot.commands.controller.DriveController;
 import frc.robot.subsystems.AlgaeSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem.Setpoint;
@@ -125,7 +125,8 @@ public class RobotContainer {
      */
     private void configureElevatorBindings() {
         // Redundent elevator positions of drive controller
-        driverController.a().onTrue(elevatorSubsystem.moveToTargetPosition(Setpoint.kFeederStation).withName("kFeederStation"));
+        driverController.a()
+                .onTrue(elevatorSubsystem.moveToTargetPosition(Setpoint.kFeederStation).withName("kFeederStation"));
         driverController.b().onTrue(elevatorSubsystem.moveToTargetPosition(Setpoint.kLevel2).withName("kLevel2"));
         driverController.x().onTrue(elevatorSubsystem.moveToTargetPosition(Setpoint.kLevel3).withName("kLevel3"));
         driverController.y().onTrue(elevatorSubsystem.moveToTargetPosition(Setpoint.kLevel4).withName("kLevel4"));
@@ -305,22 +306,22 @@ public class RobotContainer {
 
             // Base parallel: drive + elevator in parallel
             Command base = parallel(
-                    swerveSubsystem.driveToPose(generalPose.getPose2d(), generalPose.getTargetState().getObject())
+                    swerveSubsystem.driveToGeneralPose(generalPose)
                             .andThen(swerveSubsystem.stopDriving())
                             .andThen(swerveSubsystem.updateRotationPIDSetpointCommand()),
                     elevatorSubsystem.moveToTargetPosition(generalPose.getTargetState().getSetpoint()));
 
-            if (target.getObject() == TargetObject.ALGAE) {
+            // If algae, then add commands onto base
+            if (generalPose.getObject() == TargetObject.ALGAE) {
                 base = base.alongWith(buildAlgaeIntakeRoutine())
                         .andThen(swerveSubsystem.backAwayFromReef())
                         .andThen(swerveSubsystem.stopDriving())
                         .andThen(swerveSubsystem.updateRotationPIDSetpointCommand());
             }
 
-            // Select based on TargetObject, then stop drive once done
             return base;
         },
-                // Declare requirements up front
+                // Declare requirements
                 Set.of(swerveSubsystem, elevatorSubsystem, algaeSubsystem));
     }
 
@@ -332,7 +333,7 @@ public class RobotContainer {
         return Commands.sequence(
                 // 1) Drive close to barge in parallel with elevator and algae pre-move
                 Commands.parallel(
-                        swerveSubsystem.driveCloseToBargePose()
+                        swerveSubsystem.driveCloseToBarge()
                                 .andThen(swerveSubsystem.stopDriving())
                                 .andThen(swerveSubsystem.updateRotationPIDSetpointCommand()),
                         algaeSubsystem.moveToAlgaeShoot(),
@@ -340,7 +341,7 @@ public class RobotContainer {
                 // 2) Ramp elevator to L4, pause, then actually drive to barge
                 elevatorSubsystem.moveToTargetPosition(Setpoint.kLevel4),
                 new WaitCommand(Constants.Algae.BARGE_L4_WAIT.getValue()),
-                swerveSubsystem.driveToBargePose()
+                swerveSubsystem.driveToBarge()
                         .andThen(swerveSubsystem.stopDriving())
                         .andThen(swerveSubsystem.updateRotationPIDSetpointCommand()),
                 new WaitCommand(Constants.Algae.BARGE_SHOOT_WAIT.getValue()),

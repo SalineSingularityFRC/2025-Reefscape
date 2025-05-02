@@ -1,4 +1,4 @@
-package frc.robot.commands;
+package frc.robot.commands.driving;
 
 import java.util.function.Supplier;
 
@@ -16,7 +16,7 @@ import static frc.robot.Constants.Drive;
  * A command that takes in a field relative pose and drives the robot to it via
  * PID
  */
-public class DriveToPose extends Command {
+public class DriveToPose2d extends Command {
     private final SwerveSubsystem m_swerve;
     private final Supplier<Pose2d> targetPose, currentPose;
     private PIDController rotationController;
@@ -24,7 +24,7 @@ public class DriveToPose extends Command {
     private PIDController yDriveController;
     private TargetObject m_targetObject;
 
-    public DriveToPose(SwerveSubsystem swerve, Supplier<Pose2d> currentPoseSupplier,
+    public DriveToPose2d(SwerveSubsystem swerve, Supplier<Pose2d> currentPoseSupplier,
             Supplier<Pose2d> targetPoseSupplier, TargetObject targetObject) {
         this.currentPose = currentPoseSupplier;
         this.targetPose = targetPoseSupplier;
@@ -56,7 +56,13 @@ public class DriveToPose extends Command {
                 Drive.PID_DRIVE_Y_KD.getValue());
 
         yDriveController.setSetpoint(0);
-        yDriveController.setTolerance(Drive.PID_DRIVE_Y_TOLERANCE.getValue());
+
+        // Switch tolerance if barge scoring due to limelights updating pose near barge
+        if (m_targetObject == TargetObject.BARGE) {
+            yDriveController.setTolerance(Drive.PID_DRIVE_Y_BARGE_TOLERANCE.getValue());
+        } else {
+            yDriveController.setTolerance(Drive.PID_DRIVE_Y_TOLERANCE.getValue());
+        }
     }
 
     public void execute() {
@@ -71,7 +77,14 @@ public class DriveToPose extends Command {
                     Drive.PID_DRIVE_X_KP.getValue(),
                     Drive.PID_DRIVE_X_KI.getValue(),
                     Drive.PID_DRIVE_X_KD.getValue());
-            yDriveController.setTolerance(Drive.PID_DRIVE_Y_TOLERANCE.getValue());
+
+            // Switch tolerance if barge scoring due to limelights updating pose near barge
+            if (m_targetObject == TargetObject.BARGE) {
+                yDriveController.setTolerance(Drive.PID_DRIVE_Y_BARGE_TOLERANCE.getValue());
+            } else {
+                yDriveController.setTolerance(Drive.PID_DRIVE_Y_TOLERANCE.getValue());
+            }
+
             yDriveController.setPID(
                     Drive.PID_DRIVE_Y_KP.getValue(),
                     Drive.PID_DRIVE_Y_KI.getValue(),

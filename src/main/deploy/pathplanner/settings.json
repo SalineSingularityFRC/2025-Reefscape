@@ -3,9 +3,10 @@
   "robotLength": 0.864,
   "holonomicMode": true,
   "pathFolders": [
+    "Algae Scoring",
     "CS_1 To Reef",
     "CS_2 to Reef",
-    "Algae Scoring",
+    "Teleop",
     "Path Adjustments",
     "Start",
     "Straight Tests",

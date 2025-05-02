@@ -39,7 +39,9 @@ public final class ScoreConfig {
         /** Represents the coral source objects used for intake routines. */
         CORAL_SOURCE,
         /** Represents a placeholder for PIDing to a pose close to the barge. */
-        CLOSE_BARGE;
+        CLOSE_TO_BARGE,
+        /** Represents a placeholder for PIDing to the barge. */
+        BARGE;
     }
 
     /**
