@@ -4,9 +4,11 @@ import java.io.IOException;
 import java.util.function.Supplier;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.FileVersionException;
 
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -21,17 +23,21 @@ public class FollowPath extends Command {
     // Supplies the current robot pose and associated target object
     private final Supplier<GeneralPose> m_generalPoseSupplier;
     // The PathPlanner path we’ll load dynamically
-    private PathPlannerPath chosenPath;
+    private PathPlannerPath m_chosenPath;
     // The internal command that actually follows the trajectory
     private Command m_delegate;
     // Flag to indicate if loading the path failed
-    private boolean failedToLoadPath;
+    private boolean m_failedToLoadPath;
+    // Create the constraints to use while pathfinding
+    private PathConstraints m_constraints;
 
     /**
      * @param generalPoseSupplier A supplier that returns the target GeneralPose
      */
     public FollowPath(Supplier<GeneralPose> generalPoseSupplier) {
         m_generalPoseSupplier = generalPoseSupplier;
+        m_constraints = new PathConstraints(3.0, 4.0,
+                Units.degreesToRadians(540), Units.degreesToRadians(720));
     }
 
     @Override
@@ -44,23 +50,22 @@ public class FollowPath extends Command {
         if (targetObject == TargetObject.ALGAE) {
             try {
                 // Build the path file name like "To Algae [PoseName].path"
-                chosenPath = PathPlannerPath.fromPathFile("To Algae " + generalPoseName);
+                m_chosenPath = PathPlannerPath.fromPathFile("To Algae " + generalPoseName);
             } catch (IOException | org.json.simple.parser.ParseException | FileVersionException e) {
                 // Report any file‐loading or parsing errors to DriverStation
                 DriverStation.reportError(
-                    "Failed to load path \"" + "To Algae " + generalPoseName + "\": " + e.getMessage(),
-                    e.getStackTrace()
-                );
-                failedToLoadPath = true;
+                        "Failed to load path \"" + "To Algae " + generalPoseName + "\": " + e.getMessage(),
+                        e.getStackTrace());
+                m_failedToLoadPath = true;
             }
         } else {
             // If not ALGAE, do nothing — fallback to an empty command
             m_delegate = Commands.none();
         }
-        
-        // 3) If loading succeeded, create the follower; otherwise use a no‐op
-        if (!failedToLoadPath) {
-            m_delegate = AutoBuilder.followPath(chosenPath);
+
+        // 3) If loading succeeded, create the path-follower command; otherwise do nothing
+        if (!m_failedToLoadPath) {
+            m_delegate = AutoBuilder.pathfindThenFollowPath(m_chosenPath, m_constraints);
         } else {
             m_delegate = Commands.none();
         }
@@ -69,7 +74,7 @@ public class FollowPath extends Command {
         m_delegate.initialize();
 
         // Reset for next time this command is run
-        failedToLoadPath = false;
+        m_failedToLoadPath = false;
     }
 
     @Override
