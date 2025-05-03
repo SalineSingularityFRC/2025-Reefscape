@@ -17,7 +17,7 @@ import lib.pose.ScoreConfig.TargetObject;
 
 /**
  * A Command that loads a PathPlanner path based on the robot’s current target
- * and then delegates execution to the generated path‐follower command.
+ * and then delegates execution to the generated path-follower command.
  */
 public class FollowPath extends Command {
     // Supplies the current robot pose and associated target object
@@ -52,7 +52,7 @@ public class FollowPath extends Command {
                 // Build the path file name like "To Algae [PoseName].path"
                 m_chosenPath = PathPlannerPath.fromPathFile("To Algae " + generalPoseName);
             } catch (IOException | org.json.simple.parser.ParseException | FileVersionException e) {
-                // Report any file‐loading or parsing errors to DriverStation
+                // Report any file-loading or parsing errors to DriverStation
                 DriverStation.reportError(
                         "Failed to load path \"" + "To Algae " + generalPoseName + "\": " + e.getMessage(),
                         e.getStackTrace());
@@ -70,7 +70,7 @@ public class FollowPath extends Command {
             m_delegate = Commands.none();
         }
 
-        // 4) Initialize the delegated path‐follower command
+        // 4) Initialize the delegated path-follower command
         m_delegate.initialize();
 
         // Reset for next time this command is run
@@ -79,7 +79,7 @@ public class FollowPath extends Command {
 
     @Override
     public void execute() {
-        // Delegate all periodic work to the path‐follower
+        // Delegate all periodic work to the path-follower
         m_delegate.execute();
     }
 

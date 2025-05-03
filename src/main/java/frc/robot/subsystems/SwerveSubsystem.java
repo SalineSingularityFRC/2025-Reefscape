@@ -612,7 +612,7 @@ public class SwerveSubsystem extends SubsystemBase {
    *                     execution
    */
   public Command driveToPose2d(Supplier<Pose2d> poseSupplier, TargetObject targetObject) {
-    // Directly return your path‐following command,
+    // Directly return your path-following command,
     // letting DriveToPose itself handle following the trajectory.
     return new DriveToPose2d(this, supplier_position, poseSupplier, targetObject);
   }
