@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.844142251800837,
-        "y": 5.130495153904937
+        "x": 3.753618886086237,
+        "y": 5.35213120317565
       },
       "isLocked": false,
       "linkedName": null
@@ -20,8 +20,8 @@
         "y": 5.178
       },
       "prevControl": {
-        "x": 3.3639978709462994,
-        "y": 5.943033221340636
+        "x": 3.644599087082978,
+        "y": 5.489905557450264
       },
       "nextControl": null,
       "isLocked": false,
@@ -33,10 +33,23 @@
     {
       "name": "Constraints Zone",
       "minWaypointRelativePos": 0,
+      "maxWaypointRelativePos": 0.5,
+      "constraints": {
+        "maxVelocity": 1.0,
+        "maxAcceleration": 1.5,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 673.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    },
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 0.5,
       "maxWaypointRelativePos": 1.0,
       "constraints": {
-        "maxVelocity": 1.5,
-        "maxAcceleration": 1.5,
+        "maxVelocity": 0.5,
+        "maxAcceleration": 2.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 673.0,
         "nominalVoltage": 12.0,
@@ -61,7 +74,7 @@
   "reversed": false,
   "folder": "Teleop",
   "idealStartingState": {
-    "velocity": 0,
+    "velocity": 1.0,
     "rotation": -59.99999999999999
   },
   "useDefaultConstraints": true
