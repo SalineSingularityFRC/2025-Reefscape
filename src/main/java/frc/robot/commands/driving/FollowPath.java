@@ -56,7 +56,7 @@ public class FollowPath extends Command {
     public void initialize() {
         // 1) Fetch the name & target object from the target GeneralPose
         String generalPoseName = m_generalPoseSupplier.get().getName();
-        NavigationTarget targetObject = m_generalPoseSupplier.get().getNavTarget();
+        NavigationTarget navTarget = m_generalPoseSupplier.get().getNavTarget();
 
         // Capture the most recent changes from Glass
         m_constraints = new PathConstraints(
@@ -66,7 +66,7 @@ public class FollowPath extends Command {
                 Units.degreesToRadians(PathFinding.maxAngularAccelerationDegPerSecSq.getValue()));
 
         // 2) Only handle the ALGAE and ALGAE_BACK_AWAY object for now
-        if (targetObject == NavigationTarget.ALGAE) {
+        if (navTarget == NavigationTarget.ALGAE) {
             try {
                 // Build the path file name like "To Algae [PoseName].path"
                 m_chosenPath = PathPlannerPath.fromPathFile("To Algae " + generalPoseName);
@@ -77,7 +77,7 @@ public class FollowPath extends Command {
                         e.getStackTrace());
                 m_failedToLoadPath = true;
             }
-        } else if (targetObject == NavigationTarget.ALGAE_BACK_AWAY) {
+        } else if (navTarget == NavigationTarget.ALGAE_BACK_AWAY) {
             try {
                 // Build the path file name like "Back Away From Algae [PoseName].path"
                 m_chosenPath = PathPlannerPath.fromPathFile("Back Away From Algae " + generalPoseName);
