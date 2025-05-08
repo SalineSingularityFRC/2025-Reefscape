@@ -7,8 +7,8 @@
    "ToFeederVelLimit":{
     "dimension":"LinVel",
     "var":{
-     "exp":"2 m / s",
-     "val":2.0
+     "exp":"1.5 m / s",
+     "val":1.5
     }
    },
    "ToReefVelLimit":{
