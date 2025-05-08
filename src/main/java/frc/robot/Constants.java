@@ -331,6 +331,10 @@ public final class Constants {
         // Algae poses
         new GeneralPose("AB", new Pose2d(3.20, 4.028, new Rotation2d(Math.toRadians(0))), TargetState.ALGAE_UPPER),
         new GeneralPose("KL", new Pose2d(3.828, 5.178, new Rotation2d(Math.toRadians(300.0))), TargetState.ALGAE_LOWER),
+        new GeneralPose("IJ", new Pose2d(5.104, 5.092, new Rotation2d(Math.toRadians(240.0))), TargetState.ALGAE_UPPER),
+        new GeneralPose("GH", new Pose2d(5.750, 4.027, new Rotation2d(Math.toRadians(180.0))), TargetState.ALGAE_LOWER),
+        new GeneralPose("EF", new Pose2d(5.130, 2.909, new Rotation2d(Math.toRadians(120.0))), TargetState.ALGAE_UPPER),
+        new GeneralPose("CD", new Pose2d(3.846, 2.917, new Rotation2d(Math.toRadians(60.0))), TargetState.ALGAE_LOWER),
 
         // Coral source poses
         new GeneralPose("Left Source", new Pose2d(1.395, 7.387, new Rotation2d(Math.toRadians(306.0))),
