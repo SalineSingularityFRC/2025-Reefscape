@@ -8,7 +8,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.SwerveSubsystem;
-import lib.pose.ScoreConfig.TargetObject;
+import lib.pose.ScoreConfig.NavigationTarget;
 
 import static frc.robot.Constants.Drive;
 
@@ -22,10 +22,10 @@ public class DriveToPose2d extends Command {
     private PIDController rotationController;
     private PIDController xDriveController;
     private PIDController yDriveController;
-    private TargetObject m_targetObject;
+    private NavigationTarget m_targetObject;
 
     public DriveToPose2d(SwerveSubsystem swerve, Supplier<Pose2d> currentPoseSupplier,
-            Supplier<Pose2d> targetPoseSupplier, TargetObject targetObject) {
+            Supplier<Pose2d> targetPoseSupplier, NavigationTarget targetObject) {
         this.currentPose = currentPoseSupplier;
         this.targetPose = targetPoseSupplier;
         m_swerve = swerve;
@@ -58,7 +58,7 @@ public class DriveToPose2d extends Command {
         yDriveController.setSetpoint(0);
 
         // Switch tolerance if barge scoring due to limelights updating pose near barge
-        if (m_targetObject == TargetObject.BARGE) {
+        if (m_targetObject == NavigationTarget.BARGE) {
             yDriveController.setTolerance(Drive.PID_DRIVE_Y_BARGE_TOLERANCE.getValue());
         } else {
             yDriveController.setTolerance(Drive.PID_DRIVE_Y_TOLERANCE.getValue());
@@ -79,7 +79,7 @@ public class DriveToPose2d extends Command {
                     Drive.PID_DRIVE_X_KD.getValue());
 
             // Switch tolerance if barge scoring due to limelights updating pose near barge
-            if (m_targetObject == TargetObject.BARGE) {
+            if (m_targetObject == NavigationTarget.BARGE) {
                 yDriveController.setTolerance(Drive.PID_DRIVE_Y_BARGE_TOLERANCE.getValue());
             } else {
                 yDriveController.setTolerance(Drive.PID_DRIVE_Y_TOLERANCE.getValue());
@@ -120,7 +120,7 @@ public class DriveToPose2d extends Command {
                 Drive.PID_DRIVE_MAX_ROTATION_SPEED.getValue());
 
         // Clamp control effort based on target object
-        if (m_targetObject == TargetObject.ALGAE) {
+        if (m_targetObject == NavigationTarget.ALGAE) {
             dx = MathUtil.clamp(dx, -Drive.PID_DRIVE_MAX_DRIVE_ALGAE_X_SPEED.getValue(),
                     Drive.PID_DRIVE_MAX_DRIVE_ALGAE_X_SPEED.getValue());
             dy = MathUtil.clamp(dy, -Drive.PID_DRIVE_MAX_DRIVE_ALGAE_Y_SPEED.getValue(),

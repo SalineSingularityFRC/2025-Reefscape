@@ -72,7 +72,7 @@
     "rotation": 180.0
   },
   "reversed": false,
-  "folder": "Teleop",
+  "folder": "To Algae",
   "idealStartingState": {
     "velocity": 1.0,
     "rotation": 180.0

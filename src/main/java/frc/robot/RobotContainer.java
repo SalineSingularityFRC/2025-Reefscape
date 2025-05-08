@@ -21,7 +21,7 @@ import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import lib.pose.GeneralPose;
-import lib.pose.ScoreConfig.TargetObject;
+import lib.pose.ScoreConfig.NavigationTarget;
 import lib.pose.ScoreConfig.TargetState;
 import lib.vision.Limelight;
 import lib.vision.RealSenseCamera;
@@ -262,7 +262,7 @@ public class RobotContainer {
         SendableChooser<Command> chooser = AutoBuilder.buildAutoChooserWithOptionsModifier(
                 (stream) -> filterCompetitionAutos
                         ? stream.filter(
-                                auto -> (auto.getName().startsWith("Kick") || auto.getName().startsWith("Center")
+                                auto -> (auto.getName().startsWith("Right") || auto.getName().startsWith("Left")
                                         || auto.getName().startsWith("Choreo")))
                         : stream);
         return chooser;
@@ -312,9 +312,9 @@ public class RobotContainer {
                     elevatorSubsystem.moveToTargetPosition(generalPose.getTargetState().getSetpoint()));
 
             // If algae, then add commands onto base
-            if (generalPose.getObject() == TargetObject.ALGAE) {
-                base = base.alongWith(buildAlgaeIntakeRoutine())
-                        .andThen(swerveSubsystem.backAwayFromReef())
+            if (generalPose.getObject() == NavigationTarget.ALGAE) {
+                base = base.alongWith(algaeSubsystem.intake())
+                        .andThen(swerveSubsystem.backAwayFromReef(generalPose)).alongWith(buildAlgaeIntakeRoutine())
                         .andThen(swerveSubsystem.stopDriving())
                         .andThen(swerveSubsystem.updateRotationPIDSetpointCommand());
             }
@@ -350,13 +350,12 @@ public class RobotContainer {
     }
 
     /**
-     * Builds the algae intake routine: intake, wait, then reposition for barge
-     * scoring.
+     * Builds the algae intake routine: intake, wait, move to barge scoring pose.
      */
     private Command buildAlgaeIntakeRoutine() {
         return Commands.sequence(
                 algaeSubsystem.intake(),
-                new WaitCommand(0.2),
+                new WaitCommand(1.0),
                 algaeSubsystem.moveToAlgaeShoot());
     }
 

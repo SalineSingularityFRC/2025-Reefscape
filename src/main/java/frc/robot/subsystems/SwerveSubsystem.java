@@ -35,7 +35,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import lib.pose.GeneralPose;
 import lib.pose.ScoreConfig.TargetState;
-import lib.pose.ScoreConfig.TargetObject;
+import lib.pose.ScoreConfig.NavigationTarget;
 import lib.vision.Limelight;
 import lib.vision.RealSenseCamera;
 import frc.robot.SwerveClasses.SwerveModule;
@@ -491,6 +491,9 @@ public class SwerveSubsystem extends SubsystemBase {
     swerveModules[BL].stopDriving();
   }
 
+  /*
+   * Stops all swerve modules from moving
+   */
   public Command stopDriving() {
     return runOnce(
         () -> {
@@ -611,7 +614,7 @@ public class SwerveSubsystem extends SubsystemBase {
    * @param poseSupplier supplies the target pose at command initialization & each
    *                     execution
    */
-  public Command driveToPose2d(Supplier<Pose2d> poseSupplier, TargetObject targetObject) {
+  public Command driveToPose2d(Supplier<Pose2d> poseSupplier, NavigationTarget targetObject) {
     // Directly return your path-following command,
     // letting DriveToPose itself handle following the trajectory.
     return new DriveToPose2d(this, supplier_position, poseSupplier, targetObject);
@@ -623,7 +626,7 @@ public class SwerveSubsystem extends SubsystemBase {
   public Command driveToGeneralPose(GeneralPose generalPose) {
 
     // Follow a pathplanner path based on chosen ending point if intaking algae
-    if (generalPose.getObject() == TargetObject.ALGAE) {
+    if (generalPose.getObject() == NavigationTarget.ALGAE) {
       return executePathPlannerPath(generalPose);
     }
     // Wrap the static pose in a supplier.
@@ -639,10 +642,10 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   /**
-   * Not implemented for now
+   * Backing away from the reef after intaking algae
    */
-  public Command backAwayFromReef() {
-    return Commands.none();
+  public Command backAwayFromReef(GeneralPose generalPose) {
+    return new FollowPath(() -> generalPose.withTargetState(TargetState.ALGAE_BACK_AWAY), this);
   }
 
   /*
@@ -709,12 +712,12 @@ public class SwerveSubsystem extends SubsystemBase {
         return driveToPose2d(
             () -> new Pose2d(Constants.Poses.bargeXBlue, supplier_position.get().getTranslation().getY(),
                 new Rotation2d(0)),
-            TargetObject.BARGE);
+            NavigationTarget.BARGE);
       } else {
         // Flipping bargeXBlue to red side (for 2025 field only)
         return driveToPose2d(() -> new Pose2d(Units.feetToMeters(57.573) - Constants.Poses.bargeXBlue,
             supplier_position.get().getTranslation().getY(),
-            new Rotation2d(Math.PI)), TargetObject.BARGE);
+            new Rotation2d(Math.PI)), NavigationTarget.BARGE);
       }
     }, Set.of(this));
   }
@@ -728,12 +731,12 @@ public class SwerveSubsystem extends SubsystemBase {
         return driveToPose2d(
             () -> new Pose2d(Constants.Poses.bargeXFarBlue, supplier_position.get().getTranslation().getY(),
                 new Rotation2d(0)),
-            TargetObject.CLOSE_TO_BARGE);
+            NavigationTarget.CLOSE_TO_BARGE);
       } else {
         // Flipping bargeXFarBlue to red side (for 2025 field only)
         return driveToPose2d(() -> new Pose2d(Units.feetToMeters(57.573) - Constants.Poses.bargeXFarBlue,
             supplier_position.get().getTranslation().getY(), new Rotation2d(Math.PI)),
-            TargetObject.CLOSE_TO_BARGE);
+            NavigationTarget.CLOSE_TO_BARGE);
       }
     }, Set.of(this));
   }

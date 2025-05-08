@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.SwerveSubsystem;
 import lib.pose.GeneralPose;
-import lib.pose.ScoreConfig.TargetObject;
+import lib.pose.ScoreConfig.NavigationTarget;
 
 /**
  * A Command that loads a PathPlanner path based on the robot’s current target
@@ -48,10 +48,10 @@ public class FollowPath extends Command {
     public void initialize() {
         // 1) Fetch the name & target object from the target GeneralPose
         String generalPoseName = m_generalPoseSupplier.get().getName();
-        TargetObject targetObject = m_generalPoseSupplier.get().getObject();
+        NavigationTarget targetObject = m_generalPoseSupplier.get().getObject();
 
-        // 2) Only handle the ALGAE object for now
-        if (targetObject == TargetObject.ALGAE) {
+        // 2) Only handle the ALGAE and ALGAE_BACK_AWAY object for now
+        if (targetObject == NavigationTarget.ALGAE) {
             try {
                 // Build the path file name like "To Algae [PoseName].path"
                 m_chosenPath = PathPlannerPath.fromPathFile("To Algae " + generalPoseName);
@@ -62,12 +62,24 @@ public class FollowPath extends Command {
                         e.getStackTrace());
                 m_failedToLoadPath = true;
             }
+        } else if (targetObject == NavigationTarget.ALGAE_BACK_AWAY) {
+            try {
+                // Build the path file name like "Back Away From Algae [PoseName].path"
+                m_chosenPath = PathPlannerPath.fromPathFile("Back Away From Algae " + generalPoseName);
+            } catch (IOException | org.json.simple.parser.ParseException | FileVersionException e) {
+                // Report any file-loading or parsing errors to DriverStation
+                DriverStation.reportError(
+                        "Failed to load path \"" + "Back Away From Algae " + generalPoseName + "\": " + e.getMessage(),
+                        e.getStackTrace());
+                m_failedToLoadPath = true;
+            }
         } else {
             // If not ALGAE, do nothing — fallback to an empty command
             m_delegate = Commands.none();
         }
 
-        // 3) If loading succeeded, create the path-follower command; otherwise do nothing
+        // 3) If loading succeeded, create the path-follower command; otherwise do
+        // nothing
         if (!m_failedToLoadPath) {
             m_delegate = AutoBuilder.pathfindThenFollowPath(m_chosenPath, m_constraints);
         } else {

@@ -9,7 +9,7 @@
       "prevControl": null,
       "nextControl": {
         "x": 5.389053794791045,
-        "y": 2.4365177658149015
+        "y": 2.436517765814902
       },
       "isLocked": false,
       "linkedName": null
@@ -72,7 +72,7 @@
     "rotation": 119.99999999999999
   },
   "reversed": false,
-  "folder": "Teleop",
+  "folder": "To Algae",
   "idealStartingState": {
     "velocity": 1.0,
     "rotation": 119.99999999999999

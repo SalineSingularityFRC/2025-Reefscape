@@ -6,19 +6,20 @@
     "Algae Scoring",
     "CS_1 To Reef",
     "CS_2 to Reef",
-    "Teleop",
+    "AB Algae",
     "Path Adjustments",
     "Start",
     "Straight Tests",
+    "To Algae",
     "To CS_1",
     "To CS_2"
   ],
   "autoFolders": [
     "Center",
-    "Bottom",
+    "Right",
     "Straight",
     "Test Autos",
-    "Top"
+    "Left"
   ],
   "defaultMaxVel": 4.865,
   "defaultMaxAccel": 4.5,

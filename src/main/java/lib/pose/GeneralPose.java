@@ -2,7 +2,7 @@ package lib.pose;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import lib.pose.ScoreConfig.FacetSide;
-import lib.pose.ScoreConfig.TargetObject;
+import lib.pose.ScoreConfig.NavigationTarget;
 import lib.pose.ScoreConfig.TargetState;
 
 /**
@@ -98,7 +98,7 @@ public final class GeneralPose {
      *
      * @return the current TargetObject
      */
-    public TargetObject getObject() {
+    public NavigationTarget getObject() {
         return m_targetState.getObject();
     }
 
