@@ -7,8 +7,8 @@
    "ToFeederVelLimit":{
     "dimension":"LinVel",
     "var":{
-     "exp":"1.5 m / s",
-     "val":1.5
+     "exp":"2 m / s",
+     "val":2.0
     }
    },
    "ToReefVelLimit":{
@@ -36,12 +36,12 @@
    },
    "J":{
     "x":{
-     "exp":"5.084 m",
-     "val":5.084
+     "exp":"5.0071282386779785 m",
+     "val":5.0071282386779785
     },
     "y":{
-     "exp":"5.289 m",
-     "val":5.289
+     "exp":"5.258365631103516 m",
+     "val":5.258365631103516
     },
     "heading":{
      "exp":"-120 deg",
