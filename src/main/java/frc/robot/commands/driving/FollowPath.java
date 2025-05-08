@@ -12,6 +12,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.subsystems.SwerveSubsystem;
 import lib.pose.GeneralPose;
 import lib.pose.ScoreConfig.TargetObject;
 
@@ -30,14 +31,17 @@ public class FollowPath extends Command {
     private boolean m_failedToLoadPath;
     // Create the constraints to use while pathfinding
     private PathConstraints m_constraints;
+    // The swerve susbsytem for updating rotational PID after interupt/end
+    private SwerveSubsystem m_swerveSubsystem;
 
     /**
      * @param generalPoseSupplier A supplier that returns the target GeneralPose
      */
-    public FollowPath(Supplier<GeneralPose> generalPoseSupplier) {
+    public FollowPath(Supplier<GeneralPose> generalPoseSupplier, SwerveSubsystem swerve) {
         m_generalPoseSupplier = generalPoseSupplier;
-        m_constraints = new PathConstraints(3.0, 4.0,
-                Units.degreesToRadians(540), Units.degreesToRadians(720));
+        m_swerveSubsystem = swerve;
+        m_constraints = new PathConstraints(1.5, 1,
+                Units.degreesToRadians(360), Units.degreesToRadians(360));
     }
 
     @Override
@@ -93,5 +97,6 @@ public class FollowPath extends Command {
     public void end(boolean interrupted) {
         // Ensure proper cleanup on interruption or normal end
         m_delegate.end(interrupted);
+        m_swerveSubsystem.updateRotationPIDSetpointCommand();
     }
 }
