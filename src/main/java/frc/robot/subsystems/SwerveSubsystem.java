@@ -555,7 +555,7 @@ public class SwerveSubsystem extends SubsystemBase {
     filteredPoses = Constants.Poses.generalPoses.stream()
         .filter(
             (p) -> p.getSide() == targetState.getSide() &&
-                p.getObject() == targetState.getObject())
+                p.getNavTarget() == targetState.getNavTarget())
         .toList();
 
     // Closest Pose2d to current position based on filteredPoses
@@ -626,11 +626,11 @@ public class SwerveSubsystem extends SubsystemBase {
   public Command driveToGeneralPose(GeneralPose generalPose) {
 
     // Follow a pathplanner path based on chosen ending point if intaking algae
-    if (generalPose.getObject() == NavigationTarget.ALGAE) {
+    if (generalPose.getNavTarget() == NavigationTarget.ALGAE) {
       return executePathPlannerPath(generalPose);
     }
     // Wrap the static pose in a supplier.
-    return driveToPose2d(() -> generalPose.getPose2d(), generalPose.getObject());
+    return driveToPose2d(() -> generalPose.getPose2d(), generalPose.getNavTarget());
   }
 
   /**

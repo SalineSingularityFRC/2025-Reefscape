@@ -12,6 +12,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.Constants.Drive.PathFinding;
 import frc.robot.subsystems.SwerveSubsystem;
 import lib.pose.GeneralPose;
 import lib.pose.ScoreConfig.NavigationTarget;
@@ -36,19 +37,33 @@ public class FollowPath extends Command {
 
     /**
      * @param generalPoseSupplier A supplier that returns the target GeneralPose
+     * @param swerve              The swerve subsystem for resetting rotational
+     *                            control if command in interrupted
      */
     public FollowPath(Supplier<GeneralPose> generalPoseSupplier, SwerveSubsystem swerve) {
         m_generalPoseSupplier = generalPoseSupplier;
         m_swerveSubsystem = swerve;
-        m_constraints = new PathConstraints(1.5, 1,
-                Units.degreesToRadians(360), Units.degreesToRadians(360));
+        m_constraints = new PathConstraints(
+                PathFinding.maxVelocityMPS.getValue(),
+                PathFinding.maxAccelerationMPSSq.getValue(),
+                Units.degreesToRadians(PathFinding.maxAngularVelocityDegPerSec.getValue()),
+                Units.degreesToRadians(PathFinding.maxAngularAccelerationDegPerSecSq.getValue()));
+
+        addRequirements(m_swerveSubsystem);
     }
 
     @Override
     public void initialize() {
         // 1) Fetch the name & target object from the target GeneralPose
         String generalPoseName = m_generalPoseSupplier.get().getName();
-        NavigationTarget targetObject = m_generalPoseSupplier.get().getObject();
+        NavigationTarget targetObject = m_generalPoseSupplier.get().getNavTarget();
+
+        // Capture the most recent changes from Glass
+        m_constraints = new PathConstraints(
+                PathFinding.maxVelocityMPS.getValue(),
+                PathFinding.maxAccelerationMPSSq.getValue(),
+                Units.degreesToRadians(PathFinding.maxAngularVelocityDegPerSec.getValue()),
+                Units.degreesToRadians(PathFinding.maxAngularAccelerationDegPerSecSq.getValue()));
 
         // 2) Only handle the ALGAE and ALGAE_BACK_AWAY object for now
         if (targetObject == NavigationTarget.ALGAE) {
@@ -109,6 +124,7 @@ public class FollowPath extends Command {
     public void end(boolean interrupted) {
         // Ensure proper cleanup on interruption or normal end
         m_delegate.end(interrupted);
+        m_swerveSubsystem.stopDriving();
         m_swerveSubsystem.updateRotationPIDSetpointCommand();
     }
 }

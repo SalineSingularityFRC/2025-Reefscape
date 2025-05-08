@@ -112,8 +112,8 @@ public final class ScoreConfig {
 
         /** The reef facet side associated with this state. */
         private final FacetSide side;
-        /** The type of game object for this state. */
-        private final NavigationTarget object;
+        /** The type of navigation target for this state. */
+        private final NavigationTarget navTarget;
         /** The elevator setpoint, or null if no fixed setpoint required. */
         private final Setpoint setpoint;
 
@@ -121,12 +121,12 @@ public final class ScoreConfig {
          * Constructs a TargetState enum constant.
          *
          * @param side     the reef facet side where this state applies
-         * @param object   the game object type for this state
+         * @param navTarget   the game navigation target for this state
          * @param setpoint the elevator subsystem setpoint, or null for dynamic control
          */
-        TargetState(FacetSide side, NavigationTarget object, Setpoint setpoint) {
+        TargetState(FacetSide side, NavigationTarget navTarget, Setpoint setpoint) {
             this.side = side;
-            this.object = object;
+            this.navTarget = navTarget;
             this.setpoint = setpoint;
         }
 
@@ -144,8 +144,8 @@ public final class ScoreConfig {
          *
          * @return the TargetObject enum value
          */
-        public NavigationTarget getObject() {
-            return object;
+        public NavigationTarget getNavTarget() {
+            return navTarget;
         }
 
         /**

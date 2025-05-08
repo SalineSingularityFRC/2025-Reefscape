@@ -312,7 +312,7 @@ public class RobotContainer {
                     elevatorSubsystem.moveToTargetPosition(generalPose.getTargetState().getSetpoint()));
 
             // If algae, then add commands onto base
-            if (generalPose.getObject() == NavigationTarget.ALGAE) {
+            if (generalPose.getNavTarget() == NavigationTarget.ALGAE) {
                 base = base.alongWith(algaeSubsystem.intake())
                         .andThen(swerveSubsystem.backAwayFromReef(generalPose)).alongWith(buildAlgaeIntakeRoutine())
                         .andThen(swerveSubsystem.stopDriving())

@@ -119,7 +119,7 @@ public class DriveToPose2d extends Command {
         dr = -MathUtil.clamp(dr, -Drive.PID_DRIVE_MAX_ROTATION_SPEED.getValue(),
                 Drive.PID_DRIVE_MAX_ROTATION_SPEED.getValue());
 
-        // Clamp control effort based on target object
+        // Clamp control effort based on target object (not used)
         if (m_targetObject == NavigationTarget.ALGAE) {
             dx = MathUtil.clamp(dx, -Drive.PID_DRIVE_MAX_DRIVE_ALGAE_X_SPEED.getValue(),
                     Drive.PID_DRIVE_MAX_DRIVE_ALGAE_X_SPEED.getValue());

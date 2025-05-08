@@ -94,12 +94,12 @@ public final class GeneralPose {
     }
 
     /**
-     * Gets the TargetObject associated with this pose.
+     * Gets the NavigationTarget associated with this pose.
      *
-     * @return the current TargetObject
+     * @return the current NavigationTarget
      */
-    public NavigationTarget getObject() {
-        return m_targetState.getObject();
+    public NavigationTarget getNavTarget() {
+        return m_targetState.getNavTarget();
     }
 
     /**
