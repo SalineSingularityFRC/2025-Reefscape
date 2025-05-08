@@ -403,7 +403,7 @@ public class SwerveSubsystem extends SubsystemBase {
       }
     }
 
-    // SmartDashboard.putBoolean("Heading Issue/Is Blue", BlueAlliance);
+    SmartDashboard.putBoolean("Swerve/Is Blue", BlueAlliance);
 
     publisher.set(odometry.getEstimatedPosition());
 
@@ -635,7 +635,7 @@ public class SwerveSubsystem extends SubsystemBase {
    * TODO: Make this non deferred since this is implicetly deferring the command.
    */
   public Command executePathPlannerPath(GeneralPose generalPose) {
-    return new FollowPath(() -> generalPose);
+    return new FollowPath(() -> generalPose, this);
   }
 
   /**
@@ -704,31 +704,37 @@ public class SwerveSubsystem extends SubsystemBase {
    * Drives to barge shoot point. (RobotX, RobotY) -> (BargePoseX, RobotY)
    */
   public Command driveToBarge() {
-    if (BlueAlliance) {
-      return driveToPose2d(() -> new Pose2d(Constants.Poses.bargeXBlue, supplier_position.get().getTranslation().getY(),
-          new Rotation2d(0)), TargetObject.BARGE);
-    } else {
-      // Flipping bargeXBlue to red side (for 2025 field only)
-      return driveToPose2d(() -> new Pose2d(Units.feetToMeters(57.573) - Constants.Poses.bargeXBlue,
-          supplier_position.get().getTranslation().getY(),
-          new Rotation2d(Math.PI)), TargetObject.BARGE);
-    }
+    return new DeferredCommand(() -> {
+      if (BlueAlliance) {
+        return driveToPose2d(
+            () -> new Pose2d(Constants.Poses.bargeXBlue, supplier_position.get().getTranslation().getY(),
+                new Rotation2d(0)),
+            TargetObject.BARGE);
+      } else {
+        // Flipping bargeXBlue to red side (for 2025 field only)
+        return driveToPose2d(() -> new Pose2d(Units.feetToMeters(57.573) - Constants.Poses.bargeXBlue,
+            supplier_position.get().getTranslation().getY(),
+            new Rotation2d(Math.PI)), TargetObject.BARGE);
+      }
+    }, Set.of(this));
   }
 
   /*
    * Drives close to barge shoot point. (RobotX, RobotY) -> (BargePoseX, RobotY)
    */
   public Command driveCloseToBarge() {
-    if (BlueAlliance) {
-      return driveToPose2d(
-          () -> new Pose2d(Constants.Poses.bargeXFarBlue, supplier_position.get().getTranslation().getY(),
-              new Rotation2d(0)),
-          TargetObject.CLOSE_TO_BARGE);
-    } else {
-      // Flipping bargeXFarBlue to red side (for 2025 field only)
-      return driveToPose2d(() -> new Pose2d(Units.feetToMeters(57.573) - Constants.Poses.bargeXFarBlue,
-          supplier_position.get().getTranslation().getY(), new Rotation2d(Math.PI)),
-          TargetObject.CLOSE_TO_BARGE);
-    }
+    return new DeferredCommand(() -> {
+      if (BlueAlliance) {
+        return driveToPose2d(
+            () -> new Pose2d(Constants.Poses.bargeXFarBlue, supplier_position.get().getTranslation().getY(),
+                new Rotation2d(0)),
+            TargetObject.CLOSE_TO_BARGE);
+      } else {
+        // Flipping bargeXFarBlue to red side (for 2025 field only)
+        return driveToPose2d(() -> new Pose2d(Units.feetToMeters(57.573) - Constants.Poses.bargeXFarBlue,
+            supplier_position.get().getTranslation().getY(), new Rotation2d(Math.PI)),
+            TargetObject.CLOSE_TO_BARGE);
+      }
+    }, Set.of(this));
   }
 }

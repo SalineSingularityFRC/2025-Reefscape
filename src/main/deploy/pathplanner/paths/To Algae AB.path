@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.5210520304325303,
-        "y": 4.055810819705166
+        "x": 3.518289495222681,
+        "y": 4.056281091514166
       },
       "isLocked": false,
       "linkedName": null
@@ -20,8 +20,8 @@
         "y": 4.028
       },
       "prevControl": {
-        "x": 2.9506423651805265,
-        "y": 3.995395415773323
+        "x": 2.952378823326969,
+        "y": 3.993594290254907
       },
       "nextControl": null,
       "isLocked": false,
@@ -61,7 +61,7 @@
   "reversed": false,
   "folder": "Teleop",
   "idealStartingState": {
-    "velocity": 0,
+    "velocity": 1.0,
     "rotation": 0.0
   },
   "useDefaultConstraints": true
