@@ -286,9 +286,14 @@ public class RobotContainer {
      * <p>
      * Once initialized, it runs the drivetrain and elevator in parallel to move to
      * the computed pose, selecting between coral or algae-specific routines.
+     * 
+     * <p>
+     * If {@code NavigationTarget == ALGAE}, then add on commands to
+     * intake algae and back away from reef after sucking in the algae.
      *
      * <p>
-     * Requirements: {@code DriveSubsystem}, {@code ElevatorSubsystem}, and {@code AlgaeSubystem}.
+     * Requirements: {@code DriveSubsystem}, {@code ElevatorSubsystem}, and
+     * {@code AlgaeSubystem}.
      *
      * @param target The TargetState to reach
      * @return A deferred, composable Command that handles pose filtering, parallel
