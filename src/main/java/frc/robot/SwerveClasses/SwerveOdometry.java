@@ -16,11 +16,6 @@ import frc.robot.subsystems.SwerveSubsystem;
 public class SwerveOdometry {
   SwerveDrivePoseEstimator poseEstimator;
 
-  private final int FL = 0;
-  private final int FR = 1;
-  private final int BL = 2;
-  private final int BR = 3;
-
   private Limelight leftLL;
   private Limelight rightLL;
   private boolean doRejectLeftLLUpdate;
@@ -147,7 +142,6 @@ public class SwerveOdometry {
     /**
      * Logic for updating poseEstimator based on right limelight
      */
-
     if (!LimelightHelpers.validPoseEstimate(rightLLPoseEstimate)) {
       doRejectRightLLUpdate = true;
     }

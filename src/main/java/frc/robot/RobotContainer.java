@@ -286,10 +286,9 @@ public class RobotContainer {
      * <p>
      * Once initialized, it runs the drivetrain and elevator in parallel to move to
      * the computed pose, selecting between coral or algae-specific routines.
-     * After the chosen routine completes, it stops the drivetrain.
      *
      * <p>
-     * Requirements: {@code DriveSubsystem} and {@code ElevatorSubsystem}.
+     * Requirements: {@code DriveSubsystem}, {@code ElevatorSubsystem}, and {@code AlgaeSubystem}.
      *
      * @param target The TargetState to reach
      * @return A deferred, composable Command that handles pose filtering, parallel
@@ -306,17 +305,13 @@ public class RobotContainer {
 
             // Base parallel: drive + elevator in parallel
             Command base = parallel(
-                    swerveSubsystem.driveToGeneralPose(generalPose)
-                            .andThen(swerveSubsystem.stopDriving())
-                            .andThen(swerveSubsystem.updateRotationPIDSetpointCommand()),
+                    swerveSubsystem.driveToGeneralPose(generalPose),
                     elevatorSubsystem.moveToTargetPosition(generalPose.getTargetState().getSetpoint()));
 
             // If algae, then add commands onto base
             if (generalPose.getNavTarget() == NavigationTarget.ALGAE) {
                 base = base.alongWith(algaeSubsystem.intake())
-                        .andThen(swerveSubsystem.backAwayFromReef(generalPose)).alongWith(buildAlgaeIntakeRoutine())
-                        .andThen(swerveSubsystem.stopDriving())
-                        .andThen(swerveSubsystem.updateRotationPIDSetpointCommand());
+                        .andThen(swerveSubsystem.backAwayFromReef(generalPose)).alongWith(buildAlgaeIntakeRoutine());
             }
 
             return base;

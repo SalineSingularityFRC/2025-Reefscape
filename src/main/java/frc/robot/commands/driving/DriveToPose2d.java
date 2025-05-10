@@ -17,19 +17,19 @@ import static frc.robot.Constants.Drive;
  * PID
  */
 public class DriveToPose2d extends Command {
-    private final SwerveSubsystem m_swerve;
+    private final SwerveSubsystem m_swerveSubsystem;
     private final Supplier<Pose2d> targetPose, currentPose;
     private PIDController rotationController;
     private PIDController xDriveController;
     private PIDController yDriveController;
-    private NavigationTarget m_targetObject;
+    private NavigationTarget m_navigationTarget;
 
     public DriveToPose2d(SwerveSubsystem swerve, Supplier<Pose2d> currentPoseSupplier,
-            Supplier<Pose2d> targetPoseSupplier, NavigationTarget targetObject) {
+            Supplier<Pose2d> targetPoseSupplier, NavigationTarget navigationTarget) {
         this.currentPose = currentPoseSupplier;
         this.targetPose = targetPoseSupplier;
-        m_swerve = swerve;
-        m_targetObject = targetObject;
+        m_swerveSubsystem = swerve;
+        m_navigationTarget = navigationTarget;
         addRequirements(swerve);
 
         rotationController = new PIDController(
@@ -58,13 +58,14 @@ public class DriveToPose2d extends Command {
         yDriveController.setSetpoint(0);
 
         // Switch tolerance if barge scoring due to limelights updating pose near barge
-        if (m_targetObject == NavigationTarget.BARGE) {
+        if (m_navigationTarget == NavigationTarget.BARGE) {
             yDriveController.setTolerance(Drive.PID_DRIVE_Y_BARGE_TOLERANCE.getValue());
         } else {
             yDriveController.setTolerance(Drive.PID_DRIVE_Y_TOLERANCE.getValue());
         }
     }
 
+    @Override
     public void execute() {
         if (Drive.PID_DRIVE_TUNING.getValue() > 0) {
             rotationController.setTolerance(Drive.PID_DRIVE_ROTATION_TOLERANCE.getValue());
@@ -79,7 +80,7 @@ public class DriveToPose2d extends Command {
                     Drive.PID_DRIVE_X_KD.getValue());
 
             // Switch tolerance if barge scoring due to limelights updating pose near barge
-            if (m_targetObject == NavigationTarget.BARGE) {
+            if (m_navigationTarget == NavigationTarget.BARGE) {
                 yDriveController.setTolerance(Drive.PID_DRIVE_Y_BARGE_TOLERANCE.getValue());
             } else {
                 yDriveController.setTolerance(Drive.PID_DRIVE_Y_TOLERANCE.getValue());
@@ -120,7 +121,7 @@ public class DriveToPose2d extends Command {
                 Drive.PID_DRIVE_MAX_ROTATION_SPEED.getValue());
 
         // Clamp control effort based on target object (not used)
-        if (m_targetObject == NavigationTarget.ALGAE) {
+        if (m_navigationTarget == NavigationTarget.ALGAE) {
             dx = MathUtil.clamp(dx, -Drive.PID_DRIVE_MAX_DRIVE_ALGAE_X_SPEED.getValue(),
                     Drive.PID_DRIVE_MAX_DRIVE_ALGAE_X_SPEED.getValue());
             dy = MathUtil.clamp(dy, -Drive.PID_DRIVE_MAX_DRIVE_ALGAE_Y_SPEED.getValue(),
@@ -133,7 +134,7 @@ public class DriveToPose2d extends Command {
         }
 
         // Invert drive inputs if on red alliance since field centric
-        if (!m_swerve.isBlueAlliance()) {
+        if (!m_swerveSubsystem.isBlueAlliance()) {
             dx *= -1;
             dy *= -1;
         }
@@ -142,9 +143,10 @@ public class DriveToPose2d extends Command {
         SmartDashboard.putNumber("Tuning/dx", dx);
         SmartDashboard.putNumber("Tuning/dy", dy);
 
-        m_swerve.drive(dr, dx, dy, true, 1.0);
+        m_swerveSubsystem.drive(dr, dx, dy, true, 1.0);
     }
 
+    @Override
     public boolean isFinished() {
         SmartDashboard.putBoolean("Tuning/rotationController at setpoint", rotationController.atSetpoint());
         SmartDashboard.putBoolean("Tuning/xDriveController at setpoint", xDriveController.atSetpoint());
@@ -153,4 +155,11 @@ public class DriveToPose2d extends Command {
                 rotationController.atSetpoint() && xDriveController.atSetpoint() && yDriveController.atSetpoint());
         return rotationController.atSetpoint() && xDriveController.atSetpoint() && yDriveController.atSetpoint();
     }
+
+    @Override
+    public void end(boolean interrupted) {
+        m_swerveSubsystem.stopDriving();
+        m_swerveSubsystem.updateRotationPIDSetpointCommand();
+    }
+
 }

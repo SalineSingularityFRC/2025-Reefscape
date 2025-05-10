@@ -277,6 +277,14 @@ public class SwerveSubsystem extends SubsystemBase {
     return odometry.getEstimatedPosition();
   };
 
+  /**
+   * Method for driving via controller
+   * @param rotation
+   * @param x
+   * @param y
+   * @param fieldCentric
+   * @param mulitplier
+   */
   public void drive(
       double rotation,
       double x,
@@ -434,7 +442,7 @@ public class SwerveSubsystem extends SubsystemBase {
     return states;
   }
 
-  /*
+  /**
    * This function returns the angle (in radians) of the robot based on the value
    * from the pidgeon 2.0
    */
@@ -442,7 +450,9 @@ public class SwerveSubsystem extends SubsystemBase {
     return gyro.getRotation2d().plus(Rotation2d.fromDegrees(180.0)).getRadians() - gyroZero;
   }
 
-  // Accounts for where foward is for swerve pos estimation (red/blue alliance)
+  /**
+   * Accounts for where foward is for swerve pos estimation (red/blue alliance)
+   */
   public Rotation2d getRobotRotation2dForOdometry() {
     if (BlueAlliance) {
       return new Rotation2d(getRobotAngle());
@@ -451,7 +461,7 @@ public class SwerveSubsystem extends SubsystemBase {
     }
   }
 
-  /*
+  /**
    * Returns algular speed of robot
    */
   public double getAngularChassisSpeed() {
@@ -491,7 +501,7 @@ public class SwerveSubsystem extends SubsystemBase {
     swerveModules[BL].stopDriving();
   }
 
-  /*
+  /**
    * Stops all swerve modules from moving
    */
   public Command stopDriving() {
@@ -501,7 +511,7 @@ public class SwerveSubsystem extends SubsystemBase {
         });
   }
 
-  /*
+  /**
    * Resets gryo for field centric driving
    */
   public void resetGyro() {
@@ -542,7 +552,7 @@ public class SwerveSubsystem extends SubsystemBase {
     return swerveModules[0].isCoast();
   }
 
-  /*
+  /**
    * Filters to closest pose and the state corresponding to that pose
    */
   public GeneralPose filterClosestState(TargetState targetState) {
@@ -585,7 +595,9 @@ public class SwerveSubsystem extends SubsystemBase {
     return targetGeneralPose;
   }
 
-  // Returns the closest Pose2d in the list
+  /**
+   * Returns the closest Pose2d in the list from current robot pose
+   */
   public Pose2d getClosestPose2d(List<GeneralPose> filteredPoses) {
     List<Pose2d> poses = filteredPoses.stream().map((rp) -> {
       return rp.getPose2d();
@@ -603,7 +615,9 @@ public class SwerveSubsystem extends SubsystemBase {
     return nearest;
   }
 
-  // Returns position on field (flipped if red alliance)
+  /**
+   * Returns position on field (flipped if red alliance)
+   */
   public Pose2d getFieldAdjustedPose2d(Pose2d pose) {
     return BlueAlliance ? pose : FlippingUtil.flipFieldPose(pose);
   }
@@ -703,7 +717,7 @@ public class SwerveSubsystem extends SubsystemBase {
     }, Set.of(this));
   }
 
-  /*
+  /**
    * Drives to barge shoot point. (RobotX, RobotY) -> (BargePoseX, RobotY)
    */
   public Command driveToBarge() {
@@ -722,7 +736,7 @@ public class SwerveSubsystem extends SubsystemBase {
     }, Set.of(this));
   }
 
-  /*
+  /**
    * Drives close to barge shoot point. (RobotX, RobotY) -> (BargePoseX, RobotY)
    */
   public Command driveCloseToBarge() {

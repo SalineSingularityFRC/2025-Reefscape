@@ -17,7 +17,6 @@ import com.ctre.phoenix6.signals.SensorDirectionValue;
 import au.grapplerobotics.LaserCan;
 import au.grapplerobotics.interfaces.LaserCanInterface.Measurement;
 import frc.robot.Constants;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
@@ -34,7 +33,6 @@ public class AlgaeSubsystem extends SubsystemBase {
     private final PositionTorqueCurrentFOC mainMotorAlgaeRequest;
     private final PositionTorqueCurrentFOC mainMotorZeroRequest;
     private static final int LASER_CAN_NO_MEASUREMENT = -1;
-    private final Timer timer;
     private boolean hasAlgae;
     private double targetPosition;
     private CANcoder canCoder;
@@ -101,7 +99,6 @@ public class AlgaeSubsystem extends SubsystemBase {
 
         sensingDistance = Constants.Algae.sensingDistance.getValue();
 
-        timer = new Timer();
         hasAlgae = false;
 
         setDefaultCommand(holdCommand());
