@@ -280,7 +280,7 @@ public class RobotContainer {
      *
      * <p>
      * This method defers construction so that
-     * {@code drive.filterClosestState(target)}
+     * {@code swerveSubsystem.filterClosestState(target)}
      * is called when the command is scheduled to calculate the closest was Pose2d.
      *
      * <p>
@@ -292,7 +292,7 @@ public class RobotContainer {
      * intake algae and back away from reef after sucking in the algae.
      *
      * <p>
-     * Requirements: {@code DriveSubsystem}, {@code ElevatorSubsystem}, and
+     * Requirements: {@code SwerveSubsystem}, {@code ElevatorSubsystem}, and
      * {@code AlgaeSubystem}.
      *
      * @param target The TargetState to reach
