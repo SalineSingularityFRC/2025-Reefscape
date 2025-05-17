@@ -3,16 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.828,
-        "y": 5.178
+        "x": 3.7732500000000004,
+        "y": 5.26325
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.6954744735753473,
-        "y": 5.389983454179492
+        "x": 3.640724473575348,
+        "y": 5.4752334541794925
       },
       "isLocked": false,
-      "linkedName": "KL"
+      "linkedName": "Algae KL"
     },
     {
       "anchor": {

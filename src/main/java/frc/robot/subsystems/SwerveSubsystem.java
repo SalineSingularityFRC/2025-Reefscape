@@ -511,6 +511,13 @@ public class SwerveSubsystem extends SubsystemBase {
         });
   }
 
+  public Command endDrive() {
+    return Commands.sequence(
+      stopDriving(),
+      updateRotationPIDSetpointCommand()
+      );
+  }
+
   /**
    * Resets gryo for field centric driving
    */

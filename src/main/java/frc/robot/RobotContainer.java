@@ -310,13 +310,14 @@ public class RobotContainer {
 
             // Base parallel: drive + elevator in parallel
             Command base = parallel(
-                    swerveSubsystem.driveToGeneralPose(generalPose),
+                    swerveSubsystem.driveToGeneralPose(generalPose).andThen(swerveSubsystem.endDrive()),
                     elevatorSubsystem.moveToTargetPosition(generalPose.getTargetState().getSetpoint()));
 
             // If algae, then add commands onto base
             if (generalPose.getNavTarget() == NavigationTarget.ALGAE) {
-                base = base.alongWith(algaeSubsystem.intake())
-                        .andThen(swerveSubsystem.backAwayFromReef(generalPose)).alongWith(buildAlgaeIntakeRoutine());
+                base = base.alongWith(algaeSubsystem.intake()).andThen(new WaitCommand(0.5))
+                        .andThen((swerveSubsystem.backAwayFromReef(generalPose).andThen(swerveSubsystem.endDrive()))
+                                .alongWith(buildAlgaeIntakeRoutine()));
             }
 
             return base;

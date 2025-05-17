@@ -14,8 +14,8 @@
    "ToReefVelLimit":{
     "dimension":"LinVel",
     "var":{
-     "exp":"1 m / s",
-     "val":1.0
+     "exp":"0.8 m / s",
+     "val":0.8
     }
    }
   },

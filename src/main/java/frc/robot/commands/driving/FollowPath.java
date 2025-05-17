@@ -96,7 +96,11 @@ public class FollowPath extends Command {
         // 3) If loading succeeded, create the path-follower command; otherwise do
         // nothing
         if (!m_failedToLoadPath) {
-            m_delegate = AutoBuilder.pathfindThenFollowPath(m_chosenPath, m_constraints);
+            if(navTarget == NavigationTarget.ALGAE_BACK_AWAY) {
+                m_delegate = AutoBuilder.followPath(m_chosenPath);
+            } else {
+                m_delegate = AutoBuilder.pathfindThenFollowPath(m_chosenPath, m_constraints);
+            }
         } else {
             m_delegate = Commands.none();
         }
@@ -120,11 +124,10 @@ public class FollowPath extends Command {
         return m_delegate.isFinished();
     }
 
+    // Don't schedule commands in end()
     @Override
     public void end(boolean interrupted) {
         // Ensure proper cleanup on interruption or normal end
         m_delegate.end(interrupted);
-        m_swerveSubsystem.stopDriving();
-        m_swerveSubsystem.updateRotationPIDSetpointCommand();
     }
 }
