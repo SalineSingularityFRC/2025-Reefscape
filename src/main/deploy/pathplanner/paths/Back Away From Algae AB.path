@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.466732885085575,
-        "y": 2.2658766618276274
+        "x": 3.2,
+        "y": 4.028
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.321964431956376,
-        "y": 2.015130345674701
+        "x": 3.4496438061263253,
+        "y": 4.0413405420715165
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "AB"
     },
     {
       "anchor": {
-        "x": 3.7518976412326146,
-        "y": 2.6412974996007903
+        "x": 2.5468592593544406,
+        "y": 4.028
       },
       "prevControl": {
-        "x": 3.8862267474526377,
-        "y": 2.8739623365091873
+        "x": 2.796821737568083,
+        "y": 4.0236687778521185
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "CD"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
@@ -35,8 +35,8 @@
       "minWaypointRelativePos": 0,
       "maxWaypointRelativePos": 1.0,
       "constraints": {
-        "maxVelocity": 1.5,
-        "maxAcceleration": 1.5,
+        "maxVelocity": 1.0,
+        "maxAcceleration": 4.5,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 673.0,
         "nominalVoltage": 12.0,
@@ -56,13 +56,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 59.99999999999999
+    "rotation": 0.0
   },
   "reversed": false,
-  "folder": "To Algae",
+  "folder": "AB Algae",
   "idealStartingState": {
-    "velocity": 0.4,
-    "rotation": 59.99999999999999
+    "velocity": 0,
+    "rotation": 0.0
   },
   "useDefaultConstraints": true
 }
