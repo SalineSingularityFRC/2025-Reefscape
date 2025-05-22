@@ -61,7 +61,7 @@
   "reversed": false,
   "folder": "To Algae",
   "idealStartingState": {
-    "velocity": 1.0,
+    "velocity": 0.4,
     "rotation": -119.99999999999999
   },
   "useDefaultConstraints": true
