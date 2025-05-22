@@ -1,26 +1,12 @@
 package frc.robot.SwerveClasses;
 
-import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.Odometry;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
-import edu.wpi.first.math.numbers.N1;
-import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.math.Matrix;
-import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.util.datalog.DataLog;
-import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import lib.vision.Limelight;
@@ -29,11 +15,6 @@ import frc.robot.subsystems.SwerveSubsystem;
 
 public class SwerveOdometry {
   SwerveDrivePoseEstimator poseEstimator;
-
-  private final int FL = 0;
-  private final int FR = 1;
-  private final int BL = 2;
-  private final int BR = 3;
 
   private Limelight leftLL;
   private Limelight rightLL;
@@ -161,7 +142,6 @@ public class SwerveOdometry {
     /**
      * Logic for updating poseEstimator based on right limelight
      */
-
     if (!LimelightHelpers.validPoseEstimate(rightLLPoseEstimate)) {
       doRejectRightLLUpdate = true;
     }
