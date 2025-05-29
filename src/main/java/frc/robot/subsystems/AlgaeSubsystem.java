@@ -37,6 +37,7 @@ public class AlgaeSubsystem extends SubsystemBase {
     private double targetPosition;
     private CANcoder canCoder;
     private boolean manual = false;
+    State state;
 
     public AlgaeSubsystem() {
         mainMotor = new TalonFX(Constants.CanId.Algae.MAIN_MOTOR);
@@ -102,6 +103,8 @@ public class AlgaeSubsystem extends SubsystemBase {
         hasAlgae = false;
 
         setDefaultCommand(holdCommand());
+
+        this.state = State.HOLD_ALGAE;
     }
 
     public void periodic() {
@@ -112,11 +115,11 @@ public class AlgaeSubsystem extends SubsystemBase {
         boolean status = true;
         if (!manual) {
             // mainMotor.setControl(mainMotorHoldRequest);
-            status = algaeMotor.setControl(algaeMotorHoldRequest).isOK();
+            // status = algaeMotor.setControl(algaeMotorHoldRequest).isOK();
         }
 
-        intakeSpeedRequest.Velocity = Constants.Algae.motorSpeedSlow.getValue();
-        outtakeSpeedRequest.Velocity = Constants.Algae.motorSpeedFast.getValue();
+        // intakeSpeedRequest.Velocity = Constants.Algae.motorSpeedSlow.getValue();
+        // outtakeSpeedRequest.Velocity = Constants.Algae.motorSpeedFast.getValue();
 
         SmartDashboard.putNumber("AlgaeRotater/Position", algaeMotor.getPosition().getValueAsDouble());
         SmartDashboard.putNumber("AlgaeRotater/HoldPosition", algaeMotorHoldRequest.Position);
@@ -126,10 +129,77 @@ public class AlgaeSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("AlgaeHinge/TargetPosition", mainMotorRequest.Position);
         SmartDashboard.putNumber("AlgaeHinge/TargetPositionForZero", mainMotorZeroRequest.Position);
         SmartDashboard.putNumber("AlgaeHinge/ActualPosition", mainMotor.getPosition().getValueAsDouble());
+
+        switch (state){
+            case SHOOT_ALGAE:
+                System.out.println("SHOOT_ALGAE MODE");
+                mainMotorRequest.Position = Constants.Algae.SHOOT_POS.getValue();
+                mainMotor.setControl(mainMotorRequest);
+                algaeMotor.setControl(outtakeSpeedRequest);
+                break;
+            case HOLD_ALGAE:
+                System.out.println("HOLD_ALGAE MDOE");
+                mainMotorRequest.Position = Constants.Algae.SHOOT_POS.getValue();
+                mainMotor.setControl(mainMotorRequest);
+                algaeMotor.setControl(algaeMotorHoldRequest);
+                break;
+            case GRAB_ALGAE:
+                System.out.println("GRAB_ALGAE MODE");
+                mainMotorRequest.Position = Constants.Algae.INTAKE_POS.getValue();
+                mainMotor.setControl(mainMotorRequest);
+                algaeMotor.setControl(intakeSpeedRequest);
+                break;
+            case CORAL:
+                System.out.println("ALGAE MDOE");
+                mainMotorRequest.Position = Constants.Algae.DEFAULT_POSE.getValue();
+                mainMotor.setControl(mainMotorRequest);
+                algaeMotorHoldRequest.Position = algaeMotor.getPosition().getValueAsDouble();
+                algaeMotor.setControl(algaeMotorHoldRequest);
+                break;
+        }
+    }
+
+    public enum State{
+        SHOOT_ALGAE, HOLD_ALGAE, GRAB_ALGAE, CORAL
     }
 
     public Command holdCommand() {
         return run(() -> {
+        });
+    }
+
+    public Command shoot() {
+        return run(() -> {
+            this.state = State.SHOOT_ALGAE;
+        })
+
+        .until(() -> !canSeeAlgae())
+        .andThen(new WaitCommand(0.05))
+        .andThen( runOnce(() -> {
+            this.state = State.CORAL;
+        }));
+    }
+
+    public Command hold() {
+        return runOnce(() -> {
+            this.state = State.HOLD_ALGAE;
+            algaeMotorHoldRequest.Position = algaeMotor.getPosition().getValueAsDouble();
+        });
+    }
+
+    public Command grab() {
+        return run(() -> {
+            this.state = State.GRAB_ALGAE;
+        })
+            .until(() -> canSeeAlgae())
+            .andThen(new WaitCommand(0.05))
+            .andThen(hold(0.5));
+
+    }
+
+    public Command algaeMode(){
+        return runOnce(() -> {
+            this.state = State.CORAL;
         });
     }
 
@@ -219,9 +289,9 @@ public class AlgaeSubsystem extends SubsystemBase {
             // mainMotor.setControl(new DutyCycleOut(0));
             // algaeMotor.setControl(zeroSpeedRequest.withSlot(0));
             manual = false;
-            algaeMotorHoldRequest.Position = algaeMotor.getPosition().getValueAsDouble();
+            //B algaeMotorHoldRequest.Position = algaeMotor.getPosition().getValueAsDouble();
             // SmartDashboard.putNumber(getName(), LASER_CAN_NO_MEASUREMENT)
-            algaeMotor.setControl(algaeMotorHoldRequest.withSlot(1));
+            // algaeMotor.setControl(algaeMotorHoldRequest.withSlot(1));
         });
     }
 
@@ -236,6 +306,7 @@ public class AlgaeSubsystem extends SubsystemBase {
 
     public Command hold(double extra) {
         return runOnce(() -> {
+            this.state = State.HOLD_ALGAE;
             algaeMotorHoldRequest.Position = algaeMotor.getPosition().getValueAsDouble() + extra;
         });
     }
