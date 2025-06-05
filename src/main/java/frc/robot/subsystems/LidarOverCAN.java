@@ -7,6 +7,7 @@ import java.util.List;
 import edu.wpi.first.hal.CANStreamMessage;
 import edu.wpi.first.hal.can.CANJNI;
 import edu.wpi.first.hal.can.CANMessageNotFoundException;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class LidarOverCAN extends SubsystemBase {
@@ -74,11 +75,8 @@ public class LidarOverCAN extends SubsystemBase {
 
             if (isDataValid[row]) {
                 double angle = OLSLineFit.compute(lidarData[row]);
-                for (int j = 0; j < lidarData[row].length; j++) {
-                    System.out.print(lidarData[row][j] + " ");
-                }
-                System.out.print(" -> " + angle);
-                System.out.println();
+                SmartDashboard.putNumberArray("Row " + row, lidarData[row]);
+                SmartDashboard.putNumber("Row " + row + " Angle", angle);
             }
         }
     }
