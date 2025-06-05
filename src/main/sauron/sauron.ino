@@ -49,7 +49,7 @@ void sendRow(uint8_t row) {
   
   // For each column in the row, retrieve the sensor value.
   // The sensor data is stored in a 1D array (64 elements),
-  // with row data starting at index (row * imageWidth).
+  // with row data starting at index (row * imageWidth)
   for (uint8_t col = 0; col < imageWidth; col++) {
     int index = row * imageWidth + col;
     int16_t value = filter_distance_mm(measurementData.distance_mm[index], measurementData.target_status[index]);
@@ -67,7 +67,6 @@ void sendRow(uint8_t row) {
   Serial.print(row);
   Serial.print(": ");
   for (uint8_t col = 0; col < 8; col++) {
-      int index = row * imageWidth + col;
       Serial.print((msg.buf[col] << 2) + 1);
       Serial.print(" ");
     }
@@ -94,9 +93,9 @@ Target status Description
 255 No target detected (only if number of target detected is enabled)
 */
 int16_t filter_distance_mm(int16_t distance_mm, int target_status) {
-  if (target_status != 5 && target_status != 9 && target_status != 6 && target_status != 10 && target_status != 13) {
-    return 0;
-  }
+  // if (target_status != 5 && target_status != 9 && target_status != 6 && target_status != 10 && target_status != 13) {
+  //   return 0;
+  // }
   
   // if (distance_mm < 30) {
   //   return 0;
