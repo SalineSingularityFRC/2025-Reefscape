@@ -180,12 +180,11 @@ public class RobotContainer {
         // thirdController.a().whileTrue(algaeSubsystem.moveToAlgaeShoot());
         // thirdController.b().whileTrue(algaeSubsystem.manualIntake());
 
-        driverController.leftBumper().whileTrue(algaeSubsystem.shoot());
-        driverController.leftBumper().onFalse(algaeSubsystem.algaeMode());
-        driverController.rightTrigger().whileTrue(algaeSubsystem.hold());
-        driverController.leftTrigger().whileTrue(algaeSubsystem.grab());
-        driverController.leftTrigger().onFalse(algaeSubsystem.hold());
-        driverController.rightBumper().whileTrue(algaeSubsystem.algaeMode());
+        driverController.rightTrigger().whileTrue(algaeSubsystem.shoot());
+
+        driverController.leftTrigger().whileTrue(algaeSubsystem.intake());
+        
+        driverController.leftBumper().whileTrue(algaeSubsystem.setNeutralState());
     }
 
     /**
@@ -242,14 +241,16 @@ public class RobotContainer {
         NamedCommands.registerCommand("Shoot Coral", coralSubsystem.shootCoral().alongWith(buildCoralAssistCommand()));
         NamedCommands.registerCommand("Wait For Coral", coralSubsystem.waitUntilCoral());
 
-        NamedCommands.registerCommand("Move Hinge Coral", algaeSubsystem.moveToCoralScorePose());
-        NamedCommands.registerCommand("Move Hinge Zero", algaeSubsystem.moveToZero());
-        NamedCommands.registerCommand("Move To Algae Intake", algaeSubsystem.moveToIntakePos());
-        NamedCommands.registerCommand("Move Hinge Barge", algaeSubsystem.moveToAlgaeShoot());
+        NamedCommands.registerCommand("Move Hinge Coral", algaeSubsystem.setCoralKickState());
+        NamedCommands.registerCommand("Move Hinge Zero", algaeSubsystem.setNeutralState());
+        NamedCommands.registerCommand("Move Hinge Barge", algaeSubsystem.setShootPoseState());
         NamedCommands.registerCommand("Auto Barge Score", buildBargeScoringRoutine());
 
+        // Bad bc not a state
+        NamedCommands.registerCommand("Move To Algae Intake", new InstantCommand());
+
         NamedCommands.registerCommand("Intake Algae", algaeSubsystem.intake());
-        NamedCommands.registerCommand("Shoot ALgae", algaeSubsystem.shootAlgae());
+        NamedCommands.registerCommand("Shoot Algae", algaeSubsystem.setShootAlgaeState());
 
         NamedCommands.registerCommand("RumbleCommantStart", new RumbleCommandStart(driverController));
         NamedCommands.registerCommand("RumbleCommantStop", new RumbleCommandStop(driverController));
@@ -322,9 +323,12 @@ public class RobotContainer {
 
             // If algae, then add commands onto base
             if (generalPose.getNavTarget() == NavigationTarget.ALGAE) {
-                base = base.alongWith(algaeSubsystem.intake()).andThen(new WaitCommand(0.5))
-                        .andThen((swerveSubsystem.backAwayFromReef(generalPose).andThen(swerveSubsystem.endDrive()))
-                                .alongWith(buildAlgaeIntakeRoutine()));
+                base = base.alongWith(algaeSubsystem.intake())
+                            .andThen(new WaitCommand(0.5))
+                            .andThen(
+                                (swerveSubsystem.backAwayFromReef(generalPose).andThen(swerveSubsystem.endDrive()))
+                                .alongWith(algaeSubsystem.afterIntakeAutoSequence())
+                            );
             }
 
             return base;
@@ -344,7 +348,7 @@ public class RobotContainer {
                         swerveSubsystem.driveCloseToBarge()
                                 .andThen(swerveSubsystem.stopDriving())
                                 .andThen(swerveSubsystem.updateRotationPIDSetpointCommand()),
-                        algaeSubsystem.moveToAlgaeShoot(),
+                        algaeSubsystem.setShootPoseState(),
                         elevatorSubsystem.moveToTargetPosition(Setpoint.kLevel2)),
                 // 2) Ramp elevator to L4, pause, then actually drive to barge
                 elevatorSubsystem.moveToTargetPosition(Setpoint.kLevel4),
@@ -354,17 +358,7 @@ public class RobotContainer {
                         .andThen(swerveSubsystem.updateRotationPIDSetpointCommand()),
                 new WaitCommand(Constants.Algae.BARGE_SHOOT_WAIT.getValue()),
                 // 3) Finally shoot algae
-                algaeSubsystem.shootAlgae());
-    }
-
-    /**
-     * Builds the algae intake routine: intake, wait, move to barge scoring pose.
-     */
-    private Command buildAlgaeIntakeRoutine() {
-        return Commands.sequence(
-                algaeSubsystem.intake(),
-                new WaitCommand(1.0),
-                algaeSubsystem.moveToAlgaeShoot());
+                algaeSubsystem.setShootAlgaeState());
     }
 
     /**
@@ -375,7 +369,7 @@ public class RobotContainer {
                 // if elevator at L4, run a deadline group to raise & intake
                 new ParallelDeadlineGroup(
                         elevatorSubsystem.moveL4RaisedSlow(Setpoint.kLevel4Raised),
-                        algaeSubsystem.moveToCoralScorePose().andThen(algaeSubsystem.runMotorsToIntake())),
+                        algaeSubsystem.setCoralKickState()),
                 // else do nothing
                 new InstantCommand(),
                 elevatorSubsystem::isElevatorAtL4);
