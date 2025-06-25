@@ -1,10 +1,7 @@
 package frc.robot.subsystems;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -13,56 +10,40 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
-import com.pathplanner.lib.path.PathConstraints;
-import com.pathplanner.lib.util.DriveFeedforwards;
 import com.pathplanner.lib.util.FlippingUtil;
-import com.pathplanner.lib.pathfinding.Pathfinding;
-import com.pathplanner.lib.pathfinding.Pathfinder;
-
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.numbers.N1;
-import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.math.Matrix;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
-import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.DeferredCommand;
-import edu.wpi.first.wpilibj2.command.FunctionalCommand;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import lib.pose.GeneralPose;
 import lib.pose.ScoreConfig.TargetState;
-import lib.pose.ScoreConfig.FacetSide;
-import lib.pose.ScoreConfig.TargetObject;
+import lib.pose.ScoreConfig.NavigationTarget;
 import lib.vision.Limelight;
 import lib.vision.RealSenseCamera;
 import frc.robot.SwerveClasses.SwerveModule;
 import frc.robot.SwerveClasses.SwerveOdometry;
-import frc.robot.commands.CameraDriveToPose;
-import frc.robot.commands.CameraDriveToPose.PoseAndTarget;
-import frc.robot.commands.DriveToBargePose;
-import frc.robot.commands.DriveToPose;
+import frc.robot.commands.driving.CameraDriveToPose;
+import frc.robot.commands.driving.DriveToPose2d;
+import frc.robot.commands.driving.FollowPath;
+import frc.robot.commands.driving.CameraDriveToPose.PoseAndTarget;
 
 /*
  * This class provides functions to drive at a given angle and direction,
@@ -280,12 +261,31 @@ public class SwerveSubsystem extends SubsystemBase {
     pidgeonAngularVelocityZLog = new DoubleLogEntry(log, "Pidgeon Angular Velocity Z");
     pidgeonTimeLog = new DoubleLogEntry(log, "Pidgeon Time");
 
+    initializeDriveCommands();
+
+  }
+
+  /*
+   * In the future, to reduce latency, refactor all the drive commands to not be
+   * deferred.
+   */
+  public void initializeDriveCommands() {
+
   }
 
   public Supplier<Pose2d> supplier_position = () -> {
     return odometry.getEstimatedPosition();
   };
 
+  /**
+   * Method for driving via controller
+   * 
+   * @param rotation
+   * @param x
+   * @param y
+   * @param fieldCentric
+   * @param mulitplier
+   */
   public void drive(
       double rotation,
       double x,
@@ -412,7 +412,7 @@ public class SwerveSubsystem extends SubsystemBase {
       }
     }
 
-    // SmartDashboard.putBoolean("Heading Issue/Is Blue", BlueAlliance);
+    SmartDashboard.putBoolean("Swerve/Is Blue", BlueAlliance);
 
     publisher.set(odometry.getEstimatedPosition());
 
@@ -443,7 +443,7 @@ public class SwerveSubsystem extends SubsystemBase {
     return states;
   }
 
-  /*
+  /**
    * This function returns the angle (in radians) of the robot based on the value
    * from the pidgeon 2.0
    */
@@ -451,7 +451,9 @@ public class SwerveSubsystem extends SubsystemBase {
     return gyro.getRotation2d().plus(Rotation2d.fromDegrees(180.0)).getRadians() - gyroZero;
   }
 
-  // Accounts for where foward is for swerve pos estimation (red/blue alliance)
+  /**
+   * Accounts for where foward is for swerve pos estimation (red/blue alliance)
+   */
   public Rotation2d getRobotRotation2dForOdometry() {
     if (BlueAlliance) {
       return new Rotation2d(getRobotAngle());
@@ -460,7 +462,7 @@ public class SwerveSubsystem extends SubsystemBase {
     }
   }
 
-  /*
+  /**
    * Returns algular speed of robot
    */
   public double getAngularChassisSpeed() {
@@ -500,6 +502,9 @@ public class SwerveSubsystem extends SubsystemBase {
     swerveModules[BL].stopDriving();
   }
 
+  /**
+   * Stops all swerve modules from moving
+   */
   public Command stopDriving() {
     return runOnce(
         () -> {
@@ -507,7 +512,13 @@ public class SwerveSubsystem extends SubsystemBase {
         });
   }
 
-  /*
+  public Command endDrive() {
+    return Commands.sequence(
+        stopDriving(),
+        updateRotationPIDSetpointCommand());
+  }
+
+  /**
    * Resets gryo for field centric driving
    */
   public void resetGyro() {
@@ -548,7 +559,7 @@ public class SwerveSubsystem extends SubsystemBase {
     return swerveModules[0].isCoast();
   }
 
-  /*
+  /**
    * Filters to closest pose and the state corresponding to that pose
    */
   public GeneralPose filterClosestState(TargetState targetState) {
@@ -560,14 +571,14 @@ public class SwerveSubsystem extends SubsystemBase {
     // Filter to wanted poses to compare
     filteredPoses = Constants.Poses.generalPoses.stream()
         .filter(
-            (p) -> p.getTargetState().getSide() == targetState.getSide() &&
-                p.getTargetState().getObject() == targetState.getObject())
+            (p) -> p.getSide() == targetState.getSide() &&
+                p.getNavTarget() == targetState.getNavTarget())
         .toList();
 
     // Closest Pose2d to current position based on filteredPoses
     closestPose = getClosestPose2d(filteredPoses);
 
-    if(closestPose == null) {
+    if (closestPose == null) {
       return null;
     }
 
@@ -591,7 +602,9 @@ public class SwerveSubsystem extends SubsystemBase {
     return targetGeneralPose;
   }
 
-  // Returns the closest Pose2d in the list
+  /**
+   * Returns the closest Pose2d in the list from current robot pose
+   */
   public Pose2d getClosestPose2d(List<GeneralPose> filteredPoses) {
     List<Pose2d> poses = filteredPoses.stream().map((rp) -> {
       return rp.getPose2d();
@@ -609,7 +622,9 @@ public class SwerveSubsystem extends SubsystemBase {
     return nearest;
   }
 
-  // Returns position on field (flipped if red alliance)
+  /**
+   * Returns position on field (flipped if red alliance)
+   */
   public Pose2d getFieldAdjustedPose2d(Pose2d pose) {
     return BlueAlliance ? pose : FlippingUtil.flipFieldPose(pose);
   }
@@ -620,25 +635,38 @@ public class SwerveSubsystem extends SubsystemBase {
    * @param poseSupplier supplies the target pose at command initialization & each
    *                     execution
    */
-  public Command driveToPose(Supplier<Pose2d> poseSupplier) {
-    // Directly return your path‐following command,
+  public Command driveToPose2d(Supplier<Pose2d> poseSupplier, NavigationTarget targetObject) {
+    // Directly return your path-following command,
     // letting DriveToPose itself handle following the trajectory.
-    return new DriveToPose(this, supplier_position, poseSupplier);
+    return new DriveToPose2d(this, supplier_position, poseSupplier, targetObject);
   }
 
   /**
-   * Convenience overload for a fixed, precomputed pose.
+   * Convenience overload for deferring command creation to runtime
    */
-  public Command driveToPose(Pose2d fixedPose) {
+  public Command driveToGeneralPose(GeneralPose generalPose) {
+
+    // Follow a pathplanner path based on chosen ending point if intaking algae
+    if (generalPose.getNavTarget() == NavigationTarget.ALGAE) {
+      return executePathPlannerPath(generalPose);
+    }
     // Wrap the static pose in a supplier.
-    return driveToPose(() -> fixedPose);
+    return driveToPose2d(() -> generalPose.getPose2d(), generalPose.getNavTarget());
   }
 
   /**
-   * Not implemented for now
+   * Returns the chosen pathplanner path to execute
+   * TODO: Make this non deferred since this is implicetly deferring the command.
    */
-  public Command backAwayFromReef() {
-    return new InstantCommand();
+  public Command executePathPlannerPath(GeneralPose generalPose) {
+    return new FollowPath(() -> generalPose, this);
+  }
+
+  /**
+   * Backing away from the reef after intaking algae
+   */
+  public Command backAwayFromReef(GeneralPose generalPose) {
+    return new FollowPath(() -> generalPose.withTargetState(TargetState.ALGAE_BACK_AWAY), this);
   }
 
   /*
@@ -696,44 +724,39 @@ public class SwerveSubsystem extends SubsystemBase {
     }, Set.of(this));
   }
 
-  /*
+  /**
    * Drives to barge shoot point. (RobotX, RobotY) -> (BargePoseX, RobotY)
    */
-  public Command driveToBargePose() {
+  public Command driveToBarge() {
     return new DeferredCommand(() -> {
-
       if (BlueAlliance) {
-        return new DriveToBargePose(this, supplier_position,
+        return driveToPose2d(
             () -> new Pose2d(Constants.Poses.bargeXBlue, supplier_position.get().getTranslation().getY(),
-                new Rotation2d(0)));
-      } else {
-        // Flipping bargeXBlue to red side (for 2025 field only)
-        return new DriveToBargePose(this, supplier_position,
-            () -> new Pose2d(Units.feetToMeters(57.573) - Constants.Poses.bargeXBlue,
-                supplier_position.get().getTranslation().getY(),
-                new Rotation2d(Math.PI)));
+                new Rotation2d(0)),
+            NavigationTarget.BARGE);
       }
-
+      // Flipping bargeXBlue to red side (for 2025 field only)
+      return driveToPose2d(() -> new Pose2d(Units.feetToMeters(57.573) - Constants.Poses.bargeXBlue,
+          supplier_position.get().getTranslation().getY(),
+          new Rotation2d(Math.PI)), NavigationTarget.BARGE);
     }, Set.of(this));
   }
 
-  /*
+  /**
    * Drives close to barge shoot point. (RobotX, RobotY) -> (BargePoseX, RobotY)
    */
-  public Command driveCloseToBargePose() {
+  public Command driveCloseToBarge() {
     return new DeferredCommand(() -> {
-
       if (BlueAlliance) {
-        return new DriveToPose(this, supplier_position,
+        return driveToPose2d(
             () -> new Pose2d(Constants.Poses.bargeXFarBlue, supplier_position.get().getTranslation().getY(),
-                new Rotation2d(0)));
-      } else {
-        // Flipping bargeXFarBlue to red side (for 2025 field only)
-        return new DriveToPose(this, supplier_position,
-            () -> new Pose2d(Units.feetToMeters(57.573) - Constants.Poses.bargeXFarBlue,
-                supplier_position.get().getTranslation().getY(), new Rotation2d(Math.PI)));
+                new Rotation2d(0)),
+            NavigationTarget.CLOSE_TO_BARGE);
       }
-
+      // Flipping bargeXFarBlue to red side (for 2025 field only)
+      return driveToPose2d(() -> new Pose2d(Units.feetToMeters(57.573) - Constants.Poses.bargeXFarBlue,
+          supplier_position.get().getTranslation().getY(), new Rotation2d(Math.PI)),
+          NavigationTarget.CLOSE_TO_BARGE);
     }, Set.of(this));
   }
 }

@@ -14,10 +14,7 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.RobotBase;
-import frc.robot.subsystems.ElevatorSubsystem.Setpoint;
 import lib.pose.GeneralPose;
-import lib.pose.ScoreConfig.FacetSide;
-import lib.pose.ScoreConfig.TargetObject;
 import lib.pose.ScoreConfig.TargetState;
 
 /*
@@ -49,7 +46,7 @@ public final class Constants {
       public static final int ALGAE_LASER = 52;
     }
 
-    public static final class Processor {
+    public static final class Conveyor {
       public static final int INTAKE_MOTOR = 62;
     }
 
@@ -189,13 +186,6 @@ public final class Constants {
       public static final PID rotation = new PID(3, 0, 0);
     }
 
-    public static final class Limelight {
-      public static final PID DRIVE_CONTROLLER = new PID(0.0025, 0, 0);
-      public static final PID TURN_CONTROLLER = new PID(0.01, 0, 0);
-      public static final PID SCORE_DRIVE_CONTROLLER = new PID(0.0056, 0, 0);
-
-    }
-
     public static final class SwerveModule {
       // On test carpet
       public static final PID DRIVE_PID_CONTROLLER = new PID(5.3, 0, 0.053, 3.5);
@@ -332,7 +322,12 @@ public final class Constants {
         new GeneralPose("L", new Pose2d(3.731, 5.014, new Rotation2d(Math.toRadians(300.0))), TargetState.CORAL_RIGHT),
 
         // Algae poses
-        new GeneralPose("AB", new Pose2d(3.20, 4.028, new Rotation2d(Math.toRadians(0))), TargetState.ALGAE_LOWER),
+        new GeneralPose("AB", new Pose2d(3.20, 4.028, new Rotation2d(Math.toRadians(0))), TargetState.ALGAE_UPPER),
+        new GeneralPose("CD", new Pose2d(3.846, 2.917, new Rotation2d(Math.toRadians(60.0))), TargetState.ALGAE_LOWER),
+        new GeneralPose("EF", new Pose2d(5.130, 2.909, new Rotation2d(Math.toRadians(120.0))), TargetState.ALGAE_UPPER),
+        new GeneralPose("GH", new Pose2d(5.750, 4.027, new Rotation2d(Math.toRadians(180.0))), TargetState.ALGAE_LOWER),
+        new GeneralPose("IJ", new Pose2d(5.104, 5.092, new Rotation2d(Math.toRadians(240.0))), TargetState.ALGAE_UPPER),
+        new GeneralPose("KL", new Pose2d(3.828, 5.178, new Rotation2d(Math.toRadians(300.0))), TargetState.ALGAE_LOWER),
 
         // Coral source poses
         new GeneralPose("Left Source", new Pose2d(1.395, 7.387, new Rotation2d(Math.toRadians(306.0))),
@@ -349,12 +344,6 @@ public final class Constants {
     public static ConfigDouble PWM_VALUE = new ConfigDouble("LED/PWM_VALUE", 0.15);
   }
 
-  public static class Climber {
-    public static ConfigDouble WINCH_SPEED = new ConfigDouble("Climber/WINCH_SPEED", .5);
-    public static final ConfigDouble ENCODER_MAX_POS = new ConfigDouble("Climber/ENCODER_MAX_POS", 100);
-    public static final ConfigDouble ENCODER_MIN_POS = new ConfigDouble("Climber/ENCODER_MIN_POS", -100);
-  }
-
   public static class Trough {
     public static ConfigDouble TROUGH_SPEED = new ConfigDouble("Trough/TROUGH_SPEED", .05);
     public static final ConfigDouble ENCODER_MAX_POS = new ConfigDouble("Trough/ENCODER_MAX_POS", 1.0);
@@ -366,12 +355,15 @@ public final class Constants {
   }
 
   public static class Drive {
+
+    // Rotational correction while driving with controller
     public static ConfigDouble ROTATION_CORRECTION_KP = new ConfigDouble("Drive/PID/Rotation Correction kP", 0.085);
     public static ConfigDouble ROTATION_CORRECTION_KI = new ConfigDouble("Drive/PID/Rotation Correction kI", 0.0);
     public static ConfigDouble ROTATION_CORRECTION_KD = new ConfigDouble("Drive/PID/Rotation Correction kD", 0.0);
 
     public static ConfigInt PID_DRIVE_TUNING = new ConfigInt("Drive/PID/Tuning Enabled", 0);
 
+    // Auto Drive to __ PID contants.
     public static ConfigDouble PID_DRIVE_ROTATION_KP = new ConfigDouble("Drive/PID/Rotation kP", 0.1);
     public static ConfigDouble PID_DRIVE_ROTATION_KI = new ConfigDouble("Drive/PID/Rotation kI", 0);
     public static ConfigDouble PID_DRIVE_ROTATION_KD = new ConfigDouble("Drive/PID/Rotation kD", 0);
@@ -392,6 +384,25 @@ public final class Constants {
     public static ConfigDouble PID_DRIVE_MAX_DRIVE_X_SPEED = new ConfigDouble("Drive/PID/Max Drive X", 2);
     public static ConfigDouble PID_DRIVE_MAX_DRIVE_Y_SPEED = new ConfigDouble("Drive/PID/Max Drive Y", 2);
 
+    // For algae intaking (not used)
+    public static ConfigDouble PID_DRIVE_MAX_DRIVE_ALGAE_X_SPEED = new ConfigDouble("Drive/PID/Max Drive Algae X", 1.5);
+    public static ConfigDouble PID_DRIVE_MAX_DRIVE_ALGAE_Y_SPEED = new ConfigDouble("Drive/PID/Max Drive Algae Y", 1.5);
+
+    // For pathfinding constraints for algae
+    public static class PathFinding {
+      public static ConfigDouble maxVelocityMPS = new ConfigDouble("Drive/PathConstraints/maxVelocityMPS",
+          1.5);
+      public static ConfigDouble maxAccelerationMPSSq = new ConfigDouble("Drive/PathConstraints/maxAccelerationMPSSq",
+          1.0);
+      public static ConfigDouble maxAngularVelocityDegPerSec = new ConfigDouble(
+          "Drive/PathConstraints/maxAngularVelocityDegPerSec",
+          360.0);
+      public static ConfigDouble maxAngularAccelerationDegPerSecSq = new ConfigDouble(
+          "Drive/PathConstraints/maxAngularAccelerationDegPerSecSq",
+          360.0);
+    }
+
+    // Real sense camera
     public static ConfigDouble L4_PID_DRIVE_POSE_TOLERANCE = new ConfigDouble("L4PIDDrive/Drive Pose Tolerance", 0.1);
     public static ConfigDouble L4_PID_DRIVE_STABLE_COUNT_THRESHOLD = new ConfigDouble(
         "L4PIDDrive/Stable Count Threshold", 8);
@@ -438,15 +449,14 @@ public final class Constants {
     public static ConfigDouble BARGE_L4_WAIT = new ConfigDouble("Algae/Auto Barge/Wait time after L4 Raise", 1.0);
     public static ConfigDouble BARGE_SHOOT_WAIT = new ConfigDouble("Algae/Auto Barge/Wait time after driving to barge",
         0.5);
-
+    public static ConfigDouble ALGAE_INTAKE_ROUTINE_WAIT = new ConfigDouble("Algae/Algae Intake Routine Wait", 1.0);
   }
 
-  public static class Processor {
-    public static ConfigDouble intakeSpeed = new ConfigDouble("Processor/intakeSpeed", 30);
-    public static ConfigDouble spitSpeed = new ConfigDouble("Processor/spitSpeed", -30);
-    public static ConfigDouble kP = new ConfigDouble("Processor/kP", 1);
+  public static class Elevator {
+    public static ConfigInt FOLLOW_DUALENABLE = new ConfigInt("Elevator/DUALENABLE", 0);
 
     public static class MotorStuff {
+      public static ConfigDouble kP = new ConfigDouble("Elevator/Primary Motor/kP", 1); // Due to kP changing name from "Processor/kP" to "Elevator/Primary Motor/kP", not sure if set value was different from default value
       public static ConfigDouble MIN_POWER = new ConfigDouble("Elevator/Primary Motor/Min Power", -1);
       public static ConfigDouble MAX_POWER = new ConfigDouble("Elevator/Primary Motor/Max Power", 1);
 
@@ -460,11 +470,6 @@ public final class Constants {
       public static ConfigDouble MAX_CONTROL_ERROR_IN_COUNTS = new ConfigDouble(
           "Elevator/Primary Motor/Control Error Tolerance", 0.25);
     }
-  }
-
-  public static class Elevator {
-
-    public static ConfigInt FOLLOW_DUALENABLE = new ConfigInt("Elevator/DUALENABLE", 0);
 
     public static class Heights {
 

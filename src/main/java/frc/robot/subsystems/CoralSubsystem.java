@@ -6,7 +6,6 @@ import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.spark.ClosedLoopSlot;
-import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkClosedLoopController;
@@ -23,7 +22,6 @@ import au.grapplerobotics.LaserCan;
 import au.grapplerobotics.interfaces.LaserCanInterface.Measurement;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.Intake;
@@ -50,21 +48,21 @@ public class CoralSubsystem extends SubsystemBase {
         intakeSensor = new LaserCan(Constants.CanId.Intake.INTAKE_LASER);
         shooterSensor = new LaserCan(Constants.CanId.Intake.SHOOTER_LASER);
 
-        conveyorMotor = new SparkFlex(Constants.CanId.Processor.INTAKE_MOTOR, MotorType.kBrushless);
+        conveyorMotor = new SparkFlex(Constants.CanId.Conveyor.INTAKE_MOTOR, MotorType.kBrushless);
         motorConfig.idleMode(IdleMode.kBrake)
                 // .smartCurrentLimit(Constants.Processor.MotorStuff.MAX_CURRENT_IN_A.getValue());
-                .voltageCompensation(Constants.Processor.MotorStuff.VOLTAGE_COMPENSATION_IN_V.getValue());
+                .voltageCompensation(Constants.Elevator.MotorStuff.VOLTAGE_COMPENSATION_IN_V.getValue());
         motorConfig.closedLoop
                 .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
                 // Set PID values for position control
-                .pidf(Constants.Processor.kP.getValue(), 0,
+                .pidf(Constants.Elevator.MotorStuff.kP.getValue(), 0,
                         0, 0, ClosedLoopSlot.kSlot0)
-                .outputRange(Constants.Processor.MotorStuff.MIN_POWER.getValue(),
-                        Constants.Processor.MotorStuff.MAX_POWER.getValue()).maxMotion
+                .outputRange(Constants.Elevator.MotorStuff.MIN_POWER.getValue(),
+                        Constants.Elevator.MotorStuff.MAX_POWER.getValue()).maxMotion
                 // Set MAXMotion parameters for position control
-                .maxVelocity(Constants.Processor.MotorStuff.MAX_VELOCITY_RPM.getValue())
-                .maxAcceleration(Constants.Processor.MotorStuff.MAX_ACCEL_RPM_PER_S.getValue())
-                .allowedClosedLoopError(Constants.Processor.MotorStuff.MAX_CONTROL_ERROR_IN_COUNTS.getValue());
+                .maxVelocity(Constants.Elevator.MotorStuff.MAX_VELOCITY_RPM.getValue())
+                .maxAcceleration(Constants.Elevator.MotorStuff.MAX_ACCEL_RPM_PER_S.getValue())
+                .allowedClosedLoopError(Constants.Elevator.MotorStuff.MAX_CONTROL_ERROR_IN_COUNTS.getValue());
         
         conveyorClosedLoopController = conveyorMotor.getClosedLoopController();
 
