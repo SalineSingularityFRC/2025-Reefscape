@@ -28,6 +28,7 @@ import lib.vision.RealSenseCamera;
 import frc.robot.commands.RumbleCommandStart;
 import frc.robot.commands.RumbleCommandStop;
 import frc.robot.commands.controller.ButtonDriveController;
+import frc.robot.commands.controller.CustomOperatorController;
 import frc.robot.commands.controller.DriveController;
 import frc.robot.subsystems.AlgaeSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
@@ -39,7 +40,7 @@ import frc.robot.subsystems.SwerveSubsystem;
 public class RobotContainer {
     private SwerveSubsystem swerveSubsystem;
     private CommandXboxController driverController;
-    private CommandXboxController operatorController;
+    private CustomOperatorController operatorController;
     private CommandXboxController thirdController;
     private SendableChooser<Command> autoChooser;
     private CoralSubsystem coralSubsystem;
@@ -68,7 +69,7 @@ public class RobotContainer {
 
         // Controller initialization
         driverController = new CommandXboxController(Constants.Gamepad.Controller.DRIVE);
-        operatorController = new CommandXboxController(Constants.Gamepad.Controller.BUTTON);
+        operatorController = new CustomOperatorController(Constants.Gamepad.Controller.BUTTON);
         thirdController = new CommandXboxController(Constants.Gamepad.Controller.THIRD);
 
         // Controller binding configurations
@@ -103,21 +104,21 @@ public class RobotContainer {
         driverController.povUp().whileTrue(buildAutoRoutine(TargetState.ALGAE_BUTTON));
 
         // Auto barge score
-        operatorController.a().whileTrue(buildBargeScoringRoutine());
+        operatorController.bargeScoring().whileTrue(buildBargeScoringRoutine());
 
         // PID + elevator to nearest coral pose left
-        operatorController.rightBumper().whileTrue(buildAutoRoutine(TargetState.L2_LEFT));
-        operatorController.back().whileTrue(buildAutoRoutine(TargetState.L3_LEFT));
-        operatorController.start().whileTrue(buildAutoRoutine(TargetState.L4_LEFT));
+        operatorController.L2_Left().whileTrue(buildAutoRoutine(TargetState.L2_LEFT));
+        operatorController.L3_Left().whileTrue(buildAutoRoutine(TargetState.L3_LEFT));
+        operatorController.L4_Left().whileTrue(buildAutoRoutine(TargetState.L4_LEFT));
 
         // PID to nearest coral pose left
-        operatorController.b().whileTrue(buildAutoRoutine(TargetState.L2_RIGHT));
-        operatorController.x().whileTrue(buildAutoRoutine(TargetState.L3_RIGHT));
-        operatorController.y().whileTrue(buildAutoRoutine(TargetState.L4_RIGHT));
+        operatorController.L2_Right().whileTrue(buildAutoRoutine(TargetState.L2_RIGHT));
+        operatorController.L3_Right().whileTrue(buildAutoRoutine(TargetState.L3_RIGHT));
+        operatorController.L4_Right().whileTrue(buildAutoRoutine(TargetState.L4_RIGHT));
 
         // PID to coral source
-        operatorController.button(11).whileTrue(buildAutoRoutine(TargetState.LEFT_SOURCE));
-        operatorController.button(12).whileTrue(buildAutoRoutine(TargetState.RIGHT_SOURCE));
+        operatorController.leftSource().whileTrue(buildAutoRoutine(TargetState.LEFT_SOURCE));
+        operatorController.rightSource().whileTrue(buildAutoRoutine(TargetState.RIGHT_SOURCE));
     }
 
     /**
@@ -132,13 +133,13 @@ public class RobotContainer {
         driverController.y().onTrue(elevatorSubsystem.moveToTargetPosition(Setpoint.kLevel4).withName("kLevel4"));
 
         // Elevator to feeder station after scoring on reef
-        operatorController.leftBumper()
+        operatorController.feederStation()
                 .onTrue(elevatorSubsystem.moveToTargetPosition(Setpoint.kFeederStation).withName("kFeederStation"));
 
         // Manual elevator movement
-        operatorController.axisGreaterThan(1, 0.1).whileTrue(elevatorSubsystem.runMotors(true)
+        operatorController.elevatorManualUp().whileTrue(elevatorSubsystem.runMotors(true)
                 .withName("runMotorsReverseTrue"));
-        operatorController.axisLessThan(1, -0.1).whileTrue(elevatorSubsystem.runMotors(false)
+        operatorController.elevatorManualDown().whileTrue(elevatorSubsystem.runMotors(false)
                 .withName("runMotorsReverseFalse"));
     }
 
@@ -147,8 +148,8 @@ public class RobotContainer {
      */
     private void configureCoralBindings() {
         // Main coral controls
-        operatorController.rightStick().whileTrue(coralSubsystem.intakeCoral().withName("intakeCoral"));
-        operatorController.leftStick()
+        operatorController.intakeCoral().whileTrue(coralSubsystem.intakeCoral().withName("intakeCoral"));
+        operatorController.shootCoral()
                 .whileTrue(coralSubsystem.shootCoral().withName("shootCoral").alongWith(buildCoralAssistCommand()));
         thirdController.y().whileTrue(coralSubsystem.shootL1Coral());
 
@@ -169,7 +170,7 @@ public class RobotContainer {
         driverController.povDown().whileTrue(algaeSubsystem.moveToAlgaeShoot());
 
         // After releasing shoot button, hinge goes to zero position
-        operatorController.leftStick().whileFalse(algaeSubsystem.moveToZero());
+        operatorController.shootCoral().whileFalse(algaeSubsystem.moveToZero());
 
         // Redudent algae controls
         thirdController.povUp().whileTrue(algaeSubsystem.manualControlForward());
@@ -200,7 +201,7 @@ public class RobotContainer {
         driverController.rightBumper().onTrue(swerveSubsystem.resetGyroCommand());
 
         // Fine adjustments for coral scoring
-        operatorController.axisGreaterThan(0, 0.1).whileTrue(
+        operatorController.fineAdjustLeft().whileTrue(
                 new ButtonDriveController(swerveSubsystem, () -> {
                     return 0.0;
                 }, () -> {
@@ -209,7 +210,7 @@ public class RobotContainer {
                     return 1.0;
                 },
                         0.2));
-        operatorController.axisLessThan(0, -0.1).whileTrue(
+        operatorController.fineAdjustRight().whileTrue(
                 new ButtonDriveController(swerveSubsystem, () -> {
                     return 0;
                 }, () -> {
@@ -315,9 +316,11 @@ public class RobotContainer {
 
             // If algae, then add commands onto base
             if (generalPose.getNavTarget() == NavigationTarget.ALGAE) {
-                base = base.alongWith(algaeSubsystem.intake()).andThen(new WaitCommand(0.5))
-                        .andThen((swerveSubsystem.backAwayFromReef(generalPose).andThen(swerveSubsystem.endDrive()))
-                                .alongWith(buildAlgaeIntakeRoutine()));
+                base = base.alongWith(algaeSubsystem.intake())
+                    .andThen(new WaitCommand(0.5))
+                    .andThen((swerveSubsystem.backAwayFromReef(generalPose)
+                    .andThen(swerveSubsystem.endDrive()))
+                    .alongWith(buildAlgaeIntakeRoutine()));
             }
 
             return base;
@@ -356,7 +359,7 @@ public class RobotContainer {
     private Command buildAlgaeIntakeRoutine() {
         return Commands.sequence(
                 algaeSubsystem.intake(),
-                new WaitCommand(1.0),
+                new WaitCommand(Constants.Algae.ALGAE_INTAKE_ROUTINE_WAIT.getValue()),
                 algaeSubsystem.moveToAlgaeShoot());
     }
 

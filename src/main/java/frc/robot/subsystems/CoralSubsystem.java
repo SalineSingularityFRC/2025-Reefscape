@@ -48,21 +48,21 @@ public class CoralSubsystem extends SubsystemBase {
         intakeSensor = new LaserCan(Constants.CanId.Intake.INTAKE_LASER);
         shooterSensor = new LaserCan(Constants.CanId.Intake.SHOOTER_LASER);
 
-        conveyorMotor = new SparkFlex(Constants.CanId.Processor.INTAKE_MOTOR, MotorType.kBrushless);
+        conveyorMotor = new SparkFlex(Constants.CanId.Conveyor.INTAKE_MOTOR, MotorType.kBrushless);
         motorConfig.idleMode(IdleMode.kBrake)
                 // .smartCurrentLimit(Constants.Processor.MotorStuff.MAX_CURRENT_IN_A.getValue());
-                .voltageCompensation(Constants.Processor.MotorStuff.VOLTAGE_COMPENSATION_IN_V.getValue());
+                .voltageCompensation(Constants.Elevator.MotorStuff.VOLTAGE_COMPENSATION_IN_V.getValue());
         motorConfig.closedLoop
                 .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
                 // Set PID values for position control
-                .pidf(Constants.Processor.kP.getValue(), 0,
+                .pidf(Constants.Elevator.MotorStuff.kP.getValue(), 0,
                         0, 0, ClosedLoopSlot.kSlot0)
-                .outputRange(Constants.Processor.MotorStuff.MIN_POWER.getValue(),
-                        Constants.Processor.MotorStuff.MAX_POWER.getValue()).maxMotion
+                .outputRange(Constants.Elevator.MotorStuff.MIN_POWER.getValue(),
+                        Constants.Elevator.MotorStuff.MAX_POWER.getValue()).maxMotion
                 // Set MAXMotion parameters for position control
-                .maxVelocity(Constants.Processor.MotorStuff.MAX_VELOCITY_RPM.getValue())
-                .maxAcceleration(Constants.Processor.MotorStuff.MAX_ACCEL_RPM_PER_S.getValue())
-                .allowedClosedLoopError(Constants.Processor.MotorStuff.MAX_CONTROL_ERROR_IN_COUNTS.getValue());
+                .maxVelocity(Constants.Elevator.MotorStuff.MAX_VELOCITY_RPM.getValue())
+                .maxAcceleration(Constants.Elevator.MotorStuff.MAX_ACCEL_RPM_PER_S.getValue())
+                .allowedClosedLoopError(Constants.Elevator.MotorStuff.MAX_CONTROL_ERROR_IN_COUNTS.getValue());
         
         conveyorClosedLoopController = conveyorMotor.getClosedLoopController();
 

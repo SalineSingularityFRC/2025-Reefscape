@@ -279,6 +279,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
   /**
    * Method for driving via controller
+   * 
    * @param rotation
    * @param x
    * @param y
@@ -513,9 +514,8 @@ public class SwerveSubsystem extends SubsystemBase {
 
   public Command endDrive() {
     return Commands.sequence(
-      stopDriving(),
-      updateRotationPIDSetpointCommand()
-      );
+        stopDriving(),
+        updateRotationPIDSetpointCommand());
   }
 
   /**
@@ -734,12 +734,11 @@ public class SwerveSubsystem extends SubsystemBase {
             () -> new Pose2d(Constants.Poses.bargeXBlue, supplier_position.get().getTranslation().getY(),
                 new Rotation2d(0)),
             NavigationTarget.BARGE);
-      } else {
-        // Flipping bargeXBlue to red side (for 2025 field only)
-        return driveToPose2d(() -> new Pose2d(Units.feetToMeters(57.573) - Constants.Poses.bargeXBlue,
-            supplier_position.get().getTranslation().getY(),
-            new Rotation2d(Math.PI)), NavigationTarget.BARGE);
       }
+      // Flipping bargeXBlue to red side (for 2025 field only)
+      return driveToPose2d(() -> new Pose2d(Units.feetToMeters(57.573) - Constants.Poses.bargeXBlue,
+          supplier_position.get().getTranslation().getY(),
+          new Rotation2d(Math.PI)), NavigationTarget.BARGE);
     }, Set.of(this));
   }
 
@@ -753,12 +752,11 @@ public class SwerveSubsystem extends SubsystemBase {
             () -> new Pose2d(Constants.Poses.bargeXFarBlue, supplier_position.get().getTranslation().getY(),
                 new Rotation2d(0)),
             NavigationTarget.CLOSE_TO_BARGE);
-      } else {
-        // Flipping bargeXFarBlue to red side (for 2025 field only)
-        return driveToPose2d(() -> new Pose2d(Units.feetToMeters(57.573) - Constants.Poses.bargeXFarBlue,
-            supplier_position.get().getTranslation().getY(), new Rotation2d(Math.PI)),
-            NavigationTarget.CLOSE_TO_BARGE);
       }
+      // Flipping bargeXFarBlue to red side (for 2025 field only)
+      return driveToPose2d(() -> new Pose2d(Units.feetToMeters(57.573) - Constants.Poses.bargeXFarBlue,
+          supplier_position.get().getTranslation().getY(), new Rotation2d(Math.PI)),
+          NavigationTarget.CLOSE_TO_BARGE);
     }, Set.of(this));
   }
 }

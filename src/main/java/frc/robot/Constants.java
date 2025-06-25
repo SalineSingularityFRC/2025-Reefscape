@@ -46,7 +46,7 @@ public final class Constants {
       public static final int ALGAE_LASER = 52;
     }
 
-    public static final class Processor {
+    public static final class Conveyor {
       public static final int INTAKE_MOTOR = 62;
     }
 
@@ -344,13 +344,6 @@ public final class Constants {
     public static ConfigDouble PWM_VALUE = new ConfigDouble("LED/PWM_VALUE", 0.15);
   }
 
-  // Not used
-  public static class Climber {
-    public static ConfigDouble WINCH_SPEED = new ConfigDouble("Climber/WINCH_SPEED", .5);
-    public static final ConfigDouble ENCODER_MAX_POS = new ConfigDouble("Climber/ENCODER_MAX_POS", 100);
-    public static final ConfigDouble ENCODER_MIN_POS = new ConfigDouble("Climber/ENCODER_MIN_POS", -100);
-  }
-
   public static class Trough {
     public static ConfigDouble TROUGH_SPEED = new ConfigDouble("Trough/TROUGH_SPEED", .05);
     public static final ConfigDouble ENCODER_MAX_POS = new ConfigDouble("Trough/ENCODER_MAX_POS", 1.0);
@@ -456,16 +449,14 @@ public final class Constants {
     public static ConfigDouble BARGE_L4_WAIT = new ConfigDouble("Algae/Auto Barge/Wait time after L4 Raise", 1.0);
     public static ConfigDouble BARGE_SHOOT_WAIT = new ConfigDouble("Algae/Auto Barge/Wait time after driving to barge",
         0.5);
-
+    public static ConfigDouble ALGAE_INTAKE_ROUTINE_WAIT = new ConfigDouble("Algae/Algae Intake Routine Wait", 1.0);
   }
 
-  // Not used
-  public static class Processor {
-    public static ConfigDouble intakeSpeed = new ConfigDouble("Processor/intakeSpeed", 30);
-    public static ConfigDouble spitSpeed = new ConfigDouble("Processor/spitSpeed", -30);
-    public static ConfigDouble kP = new ConfigDouble("Processor/kP", 1);
+  public static class Elevator {
+    public static ConfigInt FOLLOW_DUALENABLE = new ConfigInt("Elevator/DUALENABLE", 0);
 
     public static class MotorStuff {
+      public static ConfigDouble kP = new ConfigDouble("Elevator/Primary Motor/kP", 1); // Due to kP changing name from "Processor/kP" to "Elevator/Primary Motor/kP", not sure if set value was different from default value
       public static ConfigDouble MIN_POWER = new ConfigDouble("Elevator/Primary Motor/Min Power", -1);
       public static ConfigDouble MAX_POWER = new ConfigDouble("Elevator/Primary Motor/Max Power", 1);
 
@@ -479,11 +470,6 @@ public final class Constants {
       public static ConfigDouble MAX_CONTROL_ERROR_IN_COUNTS = new ConfigDouble(
           "Elevator/Primary Motor/Control Error Tolerance", 0.25);
     }
-  }
-
-  public static class Elevator {
-
-    public static ConfigInt FOLLOW_DUALENABLE = new ConfigInt("Elevator/DUALENABLE", 0);
 
     public static class Heights {
 

@@ -96,12 +96,6 @@ public class DriveToPose2d extends Command {
         Pose2d targetPose = this.targetPose.get();
 
         double errorR = targetPose.getRotation().getRadians() - currentPose.getRotation().getRadians();
-        // errorR = ((errorR + Math.PI) % (2*Math.PI)) - Math.PI;
-        // if (errorR > Math.PI) {
-        // errorR =- 2 * Math.PI;
-        // } else if( errorR < - Math.PI) {
-        // errorR =+ 2* Math.PI;
-        // }
 
         SmartDashboard.putNumber("Tuning/Error", errorR);
 
