@@ -1,5 +1,7 @@
 package frc.robot.SwerveClasses;
 
+import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
@@ -11,6 +13,8 @@ import com.ctre.phoenix6.signals.*;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import com.ctre.phoenix6.hardware.CANcoder;
@@ -34,6 +38,11 @@ public class SwerveModule {
   private TalonFX driveMotor;
   private MotorOutputConfigs motorOutputConfigs = new MotorOutputConfigs();
   private VelocityTorqueCurrentFOC velocityTarget;
+  private BaseStatusSignal[] m_signals;
+  private StatusSignal<Angle> m_drivePosition;
+  private StatusSignal<AngularVelocity> m_driveVelocity;
+  private StatusSignal<Angle> m_steerPosition;
+  private StatusSignal<AngularVelocity> m_steerVelocity;
 
 
   private final PID drive_controller_gains = Constants.PidGains.SwerveModule.DRIVE_PID_CONTROLLER;
@@ -90,8 +99,20 @@ public class SwerveModule {
     absolutePositionEncoderOffset = zeroPosition;
     this.resetZeroAngle();
 
-    c_encoder.getAbsolutePosition().setUpdateFrequency(100);
-    driveMotor.getPosition().setUpdateFrequency(100);
+    // c_encoder.getAbsolutePosition().setUpdateFrequency(100);
+    // driveMotor.getPosition().setUpdateFrequency(100);
+
+    
+    m_drivePosition = driveMotor.getPosition();
+    m_driveVelocity = driveMotor.getVelocity();
+    m_steerPosition = c_encoder.getPosition();
+    m_steerVelocity = c_encoder.getVelocity();
+
+    m_signals = new BaseStatusSignal[4];
+    m_signals[0] = m_drivePosition;
+    m_signals[1] = m_driveVelocity;
+    m_signals[2] = m_steerPosition;
+    m_signals[3] = m_steerVelocity;
 
     // For drive PIDs
     velocityTarget = new VelocityTorqueCurrentFOC(0).withSlot(0).withFeedForward(0);
@@ -200,4 +221,8 @@ public class SwerveModule {
   public void stopDriving() {
       driveMotor.stopMotor();
   }
+
+  BaseStatusSignal[] getSignals() {
+    return m_signals;
+}
 }

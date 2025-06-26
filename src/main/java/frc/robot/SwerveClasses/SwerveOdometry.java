@@ -1,10 +1,14 @@
 package frc.robot.SwerveClasses;
 
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.units.AngleUnit;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.*;
 import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -12,6 +16,8 @@ import frc.robot.Constants;
 import lib.vision.Limelight;
 import lib.vision.LimelightHelpers;
 import frc.robot.subsystems.SwerveSubsystem;
+import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.Utils;
 
 public class SwerveOdometry {
   SwerveDrivePoseEstimator poseEstimator;
@@ -25,14 +31,14 @@ public class SwerveOdometry {
 
   private final SwerveDriveKinematics swerveKinematics;
 
-  private SwerveSubsystem subsystem;
+  private SwerveSubsystem swerveSubsystem;
   private SwerveModulePosition[] currentSwerveModulePositions = new SwerveModulePosition[4];
 
   private DataLog log;
 
-  public SwerveOdometry(SwerveSubsystem subsystem, SwerveDriveKinematics kinematics, Limelight leftLL,
+  public SwerveOdometry(SwerveSubsystem swerveSubsystem, SwerveDriveKinematics kinematics, Limelight leftLL,
       Limelight rightLL) {
-    this.subsystem = subsystem;
+    this.swerveSubsystem = swerveSubsystem;
     this.leftLL = leftLL;
     this.rightLL = rightLL;
     leftLLPoseEstimate = leftLL.getBotPoseEstimate();
@@ -46,29 +52,29 @@ public class SwerveOdometry {
     swerveKinematics = kinematics;
 
     for (int i = 0; i < 4; i++) {
-        currentSwerveModulePositions[i] = new SwerveModulePosition(
-            subsystem.getSwerveModule(i).getPosition(),
-            new Rotation2d(subsystem.getSwerveModule(i).getEncoderPosition()));
+      currentSwerveModulePositions[i] = new SwerveModulePosition(
+          swerveSubsystem.getSwerveModule(i).getPosition(),
+          new Rotation2d(swerveSubsystem.getSwerveModule(i).getEncoderPosition()));
     }
     poseEstimator = new SwerveDrivePoseEstimator(
         swerveKinematics,
-        subsystem.getRobotRotation2dForOdometry(),
+        swerveSubsystem.getRobotRotation2dForOdometry(),
         currentSwerveModulePositions,
-        new Pose2d(0, 0, subsystem.getRobotRotation2dForOdometry()));
+        new Pose2d(0, 0, swerveSubsystem.getRobotRotation2dForOdometry()));
   }
 
   private void updateSwerveModulePositions() {
     for (int i = 0; i < 4; i++) {
-        SwerveModule module = subsystem.getSwerveModule(i);
-        this.currentSwerveModulePositions[i].distanceMeters = module.getPosition();
-        this.currentSwerveModulePositions[i].angle = new Rotation2d(module.getEncoderPosition());
+      SwerveModule module = swerveSubsystem.getSwerveModule(i);
+      this.currentSwerveModulePositions[i].distanceMeters = module.getPosition();
+      this.currentSwerveModulePositions[i].angle = new Rotation2d(module.getEncoderPosition());
     }
   }
 
   public void update() {
     updateSwerveModulePositions();
     poseEstimator.update(
-        subsystem.getRobotRotation2dForOdometry(),
+        swerveSubsystem.getRobotRotation2dForOdometry(),
         currentSwerveModulePositions);
 
     addLLVisionMeasurement();
@@ -120,7 +126,7 @@ public class SwerveOdometry {
 
     // if our angular velocity is greater than 360 degrees per second, ignore vision
     // updates. 360 is the default value in docs
-    if (Math.abs(subsystem.getAngularChassisSpeed()) > Constants.Vision.kMaxRotationRate.getValue()) {
+    if (Math.abs(swerveSubsystem.getAngularChassisSpeed()) > Constants.Vision.kMaxRotationRate.getValue()) {
       doRejectLeftLLUpdate = true;
       doRejectRightLLUpdate = true;
     }
@@ -165,20 +171,85 @@ public class SwerveOdometry {
   public void resetPosition() {
     updateSwerveModulePositions();
     poseEstimator.resetPosition(
-        subsystem.getRobotRotation2dForOdometry(),
+        swerveSubsystem.getRobotRotation2dForOdometry(),
         currentSwerveModulePositions,
-        new Pose2d(0, 0, subsystem.getRobotRotation2dForOdometry()));
+        new Pose2d(0, 0, swerveSubsystem.getRobotRotation2dForOdometry()));
   }
 
   public void setPosition(Pose2d pos) {
 
     SmartDashboard.putNumber("Pathplanner Angle", pos.getRotation().getRadians());
-    SmartDashboard.putNumber("Setting Angle", subsystem.getRobotRotation2dForOdometry().getRadians());
+    SmartDashboard.putNumber("Setting Angle", swerveSubsystem.getRobotRotation2dForOdometry().getRadians());
 
     updateSwerveModulePositions();
     poseEstimator.resetPosition(
-        subsystem.getRobotRotation2dForOdometry(),
+        swerveSubsystem.getRobotRotation2dForOdometry(),
         currentSwerveModulePositions,
         pos);
+  }
+
+  private class OdometryThread extends Thread {
+    private BaseStatusSignal[] m_allSignals;
+    public int SuccessfulDaqs = 0;
+    public int FailedDaqs = 0;
+
+    private LinearFilter lowpass = LinearFilter.movingAverage(50);
+    private double lastTime = 0;
+    private double currentTime = 0;
+    private double averageLoopTime = 0;
+    private double ModuleCount = 4;
+
+    public OdometryThread() {
+      super();
+      // 4 signals for each module + 2 for Pigeon2
+      m_allSignals = new BaseStatusSignal[(int) ((ModuleCount * 4) + 2)];
+      for (int i = 0; i < ModuleCount; ++i) {
+        var signals = swerveSubsystem.getSwerveModule(i).getSignals();
+        m_allSignals[(i * 4) + 0] = signals[0];
+        m_allSignals[(i * 4) + 1] = signals[1];
+        m_allSignals[(i * 4) + 2] = signals[2];
+        m_allSignals[(i * 4) + 3] = signals[3];
+      }
+      m_allSignals[m_allSignals.length - 2] = swerveSubsystem.getGyro().getYaw();
+      m_allSignals[m_allSignals.length - 1] = swerveSubsystem.getGyro().getAngularVelocityZWorld();
+    }
+    public void run() {
+      /* Make sure all signals update at around 250hz */
+      for (var sig : m_allSignals) {
+          sig.setUpdateFrequency(250);
+      }
+      /* Run as fast as possible, our signals will control the timing */
+      while (true) {
+          /* Synchronously wait for all signals in drivetrain */
+          var status = BaseStatusSignal.waitForAll(0.1, m_allSignals);
+          lastTime = currentTime;
+          currentTime = Utils.getCurrentTimeSeconds();
+          averageLoopTime = lowpass.calculate(currentTime - lastTime);
+
+          /* Get status of the waitForAll */
+          if (status.isOK()) {
+              SuccessfulDaqs++;
+          } else {
+              FailedDaqs++;
+          }
+
+          /* Now update odometry */
+          for (int i = 0; i < ModuleCount; ++i) {
+              /* No need to refresh since it's automatically refreshed from the waitForAll() */
+              m_modulePositions[i] = m_modules[i].getPosition(false);
+          }
+          // Assume Pigeon2 is flat-and-level so latency compensation can be performed
+          Measure<AngleUnit> yawDegrees =
+                  BaseStatusSignal.getLatencyCompensatedValue(
+                          swerveSubsystem.getGyro().getYaw(), swerveSubsystem.getGyro().getAngularVelocityZWorld());
+          double yawDegreesDouble = yawDegrees.in(Units.Degrees);
+
+          
+
+
+          m_odometry.update(Rotation2d.fromDegrees(yawDegrees), m_modulePositions);
+          m_field.setRobotPose(m_odometry.getPoseMeters());
+      }
+  }
   }
 }

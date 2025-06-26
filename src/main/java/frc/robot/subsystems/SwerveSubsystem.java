@@ -462,6 +462,14 @@ public class SwerveSubsystem extends SubsystemBase {
     }
   }
 
+  public Rotation2d getRobotRotation2dForOdometry(double r) {
+    if (BlueAlliance) {
+      return new Rotation2d(getRobotAngle());
+    } else {
+      return new Rotation2d(getRobotAngle() + Math.PI);
+    }
+  }
+
   /**
    * Returns algular speed of robot
    */
@@ -523,6 +531,9 @@ public class SwerveSubsystem extends SubsystemBase {
    */
   public void resetGyro() {
     gyroZero = gyro.getRotation2d().plus(Rotation2d.fromDegrees(180.0)).getRadians();
+  }
+  public Pigeon2 getGyro() {
+    return gyro;
   }
 
   public SwerveModule getSwerveModule(int module) {
