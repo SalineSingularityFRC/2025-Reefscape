@@ -51,12 +51,6 @@
                 "data": {
                   "name": "Shoot Coral"
                 }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Move Hinge Coral"
-                }
               }
             ]
           }
@@ -204,12 +198,6 @@
                 "data": {
                   "name": "Shoot Coral"
                 }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Move Hinge Coral"
-                }
               }
             ]
           }
@@ -337,12 +325,6 @@
                 "type": "named",
                 "data": {
                   "name": "Shoot Coral"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Move Hinge Coral"
                 }
               }
             ]

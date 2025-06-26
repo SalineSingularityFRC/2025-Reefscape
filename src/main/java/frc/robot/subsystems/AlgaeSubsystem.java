@@ -36,7 +36,7 @@ public class AlgaeSubsystem extends SubsystemBase {
     private static final int LASER_CAN_NO_MEASUREMENT = -1;
     private CANcoder canCoder;
     private boolean manual = false;
-    State state;
+    private State state;
 
     public AlgaeSubsystem() {
         armRotatorMotor = new TalonFX(Constants.CanId.Algae.MAIN_MOTOR);
@@ -127,7 +127,7 @@ public class AlgaeSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("AlgaeHinge/TargetPositionForZero", armRotatorMotorZeroRequest.Position);
         SmartDashboard.putNumber("AlgaeHinge/ActualPosition", armRotatorMotor.getPosition().getValueAsDouble());
 
-        switch (state){
+        switch (this.state){
             case SHOOT_ALGAE:
                 armRotatorMotorRequest.Position = Constants.Algae.SHOOT_POS.getValue();
                 armRotatorMotor.setControl(armRotatorMotorRequest);

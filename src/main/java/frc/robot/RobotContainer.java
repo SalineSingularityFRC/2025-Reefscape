@@ -239,6 +239,7 @@ public class RobotContainer {
 
         NamedCommands.registerCommand("Intake Coral", coralSubsystem.intakeCoral());
         NamedCommands.registerCommand("Shoot Coral", coralSubsystem.shootCoral().alongWith(buildCoralAssistCommand()));
+        // NamedCommands.registerCommand("Shoot Coral", buildCoralAssistCommand());
         NamedCommands.registerCommand("Wait For Coral", coralSubsystem.waitUntilCoral());
 
         NamedCommands.registerCommand("Move Hinge Coral", algaeSubsystem.setCoralKickState());
@@ -266,13 +267,15 @@ public class RobotContainer {
         final boolean filterCompetitionAutos = true;
 
         // Build an auto chooser. This will use Commands.none() as the default option.
-        // This will only show autos to select from that start with "Kick" and "Center"
+        // This will only show autos to select from that start with "Right", "Left", and "Choreo"
         SendableChooser<Command> chooser = AutoBuilder.buildAutoChooserWithOptionsModifier(
                 (stream) -> filterCompetitionAutos
                         ? stream.filter(
                                 auto -> (auto.getName().startsWith("Right") || auto.getName().startsWith("Left")
                                         || auto.getName().startsWith("Choreo")))
                         : stream);
+        // SendableChooser<Command> chooser = AutoBuilder.buildAutoChooserWithOptionsModifier(
+        //         (stream) -> stream);
         return chooser;
     }
 
@@ -365,11 +368,18 @@ public class RobotContainer {
      * Builds a conditional coral assist command when elevator is at L4.
      */
     private Command buildCoralAssistCommand() {
+        Command moveL4RaisedSlow = elevatorSubsystem.moveL4RaisedSlow(Setpoint.kLevel4Raised);
+        Command setCoralKickState = algaeSubsystem.setCoralKickState();
+
+        System.out.println(moveL4RaisedSlow.getRequirements());
+        System.out.println(setCoralKickState.getRequirements());
+
         return new ConditionalCommand(
                 // if elevator at L4, run a deadline group to raise & intake
                 new ParallelDeadlineGroup(
-                        elevatorSubsystem.moveL4RaisedSlow(Setpoint.kLevel4Raised),
-                        algaeSubsystem.setCoralKickState()),
+                        moveL4RaisedSlow,
+                        setCoralKickState
+                ).andThen(algaeSubsystem.setNeutralState()),
                 // else do nothing
                 new InstantCommand(),
                 elevatorSubsystem::isElevatorAtL4);
