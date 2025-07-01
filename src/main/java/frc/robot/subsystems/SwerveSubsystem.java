@@ -462,14 +462,6 @@ public class SwerveSubsystem extends SubsystemBase {
     }
   }
 
-  public Rotation2d getRobotRotation2dForOdometry(double r) {
-    if (BlueAlliance) {
-      return new Rotation2d(getRobotAngle());
-    } else {
-      return new Rotation2d(getRobotAngle() + Math.PI);
-    }
-  }
-
   /**
    * Returns algular speed of robot
    */

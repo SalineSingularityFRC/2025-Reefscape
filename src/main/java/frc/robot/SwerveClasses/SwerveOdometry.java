@@ -6,8 +6,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
-import edu.wpi.first.units.AngleUnit;
-import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.*;
 import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.wpilibj.DataLogManager;
@@ -28,6 +26,8 @@ public class SwerveOdometry {
   private boolean doRejectRightLLUpdate;
   private LimelightHelpers.PoseEstimate leftLLPoseEstimate;
   private LimelightHelpers.PoseEstimate rightLLPoseEstimate;
+
+  private double currentAngle;
 
   private final SwerveDriveKinematics swerveKinematics;
 
@@ -188,6 +188,7 @@ public class SwerveOdometry {
         pos);
   }
 
+  // Write we why are doing this.
   private class OdometryThread extends Thread {
     private BaseStatusSignal[] m_allSignals;
     public int SuccessfulDaqs = 0;
@@ -242,14 +243,18 @@ public class SwerveOdometry {
           Measure<AngleUnit> yawDegrees =
                   BaseStatusSignal.getLatencyCompensatedValue(
                           swerveSubsystem.getGyro().getYaw(), swerveSubsystem.getGyro().getAngularVelocityZWorld());
-          double yawDegreesDouble = yawDegrees.in(Units.Degrees);
+          double yawDegreesRadians = yawDegrees.in(Units.Radians);
 
-          
+          updateCurrentAngle(yawDegreesRadians);
 
 
           m_odometry.update(Rotation2d.fromDegrees(yawDegrees), m_modulePositions);
           m_field.setRobotPose(m_odometry.getPoseMeters());
       }
-  }
+    }
+
+    public void updateCurrentAngle(double yawDegreesRadians) {
+      currentAngle = yawDegreesRadians.plus(Rotation2d.fromDegrees(180.0)).getRadians() - gyroZero;
+    }
   }
 }
