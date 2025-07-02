@@ -69,7 +69,8 @@ public class SwerveSubsystem extends SubsystemBase {
 
   private final SwerveDriveKinematics swerveDriveKinematics;
   private ChassisSpeeds chassisSpeeds;
-  private double gyroZero = 0;
+  public static double gyroZero = 0;
+
 
   private PIDController rotationController;
   // private SimpleMotorFeedforward feedforwardRotation;
@@ -424,7 +425,7 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   public void updateOdometry() {
-    odometry.update();
+    SwerveOdometry.OdometryThread.run();
   }
 
   public void setModuleStates(SwerveModuleState[] desiredStates) {

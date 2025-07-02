@@ -12,14 +12,19 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.*;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.units.AngleUnit;
+import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
+import edu.wpi.first.math.util.Units;
 import com.ctre.phoenix6.hardware.CANcoder;
 import frc.robot.Constants;
 import frc.robot.PID;
+import java.lang.Math;
+
 
 /*
  * This class owns the components of a single swerve module and is responsible for controlling
@@ -43,6 +48,8 @@ public class SwerveModule {
   private StatusSignal<AngularVelocity> m_driveVelocity;
   private StatusSignal<Angle> m_steerPosition;
   private StatusSignal<AngularVelocity> m_steerVelocity;
+  private SwerveModulePosition m_internalState = new SwerveModulePosition();
+  private double m_driveRotationsPerMeter;
 
 
   private final PID drive_controller_gains = Constants.PidGains.SwerveModule.DRIVE_PID_CONTROLLER;
@@ -113,6 +120,14 @@ public class SwerveModule {
     m_signals[1] = m_driveVelocity;
     m_signals[2] = m_steerPosition;
     m_signals[3] = m_steerVelocity;
+    
+    /* 
+    * Calculate the ratio of drive motor rotation to meter on ground 
+    */
+
+    double rotationsPerWheelRotation = Constants.SwerveModule.GearRatio.DRIVE;
+    double metersPerWheelRotation = 2 * Math.PI * Units.inchesToMeters(Constants.Measurement.WHEELRADIUS);
+    m_driveRotationsPerMeter = rotationsPerWheelRotation / metersPerWheelRotation;
 
     // For drive PIDs
     velocityTarget = new VelocityTorqueCurrentFOC(0).withSlot(0).withFeedForward(0);
@@ -126,6 +141,34 @@ public class SwerveModule {
 
     driveMotor.getConfigurator().apply(slot0Configs);
   }
+  public SwerveModulePosition getPosition(boolean refresh) {
+    if (refresh) {
+        /* Refresh all signals */
+        m_drivePosition.refresh();
+        m_driveVelocity.refresh();
+        m_steerPosition.refresh();
+        m_steerVelocity.refresh();
+    }
+
+    /* Now latency-compensate our signals */
+    Measure<AngleUnit> drive_rot =
+        BaseStatusSignal.getLatencyCompensatedValue(m_drivePosition, m_driveVelocity);
+    Measure<AngleUnit> angle_rot =
+        BaseStatusSignal.getLatencyCompensatedValue(m_steerPosition, m_steerVelocity);
+    
+    /*
+    Convert signals into radians so we can use them
+    */    
+    double drive_rot_radians = drive_rot.in(edu.wpi.first.units.Units.Radians);
+    double angle_rot_radians = angle_rot.in(edu.wpi.first.units.Units.Radians);
+
+    /* And push them into a SwerveModuleState object to return */
+    m_internalState.distanceMeters = drive_rot_radians / m_driveRotationsPerMeter;
+    /* Angle is already in terms of steer rotations */
+    m_internalState.angle = Rotation2d.fromRotations(angle_rot_radians);
+
+    return m_internalState;
+}
 
   public SwerveModuleState getState(){
 
@@ -211,12 +254,11 @@ public class SwerveModule {
 
   // Conversion to get in meters/sec to rotations/sec and accounting for motor rotating
   // the gear
+
   public double toRotationsPerSecond(SwerveModuleState state) {
     return state.speedMetersPerSecond / ( 2 * Math.PI) / Constants.Measurement.WHEELRADIUS
         * Constants.SwerveModule.GearRatio.DRIVE;
   }
-
-  
 
   public void stopDriving() {
       driveMotor.stopMotor();
