@@ -40,6 +40,7 @@ import lib.vision.Limelight;
 import lib.vision.RealSenseCamera;
 import frc.robot.SwerveClasses.SwerveModule;
 import frc.robot.SwerveClasses.SwerveOdometry;
+import frc.robot.SwerveClasses.SwerveOdometry.OdometryThread;
 import frc.robot.commands.driving.CameraDriveToPose;
 import frc.robot.commands.driving.DriveToPose2d;
 import frc.robot.commands.driving.FollowPath;
@@ -65,9 +66,10 @@ public class SwerveSubsystem extends SubsystemBase {
 
   private SwerveModule[] swerveModules = new SwerveModule[4];
   private SwerveModulePosition[] swerveModulePositions = new SwerveModulePosition[4];
-  private final Translation2d[] vectorKinematics = new Translation2d[4];
-
+  private final Translation2d[] vectorKinematics = new Translation2d[4];  
   private final SwerveDriveKinematics swerveDriveKinematics;
+  SwerveOdometry m_odometry = new SwerveOdometry(null, null, null, null);
+  SwerveOdometry.OdometryThread m_odometryThread = m_odometry.new OdometryThread();
   private ChassisSpeeds chassisSpeeds;
   public static double gyroZero = 0;
 
@@ -133,6 +135,10 @@ public class SwerveSubsystem extends SubsystemBase {
         -Constants.Measurement.TRACK_WIDTH / 2);
 
     swerveDriveKinematics = new SwerveDriveKinematics(vectorKinematics);
+    /*
+     * Starts the Odometry Thread
+     */
+    m_odometryThread.start();
 
     chassisSpeeds = new ChassisSpeeds();
     swerveModules[FL] = new SwerveModule(
@@ -295,7 +301,7 @@ public class SwerveSubsystem extends SubsystemBase {
       double mulitplier) {
 
     double currentRobotAngle = gyro.getYaw().getValueAsDouble();
-    double currentRobotAngleRadians = getRobotAngle();
+    double currentRobotAngleRadians = OdometryThread.currentAngle;
 
     // this is to make sure if both the joysticks are at neutral position, the robot
     // and wheels
@@ -425,7 +431,7 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   public void updateOdometry() {
-    SwerveOdometry.OdometryThread.run();
+    m_odometryThread.run();
   }
 
   public void setModuleStates(SwerveModuleState[] desiredStates) {
@@ -445,37 +451,15 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   /**
-   * This function returns the angle (in radians) of the robot based on the value
-   * from the pidgeon 2.0
-   */
-  public double getRobotAngle() {
-    return gyro.getRotation2d().plus(Rotation2d.fromDegrees(180.0)).getRadians() - gyroZero;
-  }
-
-  /**
    * Accounts for where foward is for swerve pos estimation (red/blue alliance)
    */
-  public Rotation2d getRobotRotation2dForOdometry() {
-    if (BlueAlliance) {
-      return new Rotation2d(getRobotAngle());
-    } else {
-      return new Rotation2d(getRobotAngle() + Math.PI);
-    }
-  }
 
   /**
-   * Returns algular speed of robot
+   * Returns angular speed of robot
    */
-  public double getAngularChassisSpeed() {
-    return gyro.getAngularVelocityZWorld().getValueAsDouble();
-  }
 
-  public Command resetGyroCommand() {
-    return runOnce(
-        () -> {
-          resetGyro();
-        });
-  }
+ 
+
 
   public Command updateRotationPIDSetpointCommand() {
     return runOnce(
@@ -522,9 +506,7 @@ public class SwerveSubsystem extends SubsystemBase {
   /**
    * Resets gryo for field centric driving
    */
-  public void resetGyro() {
-    gyroZero = gyro.getRotation2d().plus(Rotation2d.fromDegrees(180.0)).getRadians();
-  }
+  
   public Pigeon2 getGyro() {
     return gyro;
   }

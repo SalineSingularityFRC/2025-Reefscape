@@ -112,7 +112,7 @@ public class SwerveModule {
     
     m_drivePosition = driveMotor.getPosition();
     m_driveVelocity = driveMotor.getVelocity();
-    m_steerPosition = c_encoder.getPosition();
+    m_steerPosition = c_encoder.getAbsolutePosition();
     m_steerVelocity = c_encoder.getVelocity();
 
     m_signals = new BaseStatusSignal[4];
