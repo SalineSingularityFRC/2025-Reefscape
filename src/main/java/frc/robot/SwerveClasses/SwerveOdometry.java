@@ -286,6 +286,9 @@ public class SwerveOdometry {
       currentAngle = yawDegreesRadians + Math.toRadians(180) - gyroZero;
     }
 
+    /**
+     * Accounts for where foward is for swerve pos estimation (red/blue alliance)
+     */
     public static Rotation2d getFieldCorrectedAngle() {
       if (swerveSubsystem.isBlueAlliance()) {
         return new Rotation2d(currentAngle);

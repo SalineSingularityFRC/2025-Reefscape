@@ -445,17 +445,6 @@ public class SwerveSubsystem extends SubsystemBase {
     return states;
   }
 
-  /**
-   * Accounts for where foward is for swerve pos estimation (red/blue alliance)
-   */
-
-  /**
-   * Returns angular speed of robot
-   */
-
- 
-
-
   public Command updateRotationPIDSetpointCommand() {
     return runOnce(
         () -> {
