@@ -68,8 +68,6 @@ public class SwerveSubsystem extends SubsystemBase {
   private SwerveModulePosition[] swerveModulePositions = new SwerveModulePosition[4];
   private final Translation2d[] vectorKinematics = new Translation2d[4];  
   private final SwerveDriveKinematics swerveDriveKinematics;
-  SwerveOdometry m_odometry = new SwerveOdometry(null, null, null, null);
-  SwerveOdometry.OdometryThread m_odometryThread = m_odometry.new OdometryThread();
   private ChassisSpeeds chassisSpeeds;
   public static double gyroZero = 0;
 
@@ -84,6 +82,8 @@ public class SwerveSubsystem extends SubsystemBase {
   private boolean isRotating;
 
   private SwerveOdometry odometry;
+  private SwerveOdometry.OdometryThread m_odometryThread;
+
 
   private StructPublisher<Pose2d> publisher;
 
@@ -135,10 +135,6 @@ public class SwerveSubsystem extends SubsystemBase {
         -Constants.Measurement.TRACK_WIDTH / 2);
 
     swerveDriveKinematics = new SwerveDriveKinematics(vectorKinematics);
-    /*
-     * Starts the Odometry Thread
-     */
-    m_odometryThread.start();
 
     chassisSpeeds = new ChassisSpeeds();
     swerveModules[FL] = new SwerveModule(
@@ -179,6 +175,8 @@ public class SwerveSubsystem extends SubsystemBase {
         "BR");
 
     odometry = new SwerveOdometry(this, swerveDriveKinematics, leftLL, rightLL);
+    m_odometryThread = odometry.new OdometryThread();
+    m_odometryThread.start();
     odometry.resetPosition();
 
     Supplier<ChassisSpeeds> supplier_chasis = () -> {
@@ -428,10 +426,7 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   public void disabledPeriodic() {
-  }
-
-  public void updateOdometry() {
-    m_odometryThread.run();
+    
   }
 
   public void setModuleStates(SwerveModuleState[] desiredStates) {

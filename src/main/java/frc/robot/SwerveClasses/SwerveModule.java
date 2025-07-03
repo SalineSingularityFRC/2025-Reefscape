@@ -141,6 +141,7 @@ public class SwerveModule {
 
     driveMotor.getConfigurator().apply(slot0Configs);
   }
+  
   public SwerveModulePosition getPosition(boolean refresh) {
     if (refresh) {
         /* Refresh all signals */
@@ -159,13 +160,13 @@ public class SwerveModule {
     /*
     Convert signals into radians so we can use them
     */    
-    double drive_rot_radians = drive_rot.in(edu.wpi.first.units.Units.Radians);
-    double angle_rot_radians = angle_rot.in(edu.wpi.first.units.Units.Radians);
+    double drive_rot_rotations = drive_rot.in(edu.wpi.first.units.Units.Rotations);
+    double angle_rot_rotations = angle_rot.in(edu.wpi.first.units.Units.Rotations);
 
     /* And push them into a SwerveModuleState object to return */
-    m_internalState.distanceMeters = drive_rot_radians / m_driveRotationsPerMeter;
+    m_internalState.distanceMeters = drive_rot_rotations / m_driveRotationsPerMeter;
     /* Angle is already in terms of steer rotations */
-    m_internalState.angle = Rotation2d.fromRotations(angle_rot_radians);
+    m_internalState.angle = Rotation2d.fromRotations(angle_rot_rotations);
 
     return m_internalState;
 }
