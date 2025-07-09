@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.networktables.StructPublisher;
 import frc.robot.Constants;
 import lib.vision.Limelight;
 import lib.vision.LimelightHelpers;
@@ -32,7 +33,11 @@ public class SwerveOdometry {
   private SwerveModule[] m_modules;
   private final SwerveDriveKinematics swerveKinematics;
   private static SwerveSubsystem swerveSubsystem;
+  private StructPublisher<Pose2d> publisher;
   private SwerveModulePosition[] m_modulePositions = new SwerveModulePosition[4];
+
+  publisher = swerveSubsystem.publisher;
+
 
   private DataLog log;
 
@@ -271,7 +276,7 @@ public class SwerveOdometry {
 
         addLLVisionMeasurement();
 
-        m_field.setRobotPose(m_odometry.getPoseMeters());
+        publisher.set(odometry.getEstimatedPosition()).setRobotPose(m_odometry.getPoseMeters());
       }
     }
 

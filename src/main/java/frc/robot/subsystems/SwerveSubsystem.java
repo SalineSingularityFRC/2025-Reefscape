@@ -76,7 +76,6 @@ public class SwerveSubsystem extends SubsystemBase {
   // private SimpleMotorFeedforward feedforwardRotation;
 
   private double pastRobotAngle;
-  private double currentRobotAngle;
   private double pastRobotAngleDerivative;
   private double currentRobotAngleDerivative;
   private boolean isRotating;
@@ -245,7 +244,6 @@ public class SwerveSubsystem extends SubsystemBase {
     // feedforwardRotation = new SimpleMotorFeedforward(0.05, 0);
 
     pastRobotAngle = 0;
-    currentRobotAngle = 0;
     pastRobotAngleDerivative = 0;
     currentRobotAngleDerivative = 0;
     isRotating = false;
@@ -298,7 +296,6 @@ public class SwerveSubsystem extends SubsystemBase {
       boolean fieldCentric,
       double mulitplier) {
 
-    double currentRobotAngle = gyro.getYaw().getValueAsDouble();
     double currentRobotAngleRadians = OdometryThread.currentAngle;
 
     // this is to make sure if both the joysticks are at neutral position, the robot
@@ -329,7 +326,7 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     // The following is for heading correction
-    currentRobotAngleDerivative = currentRobotAngle - pastRobotAngle;
+    currentRobotAngleDerivative = currentRobotAngleRadians - pastRobotAngle;
     if (currentRobotAngleDerivative == 0) {
       currentRobotAngleDerivative = pastRobotAngleDerivative;
     }
@@ -364,7 +361,7 @@ public class SwerveSubsystem extends SubsystemBase {
     SwerveModuleState[] modules = swerveDriveKinematics.toSwerveModuleStates(chassisSpeeds);
     setModuleStates(modules);
 
-    pastRobotAngle = currentRobotAngle;
+    pastRobotAngle = currentRobotAngleRadians;
     pastRobotAngleDerivative = currentRobotAngleDerivative;
   }
 
