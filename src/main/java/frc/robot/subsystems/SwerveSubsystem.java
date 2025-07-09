@@ -53,7 +53,6 @@ public class SwerveSubsystem extends SubsystemBase {
    * a dictionary that will house
    * all of our SwerveModules
    */
-  private Pigeon2 gyro;
 
   private final int FL = 0;
   private final int FR = 1;
@@ -65,7 +64,6 @@ public class SwerveSubsystem extends SubsystemBase {
   private final Translation2d[] vectorKinematics = new Translation2d[4];  
   private final SwerveDriveKinematics swerveDriveKinematics;
   private ChassisSpeeds chassisSpeeds;
-  public static double gyroZero = 0;
 
 
   private PIDController rotationController;
@@ -107,8 +105,6 @@ public class SwerveSubsystem extends SubsystemBase {
     log = DataLogManager.getLog();
 
     BlueAlliance = true;
-
-    gyro = new Pigeon2(Constants.CanId.CanCoder.GYRO, Constants.Canbus.DRIVE_TRAIN);
 
     vectorKinematics[FL] = new Translation2d(Constants.Measurement.WHEEL_BASE / 2,
         Constants.Measurement.TRACK_WIDTH / 2);
@@ -279,7 +275,7 @@ public class SwerveSubsystem extends SubsystemBase {
       boolean fieldCentric,
       double mulitplier) {
 
-    double currentRobotAngleRadians = m_odometry.getAngleDegrees();
+    double currentRobotAngleRadians = m_odometry.getAngle(false);
 
     // this is to make sure if both the joysticks are at neutral position, the robot
     // and wheels
@@ -320,13 +316,13 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     // For correcting angular position when not rotating manually
-    double gyroYaw = gyro.getYaw().getValueAsDouble();
+    double yaw = m_odometry.getAngle(true);
     if (Math.abs(rotation) > 0.08 * mulitplier || isRotating) {
       isRotating = true;
-      rotationController.setSetpoint(gyroYaw);
+      rotationController.setSetpoint(yaw);
       rotationController.reset();
     } else {
-      rotation = rotationController.calculate(gyroYaw);
+      rotation = rotationController.calculate(yaw);
     }
 
     // SmartDashboard.putNumber("Rotation Correction/Setpoint: Robot Angle",
@@ -349,7 +345,7 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   public void updateRotationPIDSetpoint() {
-    rotationController.setSetpoint(gyro.getYaw().getValueAsDouble());
+    rotationController.setSetpoint(m_odometry.getAngle(true));
     rotationController.reset();
   }
 
@@ -468,9 +464,6 @@ public class SwerveSubsystem extends SubsystemBase {
    * Resets gryo for field centric driving
    */
   
-  public Pigeon2 getGyro() {
-    return gyro;
-  }
 
   public SwerveModule getSwerveModule(int module) {
     return swerveModules[module];
@@ -504,6 +497,13 @@ public class SwerveSubsystem extends SubsystemBase {
 
   public boolean isCoast() {
     return swerveModules[0].isCoast();
+  }
+
+  public Command resetGyroCommand() {
+    return Commands.runOnce(
+        () -> {
+          m_odometry.resetGyro();
+        });
   }
 
   /**

@@ -377,10 +377,6 @@ public class RobotContainer {
                 elevatorSubsystem::isElevatorAtL4);
     }
 
-    /** Updates the robot's odometry each loop. */
-    protected void updateOdometry() {
-        this.swerveSubsystem.updateOdometry();
-    }
 
     /**
      * Updates the Real Sense Camera pipeline's robot centric reef pose estimation.
@@ -397,13 +393,6 @@ public class RobotContainer {
     // protected void updateCamData() {
     // this.cam.updateReefPose();
     // }
-
-    /**
-     * (NOT USED CURRENTLY) Zeroes the robot's yaw angle on the field.
-     */
-    protected void zeroRotation() {
-        this.swerveSubsystem.resetGyro();
-    }
 
     /** Refreshes the rotation PID setpoint after auto driving based on PID. */
     protected void updateRotationPIDSetpoint() {

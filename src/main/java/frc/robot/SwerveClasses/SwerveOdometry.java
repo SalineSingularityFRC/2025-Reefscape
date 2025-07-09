@@ -21,6 +21,7 @@ import lib.vision.LimelightHelpers;
 import frc.robot.subsystems.SwerveSubsystem;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.Utils;
+import com.ctre.phoenix6.hardware.Pigeon2;
 
 public class SwerveOdometry {
   SwerveDrivePoseEstimator poseEstimator;
@@ -31,11 +32,12 @@ public class SwerveOdometry {
   private boolean doRejectRightLLUpdate;
   private LimelightHelpers.PoseEstimate leftLLPoseEstimate;
   private LimelightHelpers.PoseEstimate rightLLPoseEstimate;
-  private static double gyroZero = SwerveSubsystem.gyroZero;
+  public double gyroZero;
   private SwerveModule[] m_modules;
   private final SwerveDriveKinematics swerveKinematics;
   private SwerveSubsystem swerveSubsystem;
   private SwerveModulePosition[] m_modulePositions = new SwerveModulePosition[4];
+  private Pigeon2 gyro;
 
   private OdometryThread m_odometryThread;
 
@@ -55,6 +57,9 @@ public class SwerveOdometry {
 
     m_odometryThread = new OdometryThread();
     m_odometryThread.start();
+
+    gyro = new Pigeon2(Constants.CanId.CanCoder.GYRO, Constants.Canbus.DRIVE_TRAIN);
+    gyroZero = 0;
 
     log = DataLogManager.getLog();
 
@@ -179,7 +184,7 @@ public class SwerveOdometry {
   }
 
   public double getAngularChassisSpeed() {
-    return swerveSubsystem.getGyro().getAngularVelocityZWorld().getValueAsDouble();
+    return gyro.getAngularVelocityZWorld().getValueAsDouble();
   }
 
   public void setPosition(Pose2d pos) {
@@ -194,21 +199,14 @@ public class SwerveOdometry {
   }
 
   public void resetGyro() {
-    gyroZero = swerveSubsystem.getGyro().getRotation2d().plus(Rotation2d.fromDegrees(180.0)).getRadians();
-  }
-
-  public Command resetGyroCommand() {
-    return Commands.runOnce(
-        () -> {
-          resetGyro();
-        });
+    gyroZero = gyro.getRotation2d().plus(Rotation2d.fromDegrees(180.0)).getRadians();
   }
 
   /*
    * Returns the current angle in degrees.
    */
-  public double getAngleDegrees() {
-    return m_odometryThread.getAngleDegrees();
+  public double getAngle(boolean isDegrees) {
+    return m_odometryThread.getAngle(isDegrees);
   }
 
   /*
@@ -237,8 +235,8 @@ public class SwerveOdometry {
         m_allSignals[(i * 4) + 2] = signals[2];
         m_allSignals[(i * 4) + 3] = signals[3];
       }
-      m_allSignals[m_allSignals.length - 2] = swerveSubsystem.getGyro().getYaw();
-      m_allSignals[m_allSignals.length - 1] = swerveSubsystem.getGyro().getAngularVelocityZWorld();
+      m_allSignals[m_allSignals.length - 2] = gyro.getYaw();
+      m_allSignals[m_allSignals.length - 1] = gyro.getAngularVelocityZWorld();
     }
 
     @Override
@@ -271,7 +269,7 @@ public class SwerveOdometry {
         }
         // Assume Pigeon2 is flat-and-level so latency compensation can be performed
         Measure<AngleUnit> yaw = BaseStatusSignal.getLatencyCompensatedValue(
-            swerveSubsystem.getGyro().getYaw(), swerveSubsystem.getGyro().getAngularVelocityZWorld());
+            gyro.getYaw(), gyro.getAngularVelocityZWorld());
         double yawRadians = yaw.in(Units.Radians);
 
         updateCurrentAngle(yawRadians);
@@ -304,8 +302,12 @@ public class SwerveOdometry {
      * Returns the current angle in degrees (have to do this way instead of
      * importing because import names conflict)
      */
-    public double getAngleDegrees() {
-      return edu.wpi.first.math.util.Units.radiansToDegrees(currentAngle);
+    public double getAngle(boolean isDegrees) {
+      if (isDegrees) {
+        return edu.wpi.first.math.util.Units.radiansToDegrees(currentAngle);
+      } else {
+        return currentAngle;
+      }
     }
 
     /**

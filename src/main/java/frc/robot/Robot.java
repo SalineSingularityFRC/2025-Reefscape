@@ -70,7 +70,6 @@ public class Robot extends LoggedRobot {
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
-    m_robotContainer.updateOdometry();
     // m_robotContainer.updateCamData();
     m_robotContainer.updateMatchTime();
     m_robotContainer.updateCamera();
@@ -90,8 +89,6 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void autonomousInit() {
-
-    m_robotContainer.updateOdometry();
 
     m_robotContainer.updateRotationPIDSetpoint();
 
@@ -113,8 +110,6 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void teleopInit() {
-
-    m_robotContainer.updateOdometry();
 
     m_robotContainer.updateRotationPIDSetpoint();
 
