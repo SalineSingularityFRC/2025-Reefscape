@@ -12,6 +12,8 @@ import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import frc.robot.Constants;
 import lib.vision.Limelight;
@@ -32,12 +34,14 @@ public class SwerveOdometry {
   private static double gyroZero = SwerveSubsystem.gyroZero;
   private SwerveModule[] m_modules;
   private final SwerveDriveKinematics swerveKinematics;
-  private static SwerveSubsystem swerveSubsystem;
-  private StructPublisher<Pose2d> publisher;
+  private SwerveSubsystem swerveSubsystem;
   private SwerveModulePosition[] m_modulePositions = new SwerveModulePosition[4];
 
-  publisher = swerveSubsystem.publisher;
+  private OdometryThread m_odometryThread;
 
+  private StructPublisher<Pose2d> publisher;
+  private NetworkTableInstance inst;
+  private NetworkTable table;
 
   private DataLog log;
 
@@ -49,31 +53,31 @@ public class SwerveOdometry {
     leftLLPoseEstimate = leftLL.getBotPoseEstimate();
     rightLLPoseEstimate = rightLL.getBotPoseEstimate();
 
+    m_odometryThread = new OdometryThread();
+    m_odometryThread.start();
+
     log = DataLogManager.getLog();
+
+    inst = NetworkTableInstance.getDefault();
+    table = inst.getTable("datatable");
+    publisher = table.getStructTopic("Final Odometry Position", Pose2d.struct).publish();
 
     doRejectLeftLLUpdate = false;
     doRejectRightLLUpdate = false;
 
     swerveKinematics = kinematics;
 
-    for (int i = 0; i < 4; i++) {
-      m_modulePositions[i] = new SwerveModulePosition(
-          swerveSubsystem.getSwerveModule(i).getPosition(),
-          new Rotation2d(swerveSubsystem.getSwerveModule(i).getEncoderPosition()));
-    }
+    // for (int i = 0; i < 4; i++) {
+    // m_modulePositions[i] = new SwerveModulePosition(
+    // swerveSubsystem.getSwerveModule(i).getPosition(),
+    // new Rotation2d(swerveSubsystem.getSwerveModule(i).getEncoderPosition()));
+    // }
+
     poseEstimator = new SwerveDrivePoseEstimator(
         swerveKinematics,
-        OdometryThread.getFieldCorrectedAngle(),
+        m_odometryThread.getFieldCorrectedAngle(),
         m_modulePositions,
-        new Pose2d(0, 0, OdometryThread.getFieldCorrectedAngle()));
-  }
-
-  private void updateSwerveModulePositions() {
-    for (int i = 0; i < 4; i++) {
-      SwerveModule module = swerveSubsystem.getSwerveModule(i);
-      this.m_modulePositions[i].distanceMeters = module.getPosition();
-      this.m_modulePositions[i].angle = new Rotation2d(module.getEncoderPosition());
-    }
+        new Pose2d(0, 0, m_odometryThread.getFieldCorrectedAngle()));
   }
 
   // public void update() {
@@ -168,11 +172,10 @@ public class SwerveOdometry {
   }
 
   public void resetPosition() {
-    updateSwerveModulePositions();
     poseEstimator.resetPosition(
-        OdometryThread.getFieldCorrectedAngle(),
+        m_odometryThread.getFieldCorrectedAngle(),
         m_modulePositions,
-        new Pose2d(0, 0, OdometryThread.getFieldCorrectedAngle()));
+        new Pose2d(0, 0, m_odometryThread.getFieldCorrectedAngle()));
   }
 
   public double getAngularChassisSpeed() {
@@ -182,11 +185,10 @@ public class SwerveOdometry {
   public void setPosition(Pose2d pos) {
 
     SmartDashboard.putNumber("Pathplanner Angle", pos.getRotation().getRadians());
-    SmartDashboard.putNumber("Setting Angle", OdometryThread.getFieldCorrectedAngle().getRadians());
+    SmartDashboard.putNumber("Setting Angle", m_odometryThread.getFieldCorrectedAngle().getRadians());
 
-    updateSwerveModulePositions();
     poseEstimator.resetPosition(
-        OdometryThread.getFieldCorrectedAngle(),
+        m_odometryThread.getFieldCorrectedAngle(),
         m_modulePositions,
         pos);
   }
@@ -203,6 +205,13 @@ public class SwerveOdometry {
   }
 
   /*
+   * Returns the current angle in degrees.
+   */
+  public double getAngleDegrees() {
+    return m_odometryThread.getAngleDegrees();
+  }
+
+  /*
    * Makes the signals updates much faster, increasing from 50hz to 250hz
    */
   public class OdometryThread extends Thread {
@@ -215,7 +224,7 @@ public class SwerveOdometry {
     private double currentTime = 0;
     private double averageLoopTime = 0;
     private double ModuleCount = 4;
-    public static double currentAngle;
+    private double currentAngle;
 
     public OdometryThread() {
       super();
@@ -261,22 +270,22 @@ public class SwerveOdometry {
           m_modulePositions[i] = m_modules[i].getPosition(false);
         }
         // Assume Pigeon2 is flat-and-level so latency compensation can be performed
-        Measure<AngleUnit> yawDegrees = BaseStatusSignal.getLatencyCompensatedValue(
+        Measure<AngleUnit> yaw = BaseStatusSignal.getLatencyCompensatedValue(
             swerveSubsystem.getGyro().getYaw(), swerveSubsystem.getGyro().getAngularVelocityZWorld());
-        double yawDegreesRadians = yawDegrees.in(Units.Radians);
+        double yawRadians = yaw.in(Units.Radians);
 
-        updateCurrentAngle(yawDegreesRadians);
+        updateCurrentAngle(yawRadians);
 
         /*
          * Update the swerve modules now (accounting for Limelight)
          */
         poseEstimator.update(
-            OdometryThread.getFieldCorrectedAngle(),
+            m_odometryThread.getFieldCorrectedAngle(),
             m_modulePositions);
 
         addLLVisionMeasurement();
 
-        publisher.set(odometry.getEstimatedPosition()).setRobotPose(m_odometry.getPoseMeters());
+        publisher.set(poseEstimator.getEstimatedPosition());
       }
     }
 
@@ -287,14 +296,22 @@ public class SwerveOdometry {
     /*
      * gives the actual angle that we need, similar to gyroZero
      */
-    public static void updateCurrentAngle(double yawDegreesRadians) {
-      currentAngle = yawDegreesRadians + Math.toRadians(180) - gyroZero;
+    public void updateCurrentAngle(double yawRadians) {
+      currentAngle = yawRadians + Math.toRadians(180) - gyroZero;
+    }
+
+    /*
+     * Returns the current angle in degrees (have to do this way instead of
+     * importing because import names conflict)
+     */
+    public double getAngleDegrees() {
+      return edu.wpi.first.math.util.Units.radiansToDegrees(currentAngle);
     }
 
     /**
      * Accounts for where foward is for swerve pos estimation (red/blue alliance)
      */
-    public static Rotation2d getFieldCorrectedAngle() {
+    public Rotation2d getFieldCorrectedAngle() {
       if (swerveSubsystem.isBlueAlliance()) {
         return new Rotation2d(currentAngle);
       } else {

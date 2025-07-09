@@ -20,9 +20,6 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
@@ -40,7 +37,6 @@ import lib.vision.Limelight;
 import lib.vision.RealSenseCamera;
 import frc.robot.SwerveClasses.SwerveModule;
 import frc.robot.SwerveClasses.SwerveOdometry;
-import frc.robot.SwerveClasses.SwerveOdometry.OdometryThread;
 import frc.robot.commands.driving.CameraDriveToPose;
 import frc.robot.commands.driving.DriveToPose2d;
 import frc.robot.commands.driving.FollowPath;
@@ -80,14 +76,7 @@ public class SwerveSubsystem extends SubsystemBase {
   private double currentRobotAngleDerivative;
   private boolean isRotating;
 
-  private SwerveOdometry odometry;
-  private SwerveOdometry.OdometryThread m_odometryThread;
-
-
-  private StructPublisher<Pose2d> publisher;
-
-  private NetworkTableInstance inst;
-  private NetworkTable table;
+  private SwerveOdometry m_odometry;
 
   private Boolean BlueAlliance;
 
@@ -118,9 +107,6 @@ public class SwerveSubsystem extends SubsystemBase {
     log = DataLogManager.getLog();
 
     BlueAlliance = true;
-
-    inst = NetworkTableInstance.getDefault();
-    table = inst.getTable("datatable");
 
     gyro = new Pigeon2(Constants.CanId.CanCoder.GYRO, Constants.Canbus.DRIVE_TRAIN);
 
@@ -173,10 +159,8 @@ public class SwerveSubsystem extends SubsystemBase {
         Constants.Inverted.ANGLE,
         "BR");
 
-    odometry = new SwerveOdometry(this, swerveDriveKinematics, leftLL, rightLL);
-    m_odometryThread = odometry.new OdometryThread();
-    m_odometryThread.start();
-    odometry.resetPosition();
+    m_odometry = new SwerveOdometry(this, swerveDriveKinematics, leftLL, rightLL);
+    m_odometry.resetPosition();
 
     Supplier<ChassisSpeeds> supplier_chasis = () -> {
       ChassisSpeeds temp = getChassisSpeed();
@@ -188,10 +172,10 @@ public class SwerveSubsystem extends SubsystemBase {
       setModuleStates(modules);
     };
     Supplier<Pose2d> supplier_position = () -> {
-      return odometry.getEstimatedPosition();
+      return m_odometry.getEstimatedPosition();
     };
     Consumer<Pose2d> consumer_position = pose -> {
-      odometry.setPosition(pose);
+      m_odometry.setPosition(pose);
     };
 
     SwerveModuleState[] modules = swerveDriveKinematics.toSwerveModuleStates(getChassisSpeed());
@@ -236,7 +220,6 @@ public class SwerveSubsystem extends SubsystemBase {
         this // Reference to this subsystem to set requirements
     );
 
-    publisher = table.getStructTopic("Final Odometry Position", Pose2d.struct).publish();
     rotationController = new PIDController(Constants.Drive.ROTATION_CORRECTION_KP.getValue(),
         Constants.Drive.ROTATION_CORRECTION_KI.getValue(),
         Constants.Drive.ROTATION_CORRECTION_KD.getValue());
@@ -277,7 +260,7 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   public Supplier<Pose2d> supplier_position = () -> {
-    return odometry.getEstimatedPosition();
+    return m_odometry.getEstimatedPosition();
   };
 
   /**
@@ -296,7 +279,7 @@ public class SwerveSubsystem extends SubsystemBase {
       boolean fieldCentric,
       double mulitplier) {
 
-    double currentRobotAngleRadians = OdometryThread.currentAngle;
+    double currentRobotAngleRadians = m_odometry.getAngleDegrees();
 
     // this is to make sure if both the joysticks are at neutral position, the robot
     // and wheels
@@ -415,9 +398,6 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     SmartDashboard.putBoolean("Swerve/Is Blue", BlueAlliance);
-
-    publisher.set(odometry.getEstimatedPosition());
-
     // logData();
 
   }
@@ -577,7 +557,7 @@ public class SwerveSubsystem extends SubsystemBase {
       return rp.getPose2d();
     }).toList();
 
-    Pose2d ourPose = odometry.getEstimatedPosition();
+    Pose2d ourPose = m_odometry.getEstimatedPosition();
 
     Pose2d fieldAdjustedPose = getFieldAdjustedPose2d(ourPose);
     Pose2d nearest = fieldAdjustedPose.nearest(poses);
