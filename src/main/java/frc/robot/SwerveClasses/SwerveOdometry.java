@@ -37,7 +37,7 @@ public class SwerveOdometry {
   private final SwerveDriveKinematics swerveKinematics;
   private SwerveSubsystem swerveSubsystem;
   private SwerveModulePosition[] m_modulePositions = new SwerveModulePosition[4];
-  private Pigeon2 gyro;
+  private Pigeon2 m_pigeon2;
 
   private OdometryThread m_odometryThread;
 
@@ -47,42 +47,44 @@ public class SwerveOdometry {
 
   private DataLog log;
 
-  public SwerveOdometry(SwerveSubsystem swerveSubsystem, SwerveDriveKinematics kinematics, Limelight leftLL,
+  public SwerveOdometry(SwerveSubsystem swerveSubsystem, SwerveDriveKinematics kinematics, SwerveModule[] swerveModule,
+      Limelight leftLL,
       Limelight rightLL) {
     this.swerveSubsystem = swerveSubsystem;
+    
     this.leftLL = leftLL;
     this.rightLL = rightLL;
     leftLLPoseEstimate = leftLL.getBotPoseEstimate();
     rightLLPoseEstimate = rightLL.getBotPoseEstimate();
+    doRejectLeftLLUpdate = false;
+    doRejectRightLLUpdate = false;
+
+    m_modules = swerveModule;
+    swerveKinematics = kinematics;
+
+    gyroZero = 0;
+
+    m_pigeon2 = new Pigeon2(Constants.CanId.CanCoder.GYRO, Constants.Canbus.DRIVE_TRAIN);
+
+    for (int i = 0; i < 4; i++) {
+      m_modulePositions[i] = m_modules[i].getPosition(true);
+    }
+
+    // Initialize to bad angle (but fixed later)
+    poseEstimator = new SwerveDrivePoseEstimator(
+        swerveKinematics,
+        m_pigeon2.getRotation2d(),
+        getSwervePositions(),
+        new Pose2d(0, 0, m_pigeon2.getRotation2d()));
 
     m_odometryThread = new OdometryThread();
     m_odometryThread.start();
 
-    gyro = new Pigeon2(Constants.CanId.CanCoder.GYRO, Constants.Canbus.DRIVE_TRAIN);
-    gyroZero = 0;
-
-    log = DataLogManager.getLog();
+    // log = DataLogManager.getLog();
 
     inst = NetworkTableInstance.getDefault();
     table = inst.getTable("datatable");
     publisher = table.getStructTopic("Final Odometry Position", Pose2d.struct).publish();
-
-    doRejectLeftLLUpdate = false;
-    doRejectRightLLUpdate = false;
-
-    swerveKinematics = kinematics;
-
-    // for (int i = 0; i < 4; i++) {
-    // m_modulePositions[i] = new SwerveModulePosition(
-    // swerveSubsystem.getSwerveModule(i).getPosition(),
-    // new Rotation2d(swerveSubsystem.getSwerveModule(i).getEncoderPosition()));
-    // }
-
-    poseEstimator = new SwerveDrivePoseEstimator(
-        swerveKinematics,
-        m_odometryThread.getFieldCorrectedAngle(),
-        m_modulePositions,
-        new Pose2d(0, 0, m_odometryThread.getFieldCorrectedAngle()));
   }
 
   // public void update() {
@@ -176,6 +178,10 @@ public class SwerveOdometry {
     return poseEstimator.getEstimatedPosition();
   }
 
+  private SwerveModulePosition[] getSwervePositions() {
+    return m_modulePositions;
+}
+
   public void resetPosition() {
     poseEstimator.resetPosition(
         m_odometryThread.getFieldCorrectedAngle(),
@@ -184,7 +190,7 @@ public class SwerveOdometry {
   }
 
   public double getAngularChassisSpeed() {
-    return gyro.getAngularVelocityZWorld().getValueAsDouble();
+    return m_pigeon2.getAngularVelocityZWorld().getValueAsDouble();
   }
 
   public void setPosition(Pose2d pos) {
@@ -199,7 +205,7 @@ public class SwerveOdometry {
   }
 
   public void resetGyro() {
-    gyroZero = gyro.getRotation2d().plus(Rotation2d.fromDegrees(180.0)).getRadians();
+    gyroZero = m_pigeon2.getRotation2d().plus(Rotation2d.fromDegrees(180.0)).getRadians();
   }
 
   /*
@@ -222,21 +228,21 @@ public class SwerveOdometry {
     private double currentTime = 0;
     private double averageLoopTime = 0;
     private double ModuleCount = 4;
-    private double currentAngle;
+    private double currentAngle = 0;
 
     public OdometryThread() {
       super();
       // 4 signals for each module + 2 for Pigeon2
       m_allSignals = new BaseStatusSignal[(int) ((ModuleCount * 4) + 2)];
       for (int i = 0; i < ModuleCount; ++i) {
-        var signals = swerveSubsystem.getSwerveModule(i).getSignals();
+        var signals = m_modules[i].getSignals();
         m_allSignals[(i * 4) + 0] = signals[0];
         m_allSignals[(i * 4) + 1] = signals[1];
         m_allSignals[(i * 4) + 2] = signals[2];
         m_allSignals[(i * 4) + 3] = signals[3];
       }
-      m_allSignals[m_allSignals.length - 2] = gyro.getYaw();
-      m_allSignals[m_allSignals.length - 1] = gyro.getAngularVelocityZWorld();
+      m_allSignals[m_allSignals.length - 2] = m_pigeon2.getYaw();
+      m_allSignals[m_allSignals.length - 1] = m_pigeon2.getAngularVelocityZWorld();
     }
 
     @Override
@@ -269,7 +275,7 @@ public class SwerveOdometry {
         }
         // Assume Pigeon2 is flat-and-level so latency compensation can be performed
         Measure<AngleUnit> yaw = BaseStatusSignal.getLatencyCompensatedValue(
-            gyro.getYaw(), gyro.getAngularVelocityZWorld());
+            m_pigeon2.getYaw(), m_pigeon2.getAngularVelocityZWorld());
         double yawRadians = yaw.in(Units.Radians);
 
         updateCurrentAngle(yawRadians);
@@ -280,8 +286,6 @@ public class SwerveOdometry {
         poseEstimator.update(
             m_odometryThread.getFieldCorrectedAngle(),
             m_modulePositions);
-
-        addLLVisionMeasurement();
 
         publisher.set(poseEstimator.getEstimatedPosition());
       }

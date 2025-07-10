@@ -155,7 +155,7 @@ public class SwerveSubsystem extends SubsystemBase {
         Constants.Inverted.ANGLE,
         "BR");
 
-    m_odometry = new SwerveOdometry(this, swerveDriveKinematics, leftLL, rightLL);
+    m_odometry = new SwerveOdometry(this, swerveDriveKinematics, swerveModules, leftLL, rightLL);
     m_odometry.resetPosition();
 
     Supplier<ChassisSpeeds> supplier_chasis = () -> {
@@ -392,6 +392,8 @@ public class SwerveSubsystem extends SubsystemBase {
         BlueAlliance = false;
       }
     }
+
+    m_odometry.addLLVisionMeasurement();
 
     SmartDashboard.putBoolean("Swerve/Is Blue", BlueAlliance);
     // logData();
