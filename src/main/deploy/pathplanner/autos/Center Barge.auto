@@ -65,12 +65,6 @@
                             "data": {
                               "name": "Shoot Coral"
                             }
-                          },
-                          {
-                            "type": "named",
-                            "data": {
-                              "name": "Move Hinge Coral"
-                            }
                           }
                         ]
                       }

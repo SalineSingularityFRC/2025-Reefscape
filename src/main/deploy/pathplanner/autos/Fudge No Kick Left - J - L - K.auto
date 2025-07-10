@@ -15,7 +15,7 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "S_Bottom_Mid - E"
+                        "pathName": "Fudge S_Top_Mid - J"
                       }
                     },
                     {
@@ -51,12 +51,6 @@
                 "data": {
                   "name": "Shoot Coral"
                 }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Move Hinge Coral"
-                }
               }
             ]
           }
@@ -72,19 +66,13 @@
                 }
               },
               {
-                "type": "named",
-                "data": {
-                  "name": "Move Hinge Zero"
-                }
-              },
-              {
                 "type": "sequential",
                 "data": {
                   "commands": [
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "Better E - CS_2"
+                        "pathName": "Fudge J - CS_1"
                       }
                     },
                     {
@@ -123,7 +111,7 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "Better CS_2 - C"
+                        "pathName": "Better CS_1 - L"
                       }
                     },
                     {
@@ -166,12 +154,6 @@
                 "data": {
                   "name": "Shoot Coral"
                 }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Move Hinge Coral"
-                }
               }
             ]
           }
@@ -187,19 +169,13 @@
                 }
               },
               {
-                "type": "named",
-                "data": {
-                  "name": "Move Hinge Zero"
-                }
-              },
-              {
                 "type": "sequential",
                 "data": {
                   "commands": [
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "Better C - CS_2"
+                        "pathName": "Better L - CS_1"
                       }
                     },
                     {
@@ -238,7 +214,7 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "Better CS_2 - D"
+                        "pathName": "Better CS_1 - K"
                       }
                     },
                     {
@@ -281,12 +257,6 @@
                 "data": {
                   "name": "Shoot Coral"
                 }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Move Hinge Coral"
-                }
               }
             ]
           }
@@ -302,19 +272,13 @@
                 }
               },
               {
-                "type": "named",
-                "data": {
-                  "name": "Move Hinge Zero"
-                }
-              },
-              {
                 "type": "sequential",
                 "data": {
                   "commands": [
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "D - CS_2"
+                        "pathName": "Better K - CS_1"
                       }
                     },
                     {
@@ -346,6 +310,6 @@
     }
   },
   "resetOdom": true,
-  "folder": "Bottom",
+  "folder": "Left",
   "choreoAuto": false
 }

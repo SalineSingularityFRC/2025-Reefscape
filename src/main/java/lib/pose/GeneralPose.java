@@ -1,6 +1,8 @@
 package lib.pose;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import lib.pose.ScoreConfig.FacetSide;
+import lib.pose.ScoreConfig.NavigationTarget;
 import lib.pose.ScoreConfig.TargetState;
 
 /**
@@ -89,6 +91,24 @@ public final class GeneralPose {
      */
     public TargetState getTargetState() {
         return m_targetState;
+    }
+
+    /**
+     * Gets the NavigationTarget associated with this pose.
+     *
+     * @return the current NavigationTarget
+     */
+    public NavigationTarget getNavTarget() {
+        return m_targetState.getNavTarget();
+    }
+
+    /**
+     * Gets the FacetSide associated with this pose.
+     *
+     * @return the current FacetSide
+     */
+    public FacetSide getSide() {
+        return m_targetState.getSide();
     }
 
     /**

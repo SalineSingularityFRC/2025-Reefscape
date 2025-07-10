@@ -1,33 +1,25 @@
-package frc.robot.commands;
+package frc.robot.commands.driving;
 
 import java.util.function.Supplier;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.numbers.N1;
-import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants.Drive;
 import frc.robot.subsystems.SwerveSubsystem;
 import static frc.robot.Constants.Drive;
 
 /**
  * A command that takes in a field relative pose and drives the robot to it via PID
  */
-public class DriveToPose extends Command {
+public class DriveToBargePose extends Command {
     private final SwerveSubsystem m_swerve;
     private final Supplier<Pose2d> targetPose, currentPose;
     private PIDController rotationController;
     private PIDController xDriveController;
     private PIDController yDriveController;
-    private SimpleMotorFeedforward rotationFeedForward = new SimpleMotorFeedforward(0, 0);
 
-    public DriveToPose(SwerveSubsystem swerve, Supplier<Pose2d> currentPoseSupplier, Supplier<Pose2d> targetPoseSupplier) {
+    public DriveToBargePose(SwerveSubsystem swerve, Supplier<Pose2d> currentPoseSupplier, Supplier<Pose2d> targetPoseSupplier) {
         this.currentPose = currentPoseSupplier;
         this.targetPose = targetPoseSupplier;
         m_swerve = swerve;
@@ -57,7 +49,7 @@ public class DriveToPose extends Command {
                 Drive.PID_DRIVE_Y_KD.getValue());
 
         yDriveController.setSetpoint(0);
-        yDriveController.setTolerance(Drive.PID_DRIVE_Y_TOLERANCE.getValue());
+        yDriveController.setTolerance(Drive.PID_DRIVE_Y_BARGE_TOLERANCE.getValue());
     }
 
     public void execute() {
@@ -72,7 +64,7 @@ public class DriveToPose extends Command {
                 Drive.PID_DRIVE_X_KP.getValue(),
                 Drive.PID_DRIVE_X_KI.getValue(),
                 Drive.PID_DRIVE_X_KD.getValue());
-            yDriveController.setTolerance(Drive.PID_DRIVE_Y_TOLERANCE.getValue());
+            yDriveController.setTolerance(Drive.PID_DRIVE_Y_BARGE_TOLERANCE.getValue());
             yDriveController.setPID(
                 Drive.PID_DRIVE_Y_KP.getValue(),
                 Drive.PID_DRIVE_Y_KI.getValue(),
@@ -82,21 +74,9 @@ public class DriveToPose extends Command {
         Pose2d currentPose = this.currentPose.get();
         Pose2d targetPose = this.targetPose.get();
 
-        double errorR = targetPose.getRotation().getRadians() - currentPose.getRotation().getRadians();
-        // errorR = ((errorR + Math.PI) % (2*Math.PI)) - Math.PI;
-        // if (errorR > Math.PI) {
-        //     errorR =- 2 * Math.PI;
-        // } else if( errorR < - Math.PI) {
-        //     errorR =+ 2* Math.PI;
-        // }
-
-        SmartDashboard.putNumber("Tuning/Error", errorR);
-
         // Accounting for most efficient way to turn
         double drCC = rotationController.calculate(targetPose.getRotation().getRadians(), currentPose.getRotation().getRadians());
         double drCCW = rotationController.calculate(currentPose.getRotation().getRadians(), targetPose.getRotation().getRadians());
-        SmartDashboard.putNumber("Tuning/Current Rot", currentPose.getRotation().getRadians());
-        SmartDashboard.putNumber("Tuning/Targ rot", targetPose.getRotation().getRadians());
         
         double dr = Math.abs(drCC) > Math.abs(drCCW) ? drCCW: drCC;
         double dx = xDriveController.calculate(currentPose.getTranslation().getX(), targetPose.getTranslation().getX());
@@ -112,18 +92,11 @@ public class DriveToPose extends Command {
             dy*=-1;
         }
 
-        SmartDashboard.putNumber("Tuning/dr", dr);
-        SmartDashboard.putNumber("Tuning/dx", dx);
-        SmartDashboard.putNumber("Tuning/dy", dy);
 
         m_swerve.drive(dr, dx, dy, true, 1.0);
     }
 
     public boolean isFinished() {
-        SmartDashboard.putBoolean("Tuning/rotationController at setpoint", rotationController.atSetpoint());
-        SmartDashboard.putBoolean("Tuning/xDriveController at setpoint", xDriveController.atSetpoint());
-        SmartDashboard.putBoolean("Tuning/yDriveController at setpoint", yDriveController.atSetpoint());
-        SmartDashboard.putBoolean("Tuning/Is command finished", rotationController.atSetpoint() && xDriveController.atSetpoint() && yDriveController.atSetpoint());
         return rotationController.atSetpoint() && xDriveController.atSetpoint() && yDriveController.atSetpoint();
     }
 }
