@@ -50,7 +50,7 @@ public class AlgaeSubsystem extends SubsystemBase {
         rollerMotorHoldRequest = new PositionTorqueCurrentFOC(rollerMotor.getPosition().getValueAsDouble()).withSlot(1);
         armRotatorMotorRequest = new PositionTorqueCurrentFOC(armRotatorMotor.getPosition().getValueAsDouble()).withSlot(0);
         armRotatorMotorAlgaeRequest = new PositionTorqueCurrentFOC(armRotatorMotor.getPosition().getValueAsDouble()).withSlot(1);
-        armRotatorMotorZeroRequest = new PositionTorqueCurrentFOC(armRotatorMotor.getPosition().getValueAsDouble()).withSlot(2);
+        armRotatorMotorZeroRequest = new PositionTorqueCurrentFOC(armRotatorMotor.getPosition().getValueAsDouble()).withSlot(0); // maybe problem idk
 
         canCoder.getConfigurator().apply(new CANcoderConfiguration().withMagnetSensor(
                 new MagnetSensorConfigs().withSensorDirection(SensorDirectionValue.Clockwise_Positive)));
@@ -222,6 +222,7 @@ public class AlgaeSubsystem extends SubsystemBase {
     public Command setNeutralState(){
         return runOnce(() -> {
             this.state = State.NEUTRAL;
+            System.err.println("SETTING ALGAE TO NEUTRAL");
         });
     }
 

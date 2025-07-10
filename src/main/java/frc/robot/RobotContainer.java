@@ -149,7 +149,7 @@ public class RobotContainer {
         // Main coral controls
         operatorController.rightStick().whileTrue(coralSubsystem.intakeCoral().withName("intakeCoral"));
         operatorController.leftStick()
-                .whileTrue(coralSubsystem.shootCoral().withName("shootCoral").alongWith(buildCoralAssistCommand()));
+                .whileTrue(coralSubsystem.shootCoral().withName("shootCoral").alongWith(buildCoralAssistCommand()).andThen(algaeSubsystem.setNeutralState())); // why set neutral state not set neutral state
         thirdController.y().whileTrue(coralSubsystem.shootL1Coral());
 
         // Redudent coral controls
@@ -371,15 +371,15 @@ public class RobotContainer {
         Command moveL4RaisedSlow = elevatorSubsystem.moveL4RaisedSlow(Setpoint.kLevel4Raised);
         Command setCoralKickState = algaeSubsystem.setCoralKickState();
 
-        System.out.println(moveL4RaisedSlow.getRequirements());
-        System.out.println(setCoralKickState.getRequirements());
+        // System.out.println(moveL4RaisedSlow.getRequirements());
+        // System.out.println(setCoralKickState.getRequirements());
 
         return new ConditionalCommand(
                 // if elevator at L4, run a deadline group to raise & intake
                 new ParallelDeadlineGroup(
                         moveL4RaisedSlow,
                         setCoralKickState
-                ).andThen(algaeSubsystem.setNeutralState()),
+                ),
                 // else do nothing
                 new InstantCommand(),
                 elevatorSubsystem::isElevatorAtL4);
