@@ -146,10 +146,10 @@ public final class Constants {
     }
 
     public static final class WheelOffset {
-      public static final double FL = 0.732666;
-      public static final double FR = 0.871094;
-      public static final double BL = 0.832764;
-      public static final double BR = 0.669189;
+      public static final double FL = Units.rotationsToRadians(0.732666);
+      public static final double FR = Units.rotationsToRadians(0.871094);
+      public static final double BL = Units.rotationsToRadians(0.832764);
+      public static final double BR = Units.rotationsToRadians(0.669189);
     }
 
   }

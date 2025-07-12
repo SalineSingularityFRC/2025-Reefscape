@@ -208,6 +208,10 @@ public class SwerveOdometry {
     gyroZero = m_pigeon2.getRotation2d().plus(Rotation2d.fromDegrees(180.0)).getRadians();
   }
 
+  public Pigeon2 getGryo() {
+    return m_pigeon2;
+  }
+
   /*
    * Returns the current angle in degrees.
    */

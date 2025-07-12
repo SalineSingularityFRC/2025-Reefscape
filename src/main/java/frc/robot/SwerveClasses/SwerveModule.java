@@ -143,7 +143,7 @@ public class SwerveModule {
         Measure<AngleUnit> angle_rot = BaseStatusSignal.getLatencyCompensatedValue(m_steerPosition, m_steerVelocity);
 
         /*
-         * Convert signals into radians so we can use them
+         * Convert signals into rotations so we can use them
          */
         double drive_rot_rotations = drive_rot.in(edu.wpi.first.units.Units.Rotations);
         double angle_rot_rotations = angle_rot.in(edu.wpi.first.units.Units.Rotations);
@@ -188,23 +188,23 @@ public class SwerveModule {
     }
 
     public void setDesiredState(SwerveModuleState desiredState) {
-        desiredState.optimize(m_internalState.angle);
-        desiredState.cosineScale(m_internalState.angle);
+        SwerveModuleState state = SwerveModuleState.optimize(desiredState, new Rotation2d(getEncoderPosition()));
+        state.cosineScale(new Rotation2d(getEncoderPosition()));
 
-        SmartDashboard.putNumber("Target Velocity" + name, toRotationsPerSecond(desiredState));
+        SmartDashboard.putNumber("Target Velocity" + name, toRotationsPerSecond(state));
         SmartDashboard.putNumber("Current Velocity" + name, driveMotor.getVelocity().getValueAsDouble());
 
-        switch (angleMotor.setAngle(desiredState.angle.getRadians(), name)) {
-            case Positive:
-                driveMotor.setControl(velocityTarget.withVelocity(toRotationsPerSecond(desiredState)));
-                break;
-            case Negative:
-                driveMotor.setControl(velocityTarget.withVelocity(-toRotationsPerSecond(desiredState)));
-                break;
-            default:
-                break;
+        switch(angleMotor.setAngle(state.angle.getRadians(), name)){
+        case Positive:
+            driveMotor.setControl(velocityTarget.withVelocity(toRotationsPerSecond(state)));
+            break;
+        case Negative:
+            driveMotor.setControl(velocityTarget.withVelocity(-toRotationsPerSecond(state)));
+            break;
+        default:
+            break;
         }
-    }
+    }    
 
     public void setCoastMode() {
         motorOutputConfigs.NeutralMode = NeutralModeValue.Coast;
@@ -230,6 +230,11 @@ public class SwerveModule {
     public double getPosition() {
         return driveMotor.getPosition().getValueAsDouble() * 2 * Math.PI * Constants.Measurement.WHEELRADIUS
                 / Constants.SwerveModule.GearRatio.DRIVE;
+    }
+
+    public double getEncoderPosition() {
+        return (c_encoder.getAbsolutePosition().getValueAsDouble() * 2 * Math.PI)
+                - absolutePositionEncoderOffset;
     }
 
     /*

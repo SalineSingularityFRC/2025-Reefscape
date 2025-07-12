@@ -16,6 +16,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.Odometry;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -76,6 +77,8 @@ public class SwerveSubsystem extends SubsystemBase {
 
   private SwerveOdometry m_odometry;
 
+  private Pigeon2 m_pigeon2;
+
   private Boolean BlueAlliance;
 
   private DataLog log;
@@ -105,6 +108,8 @@ public class SwerveSubsystem extends SubsystemBase {
     log = DataLogManager.getLog();
 
     BlueAlliance = true;
+
+    m_pigeon2 = new Pigeon2(Constants.CanId.CanCoder.GYRO, Constants.Canbus.DRIVE_TRAIN);
 
     vectorKinematics[FL] = new Translation2d(Constants.Measurement.WHEEL_BASE / 2,
         Constants.Measurement.TRACK_WIDTH / 2);
@@ -259,6 +264,11 @@ public class SwerveSubsystem extends SubsystemBase {
     return m_odometry.getEstimatedPosition();
   };
 
+  public double getRobotAngle() {
+    double gyroZero = 0;
+    return m_pigeon2.getRotation2d().plus(Rotation2d.fromDegrees(180.0)).getRadians() - gyroZero;
+    }
+
   /**
    * Method for driving via controller
    * 
@@ -275,7 +285,8 @@ public class SwerveSubsystem extends SubsystemBase {
       boolean fieldCentric,
       double mulitplier) {
 
-    double currentRobotAngleRadians = m_odometry.getAngle(false);
+    double currentRobotAngle = m_odometry.getGryo().getYaw().getValueAsDouble();
+    double currentRobotAngleRadians = getRobotAngle();
 
     // this is to make sure if both the joysticks are at neutral position, the robot
     // and wheels
@@ -305,7 +316,7 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     // The following is for heading correction
-    currentRobotAngleDerivative = currentRobotAngleRadians - pastRobotAngle;
+    currentRobotAngleDerivative = currentRobotAngle - pastRobotAngle;
     if (currentRobotAngleDerivative == 0) {
       currentRobotAngleDerivative = pastRobotAngleDerivative;
     }
@@ -316,13 +327,13 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     // For correcting angular position when not rotating manually
-    double yaw = m_odometry.getAngle(true);
+    double gyroYaw = m_odometry.getGryo().getYaw().getValueAsDouble();
     if (Math.abs(rotation) > 0.08 * mulitplier || isRotating) {
       isRotating = true;
-      rotationController.setSetpoint(yaw);
+      rotationController.setSetpoint(gyroYaw);
       rotationController.reset();
     } else {
-      rotation = rotationController.calculate(yaw);
+      rotation = rotationController.calculate(gyroYaw);
     }
 
     // SmartDashboard.putNumber("Rotation Correction/Setpoint: Robot Angle",
@@ -340,7 +351,7 @@ public class SwerveSubsystem extends SubsystemBase {
     SwerveModuleState[] modules = swerveDriveKinematics.toSwerveModuleStates(chassisSpeeds);
     setModuleStates(modules);
 
-    pastRobotAngle = currentRobotAngleRadians;
+    pastRobotAngle = currentRobotAngle;
     pastRobotAngleDerivative = currentRobotAngleDerivative;
   }
 
