@@ -1,8 +1,7 @@
-package frc.robot.commands;
+package frc.robot.commands.controller;
 
 import java.util.function.DoubleSupplier;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.SwerveSubsystem;
 
@@ -18,10 +17,6 @@ public class ButtonDriveController extends Command {
         m_x = x;
         m_y = y;
         addRequirements(swerve);
-    }
-
-    private double fixDecimalTo2Places(double number){
-        return Math.round(number * 100.0) / 100.0;
     }
 
     public void execute() {

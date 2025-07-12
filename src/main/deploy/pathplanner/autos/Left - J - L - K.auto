@@ -15,7 +15,7 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "S_Bottom_Mid - E"
+                        "pathName": "S_Top_Mid - J"
                       }
                     },
                     {
@@ -97,7 +97,7 @@
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 0.2
+                        "waitTime": 0.3
                       }
                     }
                   ]
@@ -116,7 +116,7 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "Better E - CS_2"
+                        "pathName": "J - CS_1"
                       }
                     },
                     {
@@ -155,7 +155,7 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "Better CS_2 - C"
+                        "pathName": "Better CS_1 - L"
                       }
                     },
                     {
@@ -238,9 +238,22 @@
           "data": {
             "commands": [
               {
-                "type": "named",
+                "type": "sequential",
                 "data": {
-                  "name": "Wait For Coral"
+                  "commands": [
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "Wait For Coral"
+                      }
+                    },
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 0.4
+                      }
+                    }
+                  ]
                 }
               },
               {
@@ -256,7 +269,7 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "Better C - CS_2"
+                        "pathName": "Better L - CS_1"
                       }
                     },
                     {
@@ -295,7 +308,7 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "Better CS_2 - D"
+                        "pathName": "Better CS_1 - K"
                       }
                     },
                     {
@@ -390,7 +403,7 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "D - CS_2"
+                        "pathName": "Better K - CS_1"
                       }
                     },
                     {
@@ -422,6 +435,6 @@
     }
   },
   "resetOdom": true,
-  "folder": "Bottom",
+  "folder": "Left",
   "choreoAuto": false
 }
