@@ -110,10 +110,6 @@ public class AlgaeSubsystem extends SubsystemBase {
         // }
         //
         boolean status = true;
-        if (!manual) {
-            // mainMotor.setControl(mainMotorHoldRequest);
-            // status = algaeMotor.setControl(algaeMotorHoldRequest).isOK();
-        }
 
         // intakeSpeedRequest.Velocity = Constants.Algae.motorSpeedSlow.getValue();
         // outtakeSpeedRequest.Velocity = Constants.Algae.motorSpeedFast.getValue();

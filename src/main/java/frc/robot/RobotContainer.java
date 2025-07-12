@@ -162,25 +162,6 @@ public class RobotContainer {
      * Configures algae intake and shooting controls.
      */
     private void configureAlgaeBindings() {
-        // Algae controls
-        // driverController.leftTrigger().whileTrue(buildAlgaeIntakeRoutine());
-        // driverController.leftBumper().whileTrue(algaeSubsystem.moveToZero().withName("returnToHomePosAlgae"));
-        // driverController.rightTrigger().whileTrue(algaeSubsystem.shootAlgae().withName("shootAlgae"));
-        // driverController.rightTrigger().onFalse(algaeSubsystem.hold(0));
-        // driverController.povDown().whileTrue(algaeSubsystem.moveToAlgaeShoot());
-
-        // // After releasing shoot button, hinge goes to zero position
-        // operatorController.leftStick().whileFalse(algaeSubsystem.moveToZero());
-
-        // // Redudent algae controls
-        // thirdController.povUp().whileTrue(algaeSubsystem.manualControlForward());
-        // thirdController.povUp().onFalse(algaeSubsystem.mainMotorHoldCommand());
-        // thirdController.povDown().whileTrue(algaeSubsystem.manualControlBackwards());
-        // thirdController.povUp().onFalse(algaeSubsystem.mainMotorHoldCommand());
-
-        // thirdController.a().whileTrue(algaeSubsystem.moveToAlgaeShoot());
-        // thirdController.b().whileTrue(algaeSubsystem.manualIntake());
-
         driverController.rightTrigger().whileTrue(algaeSubsystem.shoot());
 
         driverController.leftTrigger().whileTrue(algaeSubsystem.intake());
@@ -240,7 +221,6 @@ public class RobotContainer {
 
         NamedCommands.registerCommand("Intake Coral", coralSubsystem.intakeCoral());
         NamedCommands.registerCommand("Shoot Coral", coralSubsystem.shootCoral().alongWith(buildCoralAssistCommand()));
-        // NamedCommands.registerCommand("Shoot Coral", buildCoralAssistCommand());
         NamedCommands.registerCommand("Wait For Coral", coralSubsystem.waitUntilCoral());
 
         NamedCommands.registerCommand("Move Hinge Coral", algaeSubsystem.setCoralKickState());

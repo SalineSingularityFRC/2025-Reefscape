@@ -121,17 +121,10 @@ public class DriveToPose2d extends Command {
                 Drive.PID_DRIVE_MAX_ROTATION_SPEED.getValue());
 
         // Clamp control effort based on target object (not used)
-        if (m_navigationTarget == NavigationTarget.ALGAE) {
-            dx = MathUtil.clamp(dx, -Drive.PID_DRIVE_MAX_DRIVE_ALGAE_X_SPEED.getValue(),
-                    Drive.PID_DRIVE_MAX_DRIVE_ALGAE_X_SPEED.getValue());
-            dy = MathUtil.clamp(dy, -Drive.PID_DRIVE_MAX_DRIVE_ALGAE_Y_SPEED.getValue(),
-                    Drive.PID_DRIVE_MAX_DRIVE_ALGAE_Y_SPEED.getValue());
-        } else {
-            dx = MathUtil.clamp(dx, -Drive.PID_DRIVE_MAX_DRIVE_X_SPEED.getValue(),
-                    Drive.PID_DRIVE_MAX_DRIVE_X_SPEED.getValue());
-            dy = MathUtil.clamp(dy, -Drive.PID_DRIVE_MAX_DRIVE_Y_SPEED.getValue(),
-                    Drive.PID_DRIVE_MAX_DRIVE_Y_SPEED.getValue());
-        }
+        double maxDriveXSpeed = m_navigationTarget == NavigationTarget.ALGAE ? Drive.PID_DRIVE_MAX_DRIVE_ALGAE_X_SPEED.getValue() : Drive.PID_DRIVE_MAX_DRIVE_X_SPEED.getValue();
+        double maxDriveYSpeed = m_navigationTarget == NavigationTarget.ALGAE ? Drive.PID_DRIVE_MAX_DRIVE_ALGAE_Y_SPEED.getValue() : Drive.PID_DRIVE_MAX_DRIVE_Y_SPEED.getValue();
+        dx = MathUtil.clamp(dx, -maxDriveXSpeed, maxDriveXSpeed);
+        dy = MathUtil.clamp(dy, -maxDriveYSpeed, maxDriveYSpeed);
 
         // Invert drive inputs if on red alliance since field centric
         if (!m_swerveSubsystem.isBlueAlliance()) {
