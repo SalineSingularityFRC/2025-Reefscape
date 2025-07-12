@@ -149,7 +149,8 @@ public class RobotContainer {
         // Main coral controls
         operatorController.rightStick().whileTrue(coralSubsystem.intakeCoral().withName("intakeCoral"));
         operatorController.leftStick()
-                .whileTrue(coralSubsystem.shootCoral().withName("shootCoral").alongWith(buildCoralAssistCommand()).andThen(algaeSubsystem.setNeutralState())); // why set neutral state not set neutral state
+                .whileTrue(coralSubsystem.shootCoral().withName("shootCoral").alongWith(buildCoralAssistCommand()));
+        operatorController.leftStick().onFalse(algaeSubsystem.setCoralKickReturnState());
         thirdController.y().whileTrue(coralSubsystem.shootL1Coral());
 
         // Redudent coral controls
@@ -243,7 +244,7 @@ public class RobotContainer {
         NamedCommands.registerCommand("Wait For Coral", coralSubsystem.waitUntilCoral());
 
         NamedCommands.registerCommand("Move Hinge Coral", algaeSubsystem.setCoralKickState());
-        NamedCommands.registerCommand("Move Hinge Zero", algaeSubsystem.setNeutralState());
+        NamedCommands.registerCommand("Move Hinge Zero", algaeSubsystem.setCoralKickReturnState());
         NamedCommands.registerCommand("Move Hinge Barge", algaeSubsystem.setShootPoseState());
         NamedCommands.registerCommand("Auto Barge Score", buildBargeScoringRoutine());
 

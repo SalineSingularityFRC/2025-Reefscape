@@ -50,7 +50,7 @@ public class AlgaeSubsystem extends SubsystemBase {
         rollerMotorHoldRequest = new PositionTorqueCurrentFOC(rollerMotor.getPosition().getValueAsDouble()).withSlot(1);
         armRotatorMotorRequest = new PositionTorqueCurrentFOC(armRotatorMotor.getPosition().getValueAsDouble()).withSlot(0);
         armRotatorMotorAlgaeRequest = new PositionTorqueCurrentFOC(armRotatorMotor.getPosition().getValueAsDouble()).withSlot(1);
-        armRotatorMotorZeroRequest = new PositionTorqueCurrentFOC(armRotatorMotor.getPosition().getValueAsDouble()).withSlot(0); // maybe problem idk
+        armRotatorMotorZeroRequest = new PositionTorqueCurrentFOC(armRotatorMotor.getPosition().getValueAsDouble()).withSlot(2); // maybe problem idk
 
         canCoder.getConfigurator().apply(new CANcoderConfiguration().withMagnetSensor(
                 new MagnetSensorConfigs().withSensorDirection(SensorDirectionValue.Clockwise_Positive)));
@@ -122,6 +122,7 @@ public class AlgaeSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("AlgaeRotater/HoldPosition", rollerMotorHoldRequest.Position);
         SmartDashboard.putBoolean("AlgaeRotater/Manual", manual);
         SmartDashboard.putBoolean("AlgaeRotater/Status", status);
+        SmartDashboard.putString("AlgaeRotater/thisState", this.state.toString());
 
         SmartDashboard.putNumber("AlgaeHinge/TargetPosition", armRotatorMotorRequest.Position);
         SmartDashboard.putNumber("AlgaeHinge/TargetPositionForZero", armRotatorMotorZeroRequest.Position);
@@ -157,6 +158,12 @@ public class AlgaeSubsystem extends SubsystemBase {
                 rollerMotorHoldRequest.Position = rollerMotor.getPosition().getValueAsDouble();
                 rollerMotor.setControl(rollerMotorHoldRequest);
                 break;
+            case CORAL_KICK_RETURN:
+                armRotatorMotorRequest.Position = Constants.Algae.DEFAULT_POSE.getValue();
+                armRotatorMotor.setControl(armRotatorMotorRequest);
+                rollerMotorHoldRequest.Position = rollerMotor.getPosition().getValueAsDouble();
+                rollerMotor.setControl(rollerMotorHoldRequest);
+                break;
             case CORAL_KICK:
                 armRotatorMotorRequest.Position = Constants.Algae.CORAL_SCORE_POSE.getValue();
                 armRotatorMotor.setControl(armRotatorMotorRequest);
@@ -164,7 +171,7 @@ public class AlgaeSubsystem extends SubsystemBase {
     }
 
     public enum State{
-        SHOOT_ALGAE, SHOOT_POSE, INTAKE_ALGAE, NEUTRAL, CORAL_KICK
+        SHOOT_ALGAE, SHOOT_POSE, INTAKE_ALGAE, NEUTRAL, CORAL_KICK, CORAL_KICK_RETURN
     }
 
     public Command holdCommand() {
@@ -222,7 +229,12 @@ public class AlgaeSubsystem extends SubsystemBase {
     public Command setNeutralState(){
         return runOnce(() -> {
             this.state = State.NEUTRAL;
-            System.err.println("SETTING ALGAE TO NEUTRAL");
+        });
+    }
+
+    public Command setCoralKickReturnState() {
+        return runOnce(() -> {
+            this.state = State.CORAL_KICK_RETURN;
         });
     }
 
