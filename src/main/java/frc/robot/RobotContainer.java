@@ -3,7 +3,6 @@
 // the WPILib BSD license file in the root directory of this project.
 package frc.robot;
 
-import java.util.Map;
 import java.util.Set;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -16,21 +15,20 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import static edu.wpi.first.wpilibj2.command.Commands.defer;
 import static edu.wpi.first.wpilibj2.command.Commands.parallel;
-import static edu.wpi.first.wpilibj2.command.Commands.select;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import lib.pose.GeneralPose;
-import lib.pose.ScoreConfig.TargetObject;
+import lib.pose.ScoreConfig.NavigationTarget;
 import lib.pose.ScoreConfig.TargetState;
 import lib.vision.Limelight;
 import lib.vision.RealSenseCamera;
-import frc.robot.commands.ButtonDriveController;
-import frc.robot.commands.DriveController;
 import frc.robot.commands.RumbleCommandStart;
 import frc.robot.commands.RumbleCommandStop;
+import frc.robot.commands.controller.ButtonDriveController;
+import frc.robot.commands.controller.DriveController;
 import frc.robot.subsystems.AlgaeSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem.Setpoint;
@@ -102,20 +100,20 @@ public class RobotContainer {
      */
     private void configureAutoBindings() {
         // Auto intake algae intake from reef
-        thirdController.x().whileTrue(buildAutoRoutine(TargetState.ALGAE_BUTTON));
+        driverController.povUp().whileTrue(buildAutoRoutine(TargetState.ALGAE_BUTTON));
 
         // Auto barge score
         operatorController.a().whileTrue(buildBargeScoringRoutine());
 
         // PID + elevator to nearest coral pose left
-        operatorController.b().whileTrue(buildAutoRoutine(TargetState.L2_LEFT));
-        operatorController.x().whileTrue(buildAutoRoutine(TargetState.L3_LEFT));
-        operatorController.y().whileTrue(buildAutoRoutine(TargetState.L4_LEFT));
+        operatorController.rightBumper().whileTrue(buildAutoRoutine(TargetState.L2_LEFT));
+        operatorController.back().whileTrue(buildAutoRoutine(TargetState.L3_LEFT));
+        operatorController.start().whileTrue(buildAutoRoutine(TargetState.L4_LEFT));
 
         // PID to nearest coral pose left
-        operatorController.rightBumper().whileTrue(buildAutoRoutine(TargetState.L2_RIGHT));
-        operatorController.back().whileTrue(buildAutoRoutine(TargetState.L3_RIGHT));
-        operatorController.start().whileTrue(buildAutoRoutine(TargetState.L4_RIGHT));
+        operatorController.b().whileTrue(buildAutoRoutine(TargetState.L2_RIGHT));
+        operatorController.x().whileTrue(buildAutoRoutine(TargetState.L3_RIGHT));
+        operatorController.y().whileTrue(buildAutoRoutine(TargetState.L4_RIGHT));
 
         // PID to coral source
         operatorController.button(11).whileTrue(buildAutoRoutine(TargetState.LEFT_SOURCE));
@@ -127,14 +125,11 @@ public class RobotContainer {
      */
     private void configureElevatorBindings() {
         // Redundent elevator positions of drive controller
-        driverController.a().onTrue(elevatorSubsystem.moveToTargetPosition(Setpoint.kLevel1).withName("kLevel1"));
+        driverController.a()
+                .onTrue(elevatorSubsystem.moveToTargetPosition(Setpoint.kFeederStation).withName("kFeederStation"));
         driverController.b().onTrue(elevatorSubsystem.moveToTargetPosition(Setpoint.kLevel2).withName("kLevel2"));
         driverController.x().onTrue(elevatorSubsystem.moveToTargetPosition(Setpoint.kLevel3).withName("kLevel3"));
         driverController.y().onTrue(elevatorSubsystem.moveToTargetPosition(Setpoint.kLevel4).withName("kLevel4"));
-
-        // Redundent manual elevator movement
-        driverController.povDown().whileTrue(elevatorSubsystem.runMotors(true).withName("runMotorsReverseTrue"));
-        driverController.povUp().whileTrue(elevatorSubsystem.runMotors(false).withName("runMotorsReverseFalse"));
 
         // Elevator to feeder station after scoring on reef
         operatorController.leftBumper()
@@ -155,6 +150,7 @@ public class RobotContainer {
         operatorController.rightStick().whileTrue(coralSubsystem.intakeCoral().withName("intakeCoral"));
         operatorController.leftStick()
                 .whileTrue(coralSubsystem.shootCoral().withName("shootCoral").alongWith(buildCoralAssistCommand()));
+        operatorController.leftStick().onFalse(algaeSubsystem.setCoralKickReturnState());
         thirdController.y().whileTrue(coralSubsystem.shootL1Coral());
 
         // Redudent coral controls
@@ -166,23 +162,11 @@ public class RobotContainer {
      * Configures algae intake and shooting controls.
      */
     private void configureAlgaeBindings() {
-        // Algae controls
-        driverController.leftTrigger().whileTrue(buildAlgaeIntakeRoutine());
-        driverController.leftBumper().whileTrue(algaeSubsystem.moveToZero().withName("returnToHomePosAlgae"));
-        driverController.rightTrigger().whileTrue(algaeSubsystem.shootAlgae().withName("shootAlgae"));
-        driverController.rightTrigger().onFalse(algaeSubsystem.hold(0));
+        driverController.rightTrigger().whileTrue(algaeSubsystem.shoot());
 
-        // After releasing shoot button, hinge goes to zero position
-        operatorController.leftStick().whileFalse(algaeSubsystem.moveToZero());
-
-        // Redudent algae controls
-        thirdController.povUp().whileTrue(algaeSubsystem.manualControlForward());
-        thirdController.povUp().onFalse(algaeSubsystem.mainMotorHoldCommand());
-        thirdController.povDown().whileTrue(algaeSubsystem.manualControlBackwards());
-        thirdController.povUp().onFalse(algaeSubsystem.mainMotorHoldCommand());
-
-        thirdController.a().whileTrue(algaeSubsystem.moveToAlgaeShoot());
-        thirdController.b().whileTrue(algaeSubsystem.manualIntake());
+        driverController.leftTrigger().whileTrue(algaeSubsystem.intake());
+        
+        driverController.leftBumper().whileTrue(algaeSubsystem.setNeutralState());
     }
 
     /**
@@ -239,14 +223,16 @@ public class RobotContainer {
         NamedCommands.registerCommand("Shoot Coral", coralSubsystem.shootCoral().alongWith(buildCoralAssistCommand()));
         NamedCommands.registerCommand("Wait For Coral", coralSubsystem.waitUntilCoral());
 
-        NamedCommands.registerCommand("Move Hinge Coral", algaeSubsystem.moveToCoralScorePose());
-        NamedCommands.registerCommand("Move Hinge Zero", algaeSubsystem.moveToZero());
-        NamedCommands.registerCommand("Move To Algae Intake", algaeSubsystem.moveToIntakePos());
-        NamedCommands.registerCommand("Move Hinge Barge", algaeSubsystem.moveToAlgaeShoot());
+        NamedCommands.registerCommand("Move Hinge Coral", algaeSubsystem.setCoralKickState());
+        NamedCommands.registerCommand("Move Hinge Zero", algaeSubsystem.setCoralKickReturnState());
+        NamedCommands.registerCommand("Move Hinge Barge", algaeSubsystem.setShootPoseState());
         NamedCommands.registerCommand("Auto Barge Score", buildBargeScoringRoutine());
 
+        // Bad bc not a state
+        NamedCommands.registerCommand("Move To Algae Intake", new InstantCommand());
+
         NamedCommands.registerCommand("Intake Algae", algaeSubsystem.intake());
-        NamedCommands.registerCommand("Shoot ALgae", algaeSubsystem.shootAlgae());
+        NamedCommands.registerCommand("Shoot Algae", algaeSubsystem.setShootAlgaeState());
 
         NamedCommands.registerCommand("RumbleCommantStart", new RumbleCommandStart(driverController));
         NamedCommands.registerCommand("RumbleCommantStop", new RumbleCommandStop(driverController));
@@ -262,12 +248,15 @@ public class RobotContainer {
         final boolean filterCompetitionAutos = true;
 
         // Build an auto chooser. This will use Commands.none() as the default option.
-        // This will only show autos to select from that start with "Kick" and "Center"
+        // This will only show autos to select from that start with "Right", "Left", and "Choreo"
         SendableChooser<Command> chooser = AutoBuilder.buildAutoChooserWithOptionsModifier(
                 (stream) -> filterCompetitionAutos
                         ? stream.filter(
-                                auto -> (auto.getName().startsWith("Kick") || auto.getName().startsWith("Center")))
+                                auto -> (auto.getName().startsWith("Right") || auto.getName().startsWith("Left")
+                                        || auto.getName().startsWith("Choreo")))
                         : stream);
+        // SendableChooser<Command> chooser = AutoBuilder.buildAutoChooserWithOptionsModifier(
+        //         (stream) -> stream);
         return chooser;
     }
 
@@ -283,16 +272,20 @@ public class RobotContainer {
      *
      * <p>
      * This method defers construction so that
-     * {@code drive.filterClosestState(target)}
+     * {@code swerveSubsystem.filterClosestState(target)}
      * is called when the command is scheduled to calculate the closest was Pose2d.
      *
      * <p>
      * Once initialized, it runs the drivetrain and elevator in parallel to move to
      * the computed pose, selecting between coral or algae-specific routines.
-     * After the chosen routine completes, it stops the drivetrain.
+     * 
+     * <p>
+     * If {@code NavigationTarget == ALGAE}, then add on commands to
+     * intake algae and back away from reef after sucking in the algae.
      *
      * <p>
-     * Requirements: {@code DriveSubsystem} and {@code ElevatorSubsystem}.
+     * Requirements: {@code SwerveSubsystem}, {@code ElevatorSubsystem}, and
+     * {@code AlgaeSubystem}.
      *
      * @param target The TargetState to reach
      * @return A deferred, composable Command that handles pose filtering, parallel
@@ -303,33 +296,29 @@ public class RobotContainer {
         return defer(() -> {
             GeneralPose generalPose = swerveSubsystem.filterClosestState(target);
 
-            if(generalPose == null) {
+            if (generalPose == null) {
                 return new InstantCommand();
             }
 
             // Base parallel: drive + elevator in parallel
             Command base = parallel(
-                    swerveSubsystem.driveToPose(generalPose.getPose2d())
-                            .andThen(swerveSubsystem.stopDriving())
-                            .andThen(swerveSubsystem.updateRotationPIDSetpointCommand()),
+                    swerveSubsystem.driveToGeneralPose(generalPose).andThen(swerveSubsystem.endDrive()),
                     elevatorSubsystem.moveToTargetPosition(generalPose.getTargetState().getSetpoint()));
 
-            // Two branches: coral vs. algae
-            Command coralFlow = base;
-            Command algaeFlow = base.alongWith(buildAlgaeIntakeRoutine())
-                    .andThen(swerveSubsystem.backAwayFromReef())
-                    .andThen(swerveSubsystem.stopDriving())
-                    .andThen(swerveSubsystem.updateRotationPIDSetpointCommand());
+            // If algae, then add commands onto base
+            if (generalPose.getNavTarget() == NavigationTarget.ALGAE) {
+                base = base.alongWith(algaeSubsystem.intake())
+                            .andThen(new WaitCommand(0.5))
+                            .andThen(
+                                (swerveSubsystem.backAwayFromReef(generalPose).andThen(swerveSubsystem.endDrive()))
+                                .alongWith(algaeSubsystem.afterIntakeAutoSequence())
+                            );
+            }
 
-            // Select based on TargetObject, then stop drive once done
-            return select(
-                    Map.of(
-                            TargetObject.ALGAE, algaeFlow,
-                            TargetObject.CORAL, coralFlow),
-                    () -> target.getObject());
+            return base;
         },
-                // Declare requirements up front
-                Set.of(swerveSubsystem, elevatorSubsystem));
+                // Declare requirements
+                Set.of(swerveSubsystem, elevatorSubsystem, algaeSubsystem));
     }
 
     /**
@@ -340,42 +329,38 @@ public class RobotContainer {
         return Commands.sequence(
                 // 1) Drive close to barge in parallel with elevator and algae pre-move
                 Commands.parallel(
-                        swerveSubsystem.driveCloseToBargePose()
+                        swerveSubsystem.driveCloseToBarge()
                                 .andThen(swerveSubsystem.stopDriving())
                                 .andThen(swerveSubsystem.updateRotationPIDSetpointCommand()),
-                        algaeSubsystem.moveToAlgaeShoot(),
+                        algaeSubsystem.setShootPoseState(),
                         elevatorSubsystem.moveToTargetPosition(Setpoint.kLevel2)),
                 // 2) Ramp elevator to L4, pause, then actually drive to barge
                 elevatorSubsystem.moveToTargetPosition(Setpoint.kLevel4),
                 new WaitCommand(Constants.Algae.BARGE_L4_WAIT.getValue()),
-                swerveSubsystem.driveToBargePose()
+                swerveSubsystem.driveToBarge()
                         .andThen(swerveSubsystem.stopDriving())
                         .andThen(swerveSubsystem.updateRotationPIDSetpointCommand()),
                 new WaitCommand(Constants.Algae.BARGE_SHOOT_WAIT.getValue()),
                 // 3) Finally shoot algae
-                algaeSubsystem.shootAlgae());
-    }
-
-    /**
-     * Builds the algae intake routine: intake, wait, then reposition for barge
-     * scoring.
-     */
-    private Command buildAlgaeIntakeRoutine() {
-        return Commands.sequence(
-                algaeSubsystem.intake(),
-                new WaitCommand(1),
-                algaeSubsystem.moveToAlgaeShoot());
+                algaeSubsystem.setShootAlgaeState());
     }
 
     /**
      * Builds a conditional coral assist command when elevator is at L4.
      */
     private Command buildCoralAssistCommand() {
+        Command moveL4RaisedSlow = elevatorSubsystem.moveL4RaisedSlow(Setpoint.kLevel4Raised);
+        Command setCoralKickState = algaeSubsystem.setCoralKickState();
+
+        // System.out.println(moveL4RaisedSlow.getRequirements());
+        // System.out.println(setCoralKickState.getRequirements());
+
         return new ConditionalCommand(
                 // if elevator at L4, run a deadline group to raise & intake
                 new ParallelDeadlineGroup(
-                        elevatorSubsystem.moveL4RaisedSlow(Setpoint.kLevel4Raised),
-                        algaeSubsystem.moveToCoralScorePose().andThen(algaeSubsystem.runMotorsToIntake())),
+                        moveL4RaisedSlow,
+                        setCoralKickState
+                ),
                 // else do nothing
                 new InstantCommand(),
                 elevatorSubsystem::isElevatorAtL4);

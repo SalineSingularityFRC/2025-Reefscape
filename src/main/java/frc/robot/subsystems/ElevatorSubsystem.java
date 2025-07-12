@@ -7,11 +7,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants;
 import frc.robot.Constants.Elevator;
-import frc.robot.commands.RumbleCommandStart;
-import frc.robot.commands.RumbleCommandStop;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
@@ -23,8 +20,6 @@ import com.revrobotics.spark.SparkFlex;
 
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
-import java.util.function.IntFunction;
-
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.sim.SparkFlexSim;
 import com.revrobotics.sim.SparkLimitSwitchSim;
@@ -49,7 +44,6 @@ public class ElevatorSubsystem extends SubsystemBase {
     private boolean wasResetByLimit = false;
     private double elevatorCurrentTarget = Elevator.Positions.FEED_STATION_COUNTS.getValue();
     private boolean manual = false;
-    private RumbleCommandStart rumbleStart;
 
     private CoralSubsystem intake;
     private NetworkTable cameraTable;
@@ -96,13 +90,8 @@ public class ElevatorSubsystem extends SubsystemBase {
                     kMinElevatorHeightMeters
                             * kPixelsPerMeter,
                     90));
-    private RumbleCommandStop rumbleEnd;
 
     public ElevatorSubsystem(CoralSubsystem intake) {
-        // elevatorSpeed = Preferences.getDouble("Elevator Motor Speed (rpm)", 1);
-        rumbleStart = new RumbleCommandStart(new CommandXboxController(Constants.Gamepad.Controller.DRIVE));
-        rumbleEnd = new RumbleCommandStop(new CommandXboxController(Constants.Gamepad.Controller.DRIVE));
-
         cameraTable = NetworkTableInstance.getDefault().getTable(Constants.Vision.Names.realSenseCam);
         cameraHeightPublisher = cameraTable.getDoubleTopic("Camera Height").publish();
 

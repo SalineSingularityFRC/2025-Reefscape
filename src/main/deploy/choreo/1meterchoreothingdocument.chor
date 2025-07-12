@@ -1,0 +1,192 @@
+{
+ "name":"1meterchoreothingdocument",
+ "version":1,
+ "type":"Swerve",
+ "variables":{
+  "expressions":{
+   "ToFeederVelLimit":{
+    "dimension":"LinVel",
+    "var":{
+     "exp":"1.5 m / s",
+     "val":1.5
+    }
+   },
+   "ToReefVelLimit":{
+    "dimension":"LinVel",
+    "var":{
+     "exp":"0.8 m / s",
+     "val":0.8
+    }
+   }
+  },
+  "poses":{
+   "CS1":{
+    "x":{
+     "exp":"1.48 m",
+     "val":1.48
+    },
+    "y":{
+     "exp":"7.27 m",
+     "val":7.27
+    },
+    "heading":{
+     "exp":"-54 deg",
+     "val":-0.942477796076938
+    }
+   },
+   "J":{
+    "x":{
+     "exp":"5.0071282386779785 m",
+     "val":5.0071282386779785
+    },
+    "y":{
+     "exp":"5.258365631103516 m",
+     "val":5.258365631103516
+    },
+    "heading":{
+     "exp":"-120 deg",
+     "val":-2.0943951023931953
+    }
+   },
+   "K":{
+    "x":{
+     "exp":"3.97 m",
+     "val":3.97
+    },
+    "y":{
+     "exp":"5.245 m",
+     "val":5.245
+    },
+    "heading":{
+     "exp":"-60 deg",
+     "val":-1.0471975511965976
+    }
+   },
+   "L":{
+    "x":{
+     "exp":"3.679 m",
+     "val":3.679
+    },
+    "y":{
+     "exp":"5.096 m",
+     "val":5.096
+    },
+    "heading":{
+     "exp":"-60 deg",
+     "val":-1.0471975511965976
+    }
+   },
+   "StartBottom":{
+    "x":{
+     "exp":"7.256 m",
+     "val":7.256
+    },
+    "y":{
+     "exp":"1.92 m",
+     "val":1.92
+    },
+    "heading":{
+     "exp":"180 deg",
+     "val":3.141592653589793
+    }
+   },
+   "StartMiddle":{
+    "x":{
+     "exp":"7.6 m",
+     "val":7.6
+    },
+    "y":{
+     "exp":"4.026 m",
+     "val":4.026
+    },
+    "heading":{
+     "exp":"180 deg",
+     "val":3.141592653589793
+    }
+   },
+   "StartTop":{
+    "x":{
+     "exp":"7.233 m",
+     "val":7.233
+    },
+    "y":{
+     "exp":"6.163 m",
+     "val":6.163
+    },
+    "heading":{
+     "exp":"180 deg",
+     "val":3.141592653589793
+    }
+   }
+  }
+ },
+ "config":{
+  "frontLeft":{
+   "x":{
+    "exp":"0.276 m",
+    "val":0.276
+   },
+   "y":{
+    "exp":"0.276 m",
+    "val":0.276
+   }
+  },
+  "backLeft":{
+   "x":{
+    "exp":"-0.276 m",
+    "val":-0.276
+   },
+   "y":{
+    "exp":"0.276 m",
+    "val":0.276
+   }
+  },
+  "mass":{
+   "exp":"64.546 kg",
+   "val":64.546
+  },
+  "inertia":{
+   "exp":"8.031 kg * m ^ 2",
+   "val":8.031
+  },
+  "gearing":{
+   "exp":"5.9",
+   "val":5.9
+  },
+  "radius":{
+   "exp":"2 in",
+   "val":0.0508
+  },
+  "vmax":{
+   "exp":"4160 RPM",
+   "val":435.6341812977846
+  },
+  "tmax":{
+   "exp":"0.8 N * m",
+   "val":0.8
+  },
+  "cof":{
+   "exp":"1.43",
+   "val":1.43
+  },
+  "bumper":{
+   "front":{
+    "exp":"0.864 / 2 m",
+    "val":0.432
+   },
+   "side":{
+    "exp":"0.864 / 2 m",
+    "val":0.432
+   },
+   "back":{
+    "exp":"0.864 / 2 m",
+    "val":0.432
+   }
+  },
+  "differentialTrackWidth":{
+   "exp":"22 in",
+   "val":0.5588
+  }
+ },
+ "generationFeatures":[]
+}
