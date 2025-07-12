@@ -52,6 +52,20 @@ public class FollowPath extends Command {
         addRequirements(m_swerveSubsystem);
     }
 
+    private boolean loadPathWithPrefix(String pathPrefix, String poseName) {
+        try {
+            String pathName = pathPrefix + " " + poseName;
+            m_chosenPath = PathPlannerPath.fromPathFile(pathName);
+            return true;
+        } catch (IOException | org.json.simple.parser.ParseException | FileVersionException e) {
+            String pathName = pathPrefix + " " + poseName;
+            DriverStation.reportError(
+                    "Failed to load path \"" + pathName + "\": " + e.getMessage(),
+                    e.getStackTrace());
+            return false;
+        }
+    }
+
     @Override
     public void initialize() {
         // 1) Fetch the name & target object from the target GeneralPose
@@ -65,38 +79,22 @@ public class FollowPath extends Command {
                 Units.degreesToRadians(PathFinding.maxAngularVelocityDegPerSec.getValue()),
                 Units.degreesToRadians(PathFinding.maxAngularAccelerationDegPerSecSq.getValue()));
 
-        // 2) Only handle the ALGAE and ALGAE_BACK_AWAY object for now
-        if (navTarget == NavigationTarget.ALGAE) {
-            try {
-                // Build the path file name like "To Algae [PoseName].path"
-                m_chosenPath = PathPlannerPath.fromPathFile("To Algae " + generalPoseName);
-            } catch (IOException | org.json.simple.parser.ParseException | FileVersionException e) {
-                // Report any file-loading or parsing errors to DriverStation
-                DriverStation.reportError(
-                        "Failed to load path \"" + "To Algae " + generalPoseName + "\": " + e.getMessage(),
-                        e.getStackTrace());
-                m_failedToLoadPath = true;
-            }
-        } else if (navTarget == NavigationTarget.ALGAE_BACK_AWAY) {
-            try {
-                // Build the path file name like "Back Away From Algae [PoseName].path"
-                m_chosenPath = PathPlannerPath.fromPathFile("Back Away From Algae " + generalPoseName);
-            } catch (IOException | org.json.simple.parser.ParseException | FileVersionException e) {
-                // Report any file-loading or parsing errors to DriverStation
-                DriverStation.reportError(
-                        "Failed to load path \"" + "Back Away From Algae " + generalPoseName + "\": " + e.getMessage(),
-                        e.getStackTrace());
-                m_failedToLoadPath = true;
-            }
+        String pathPrefix = switch (navTarget) {
+            case ALGAE -> "To Algae";
+            case ALGAE_BACK_AWAY -> "Back Away From Algae";
+            default -> null;
+        };
+
+        if (pathPrefix != null) {
+            m_failedToLoadPath = !loadPathWithPrefix(pathPrefix, generalPoseName);
         } else {
-            // If not ALGAE, do nothing — fallback to an empty command
             m_delegate = Commands.none();
         }
 
         // 3) If loading succeeded, create the path-follower command; otherwise do
         // nothing
         if (!m_failedToLoadPath) {
-            if(navTarget == NavigationTarget.ALGAE_BACK_AWAY) {
+            if (navTarget == NavigationTarget.ALGAE_BACK_AWAY) {
                 m_delegate = AutoBuilder.followPath(m_chosenPath);
             } else {
                 m_delegate = AutoBuilder.pathfindThenFollowPath(m_chosenPath, m_constraints);
