@@ -3,21 +3,23 @@
   "robotLength": 0.864,
   "holonomicMode": true,
   "pathFolders": [
+    "Algae Scoring",
     "CS_1 To Reef",
     "CS_2 to Reef",
-    "Algae Scoring",
+    "AB Algae",
     "Path Adjustments",
     "Start",
     "Straight Tests",
+    "To Algae",
     "To CS_1",
     "To CS_2"
   ],
   "autoFolders": [
     "Center",
-    "Bottom",
+    "Right",
     "Straight",
     "Test Autos",
-    "Top"
+    "Left"
   ],
   "defaultMaxVel": 4.865,
   "defaultMaxAccel": 4.5,
@@ -28,7 +30,7 @@
   "robotMOI": 8.0305792727,
   "robotTrackwidth": 0.546,
   "driveWheelRadius": 0.051,
-  "driveGearing": 5.9,
+  "driveGearing": 6.75,
   "maxDriveSpeed": 4.865,
   "driveMotorType": "krakenX60FOC",
   "driveCurrentLimit": 80.0,
