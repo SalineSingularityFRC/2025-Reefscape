@@ -8,7 +8,7 @@ public class CustomOperatorController extends CommandXboxController{
         super(port);
     }
 
-    public Trigger bargeScoring() {return a();}
+    public Trigger L1_SHOOT() {return a();}
 
     public Trigger feederStation() {return leftBumper();}
     public Trigger L2_Left() {return rightBumper();}

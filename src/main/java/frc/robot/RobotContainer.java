@@ -100,11 +100,12 @@ public class RobotContainer {
      * and Barge)
      */
     private void configureAutoBindings() {
+
+        //Auto Barge
+        driverController.start().whileTrue(buildBargeScoringRoutine());
+
         // Auto intake algae intake from reef
         driverController.povUp().whileTrue(buildAutoRoutine(TargetState.ALGAE_BUTTON));
-
-        // Auto barge score
-        operatorController.bargeScoring().whileTrue(buildBargeScoringRoutine());
 
         // PID + elevator to nearest coral pose left
         operatorController.L2_Left().whileTrue(buildAutoRoutine(TargetState.L2_LEFT));
@@ -151,7 +152,9 @@ public class RobotContainer {
         operatorController.intakeCoral().whileTrue(coralSubsystem.intakeCoral().withName("intakeCoral"));
         operatorController.shootCoral()
                 .whileTrue(coralSubsystem.shootCoral().withName("shootCoral").alongWith(buildCoralAssistCommand()));
-        thirdController.y().whileTrue(coralSubsystem.shootL1Coral());
+        // thirdController.y().whileTrue(coralSubsystem.shootL1Coral());
+
+        operatorController.L1_SHOOT().whileTrue(coralSubsystem.shootL1Coral());
 
         // Redudent coral controls
         driverController.povLeft().whileTrue(coralSubsystem.intakeCoral().withName("intakeCoral"));
