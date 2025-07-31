@@ -266,8 +266,7 @@ public class RobotContainer {
         SendableChooser<Command> chooser = AutoBuilder.buildAutoChooserWithOptionsModifier(
                 (stream) -> filterCompetitionAutos
                         ? stream.filter(
-                                auto -> (auto.getName().startsWith("Right") || auto.getName().startsWith("Left")
-                                        || auto.getName().startsWith("Choreo")))
+                                auto -> (auto.getName().startsWith("Right") || auto.getName().startsWith("Left")))
                         : stream);
         return chooser;
     }
