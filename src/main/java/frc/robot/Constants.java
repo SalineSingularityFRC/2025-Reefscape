@@ -329,11 +329,16 @@ public final class Constants {
         new GeneralPose("IJ", new Pose2d(5.104, 5.092, new Rotation2d(Math.toRadians(240.0))), TargetState.ALGAE_UPPER),
         new GeneralPose("KL", new Pose2d(3.828, 5.178, new Rotation2d(Math.toRadians(300.0))), TargetState.ALGAE_LOWER),
 
+
+        // field x in meters: 17.5482504
+        // field y in meters: 8.0519016
+        // case kRotational -> new Translation2d(fieldSizeX - pos.getX(), fieldSizeY - pos.getY());
+
         // Coral source poses
-        new GeneralPose("Left Source", new Pose2d(1.395, 7.387, new Rotation2d(Math.toRadians(306.0))),
-            TargetState.LEFT_SOURCE),
-        new GeneralPose("Right Source", new Pose2d(1.480, 0.750, new Rotation2d(Math.toRadians(54.0))),
-            TargetState.RIGHT_SOURCE));
+        new GeneralPose("Left Source", new Pose2d(1.4882504, 7.3319016, new Rotation2d(Math.toRadians(306.0))),
+            TargetState.LEFT_SOURCE), // 16.06 0.72..... 1.4882504, 7.3319016
+        new GeneralPose("Right Source", new Pose2d(1.3982504, 0.7819016, new Rotation2d(Math.toRadians(54.0))),
+            TargetState.RIGHT_SOURCE)); // 16.15, 7.27.....1.3982504, 0.7819016
 
     // Barge scoring poses
     public static double bargeXBlue = 7.95;
