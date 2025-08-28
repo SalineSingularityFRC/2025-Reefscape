@@ -296,6 +296,7 @@ public final class Constants {
     public static final Vector<N3> kDefaultMultiTagStdDevs = VecBuilder.fill(0.5, 0.5, 9999999);
     public static final ConfigDouble kKalmanDivisor = new ConfigDouble("Vision/kKalmanDivisor", 30);
     public static final ConfigDouble kMaxRotationRate = new ConfigDouble("Vision/kMaxRotationRate", 360);
+    public static final ConfigBoolean AddLLToOdometry = new ConfigBoolean("Vision/kAddLLToOdometry", true);
 
     public class Names {
       public static final String leftLL = "limelight-left";

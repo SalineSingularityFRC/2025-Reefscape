@@ -30,6 +30,8 @@ public class SwerveOdometry {
 
   private DataLog log;
 
+  private boolean AddLLToOdometry;
+
   public SwerveOdometry(SwerveSubsystem subsystem, SwerveDriveKinematics kinematics, Limelight leftLL,
       Limelight rightLL) {
     this.subsystem = subsystem;
@@ -42,6 +44,8 @@ public class SwerveOdometry {
 
     doRejectLeftLLUpdate = false;
     doRejectRightLLUpdate = false;
+
+    AddLLToOdometry = Constants.Vision.AddLLToOdometry.getValue();
 
     swerveKinematics = kinematics;
 
@@ -108,6 +112,7 @@ public class SwerveOdometry {
    */
   public void addLLVisionMeasurement() {
 
+    AddLLToOdometry = Constants.Vision.AddLLToOdometry.getValue();
     double poseRotation = getPoseEstimatedRotation();
 
     leftLL.setRobotOrientation(poseRotation, 0, 0, 0, 0, 0);
@@ -121,6 +126,10 @@ public class SwerveOdometry {
     // if our angular velocity is greater than 360 degrees per second, ignore vision
     // updates. 360 is the default value in docs
     if (Math.abs(subsystem.getAngularChassisSpeed()) > Constants.Vision.kMaxRotationRate.getValue()) {
+      doRejectLeftLLUpdate = true;
+      doRejectRightLLUpdate = true;
+    }
+    if(!AddLLToOdometry){
       doRejectLeftLLUpdate = true;
       doRejectRightLLUpdate = true;
     }
