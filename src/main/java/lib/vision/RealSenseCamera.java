@@ -25,8 +25,8 @@ public class RealSenseCamera {
   private final String CamName;
   private NetworkTable mainTable;
   private NetworkTable debugTable;
-  private DoubleArrayTopic poseInfoDoubleArrayTopic;
-  private DoubleArrayEntry poseEntry;
+  private DoubleTopic poseInfoDoubleTopic;
+  private DoubleEntry poseEntry;
   private DoubleTopic timestampTopic;
   private DoubleEntry timestampEntry;
   private Pose2d finalReefPose;
@@ -39,10 +39,10 @@ public class RealSenseCamera {
   public RealSenseCamera(String name) {
     CamName = name;
     mainTable = NetworkTableInstance.getDefault().getTable(CamName);
-    poseInfoDoubleArrayTopic = mainTable.getDoubleArrayTopic("L4");
-    poseEntry = poseInfoDoubleArrayTopic.getEntry(new double[] { -1, -1 });
+    poseInfoDoubleTopic = mainTable.getDoubleTopic("x_offset");
+    poseEntry = poseInfoDoubleTopic.getEntry(0);
 
-    timestampTopic = mainTable.getDoubleTopic("L4_t");
+    timestampTopic = mainTable.getDoubleTopic("x_offset_t");
     timestampEntry = timestampTopic.getEntry(0);
 
     // Not needed
@@ -91,9 +91,9 @@ public class RealSenseCamera {
     // long timestamp = tsValue.timestamp;
     // Translation2d tran2d = new Translation2d(poseArray[0], poseArray[1]);
 
-    double[] poseEntryGet = poseEntry.get();
-    Translation2d trans2d = new Translation2d(poseEntryGet[0], poseEntryGet[1]);
-    SmartDashboard.putNumberArray("realsensecamera/poseEntryGet", poseEntryGet);
+    double poseEntryGet = poseEntry.get();
+    Translation2d trans2d = new Translation2d(poseEntryGet, 0);
+    SmartDashboard.putNumber("realsensecamera/poseEntryGet", poseEntryGet);
 
     double currentTimestamp = timestampEntry.get();
     SmartDashboard.putNumber("realsensecamera/currentTimestamp", currentTimestamp);
@@ -104,7 +104,7 @@ public class RealSenseCamera {
     }
     lastTimestamp = currentTimestamp;
 
-    if (currentTimestamp == 0 || timer.hasElapsed(5) || !isCameraPoseStable(trans2d)) { // make constants thing later
+    if (false) {//currentTimestamp == 0 || timer.hasElapsed(5) || !isCameraPoseStable(trans2d)) { // make constants thing later
       finalReefPose = null;
       SmartDashboard.putBoolean("realsensecamera/good", false); // MAKE CONSTANTS LATER
     } else {
@@ -122,8 +122,7 @@ public class RealSenseCamera {
     SmartDashboard.putNumber("realsensecamera/stableCount", stableCount);
 
     if (poseTranslation2d.getDistance(lastTranslation2d) < Constants.Drive.L4_PID_DRIVE_POSE_TOLERANCE
-        .getValue()
-        && !poseTranslation2d.equals(lastTranslation2d)) {
+        .getValue()) {
       stableCount++;
     } else {
       stableCount = 0;

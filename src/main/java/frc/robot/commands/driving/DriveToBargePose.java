@@ -26,7 +26,7 @@ public class DriveToBargePose extends Command {
         addRequirements(swerve);
 
         rotationController = new PIDController(
-                Drive.PID_DRIVE_ROTATION_KP.getValue(),
+                Drive.PID_DRIVE_ROTATION_KP.getValue() * 10,
                 Drive.PID_DRIVE_ROTATION_KI.getValue(),
                 Drive.PID_DRIVE_ROTATION_KD.getValue());
 

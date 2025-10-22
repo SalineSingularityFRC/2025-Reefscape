@@ -36,6 +36,9 @@ import frc.robot.subsystems.ElevatorSubsystem.Setpoint;
 import frc.robot.subsystems.CoralSubsystem;
 import frc.robot.subsystems.LEDStatusSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
+import frc.robot.commands.driving.DriveToReefPole;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 
 public class RobotContainer {
     private SwerveSubsystem swerveSubsystem;
@@ -92,7 +95,9 @@ public class RobotContainer {
     private void configureBindings() {
         // Doesn't work since CameraDriveToPose PIDs to a field centric pose
         // Need to rewrite CameraDriveToPose to be robot centric
-        // driveController.rightTrigger().whileTrue(drive.cameraDriveToPose(cam));
+        driverController.rightTrigger().whileTrue(
+              new DriveToReefPole(swerveSubsystem, realSenseCamera));
+        //    swerveSubsystem.cameraDriveToPose(realSenseCamera, new Pose2d(0,0,new Rotation2d(0))));
     }
 
     /**
@@ -168,8 +173,8 @@ public class RobotContainer {
         // Algae controls
         driverController.leftTrigger().whileTrue(buildAlgaeIntakeRoutine());
         driverController.leftBumper().whileTrue(algaeSubsystem.moveToZero().withName("returnToHomePosAlgae"));
-        driverController.rightTrigger().whileTrue(algaeSubsystem.shootAlgae().withName("shootAlgae"));
-        driverController.rightTrigger().onFalse(algaeSubsystem.hold(0));
+        // driverController.rightTrigger().whileTrue(algaeSubsystem.shootAlgae().withName("shootAlgae"));
+        // driverController.rightTrigger().onFalse(algaeSubsystem.hold(0));
         driverController.povDown().whileTrue(algaeSubsystem.moveToAlgaeShoot());
 
         // After releasing shoot button, hinge goes to zero position
@@ -212,7 +217,7 @@ public class RobotContainer {
                 }, () -> {
                     return 1.0;
                 },
-                        0.2));
+                        0.15));
         operatorController.fineAdjustRight().whileTrue(
                 new ButtonDriveController(swerveSubsystem, () -> {
                     return 0;
@@ -221,7 +226,7 @@ public class RobotContainer {
                 }, () -> {
                     return -1;
                 },
-                        0.2));
+                        0.15));
     }
 
     /**
