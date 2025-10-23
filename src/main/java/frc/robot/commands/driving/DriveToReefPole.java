@@ -26,12 +26,12 @@ public class DriveToReefPole extends Command {
         this.camera = camera;
 
         xDriveController = new PIDController(
-                Drive.PID_DRIVE_X_KP.getValue() * 0.75,
-                Drive.PID_DRIVE_X_KI.getValue(),
+                Drive.PID_DRIVE_X_KP.getValue(),
+                Drive.PID_DRIVE_X_KP.getValue() * 0.01,
                 Drive.PID_DRIVE_X_KD.getValue()); 
 
-        xDriveController.setSetpoint(0.02);
-        xDriveController.setTolerance(0.01);
+        xDriveController.setSetpoint(0.01);
+        xDriveController.setTolerance(0.005);
     }
 
     public void execute() {
@@ -39,7 +39,7 @@ public class DriveToReefPole extends Command {
             xDriveController.setTolerance(Drive.PID_DRIVE_X_TOLERANCE.getValue());
             xDriveController.setPID(
                     Drive.PID_DRIVE_X_KP.getValue(),
-                    Drive.PID_DRIVE_X_KI.getValue(),
+                    Drive.PID_DRIVE_X_KP.getValue() * 0.01,
                     Drive.PID_DRIVE_X_KD.getValue());
         }
 
@@ -50,7 +50,7 @@ public class DriveToReefPole extends Command {
         }
         SmartDashboard.putString("DriveToReefPole/targetPose", "valid");
 
-        double dx = xDriveController.calculate(targetPose.getX(),0.02);
+        double dx = xDriveController.calculate(targetPose.getX(),0.01);
 
         dx = MathUtil.clamp(dx, -Drive.PID_DRIVE_MAX_DRIVE_X_SPEED.getValue(),
                 Drive.PID_DRIVE_MAX_DRIVE_X_SPEED.getValue());
