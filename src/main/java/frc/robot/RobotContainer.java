@@ -18,6 +18,7 @@ import static edu.wpi.first.wpilibj2.command.Commands.parallel;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
+import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import lib.pose.GeneralPose;
@@ -106,7 +107,7 @@ public class RobotContainer {
      */
     private void configureAutoBindings() {
 
-        //Auto Barge
+        // Auto Barge
         driverController.start().whileTrue(buildBargeScoringRoutine());
 
         // Auto intake algae intake from reef
@@ -317,17 +318,24 @@ public class RobotContainer {
             }
 
             // Base parallel: drive + elevator in parallel
+            Setpoint targetElevatorSetpoint = generalPose.getTargetState().getSetpoint();
             Command base = parallel(
                     swerveSubsystem.driveToGeneralPose(generalPose).andThen(swerveSubsystem.endDrive()),
-                    elevatorSubsystem.moveToTargetPosition(generalPose.getTargetState().getSetpoint()));
+                    elevatorSubsystem.moveToTargetPosition(targetElevatorSetpoint));
+
+            if (targetElevatorSetpoint == Setpoint.kLevel4) {
+                base = base.andThen(
+                    new RepeatCommand(new DriveToReefPole(swerveSubsystem, realSenseCamera))
+                            .until(() -> new DriveToReefPole(swerveSubsystem, realSenseCamera).isFinished()));
+            }
 
             // If algae, then add commands onto base
             if (generalPose.getNavTarget() == NavigationTarget.ALGAE) {
                 base = base.alongWith(algaeSubsystem.intake())
-                    .andThen(new WaitCommand(0.5))
-                    .andThen((swerveSubsystem.backAwayFromReef(generalPose)
-                    .andThen(swerveSubsystem.endDrive()))
-                    .alongWith(buildAlgaeIntakeRoutine()));
+                        .andThen(new WaitCommand(0.5))
+                        .andThen((swerveSubsystem.backAwayFromReef(generalPose)
+                                .andThen(swerveSubsystem.endDrive()))
+                                .alongWith(buildAlgaeIntakeRoutine()));
             }
 
             return base;
