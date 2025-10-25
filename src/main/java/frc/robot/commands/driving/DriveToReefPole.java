@@ -19,6 +19,7 @@ public class DriveToReefPole extends Command {
     private final SwerveSubsystem m_swerve;
     private final RealSenseCamera camera;
     private PIDController xDriveController;
+    private final double cameraOffset = 0.2;
     
     public DriveToReefPole(SwerveSubsystem swerve, RealSenseCamera camera) {
         this.m_swerve = swerve;
@@ -30,7 +31,7 @@ public class DriveToReefPole extends Command {
                 Drive.PID_DRIVE_X_KI.getValue(),
                 Drive.PID_DRIVE_X_KD.getValue()); 
 
-        xDriveController.setSetpoint(0.02);
+        xDriveController.setSetpoint(cameraOffset);
         xDriveController.setTolerance(0.01);
     }
 
@@ -50,7 +51,7 @@ public class DriveToReefPole extends Command {
         }
         SmartDashboard.putString("DriveToReefPole/targetPose", "valid");
 
-        double dx = xDriveController.calculate(targetPose.getX(),0.02);
+        double dx = xDriveController.calculate(targetPose.getX(), cameraOffset);
 
         dx = MathUtil.clamp(dx, -Drive.PID_DRIVE_MAX_DRIVE_X_SPEED.getValue(),
                 Drive.PID_DRIVE_MAX_DRIVE_X_SPEED.getValue());

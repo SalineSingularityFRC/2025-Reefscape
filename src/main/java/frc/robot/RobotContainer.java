@@ -95,8 +95,8 @@ public class RobotContainer {
     private void configureBindings() {
         // Doesn't work since CameraDriveToPose PIDs to a field centric pose
         // Need to rewrite CameraDriveToPose to be robot centric
-        driverController.rightTrigger().whileTrue(
-              new DriveToReefPole(swerveSubsystem, realSenseCamera));
+        // driverController.rightTrigger().whileTrue(
+        //       new DriveToReefPole(swerveSubsystem, realSenseCamera));
         //    swerveSubsystem.cameraDriveToPose(realSenseCamera, new Pose2d(0,0,new Rotation2d(0))));
     }
 
@@ -173,7 +173,7 @@ public class RobotContainer {
         // Algae controls
         driverController.leftTrigger().whileTrue(buildAlgaeIntakeRoutine());
         driverController.leftBumper().whileTrue(algaeSubsystem.moveToZero().withName("returnToHomePosAlgae"));
-        // driverController.rightTrigger().whileTrue(algaeSubsystem.shootAlgae().withName("shootAlgae"));
+        driverController.rightTrigger().whileTrue(algaeSubsystem.shootAlgae().withName("shootAlgae"));
         // driverController.rightTrigger().onFalse(algaeSubsystem.hold(0));
         driverController.povDown().whileTrue(algaeSubsystem.moveToAlgaeShoot());
 

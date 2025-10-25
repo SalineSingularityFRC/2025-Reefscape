@@ -104,7 +104,7 @@ public class RealSenseCamera {
     }
     lastTimestamp = currentTimestamp;
 
-    if (false) {//currentTimestamp == 0 || timer.hasElapsed(5) || !isCameraPoseStable(trans2d)) { // make constants thing later
+    if (currentTimestamp == 0 || timer.hasElapsed(5) || !isCameraPoseStable(trans2d)) { // make constants thing later
       finalReefPose = null;
       SmartDashboard.putBoolean("realsensecamera/good", false); // MAKE CONSTANTS LATER
     } else {
