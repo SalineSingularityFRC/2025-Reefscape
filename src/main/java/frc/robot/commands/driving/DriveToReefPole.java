@@ -31,7 +31,7 @@ public class DriveToReefPole extends Command {
                 Drive.PID_DRIVE_X_KP.getValue() * 0.01,
                 Drive.PID_DRIVE_X_KD.getValue()); 
 
-        xDriveController.setSetpoint(-0.04);
+        xDriveController.setSetpoint(0);
         xDriveController.setTolerance(0.005);
     }
 
@@ -51,7 +51,7 @@ public class DriveToReefPole extends Command {
         }
         SmartDashboard.putString("DriveToReefPole/targetPose", "valid");
 
-        double dx = xDriveController.calculate(targetPose.getX(), -0.04);
+        double dx = xDriveController.calculate(targetPose.getX(), 0);
 
         dx = MathUtil.clamp(dx, -Drive.PID_DRIVE_MAX_DRIVE_X_SPEED.getValue(),
                 Drive.PID_DRIVE_MAX_DRIVE_X_SPEED.getValue());
