@@ -19,6 +19,7 @@ public class DriveToReefPole extends Command {
     private final SwerveSubsystem m_swerve;
     private final RealSenseCamera camera;
     private PIDController xDriveController;
+    private final double cameraOffset = 0.2;
     
     public DriveToReefPole(SwerveSubsystem swerve, RealSenseCamera camera) {
         this.m_swerve = swerve;
