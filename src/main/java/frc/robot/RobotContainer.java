@@ -175,7 +175,7 @@ public class RobotContainer {
         // Algae controls
         driverController.leftTrigger().whileTrue(buildAlgaeIntakeRoutine());
         driverController.leftBumper().whileTrue(algaeSubsystem.moveToZero().withName("returnToHomePosAlgae"));
-        // driverController.rightTrigger().whileTrue(algaeSubsystem.shootAlgae().withName("shootAlgae"));
+        driverController.rightTrigger().whileTrue(algaeSubsystem.shootAlgae().withName("shootAlgae"));
         // driverController.rightTrigger().onFalse(algaeSubsystem.hold(0));
         driverController.povDown().whileTrue(algaeSubsystem.moveToAlgaeShoot());
 
