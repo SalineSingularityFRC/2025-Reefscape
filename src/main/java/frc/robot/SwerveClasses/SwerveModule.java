@@ -195,9 +195,21 @@ public class SwerveModule {
         * Constants.SwerveModule.GearRatio.DRIVE;
   }
 
-  
+
 
   public void stopDriving() {
       driveMotor.stopMotor();
+  }
+
+  public TalonFX getDriveMotor() {
+    return driveMotor;
+  }
+
+  public CANcoder getCANcoder() {
+    return c_encoder;
+  }
+
+  public SwerveAngle getAngleMotor() {
+    return angleMotor;
   }
 }

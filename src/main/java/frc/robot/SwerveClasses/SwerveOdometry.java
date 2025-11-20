@@ -12,6 +12,7 @@ import frc.robot.Constants;
 import lib.vision.Limelight;
 import lib.vision.LimelightHelpers;
 import frc.robot.subsystems.SwerveSubsystem;
+import org.littletonrobotics.junction.Logger;
 
 public class SwerveOdometry {
   SwerveDrivePoseEstimator poseEstimator;
@@ -67,11 +68,20 @@ public class SwerveOdometry {
 
   public void update() {
     updateSwerveModulePositions();
+
+    // Log module positions for debugging
+    Logger.recordOutput("Odometry/ModulePositions/FL_Distance", currentSwerveModulePositions[0].distanceMeters);
+    Logger.recordOutput("Odometry/ModulePositions/FL_Angle", currentSwerveModulePositions[0].angle.getDegrees());
+    Logger.recordOutput("Odometry/GyroRotation", subsystem.getRobotRotation2dForOdometry().getDegrees());
+
     poseEstimator.update(
         subsystem.getRobotRotation2dForOdometry(),
         currentSwerveModulePositions);
 
-    addLLVisionMeasurement();
+    // Only use vision in real mode
+    if (Constants.Modes.currentMode == Constants.Mode.REAL) {
+      addLLVisionMeasurement();
+    }
 
     // Assuming DataLogManager has already been started and log initialized
     // DoubleLogEntry targetXLog = new DoubleLogEntry(log, "Target X");

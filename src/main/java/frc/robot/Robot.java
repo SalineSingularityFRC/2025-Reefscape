@@ -97,8 +97,14 @@ public class Robot extends LoggedRobot {
 
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
+    // Log auto selection for debugging
     if (m_autonomousCommand != null) {
+      Logger.recordOutput("Autonomous/SelectedCommand", m_autonomousCommand.getName());
       m_autonomousCommand.schedule();
+      Logger.recordOutput("Autonomous/CommandScheduled", true);
+    } else {
+      Logger.recordOutput("Autonomous/SelectedCommand", "NULL - No auto selected!");
+      Logger.recordOutput("Autonomous/CommandScheduled", false);
     }
   }
 

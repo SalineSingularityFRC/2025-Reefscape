@@ -6,6 +6,9 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.hardware.Pigeon2;
+import com.ctre.phoenix6.sim.CANcoderSimState;
+import com.ctre.phoenix6.sim.Pigeon2SimState;
+import com.ctre.phoenix6.sim.TalonFXSimState;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
@@ -27,6 +30,7 @@ import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -44,6 +48,7 @@ import frc.robot.commands.driving.CameraDriveToPose;
 import frc.robot.commands.driving.DriveToPose2d;
 import frc.robot.commands.driving.FollowPath;
 import frc.robot.commands.driving.CameraDriveToPose.PoseAndTarget;
+import org.littletonrobotics.junction.Logger;
 
 /*
  * This class provides functions to drive at a given angle and direction,
@@ -82,6 +87,8 @@ public class SwerveSubsystem extends SubsystemBase {
 
   private SwerveOdometry odometry;
 
+  private Field2d field;
+
   private StructPublisher<Pose2d> publisher;
 
   private NetworkTableInstance inst;
@@ -105,6 +112,12 @@ public class SwerveSubsystem extends SubsystemBase {
   private DoubleLogEntry pidgeonAngularVelocityYLog;
   private DoubleLogEntry pidgeonAngularVelocityZLog;
   private DoubleLogEntry pidgeonTimeLog;
+
+  // Simulation variables
+  private Pigeon2SimState gyroSim;
+  private TalonFXSimState[] driveMotorSims = new TalonFXSimState[4];
+  private CANcoderSimState[] cancoderSims = new CANcoderSimState[4];
+  private double[] simDriveMotorPositions = new double[4]; // Track positions in rotations
 
   /*
    * This constructor should create an instance of the pidgeon class, and should
@@ -180,8 +193,17 @@ public class SwerveSubsystem extends SubsystemBase {
     };
 
     Consumer<ChassisSpeeds> consumer_chasis = ch_speed -> {
+      // Store the chassis speeds for simulation
+      this.chassisSpeeds = ch_speed;
+
+      // Convert to module states and set them
       SwerveModuleState[] modules = swerveDriveKinematics.toSwerveModuleStates(ch_speed);
       setModuleStates(modules);
+
+      // Log that PathPlanner is commanding movement
+      Logger.recordOutput("PathPlanner/CommandedVelocity/vx", ch_speed.vxMetersPerSecond);
+      Logger.recordOutput("PathPlanner/CommandedVelocity/vy", ch_speed.vyMetersPerSecond);
+      Logger.recordOutput("PathPlanner/CommandedVelocity/omega", ch_speed.omegaRadiansPerSecond);
     };
     Supplier<Pose2d> supplier_position = () -> {
       return odometry.getEstimatedPosition();
@@ -261,6 +283,27 @@ public class SwerveSubsystem extends SubsystemBase {
     pidgeonAngularVelocityZLog = new DoubleLogEntry(log, "Pidgeon Angular Velocity Z");
     pidgeonTimeLog = new DoubleLogEntry(log, "Pidgeon Time");
 
+    // Initialize Field2d for AdvantageScope visualization
+    field = new Field2d();
+    SmartDashboard.putData("Field", field);
+
+    // Initialize simulation objects
+    if (Constants.Modes.currentMode == Constants.Mode.SIM) {
+      gyroSim = gyro.getSimState();
+      gyroSim.setSupplyVoltage(12.0);
+
+      for (int i = 0; i < 4; i++) {
+        driveMotorSims[i] = swerveModules[i].getDriveMotor().getSimState();
+        driveMotorSims[i].setSupplyVoltage(12.0);
+
+        cancoderSims[i] = swerveModules[i].getCANcoder().getSimState();
+        cancoderSims[i].setSupplyVoltage(12.0);
+
+        // Initialize simulation position tracking
+        simDriveMotorPositions[i] = 0.0;
+      }
+    }
+
     initializeDriveCommands();
 
   }
@@ -270,7 +313,7 @@ public class SwerveSubsystem extends SubsystemBase {
    * deferred.
    */
   public void initializeDriveCommands() {
-
+    // Empty for now - will be populated with drive command initialization in the future
   }
 
   public Supplier<Pose2d> supplier_position = () -> {
@@ -415,11 +458,98 @@ public class SwerveSubsystem extends SubsystemBase {
 
     publisher.set(odometry.getEstimatedPosition());
 
+    // Update Field2d widget
+    Pose2d currentPose = odometry.getEstimatedPosition();
+    field.setRobotPose(currentPose);
+
+    // Log robot pose for AdvantageScope
+    Logger.recordOutput("Odometry/Robot", currentPose);
+
+    // Log swerve module states for visualization
+    SwerveModuleState[] moduleStates = getModuleStates();
+    Logger.recordOutput("Swerve/ModuleStates", moduleStates);
+
+    // Log desired vs actual states for debugging
+    Logger.recordOutput("Swerve/DesiredStates",
+        swerveDriveKinematics.toSwerveModuleStates(chassisSpeeds));
+
+    // Log chassis speeds for debugging
+    Logger.recordOutput("Swerve/ChassisSpeedsCommanded/vx", chassisSpeeds.vxMetersPerSecond);
+    Logger.recordOutput("Swerve/ChassisSpeedsCommanded/vy", chassisSpeeds.vyMetersPerSecond);
+    Logger.recordOutput("Swerve/ChassisSpeedsCommanded/omega", chassisSpeeds.omegaRadiansPerSecond);
+
+    // Log gyro angle
+    Logger.recordOutput("Odometry/GyroAngle", gyro.getYaw().getValueAsDouble());
+
     // logData();
 
   }
 
   public void disabledPeriodic() {
+  }
+
+  @Override
+  public void simulationPeriodic() {
+    // Log chassis speeds being used in simulation
+    Logger.recordOutput("Simulation/ChassisSpeedsInSim/vx", chassisSpeeds.vxMetersPerSecond);
+    Logger.recordOutput("Simulation/ChassisSpeedsInSim/vy", chassisSpeeds.vyMetersPerSecond);
+    Logger.recordOutput("Simulation/ChassisSpeedsInSim/omega", chassisSpeeds.omegaRadiansPerSecond);
+
+    // Update simulated gyro based on commanded angular velocity
+    if (gyroSim != null) {
+      // Get current commanded angular velocity in degrees per second
+      double angularVelocityDegPerSec = Math.toDegrees(chassisSpeeds.omegaRadiansPerSecond);
+
+      // Update gyro yaw (integrate angular velocity)
+      // Multiply by 0.02 (20ms loop period)
+      gyroSim.addYaw(angularVelocityDegPerSec * 0.02);
+
+      // Log simulation data
+      Logger.recordOutput("Simulation/AngularVelocity", angularVelocityDegPerSec);
+    }
+
+    // Update simulated motor positions and angles based on commanded states
+    SwerveModuleState[] desiredStates = swerveDriveKinematics.toSwerveModuleStates(chassisSpeeds);
+
+    // Log the desired states being calculated in simulation
+    Logger.recordOutput("Simulation/DesiredStatesInSim", desiredStates);
+
+    for (int i = 0; i < 4; i++) {
+      if (driveMotorSims[i] != null && cancoderSims[i] != null) {
+        // Simulate drive motor (velocity and position)
+        // Convert meters per second to rotations per second
+        // Then multiply by gear ratio to get motor rotations per second
+        double wheelRotationsPerSec = desiredStates[i].speedMetersPerSecond /
+            (2 * Math.PI * Constants.Measurement.WHEELRADIUS);
+        double motorRotationsPerSec = wheelRotationsPerSec * Constants.SwerveModule.GearRatio.DRIVE;
+
+        // Update position (integrate velocity over 20ms loop time)
+        simDriveMotorPositions[i] += motorRotationsPerSec * 0.02;
+
+        // Set the motor simulation state
+        // Use setRawRotorPosition for absolute position
+        driveMotorSims[i].setRawRotorPosition(simDriveMotorPositions[i]);
+        driveMotorSims[i].setRotorVelocity(motorRotationsPerSec);
+
+        // Simulate CANcoder (angle encoder)
+        // Set the absolute position to match the desired angle
+        // Convert from radians to rotations (CANcoder reports in rotations)
+        double desiredAngleRotations = desiredStates[i].angle.getRadians() / (2 * Math.PI);
+        cancoderSims[i].setRawPosition(desiredAngleRotations);
+        cancoderSims[i].setVelocity(0); // Assume angle changes instantly in simulation
+
+        // Log motor positions for debugging
+        if (i == 0) { // Log just the front-left for debugging
+          Logger.recordOutput("Simulation/FL_MotorPositionTracked", simDriveMotorPositions[i]);
+          Logger.recordOutput("Simulation/FL_MotorPosition", swerveModules[i].getDriveMotor().getPosition().getValueAsDouble());
+          Logger.recordOutput("Simulation/FL_MotorVelocity", swerveModules[i].getDriveMotor().getVelocity().getValueAsDouble());
+          Logger.recordOutput("Simulation/FL_DesiredSpeed", desiredStates[i].speedMetersPerSecond);
+          Logger.recordOutput("Simulation/FL_DesiredMotorRotationsPerSec", motorRotationsPerSec);
+          Logger.recordOutput("Simulation/FL_DesiredAngle", desiredStates[i].angle.getDegrees());
+          Logger.recordOutput("Simulation/FL_CANcoderPosition", swerveModules[i].getCANcoder().getAbsolutePosition().getValueAsDouble());
+        }
+      }
+    }
   }
 
   public void updateOdometry() {
